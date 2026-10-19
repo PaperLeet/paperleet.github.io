@@ -1,6 +1,6 @@
 # Deeper self-study prompts and metadata discovery
 
-Fifty bilingual follow-up questions extend twenty-five maintained study guides:
+Sixty-four bilingual follow-up questions extend thirty-two maintained study guides:
 
 | Exercise | Follow-up topics | Statement basis |
 | --- | --- | --- |
@@ -32,6 +32,14 @@ Fifty bilingual follow-up questions extend twenty-five maintained study guides:
 | representation/vicreg | Duplicated-batch sample statistics; missing cross-group covariance | README B-1 statistics, elementwise MSE and both-view off-diagonal sum |
 | representation/ijepa | Repeated-mask occurrence weights; smooth-L1 scaling regimes | README ordered gather, all-element mean, beta=1 and stopped targets |
 
+| retrieval/bpr | Common item shifts versus the full-table prior; unequal microbatch prior counting | README pairwise data mean, full-table L2 once and empty-batch scope |
+| retrieval/sasrec | Common logit shifts change a binary objective; per-target versus per-sequence weighting | README independent binary terms, target mask and valid-position denominator |
+| retrieval/lightgcn | Symmetric normalization versus row means; bipartite layer-parity cancellation | README symmetric adjacency, no self-loops and layer-zero uniform averaging |
+| representation/graphsage_mean | Sampling multiplicity and feature derivatives; weight scaling near the norm floor | README sampled slots, repeated IDs, ReLU and per-hop epsilon normalization |
+| retrieval/late_interaction | Asymmetric token duplication; score monotonicity under document extension | README valid-token max, query sum, first-valid tie gradients and masked positions |
+| retrieval/semantic_ids | Greedy versus jointly optimal reconstruction; chunk-local collision counters | README frozen residual encoding, lowest-index ties and complete-tuple occurrence order |
+| retrieval/generative_retrieval | Prefix-local logit-shift invariance; catalog-only renormalization can reverse order | README full-vocabulary log-softmax, global beam pruning and original-score lookup |
+
 
 These are editorial discussions based on the repository exercise statements.
 They are not presented as reported interview questions, frequency counts or a
@@ -53,7 +61,7 @@ matching and the current reader until an explicit choice. It does not load hint
 content, change a report query, or write a grade to answer a search.
 
 Checks cover the actual unmocked deferred content loader and StrictMode reader,
-all fifty questions, malformed/duplicate/oversized and legacy content shapes,
+all sixty-four questions, malformed/duplicate/oversized and legacy content shapes,
 independent reveal/collapse/reopen, language/topic changes, notes locking and
 metadata-based discovery. The existing full handbook fixture checks all 89/267
 identities, curricula, stale imports/timeouts, practice/sign-in context, search
@@ -61,7 +69,7 @@ and private editor/selection/scroll/storage continuity. Production builds check
 initial asset budgets and static route integrity. No physical browser layout,
 numerical SDK execution, service mutation or deployment is claimed.
 
-Each content expansion adds ten follow-ups in five previously unenriched guides.
+The earlier expansions each added ten follow-ups in five previously unenriched guides.
 Previous follow-ups, core prompts, source paths and function identities remain
 byte-equivalent as parsed objects. Both statement languages were reviewed.
 No numerical run is needed or claimed for these editorial discussion prompts.
@@ -125,3 +133,22 @@ and [I-JEPA](https://github.com/facebookresearch/ijepa/blob/52c1ae95d05f743e000e
 The maintained README contract controls each exercise's implementation and
 normalization conventions; the added algebra is not a claim of reproducing
 paper benchmarks or every original training detail.
+
+
+The recommendation/retrieval expansion covers all seven modules in the existing
+maintained path, adding14 discussions. The previous50 follow-ups,267 core prompts
+and89 identities remain equal as parsed objects. Examples are editorial algebra
+from the exercise contracts: fixed-factor prior aggregation, valid-target means,
+symmetric graph weights and alternating propagation, sampled-slot derivatives,
+epsilon regimes, MaxSim reductions, greedy quantization and frozen decoding.
+They introduce no new runtime, grading, training result or interview-frequency
+claim. Streaming collision state and catalog-normalized decoding are discussed
+as changes to the current contract, not implemented as hidden extensions.
+
+Primary background includes [BPR](https://proceedings.mlr.press/r7/rendle09a.html),
+the pinned [SASRec objective](https://github.com/kang205/SASRec/blob/e3738967fddab206d6eeb4fda433e7a7034dd8b1/model.py),
+[LightGCN](https://arxiv.org/html/2002.02126),
+[GraphSAGE](https://arxiv.org/html/1706.02216),
+[ColBERT](https://arxiv.org/html/2004.12832), and
+[TIGER](https://arxiv.org/html/2305.05065). Local README interfaces control
+normalizations, tie rules, epsilon behavior and teaching boundaries.

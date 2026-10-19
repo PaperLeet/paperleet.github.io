@@ -594,6 +594,30 @@
             "en": "Regularization covers both full tables, while repeated IDs accumulate data gradients. Skip the prior calculation when l2=0 to avoid contamination from overflowing unused rows."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "item-translation-prior",
+          "question": {
+            "zh": "给所有物品因子加同一个向量，BPR 的排序数据项和全表正则会怎样变化？",
+            "en": "What changes in BPR’s ranking data term and full-table prior if the same vector is added to every item factor?"
+          },
+          "hint": {
+            "zh": "数据项中的 (hi+a)-(hj+a)=hi-hj，因此分差及数据损失不变；物品表先验的变化量为 l2*(2*aᵀ*Σhi+I*||a||²)，用户表先验不变。用一维物品 [1,0] 整体加 5，平方和从 1 变成 61，而分差不变。区分 l2=0 的数据不变量与带先验的完整目标，不要据此删除正则。",
+            "en": "The data margin is unchanged because (hi+a)-(hj+a)=hi-hj. The item prior changes by l2*(2*aᵀ*Σhi+I*||a||²); the user prior is unchanged. Shifting one-dimensional items [1,0] by five changes their squared sum from 1 to 61 while preserving their difference. Distinguish the data invariant from the regularized objective."
+          }
+        },
+        {
+          "id": "microbatch-prior-count",
+          "question": {
+            "zh": "同一组固定因子上的三元组分成大小不同的 microbatch，怎样合并 loss 才不会重复计算全表先验？",
+            "en": "How should losses from unequal microbatches of triples be combined without counting the full-table prior repeatedly?"
+          },
+          "hint": {
+            "zh": "总三元组数 N>0 时，每块返回 Lb=数据均值b+l2*R，按 nb/N 加权即可得到全局数据均值+l2*R；权重和为 1，先验只计一次。直接求和会重复先验，等权平均又会误配数据权重。零三元组块不能按普通非空块计权；全部为空时按题目约定单独保留一次完整先验。此结论针对固定输入目标，不保证多次优化更新等价。",
+            "en": "For N>0 total triples, each block returns Lb=data_mean_b+l2*R. Weight it by nb/N: the data means combine correctly and the weights sum to one, retaining one prior. Summing repeats the prior; equal block weights misweight unequal data counts. Empty blocks receive no data weight; an entirely empty input retains the exercise’s single full prior. This is objective aggregation at fixed factors, not equivalence of optimizer steps."
+          }
+        }
       ]
     },
     {
@@ -635,6 +659,30 @@
           "hint": {
             "zh": "在非线性损失运算前隔离无效值；全空目标返回可反向传播的零，再用未来历史扰动验证隔离。",
             "en": "Isolate invalid values before nonlinear loss calculations. Empty targets need a differentiable zero; perturb future history to test causal isolation."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "common-logit-shift",
+          "question": {
+            "zh": "正负 logits 同时加上常数后分差不变，为什么 SASRec 的逐位置二元损失仍会改变？",
+            "en": "Why can SASRec’s position-wise binary loss change after the same constant is added to both logits, even though their difference is unchanged?"
+          },
+          "hint": {
+            "zh": "本题分别计算 softplus(-r+) 和 softplus(r-)，不是只对分差做一次 softplus。一个有效位置取 r+=r-=0，损失为 2*log(2)；同时平移为 c 后变成 softplus(-c)+softplus(c)，c≠0 时会增大它。相对排序不变并不意味着这个二元目标不变，可与 BPR 的分差数据项对照。",
+            "en": "This objective adds softplus(-r+) and softplus(r-), rather than applying one softplus to their difference. One valid position with both logits zero has loss 2*log(2). Shifting both to c gives softplus(-c)+softplus(c), which is larger for nonzero c. An unchanged relative ranking does not imply an unchanged binary objective; compare BPR’s margin-based data term."
+          }
+        },
+        {
+          "id": "valid-target-weighting",
+          "question": {
+            "zh": "两条序列分别有 1 个和 3 个有效目标，先各自求 loss 再等权平均，能得到本题的 batch loss 吗？",
+            "en": "If two sequences have one and three valid targets, does equally averaging their separate losses recover this exercise’s batch loss?"
+          },
+          "hint": {
+            "zh": "若各自的有效位置均值为 A、B，合并后应为 (A+3*B)/4，而不是 (A+B)/2。每个有效目标先相加正负两个二元项，再按目标位置数归约；既不按序列数，也不按 padding 后的矩形大小或两倍目标数。追加 target=0 的位置不应改变分母，被忽略的 NaN/Inf 仍须在损失算术前隔离。",
+            "en": "If A and B are the two valid-position means, the combined loss is (A+3*B)/4, not (A+B)/2. Add both binary terms per valid target, then average by target count—not sequence count, padded rectangle size or twice the count. Appending target=0 positions must not change that denominator, and ignored NaN/Inf logits still need isolation before loss arithmetic."
           }
         }
       ]
@@ -680,6 +728,30 @@
             "en": "Verify the operator through hand-computed two-hop propagation, node relabeling and gradient checks. Recall on synthetic training data is not held-out evaluation."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "symmetric-not-row-stochastic",
+          "question": {
+            "zh": "LightGCN 的对称归一化图每行和一定为 1 吗？能直接换成邻居均值吗？",
+            "en": "Must every row of LightGCN’s symmetric normalized graph sum to one? Can neighbor averaging replace it?"
+          },
+          "hint": {
+            "zh": "不一定。一个用户连接两个度数为 1 的物品时，用户行有两个 1/√2，行和为 √2；每个物品行的和为 1/√2。给所有节点相同的标量特征 1，一步传播也不保持全 1。D^(-1/2)*A*D^(-1/2) 与按行除以度数是不同算子，不能把 GraphSAGE 的邻域均值直接当作本题图传播。",
+            "en": "No. One user linked to two degree-one items has two weights 1/√2 in its row, summing to √2; each item row sums to 1/√2. One propagation step therefore does not preserve constant scalar features of one. Symmetric normalization D^(-1/2)*A*D^(-1/2) differs from dividing each row by its degree; GraphSAGE’s neighbor mean is not a substitute."
+          }
+        },
+        {
+          "id": "bipartite-parity-cancellation",
+          "question": {
+            "zh": "只有一条用户—物品边时，层平均会怎样处理两端符号相反的初始特征？",
+            "en": "With a single user–item edge, how does layer averaging treat initial features with opposite signs at the two endpoints?"
+          },
+          "hint": {
+            "zh": "此时归一化图只交换两个节点。取 E0=[1,-1]ᵀ，则 E1=-E0、E2=E0，后续交替。包含第零层的均匀平均在 K=1 时为零，K=2 时为 E0/3；一般 K 为奇数时抵消，K 为偶数时为 E0/(K+1)。这说明层平均可能抵消某类信号，不是通用的深度与推荐准确率结论，也不能通过私加自环改掉本题算子。",
+            "en": "The normalized graph swaps the two nodes. For E0=[1,-1]ᵀ, E1=-E0 and E2=E0, alternating thereafter. Uniform averaging including layer zero gives zero at K=1 and E0/3 at K=2: odd K cancels this mode, while even K gives E0/(K+1). This is a signal-cancellation example, not a general depth–accuracy claim or a reason to add self-loops to the exercise."
+          }
+        }
       ]
     },
     {
@@ -721,6 +793,30 @@
           "hint": {
             "zh": "分别检查带 epsilon 的向量归一化、首个有效最大位置的梯度路由和稳定的成对损失，两侧梯度都不能丢。",
             "en": "Check epsilon-protected normalization, gradient routing to the first valid maximum and a stable pairwise loss. Preserve gradients on both sides."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "query-document-duplication",
+          "question": {
+            "zh": "复制所有有效 query token 与复制 document token，对 MaxSim 的分数和梯度有什么不同？",
+            "en": "How do duplicating all valid query tokens and duplicating document tokens differ for MaxSim scores and gradients?"
+          },
+          "hint": {
+            "zh": "对有效文档，把每个保留的 query token 复制 r 次，会把求和分数变为 r*S；复制一个已有 document token 则不改变最大值。对复制后独立的文档槽位，精确平局的梯度仍只归首个有效最大位置，不能误写成均分。正尺度保持文档排序，却一般会改变成对 softplus 损失；query 复制不变反而可能暴露误用均值的实现。",
+            "en": "For a valid document, copying every retained query token r times gives r*S because query contributions are summed. Copying an existing document token leaves the maximum unchanged. Among independent document slots, exact ties still route gradients to the first valid maximizer, not evenly across copies. Positive score scaling preserves order but generally changes the pairwise softplus loss; query-duplication invariance can expose an incorrect mean reduction."
+          }
+        },
+        {
+          "id": "document-extension-monotonicity",
+          "question": {
+            "zh": "保留原有文档 token 再追加有效 token，MaxSim 能下降吗？分数提高能说明相关性更好吗？",
+            "en": "Can MaxSim decrease when valid document tokens are appended without removing the original tokens? Does a higher score establish better relevance?"
+          },
+          "hint": {
+            "zh": "每个 query token 的最大值是在更大的候选集合上取，因此分数不能下降，但不一定不变。q=[1,0]，原文档只有 [-1,0] 时得 -1；加入正交 token [0,1] 后变为 0。新增位置若被 mask 则应没有影响。这个单调性来自 max，不代表更多 token 带来了更好的真实相关性，也不能让 padding 成为有效零分候选。",
+            "en": "Each query maximum is taken over a superset, so the score cannot decrease, but it need not stay unchanged. With q=[1,0] and only document token [-1,0], the score is -1; appending [0,1] raises it to zero. A masked appended position must have no effect. This follows from max, not improved real-world relevance, and does not permit padding to become a valid zero-score candidate."
           }
         }
       ]
@@ -766,6 +862,30 @@
             "en": "Equal distances choose the lowest index, and codes and reconstruction are gradient-free. This exercise does not train an RQ-VAE or guarantee monotonic error for arbitrary codebooks."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "greedy-not-joint-optimal",
+          "question": {
+            "zh": "每一级都选当前残差最近的码向量，是否保证所有 code 元组中重建误差最小？",
+            "en": "Does choosing the nearest code to each current residual guarantee the best reconstruction among all code tuples?"
+          },
+          "hint": {
+            "zh": "不保证联合最优。取一维 z=4，两个码本依次为 [0,3]、[0,4]：贪心先选 3，再给残差 1 选 0，重建为 3，平方误差为 1；另一元组先选 0、再选 4，却能精确重建。两个码本都包含零，因此误差逐级不增加仍不等于全元组最优。本题要求贪心残差编码，不能擅自替换为全局搜索。",
+            "en": "No. For scalar z=4 and codebooks [0,3] then [0,4], greedy encoding selects 3 then 0, reconstructing 3 with squared error 1. Selecting 0 then 4 reconstructs exactly. Both books contain zero, so nonincreasing residual error still does not imply joint optimality. The exercise requires greedy residual encoding; exhaustive joint search would change the required algorithm."
+          }
+        },
+        {
+          "id": "chunked-collision-state",
+          "question": {
+            "zh": "把目录分块各自运行碰撞消解，再拼接结果，能得到与整目录相同且唯一的 ID 吗？",
+            "en": "Will resolving collisions independently in catalog chunks and concatenating them produce the same unique IDs as processing the whole catalog?"
+          },
+          "hint": {
+            "zh": "不一定。完整元组依次为 u=(1,2)、v=(1,3)、u，整目录后缀为 0、0、1；若前两行与最后一行分别处理，最后的 u 又会从 0 开始，与第一行冲突。流式扩展需要按完整元组携带已用计数，不能只按前缀计数；当前函数是无隐藏状态的整批操作，不会替你维护跨批次或长期目录映射。",
+            "en": "Not necessarily. For full tuples u=(1,2), v=(1,3), u, whole-catalog suffixes are 0,0,1. Processing the first two rows and last row separately assigns the final u suffix zero again, colliding with the first. A streaming extension needs carried counts keyed by complete tuples, not prefixes. The current stateless batch function does not maintain cross-batch or persistent catalog mappings."
+          }
+        }
       ]
     },
     {
@@ -807,6 +927,30 @@
           "hint": {
             "zh": "本题用完整 token 元组的字典序破同分，零长度不调用模型；固定长度、无 EOS、无 trie，近似模型排序不是相关性评测。",
             "en": "Ties use full-tuple lexicographic order, and zero length never calls the model. Decoding is fixed-length without EOS or a trie; approximating model ranks is not relevance evaluation."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "prefix-local-logit-shifts",
+          "question": {
+            "zh": "对每个前缀的整个词表 logits 分别加上不同常数，正确的 beam search 为什么应保持不变？",
+            "en": "Why should correct beam search remain invariant when each prefix’s entire vocabulary of logits receives its own constant shift?"
+          },
+          "hint": {
+            "zh": "精确算术下，log_softmax(l+c*1)=log_softmax(l)，所以每步条件 log 概率、累计分数与逐步全局截断都不变。不同前缀可以用不同 c；若直接累加裸 logits，这些偏移会进入路径分数，错误地改变排名。只对所有前缀统一加一个常数不够敏感。实际浮点对照需合理容差，精确并列仍遵守完整 token 元组的字典序。",
+            "en": "In exact arithmetic, log_softmax(l+c*1)=log_softmax(l), preserving conditional log probabilities, cumulative scores and each global pruning step. Constants may differ across prefixes. Summing raw logits incorrectly adds those path-dependent shifts to scores. One shared constant for every prefix is a weaker check. Use appropriate floating tolerance, and retain lexicographic full-tuple ordering for exact ties."
+          }
+        },
+        {
+          "id": "catalog-renormalization-reversal",
+          "question": {
+            "zh": "只保留合法目录 token 再归一化，为什么不只是加速过滤，还可能颠倒合法物品的顺序？",
+            "en": "Why can normalizing only over catalog-legal tokens reverse valid-item rankings rather than merely accelerate filtering?"
+          },
+          "hint": {
+            "zh": "取两步生成，第一步 A=.6、B=.4；第二步合法 token 0 在 A、B 下概率分别为 .1、.9，其余概率给非法 token 1。保留完整四条候选后再过滤，合法 A0=.06、B0=.36，B0 在前。若第二步只对合法 token 0 重归一化，两者条件概率都变 1，变成 A0=.6、B0=.4。这个改动改变了模型分布；本题应保留全词表累计 log-score，再过滤、去重、取 k。",
+            "en": "Use two steps: first A=.6 and B=.4; then legal token 0 has probabilities .1 after A and .9 after B, with the rest on illegal token 1. Keep all four sequences before filtering: valid A0=.06 and B0=.36, so B0 ranks first. Renormalizing over only legal token 0 makes both conditionals one, giving A0=.6 and B0=.4. That changes the distribution. Preserve full-vocabulary cumulative log-scores before filtering, deduplicating and taking k."
           }
         }
       ]
@@ -4281,6 +4425,30 @@
           "hint": {
             "zh": "冻结共享权重在另一张图上评估；用独立标量结果、重复索引梯度和有限差分检测邻域分支的错误 detach。",
             "en": "Freeze shared weights and evaluate a distinct graph. Use independent scalar values, repeated-index derivatives and finite differences to detect detached neighbor branches."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "sampling-multiplicity-gradient",
+          "question": {
+            "zh": "把采样邻居去重，除了均值数值，还会怎样改变输入特征的梯度？",
+            "en": "How does deduplicating sampled neighbors change both the mean and the gradients to input features?"
+          },
+          "hint": {
+            "zh": "只看聚合函数的一行：标量特征 xa=0、xb=3，槽位 [a,a,b] 的均值为 1，去重 [a,b] 后为 1.5。前者对 xa、xb 的导数分别为 2/3、1/3，后者均为 1/2。分母是有效槽数，重复贡献必须累积，padding 不贡献计数或梯度。先独立核对聚合，再检查投影、ReLU 和归一化后的链路。",
+            "en": "Consider one output row of the aggregator: scalar features xa=0 and xb=3 with slots [a,a,b] give mean 1; deduplicating to [a,b] gives 1.5. The derivatives to xa and xb change from 2/3 and 1/3 to 1/2 each. Count valid slots, accumulate repeated contributions and exclude padding from counts and gradients. Check aggregation separately before the projection/ReLU/normalization chain."
+          }
+        },
+        {
+          "id": "weight-scale-epsilon-floor",
+          "question": {
+            "zh": "一层 GraphSAGE 的权重放大正数倍后，归一化输出一定保持不变吗？",
+            "en": "Does multiplying one GraphSAGE layer’s weights by a positive scalar always preserve its normalized output?"
+          },
+          "hint": {
+            "zh": "固定该层输入，ReLU 前后对正尺度 c 都满足 z(cW)=c*z(W)。若关注节点放大前后的范数均超过 eps，归一化会消去尺度；但若 ||z||=eps/4、c=2，两次分母都为 eps，输出便扩大两倍。零向量仍为零，负尺度还会改变 ReLU 门。说明不变量时必须交代 epsilon 区间，不能跳过逐层归一化。",
+            "en": "With this layer’s input fixed, positive scaling gives z(cW)=c*z(W) through ReLU. Scaling cancels when the node’s norms before and after scaling both exceed eps. But if ||z||=eps/4 and c=2, both denominators stay eps and the output doubles. Zero vectors stay zero; negative scales can change ReLU gates. State the epsilon regime instead of omitting per-layer normalization."
           }
         }
       ]
