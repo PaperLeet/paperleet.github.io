@@ -30,6 +30,9 @@
 .library-pagination .library-quick-jump>span[aria-hidden]{min-height:44px;display:flex;align-items:center;white-space:nowrap}
 .library-pagination .library-quick-jump button{font-size:var(--type-small);border-color:var(--line);background:var(--surface);padding-inline:10px}
 .library-pagination .page-jump input:hover:not(:focus-visible):not([aria-invalid=true]){border-color:var(--text-secondary)}
+.library-pagination :is(.library-page-size select,.page-jump input){transition:border-color .15s,box-shadow .15s}
+.library-pagination :is(.library-page-size select,.page-jump input):focus-visible{box-shadow:0 0 0 3px var(--control-focus);outline-offset:1px}
+.library-page-buttons button[aria-current=page]{cursor:default}
 .library-page-current{display:grid;place-items:center;min-height:44px;min-width:68px;text-align:center;white-space:nowrap;font-variant-numeric:tabular-nums;font-size:var(--type-small)}
 .library-page-mobile-current{display:none;font-variant-numeric:tabular-nums;text-align:center;overflow-wrap:anywhere}
 .library-page-buttons[data-wide=true] :is(.library-page-number,.library-page-gap){display:none}
@@ -45,7 +48,7 @@
 @container library-pages (max-width:520px){.library-page-buttons{width:100%;justify-content:space-between;gap:12px}.library-page-buttons :is(.library-page-number,.library-page-gap){display:none}.library-page-mobile-current{display:block;flex:1;min-width:0}.library-page-options{row-gap:14px}.page-jump{flex-basis:100%}}
 @container library-pages (max-width:520px){.library-page-options .page-jump{padding-inline-start:0;border-inline-start:0}}
 @media(max-width:520px){.library-page-options .page-jump{padding-inline-start:0;border-inline-start:0}}
-@media(prefers-reduced-motion:reduce){.library-page-buttons button{transition:none}}
+@media(prefers-reduced-motion:reduce){.library-page-buttons button,.library-pagination :is(.library-page-size select,.page-jump input){transition:none}}
 
 /* Top and bottom pagers expose the same page-size control. */
 .library-pagination-compact .library-page-size{gap:8px;font-size:var(--type-small)}

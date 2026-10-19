@@ -7,6 +7,11 @@
 .interview-practice-group>header>.text-button{flex:none;min-height:40px;font-size:var(--type-small)}
 .practice-group-status,.practice-group-unavailable{font-size:var(--type-small);line-height:1.7;color:var(--muted);margin:9px 0 0;overflow-wrap:anywhere}
 .practice-group-status{font-variant-numeric:tabular-nums}
+.practice-group-feedback{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 14px;margin-top:9px;min-width:0}
+.practice-group-feedback>.practice-group-status{flex:1 1 220px;margin:0}
+.practice-group-undo{display:inline-flex;align-items:center;justify-content:center;gap:6px;flex:none;min-height:44px;padding:7px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--text-secondary);font:inherit;font-size:var(--type-small);cursor:pointer}
+.practice-group-undo:hover{background:var(--surface2);border-color:var(--accent);color:var(--accent)}
+.practice-group-undo>svg{flex:none}
 .practice-group-unavailable>.text-button{margin-inline-start:8px;font-size:var(--type-small)}
 .interview-practice-group>ol{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:5px}
 .interview-practice-group>ol>li{display:flex;align-items:center;gap:9px;min-width:0;padding:7px 9px;border:1px solid var(--line);border-radius:7px;background:var(--surface2)}

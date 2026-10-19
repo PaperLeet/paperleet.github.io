@@ -1,6 +1,7 @@
 import AppLink from './AppLink';
 import {useId,useLayoutEffect,useMemo,useRef,useState} from 'react';
-import {ArrowDown,ArrowRight,ArrowUp,BookOpen,CheckCircle2,Layers3,X} from 'lucide-react';
+import {ArrowDown,ArrowRight,ArrowUp,BookOpen,CheckCircle2,Layers3,Undo2,X} from 'lucide-react';
+import {controlIsActive} from './activeControls';
 import {useI18n} from './i18n';
 import {interviewHref,interviewBatchView,type InterviewFilters} from './interviewNavigation';
 import {withLibraryContext} from './libraryNavigation';
@@ -13,8 +14,9 @@ import {interviewBudgetPlan,type BudgetInput,type BudgetMode,type BudgetPlan} fr
 
 export {PRACTICE_GROUP_LIMIT} from './interviewBatchSharing';
 type Source='reports'|'curated';
-type Change={kind:'add'|'remove'|'move'|'clear'|'fill'|'budget';number?:number;position?:number;count?:number;minutes?:number;budget?:number};
-type Selection={scope:string;source:Source;numbers:number[];change?:Change};
+type Change={kind:'add'|'remove'|'move'|'clear'|'fill'|'budget'|'undo';number?:number;position?:number;count?:number;minutes?:number;budget?:number};
+type UndoSnapshot={context:{scope:string;source:Source};numbers:number[]};
+type Selection={scope:string;source:Source;numbers:number[];change?:Change;undo?:UndoSnapshot};
 type Focus={scope:string;source:Source;href:string;opener:HTMLElement;number?:number;action?:'up'|'down'|'remove'|'catalog'};
 function capturedGroup(queue:string){
  if(!queue)return [];
@@ -27,6 +29,11 @@ function capturedGroup(queue:string){
 /** Selection changes are local; only starting practice captures the ordered public IDs in its URL. */
 export function useInterviewPracticeGroup({filters,source,problems,candidates,filterPending,saved,ready,selectionScope,pendingReason='progress',owner='guest'}:{filters:InterviewFilters;source:Source;problems:Problem[];candidates:Problem[];filterPending:boolean;saved:Record<string,Saved>;ready:boolean;selectionScope?:string;pendingReason?:'progress'|'catalog'|'sources';owner?:string}){
  const scope=JSON.stringify([owner,selectionScope??interviewHref(filters)]),initial=capturedGroup(filters.queue);
+ const renderedHref=typeof location==='undefined'?'':location.href;
+ const undoVisit=useRef({scope,source});
+ // A later visit to the same scope must not revive an earlier undo snapshot.
+ if(undoVisit.current.scope!==scope||undoVisit.current.source!==source)undoVisit.current={scope,source};
+ const undoContext=undoVisit.current;
  const [selection,setSelection]=useState<Selection>(()=>({scope,source,numbers:initial||[]}));
  const current=selection.scope===scope&&selection.source===source?selection:{scope,source,numbers:initial||[]};
  const numbers=current.numbers;
@@ -39,8 +46,8 @@ export function useInterviewPracticeGroup({filters,source,problems,candidates,fi
  const root=useRef<HTMLElement>(null),heading=useRef<HTMLHeadingElement>(null),focus=useRef<Focus|undefined>(undefined);
  const planningScope=JSON.stringify([scope,source,owner]),alive=useRef(true);
  useLayoutEffect(()=>{alive.current=true;return()=>{alive.current=false;};},[]);
- const latest=useRef({scope,source,owner,numbers,initial,problems,candidateNumbers,filterPending,saved,ready});
- latest.current={scope,source,owner,numbers,initial,problems,candidateNumbers,filterPending,saved,ready};
+ const latest=useRef({scope,source,owner,numbers,initial,problems,candidateNumbers,filterPending,saved,ready,undoContext});
+ latest.current={scope,source,owner,numbers,initial,problems,candidateNumbers,filterPending,saved,ready,undoContext};
  function plan(budget:number|undefined,mode:BudgetMode,selected=latest.current.numbers){
   const value=latest.current;
   const input:BudgetInput={scope:JSON.stringify([value.scope,value.source]),owner:value.owner,selected,candidates:value.candidateNumbers,ready:value.ready,pending:value.filterPending,items:value.problems.map(problem=>({id:problem.id,number:problem.number,minutes:problem.estimated_minutes,state:value.ready?status(problem,value.saved[problem.id]):'unknown'}))};
@@ -54,12 +61,24 @@ export function useInterviewPracticeGroup({filters,source,problems,candidates,fi
    const current=plan(proposal.budget,proposal.mode,selected);
    // Recompute current metadata and progress, including queued selection edits.
    if(current.fingerprint!==proposal.fingerprint||current.reason||!current.additions.length)return previous;
-   return {scope:value.scope,source:value.source,numbers:[...selected,...current.additions.map(item=>item.number)],change:{kind:'budget',count:current.additions.length,minutes:current.minutes,budget:current.budget}};
+   return {scope:value.scope,source:value.source,numbers:[...selected,...current.additions.map(item=>item.number)],undo:{context:value.undoContext,numbers:[...selected]},change:{kind:'budget',count:current.additions.length,minutes:current.minutes,budget:current.budget}};
   });
  }
 
  function update(transform:(numbers:number[])=>{numbers:number[];change:Change}|undefined){
-  setSelection(previous=>{const next=transform(previous.scope===scope&&previous.source===source?previous.numbers:initial||[]);return next?{...next,scope,source}:previous;});
+  setSelection(previous=>{
+   const values=previous.scope===scope&&previous.source===source?previous.numbers:initial||[],next=transform(values);
+   if(!next||next.numbers.length===values.length&&next.numbers.every((number,index)=>number===values[index]))return previous;
+   return {...next,scope,source,undo:{context:undoContext,numbers:[...values]}};
+  });
+ }
+ function undo(opener:HTMLButtonElement){
+  if(!alive.current||latest.current.undoContext!==undoContext||location.href!==renderedHref||!controlIsActive(root.current)||!controlIsActive(opener)||!root.current?.contains(opener))return;
+  focus.current={scope,source,href:renderedHref,opener};
+  setSelection(previous=>{
+   if(!alive.current||latest.current.undoContext!==undoContext||previous.scope!==scope||previous.source!==source||previous.undo?.context!==undoContext)return previous;
+   return {scope,source,numbers:[...previous.undo.numbers],change:{kind:'undo'}};
+  });
  }
  function toggle(number:number){
   if(!byNumber.has(number))return;
@@ -106,7 +125,7 @@ export function useInterviewPracticeGroup({filters,source,problems,candidates,fi
  const first=(ready?modules.find(problem=>status(problem,saved[problem.id])!=='done'):undefined)||modules[0];
  const completed=ready?modules.filter(problem=>status(problem,saved[problem.id])==='done').length:undefined;
  const shareHref=numbers.length&&!missing?interviewBatchShareHref(filters,modules):undefined;
- return {shareHref,modules,root,heading,numbers,byNumber,missing,change:current.change,uneditable:!!filters.queue&&!initial&&!current.change,toggle,fill,fillCount,filterPending,pendingReason,candidateCount:candidateNumbers.length,remove,move,clear,retryCatalog,href,first,startHref:first?href(first):undefined,completed,ready,state:(problem:Problem)=>ready?status(problem,saved[problem.id]):undefined,continuing:ready&&!!first&&status(first,saved[first.id])==='started',planningScope,planningDefault:filters.study==='done'?'all' as const:'remaining' as const,plan,applyPlan};
+ return {shareHref,modules,root,heading,numbers,byNumber,missing,change:current.change,canUndo:current.undo?.context===undoContext,undo,uneditable:!!filters.queue&&!initial&&!current.change,toggle,fill,fillCount,filterPending,pendingReason,candidateCount:candidateNumbers.length,remove,move,clear,retryCatalog,href,first,startHref:first?href(first):undefined,completed,ready,state:(problem:Problem)=>ready?status(problem,saved[problem.id]):undefined,continuing:ready&&!!first&&status(first,saved[first.id])==='started',planningScope,planningDefault:filters.study==='done'?'all' as const:'remaining' as const,plan,applyPlan};
 }
 export type InterviewPracticeGroupState=ReturnType<typeof useInterviewPracticeGroup>;
 
@@ -126,7 +145,7 @@ export default function InterviewPracticeGroup({group,onRetryCatalog}:{group:Int
  const estimate=minutes.length&&minutes.every(value=>typeof value==='number'&&Number.isFinite(value)&&value>0)?minutes.reduce<number>((total,value)=>total+value!,0):undefined;
  return <section ref={group.root} className="interview-practice-group" aria-labelledby={headingId}>
   <header><div><h3 ref={group.heading} id={headingId} tabIndex={-1}><Layers3 size={16}/>{t('自选练习组','Your practice batch')}</h3><p>{t('最多选 6 道，按自己的顺序连续练习。','Pick up to 6 concepts and practice in your own order.')}</p></div>{group.numbers.length>0&&<button type="button" className="text-button" onClick={event=>group.clear(event.currentTarget)}>{t('清空','Clear')}</button>}</header>
-  <p className="practice-group-status" role="status">{t(`已选 ${group.numbers.length} / ${PRACTICE_GROUP_LIMIT}`,`${group.numbers.length} of ${PRACTICE_GROUP_LIMIT} selected`)}{feedback&&<span> · {feedback}</span>}</p>
+  <div className="practice-group-feedback"><p className="practice-group-status" role="status">{t(`已选 ${group.numbers.length} / ${PRACTICE_GROUP_LIMIT}`,`${group.numbers.length} of ${PRACTICE_GROUP_LIMIT} selected`)}{change?.kind==='undo'?<span> · {t('已撤销上次调整。','Last change undone.')}</span>:feedback&&<span> · {feedback}</span>}</p>{group.canUndo&&<button type="button" className="practice-group-undo" aria-label={t('撤销上一次练习组调整','Undo the last practice batch change')} onClick={event=>group.undo(event.currentTarget)}><Undo2 size={15} aria-hidden="true"/>{t('撤销','Undo')}</button>}</div>
   <div className="practice-group-fill"><button type="button" className="button subtle" aria-disabled={!group.fillCount} aria-describedby={fillHintId} onClick={group.fill}>{group.fillCount?group.numbers.length?t(`再加入 ${group.fillCount} 道`,`Add ${group.fillCount} more`):t(`加入前 ${group.fillCount} 道`,`Add the first ${group.fillCount}`):group.numbers.length>=PRACTICE_GROUP_LIMIT?t('练习组已满','Batch full'):group.filterPending?group.pendingReason==='catalog'?t('需先加载题库','Catalog required'):group.pendingReason==='sources'?t('需先读取来源','Sources required'):t('需先读取学习进度','Progress required'):group.candidateCount?t('当前列表已加入','Current list added'):t('当前筛选暂无练习','No concepts in this view')}</button><small id={fillHintId}>{group.filterPending?group.pendingReason==='catalog'?t('题库加载后可按完整对比列表组题；也可以先逐题加入已加载的练习。','Load the catalog to fill from the complete comparison. You can still add loaded concepts individually.'):group.pendingReason==='sources'?t('来源统计就绪后，可从当前对比范围组题。','Current source counts are needed to fill a comparison batch.'):t('学习进度就绪后，才能按所选状态组题；仍可逐题加入。','Learning progress is needed for this state filter. You can still add individual concepts.'):t('按当前筛选与排序补齐，保留已选题目和顺序。','Fill from the current filters and order, keeping your existing choices.')}</small></div>
   <InterviewBudgetPlanner key={group.planningScope} group={group}/>
   {group.uneditable&&<p className="practice-group-unavailable">{t('当前链接的练习组无法在此编辑，可以重新选择最多 6 道题。','This linked batch cannot be edited here. Choose up to 6 concepts to make a new batch.')}</p>}
