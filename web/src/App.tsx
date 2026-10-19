@@ -985,6 +985,7 @@ function Workspace() {
                   </div>
             </section>
             <section className="editor-pane" id="problem-editor-panel">
+              <div className="editor-header">
               <div className="pane-tabs editor-tabs" role="tablist" aria-label={t('工作区视图','Workspace view')} onKeyDown={navigateTabs}>
                 <button
                   id="editor-tab-code"
@@ -996,7 +997,7 @@ function Workspace() {
                   onClick={() => setRightTab("code")}
                 >
                   <Code2 size={15} />
-                  {t("代码", "Code")}
+                  {t("代码", "Code")}<span className="editor-tab-filename">solution.py</span>
                 </button>
                 <button
                   id="editor-tab-lab"
@@ -1013,21 +1014,8 @@ function Workspace() {
                 {user && <button id="editor-tab-history" role="tab" aria-selected={rightTab==="history"} tabIndex={rightTab==="history"?0:-1} aria-controls="editor-history-view" className={rightTab === "history" ? "selected" : ""} onClick={() => setRightTab("history")}>
                   {t("我的提交", "My submissions")}
                 </button>}
-                <span className="editor-language">Python 3 · PyTorch</span>
               </div>
-              <div className="editor-history" id="editor-history-view" role="tabpanel" aria-labelledby="editor-tab-history" hidden={rightTab!=='history' || !user}>
-                {rightTab === 'history' && user && <SolutionHistory key={`${practice.owner}:${problem.id}`} owner={practice.owner} problem={problem} revision={submissionRevision} />}
-              </div>
-              <div className="editor-lab" id="editor-lab-view" role="tabpanel" aria-labelledby="editor-tab-lab" tabIndex={0} hidden={rightTab!=='lab'}>
-                {rightTab === 'lab' && <Visuals key={problem.id} problem={problem} report={report} sourceState={reportSource} initialView="auto" />}
-              </div>
-              <div className="editor-workbench" id="editor-code-view" role="tabpanel" aria-labelledby="editor-tab-code" hidden={rightTab!=='code'}>
-                  <div className="editor-code-panel" id="problem-code-panel">
-                  <div className="editor-tools">
-                    <span className="editor-filename">
-                      <WorkspacePanelIcon name="file" size={13} />
-                      solution.py
-                    </span>
+                  <div className="editor-tools" hidden={rightTab!=='code'}>
                     <details className="editor-actions">
                       <summary aria-label={t('编辑器操作','Editor actions')} title={t('编辑器操作','Editor actions')}>···</summary>
                       <div className="editor-actions-panel">
@@ -1049,6 +1037,15 @@ function Workspace() {
                       </div>
                     </details>
                   </div>
+              </div>
+              <div className="editor-history" id="editor-history-view" role="tabpanel" aria-labelledby="editor-tab-history" hidden={rightTab!=='history' || !user}>
+                {rightTab === 'history' && user && <SolutionHistory key={`${practice.owner}:${problem.id}`} owner={practice.owner} problem={problem} revision={submissionRevision} />}
+              </div>
+              <div className="editor-lab" id="editor-lab-view" role="tabpanel" aria-labelledby="editor-tab-lab" tabIndex={0} hidden={rightTab!=='lab'}>
+                {rightTab === 'lab' && <Visuals key={problem.id} problem={problem} report={report} sourceState={reportSource} initialView="auto" />}
+              </div>
+              <div className="editor-workbench" id="editor-code-view" role="tabpanel" aria-labelledby="editor-tab-code" hidden={rightTab!=='code'}>
+                  <div className="editor-code-panel" id="problem-code-panel">
                   <div className="editor-copy-recovery"/>
                   <div className="code-editor">
                     <PythonEditor

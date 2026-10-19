@@ -145,3 +145,12 @@
 .editor-tool-actions>button>span{flex:1}.editor-tool-actions kbd{font:9px/1.5 var(--font-mono);color:var(--muted);white-space:nowrap}.workspace .editor-actions-panel>.editor-source-copy{display:block}.editor-actions-panel>.editor-source-copy>button:after,.editor-actions-panel>.icon-button:after{content:attr(aria-label)}
 .workspace .editor-actions-panel>.editor-font-size{display:flex;justify-content:space-between;border:0;padding:7px 9px;font-size:12px}.workspace .editor-actions-panel .editor-font-size-select{min-height:30px;border:1px solid var(--line);border-radius:5px;background:var(--surface2);min-width:80px;padding:4px 8px}
 @media(pointer:coarse){.editor-actions>summary{width:44px;height:40px}.editor-tool-actions>button,.workspace .editor-actions-panel>.icon-button,.workspace .editor-actions-panel>.editor-source-copy>button{min-height:44px}}
+
+/* File actions share the workspace tab row; the editor keeps its full height. */
+.workspace .editor-header{display:flex;align-items:stretch;min-width:0;flex:none;border-bottom:1px solid var(--line);background:var(--surface);z-index:3}
+.workspace .editor-header>.editor-tabs{flex:1;min-width:0;border-bottom:0;padding-right:0;overflow-x:auto;scrollbar-width:none}
+.workspace .editor-header>.editor-tools{height:var(--workspace-band);min-height:var(--workspace-band);padding:0 6px;flex:none;border:0;gap:0;background:transparent}
+.workspace .editor-header>.editor-tools[hidden]{display:none}
+.workspace .editor-tab-filename{margin-left:7px;font:var(--type-small)/1.5 var(--font-mono);color:var(--muted)}
+.workspace .editor-header .editor-actions{align-self:center}
+@media(max-width:600px){.workspace .editor-tab-filename{margin-left:4px;font-size:11px}.workspace .editor-header>.editor-tabs>button{padding-inline:8px}.workspace .editor-header>.editor-tools{padding-inline:3px}}

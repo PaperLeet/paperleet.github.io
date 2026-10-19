@@ -22,7 +22,7 @@ export default function EditorTools(props:EditorToolsProps){
     return()=>{document.removeEventListener('pointerdown',outside);menu.removeEventListener('keydown',escape);};
   },[]);
   function command(name:string){
-    const menu=actions.current?.closest<HTMLDetailsElement>('details.editor-actions'),editor=actions.current?.closest('.editor-code-panel')?.querySelector('.python-editor');
+    const menu=actions.current?.closest<HTMLDetailsElement>('details.editor-actions'),editor=actions.current?.closest('.editor-pane,.editor-code-panel')?.querySelector('.python-editor');
     if(!editor)return;
     if(menu)menu.open=false;
     editor.dispatchEvent(new CustomEvent('paperleet:editor-command',{detail:name}));
@@ -54,7 +54,7 @@ function SourceCopy({source,ready,canUseCode}:{source:string;ready:boolean;canUs
     if(!manual||event.key!=='Escape'||event.defaultPrevented||event.repeat||event.altKey||event.ctrlKey||event.metaKey||event.shiftKey||event.nativeEvent.isComposing||event.nativeEvent.keyCode===229)return;
     event.preventDefault();event.stopPropagation();close();
   }
-  const target=manual?root.current?.closest('.editor-code-panel')?.querySelector('.editor-copy-recovery'):null;
+  const target=manual?root.current?.closest('.editor-pane,.editor-code-panel')?.querySelector('.editor-copy-recovery'):null;
   return <span className="editor-source-copy" ref={root} onKeyDown={escape}>
     <button ref={button} type="button" className="icon-button" title={status==='copied'?t('代码已复制','Code copied'):t('复制代码','Copy code')} aria-label={t('复制代码','Copy code')} aria-disabled={!ready||status==='copying'} aria-busy={status==='copying'} onClick={()=>{
       if(!ready||!canUseCode())return;
