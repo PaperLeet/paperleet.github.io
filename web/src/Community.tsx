@@ -830,7 +830,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
           {highlightsEnabled&&<CommunityHighlights key={`${user?.id||'guest'}:${category||''}`} category={category||''} returnTo={returnTo} resume={reading.highlightReturn} onResumeReady={setHighlightsReady} resumedPost={reading.region==='highlights'?reading.resumedPost:undefined}/>}
           <SolutionReadingNotice navigation={solutionReading}/>
           {days&&!periodUnavailable&&<p className="community-period-note">{t('按帖子发布时间筛选；点赞与回复数为累计数据。','Filtered by publication date; likes and replies are lifetime totals.')}</p>}
-          <div ref={feedList} className="social-panel feed-items" data-reading-list="" tabIndex={-1} role="region" aria-label={solutions?t('题解列表','Solution feed'):t('讨论列表','Discussion feed')}>
+          <div id={sortId+"-items"} ref={feedList} className="social-panel feed-items" data-reading-list="" tabIndex={-1} role="region" aria-label={solutions?t('题解列表','Solution feed'):t('讨论列表','Discussion feed')}>
             {tagUnavailable ? <Empty title={t('标签筛选暂不可用','Tag filtering is unavailable')}><p>{t('当前服务尚未提供标签筛选。移除此标签后，可以保留其他条件继续浏览。','This service does not support tag filtering yet. Remove this tag to browse with your other filters.')}</p><button type="button" className="button subtle" onClick={()=>{toolbar.current?.focus({preventScroll:true});choose({tag:undefined});}}>{t('移除此标签筛选','Remove this tag filter')}</button></Empty> : solutionUnavailable ? <Empty title={t("题解服务暂不可用","Community solutions are unavailable")}><p>{t("当前服务尚未提供社区题解，请稍后再试。","This service does not provide community solutions yet. Please try again later.")}</p></Empty> : periodUnavailable ? <Empty title={t("发布时间筛选暂不可用","Publication periods are unavailable")}><p>{t("当前服务尚未提供此筛选。可以切回不限时间，保留其他筛选继续浏览。","This service does not support publication periods yet. Browse all time with your other filters.")}</p><button type="button" className="button subtle" onClick={()=>{toolbar.current?.focus({preventScroll:true});choose({days:undefined});}}>{t("查看不限时间","Browse all time")}</button></Empty> : sortingUnavailable ? <Empty title={t('当前服务暂不支持此排序','This order is currently unavailable')}><p>{t('可切回默认排序继续浏览，原有搜索和版块会保留。','Switch to the default order to keep browsing with your search and board filters.')}</p><button type="button" className="button subtle" onClick={()=>choose({sort:undefined})}>{t('使用默认排序','Use default order')}</button></Empty> : error ? (
               <div className="feed-error">
                 <SocialNotice error={error} />
@@ -899,7 +899,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
             )}
           </div>
           {!pending && !emptyPage && !error && feedAccessReady && !sortingUnavailable && !solutionUnavailable && !periodUnavailable && !tagUnavailable && (
-            <Pagination key={requestKey} offset={offset} total={data.total} count={data.items.length} label={solutions?t('题解分页','Solution pages'):t('讨论分页','Discussion pages')}
+            <Pagination key={requestKey} canAct={canChangeFilter} controls={sortId+"-items"} offset={offset} total={data.total} count={data.items.length} label={solutions?t('题解分页','Solution pages'):t('讨论分页','Discussion pages')}
               onChange={next=>changePage(next/PAGE_SIZE+1)}/>
           )}
         </section>
@@ -1802,7 +1802,7 @@ function UserProfileContents({ username,route }: { username: string;route:string
               </Empty>
             )}
           </section>
-          {!unavailableInterviews&&!activityPending&&!displayActivityError&&<Pagination key={activityKey} offset={offset} total={connectionTab?connections.total:activity.total} count={connectionTab?connections.items.length:activity.items.length} label={t('个人主页列表分页','Profile list pages')}
+          {!unavailableInterviews&&!activityPending&&!displayActivityError&&<Pagination key={activityKey} canAct={()=>currentProfileHref()===returnTo&&!activityPending&&!displayActivityError&&!accountLoading} controls="profile-community-panel" offset={offset} total={connectionTab?connections.total:activity.total} count={connectionTab?connections.items.length:activity.items.length} label={t('个人主页列表分页','Profile list pages')}
             onChange={next=>{if(next===offset)return;revealIntent.current=undefined;const target=document.getElementById('profile-community-panel');if(target){target.focus({preventScroll:true});revealReadingTarget(target);}setActivityLoading(true);appLocation.hash=profileFeedHref(username,{tab,page:next/PAGE_SIZE+1});}}/>}
           </section>
           </div>
