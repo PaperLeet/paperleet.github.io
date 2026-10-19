@@ -124,3 +124,15 @@ The qualified helper's SHA-256 is
 `f7cb57084191430d907f7502b6249413d98c933a7dd4fb91bcf6fa556818c2e6`.
 No CI dispatch, tag, publication or deployment is requested. The runtime
 improvement goal remains active.
+
+Main adopted the explicit helper and evidence at
+`748985d3b3553648927e279b2a873f0fc1dbafaa`. The
+[remote adoption receipt](../../packages/stridetorch/benchmarks/results/webgpu-tensor-offload-main-adoption.json)
+verifies the helper, tests and all nine benchmark/documentation/evidence paths
+from that commit, together with 66 unchanged runtime resources, 183 export
+identities, seven release-policy files and all 206 qualified package inputs.
+The delta from the then-current remote main contains no application changes.
+Existing frontend updates on remote main were merged, with five targeted
+compatibility checks passing; no new full application build is claimed for this
+benchmark-only integration. The receipt observes zero workflow runs for the
+adopted SHA and Pages remains on `gh-pages` at `/`.

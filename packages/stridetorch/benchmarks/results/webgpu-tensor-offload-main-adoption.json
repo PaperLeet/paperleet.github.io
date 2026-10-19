@@ -1,0 +1,50 @@
+{
+  "status": "verified_main_experimental_tensor_offload_without_ci",
+  "adopted_commit": "748985d3b3553648927e279b2a873f0fc1dbafaa",
+  "verified_remote_sha": "748985d3b3553648927e279b2a873f0fc1dbafaa",
+  "verified_utc": "2026-10-19T21:45:56.048032+00:00",
+  "remote_tree": "32decbfcb25d80548b83c3411c9e6378dab21228",
+  "prototype_source_sha256": "f7cb57084191430d907f7502b6249413d98c933a7dd4fb91bcf6fa556818c2e6",
+  "prototype_and_own_files_verified_from_remote": true,
+  "qualified_runtime_version": "0.83.0",
+  "default_runtime_unchanged": true,
+  "runtime_resources_verified": 66,
+  "export_identities_verified": 183,
+  "release_policies_verified": 7,
+  "package_inputs_verified": 206,
+  "own_delta": [
+    "docs/validation/torch-post083-shape-jspi.md",
+    "docs/validation/torch-webgpu-tensor-offload.md",
+    "packages/stridetorch/benchmarks/results/post083-shape-jspi-harness.tar.gz",
+    "packages/stridetorch/benchmarks/results/post083-shape-jspi.json",
+    "packages/stridetorch/benchmarks/results/webgpu-tensor-offload-harness.tar.gz",
+    "packages/stridetorch/benchmarks/results/webgpu-tensor-offload.json",
+    "packages/stridetorch/benchmarks/webgpu_rpc/README.md",
+    "packages/stridetorch/benchmarks/webgpu_rpc/test_torch_bridge.py",
+    "packages/stridetorch/benchmarks/webgpu_rpc/torch_bridge.py"
+  ],
+  "workflow_runs_for_adopted_commit": 0,
+  "pages_source": {
+    "branch": "gh-pages",
+    "path": "/"
+  },
+  "ordinary_guarded_push": true,
+  "mandatory_wrapper_unchanged": true,
+  "successful_push_seconds": 9.609713292011293,
+  "successful_push_log_sha256": "cf194ac3aa93430611897dddd9430268453e2cf608a6da82a43bf165a3819266",
+  "experimental_helper_on_main": true,
+  "production_gpu_dispatch_enabled": false,
+  "resident_torch_gpu_storage": false,
+  "ci_triggered": false,
+  "tags_pushed": false,
+  "published": false,
+  "deployed": false,
+  "goal_status": "active",
+  "raw_archive": {
+    "path": "packages/stridetorch/benchmarks/results/webgpu-tensor-offload-main-adoption-harness.tar.gz",
+    "sha256": "b51d0db1bb987a47a1d2b7b3aecd3ecaa8fd23a7806c4166abb001ae249d7d61",
+    "bytes": 1041524,
+    "files": 33,
+    "all_payloads_verified": true
+  }
+}
