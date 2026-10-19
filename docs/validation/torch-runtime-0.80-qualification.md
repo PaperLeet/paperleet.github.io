@@ -1,7 +1,7 @@
 # StrideTorch 0.80 qualification
 
 The 0.80 candidate is applied on `codex/torch-transformer`, after merging upstream
-main through `ec4370149d7e19fdb9368262965e442f23b0f3e9`. Standalone correctness,
+main through `17509f5004d78c16c236f88aafb5586fd142ae05`. Standalone correctness,
 installed-package ownership and the measured CPU/WASM performance controls have
 completed. Full local PaperLeet application integration passed at
 `e94bfed7d2984d207f82b3ef08cf48a2f6c0c7f3`. This candidate is awaiting the
@@ -205,6 +205,33 @@ selected code, harnesses, raw results and failed attempts. SHA-256:
 Dependency environments and pytest temporary trees are excluded; original
 harnesses retain their recorded paths and require configuration when replayed
 elsewhere. The archive retains the failed raw WASM/native norm-HVP point gate.
+
+Later upstream changes were reconciled before adoption. Company-report previews
+and deferred result icons merged at `625a79e49e747ffa9ac90801d5aae029f971644a`;
+the directly affected preview/App checks, the complete current frontend command,
+both builds and real nested Worker all passed again. The additional
+[main-sync archive](../../packages/stridetorch/benchmarks/results/qualification-0.80-main-sync-harness.tar.gz)
+contains 436 verified files, SHA-256
+`98b338519497527416bbf4cab8231af17484cf1d750afb92692538481a163ba1`.
+
+The final upstream delta only appended ten optional bilingual study followups in
+five guides, updated their dedicated check and its documentation. A structural
+comparison preserves all 89 guide identities, 267 core prompts, the prior 30
+followups and every other parsed field. All production source code, numeric
+runtime and package inputs remain unchanged. At
+`8b0c833de2a7f4e556a865437a0d2d67edf7ece6`, the updated followup check, complete
+handbook/data-reader check, actual concept journey, both builds/asset checks and
+real Worker passed. The previous complete frontend check carries forward for
+unchanged source; this is not described as a fresh full frontend rerun after the
+content-only append. The
+[content-delta archive](../../packages/stridetorch/benchmarks/results/qualification-0.80-followups-harness.tar.gz)
+contains 108 verified files, including exact before/after data, SHA-256
+`7929212203456d6c605b54feaada58a89075692727784b5265c30e1db5fffc40`.
+
+The final public README metadata was rebuilt through wheel and sdist routes;
+both wheels have identical hashes and all 65 runtime resources are unchanged.
+Installed numerical/alias/uninstall proofs therefore retain their original
+scope, without repeating them for a documentation-only edit.
 
 The remaining adoption step is a fresh remote/active-release-chain audit and an
 ordinary guarded main push. No CI, release or deployment is part of this local

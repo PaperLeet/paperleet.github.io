@@ -3726,7 +3726,7 @@
     "catalog_modules": 89,
     "all_new_assets_reachable": true
   },
-  "local_integration_head": "e94bfed7d2984d207f82b3ef08cf48a2f6c0c7f3",
+  "local_integration_head": "8b0c833de2a7f4e556a865437a0d2d67edf7ece6",
   "browser_frontend_gates_pending": false,
   "current_package_rebuild": {
     "result_file": "torch-iteration-317/result.json",
@@ -3947,6 +3947,344 @@
     "full_frontend_qualified": true
   },
   "full_application_gates": {
+    "result_file": "torch-iteration-330/result.json",
+    "sha256": "d8a956c28381374d572e8daae520680599b0a72019e5e990743b64cef5b98803",
+    "result": {
+      "status": "passed_local_application_catalog_export_frontend_worker_gates",
+      "head": "625a79e49e747ffa9ac90801d5aae029f971644a",
+      "source": 284,
+      "resources": 65,
+      "source_hashes": {
+        "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+        "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+        "_normalization.py": "ee0e0abca72343d13425ba430fda9d8933198ac52297115c55ce621faca2a06c",
+        "_nn.py": "6fac6422569a18167eb0a9d978320aa0483e11be989c0c21f5fcefd73999ae63",
+        "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+        "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+        "_multihead.py": "c5319edfd61a8e12fcf18b0e6059bf3f841a0dd80b8faab573b3773b2d2acacf",
+        "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+        "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+        "_convolution.py": "303f7562ae23518ef46bcfbca259d4d6894e490dbe992d8181079b09bf363d5a",
+        "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+        "_errors.py": "d4db8985fff533c02b354e750fde07bbec3996c0c90273a2d48f1629ecc96fb5",
+        "_module.py": "badab7a25f3d66170c5a5fdd1c2b4f36f611bb1628e58f151dae9c4641b13727",
+        "_graph.py": "6aaa666f2a0f44cd52ca3b2af5e9d8b6aa92cf9fa809d40b9c347ddf8341944e",
+        "_distance.py": "a40f4e2749314790a3a9e7626739aaf0b570c6ad254bcb500d07853c87e2ec7f",
+        "_ops.py": "ef501ff790e00cee47e0b62a761cbfa3eaba159f96b01277a2350bab1d81628d",
+        "_transpose_convolution.py": "74edf86685872218f32936633823c760257c727283d77b00f67f95a32bfe14d9",
+        "_attention.py": "833112810b85ffd4e905aa3421d9e91d60c4a23e7d08f27b292a2af8a639d2d6",
+        "_api.py": "770703dbaa1572af9935d6258467ac64f12d50152b47022ad7500e3f1f099a45",
+        "_sequences.py": "75964a026e7cbaff8fda6106f3c894f5a22da790c6bedbfd183196289d437afc",
+        "_convolution_padding.py": "4ec1b307faf7d6ca39d7b4e2eeeac8da383b813cc21407dd8825d04b44acf8d3",
+        "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+        "_cholesky.py": "cd4e7b8d607365719afd3d601df6c1aa45b40d223c816315a6e038eebca60b6c",
+        "_batchnorm.py": "b7de9ab4c6c2738e0de528b4a44e944adc185e0b854c8d8c8837fe0c8463b848",
+        "__init__.py": "ce48266ffd581cf03e974b35ff81ebed2764f0635caaac12c5af6a4c4d312e64",
+        "_determinants.py": "dc12f1ef1f7b8e7bc8155f92c100bb31843e11fd519a4ca295fea606a31eed42",
+        "_promotion.py": "d53ffa3fcfbd70841f52fcad2007c8dc51414526b68319a45d1878eaaa040b82",
+        "_arithmetic.py": "93dbdc5a799aa3366dcdc64e406a4a6a23b4dc666b4a3acf46598bfe3578f860",
+        "_linalg.py": "8392805de1e95c8f408bc7b0fd7a3574418a24feabded8bc4bf7c8c430304d1d",
+        "_pooling.py": "5cb9ced0bf9ed79c8549e3c7696a5b110e53af43203bae047b6d27efee2888cb",
+        "_tensor.py": "8cbfd3ac8d87500d21e700e07429e0000ca670fafd7fea1cd42cb2963db50879",
+        "runtime.py": "106b9b3af6797ac670e0dcb1896e1b24d2e342e96f76ec8c91e9ba89cd4128d2",
+        "_registry.py": "fed7ca219d645cf317a51091e83440f9f65da5ce4ab1562d5acddec59057abc0",
+        "_defaults.py": "3584396a1ab6c345f4a9f0b94e33f13b050b8a21eeea959b518a3ea8705a5a17",
+        "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+        "_random.py": "1beca3230d7fb7a1f92ef1a7e4a64e19c5e39be5ab8401c1e36ef3b08abdc414",
+        "_optim.py": "55412c079ba627054436549a2eee7df84f465b17ceaae37559ad826177b2b489",
+        "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+        "_average_pooling.py": "0ca22fbb892ad41d1bcc95519166ddf542d66676bd61c7ea62ba7866190fb629",
+        "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+        "_fused_matrix.py": "8c9f98fd33ee514db590ac097a78caf122cfe97ec2f3e7ee3fe19878ea554fbe",
+        "_state.py": "730a58a1aba37c75ead580ad69e052ad01c3937698f8fa07f79015ae68d53bdd",
+        "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+        "_average_pooling3d.py": "1d81e78165eae51e762c3213ff4f2eba05ef123d3a8eb26f355f11073aa01ec2",
+        "_nn_modules.py": "5bc5a95df66792f270dc44b65151ac174e5ae8b08dcf452181776243d2bb7664",
+        "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+        "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+        "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+        "_autograd.py": "a777410d559e6bbad6bc968f269372b7dd9e046f5c311cc537c29d1d5d9855e1",
+        "_instancenorm.py": "2e365e6cb8e8c7afa1935c6158fb5ed80ece5a47d1e870dc06ea245120a2396d",
+        "_transformer.py": "4be0544e0008cc6917e12053ece7290ecee7f70cc9dedeb6efbf771a177ec0fd",
+        "_layout.py": "1c88dd00b2ab186704a58790695ad1fdfc5b489e79761a878135463e60253c1e",
+        "_higher_order.py": "a2fb116c9ad0ebe452e164397f15a26b059444ace6293a0d4af01e1a05fd849b",
+        "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+        "_groupnorm.py": "46826f1f1e5040417ad64d5910c3ecb77025e0a340acdff4d86e760f3c95181d",
+        "_vector_norm.py": "9d1d8114a602589ba705be7f2d16643daffa189a759a1675b5354eed85a8d2b3",
+        "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+        "_legacy.py": "46fc7a2ff0b3ea57454ea1ef4551e2cd455b3ce887733b0d1030b80b425feefb",
+        "_pooling3d.py": "982511ea21dd05d6289c9080a8d6b185a66aac6bce9e7fbbecd59196fb51c320",
+        "_matmul.py": "aa15727e0ad4bcbb9abe1ff958a4b7138767331cf7303d1422b47201b541dab9",
+        "_optimizer.py": "9f6c93a0fdd538a6aa00f3b5770212fe1cbf214bf7cbb525e50b93a160e3b5d9",
+        "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+        "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+        "_activation.py": "f5e27e4cbd11677d90bc293719837da22e88f483939d16601b2c824594fc32ea",
+        "_construction.py": "656661a62d89fcdfb2e10dc197e6e3706d6e6f714e6e1a841718ddc421eb48fb"
+      },
+      "application_cpu_sha256": "e2d44faff04ee0911de8cc89046d1d386aaac5c2ed6eeed9e4c904ca86c6cea3",
+      "native_catalog_sha256": "a2069793841291e15cd08b5ae27918376d4964b91d1db709c1a736d7ab5290a0",
+      "wasm_catalog_sha256": "f52e4790f720fba3dd2eb485ada159a40714e8b6d8b6bf7d308dac81e84eebac",
+      "export_sha256": "de9cd1dd60f553215027556d1103446d657f968a4cff4f1e7baa25324bc9b5c0",
+      "receipts": [
+        {
+          "label": "verify-export",
+          "exit_code": 0,
+          "command": [
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+            "-B",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-330/verify-export.py"
+          ],
+          "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+          "log_sha256": "a4d230641cb622a1bb0cb5fc7216f748e233acc1f9e2109b0f564ac4f7d17870"
+        },
+        {
+          "label": "community-navigation-regression",
+          "exit_code": 0,
+          "command": [
+            "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+            "scripts/check-community-navigation.mjs"
+          ],
+          "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+          "log_sha256": "348dd283a81489b8f71c252de78131e83091a0d16cf94169095b61577a7ee657"
+        },
+        {
+          "label": "community-discovery-regression",
+          "exit_code": 0,
+          "command": [
+            "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+            "scripts/check-community-discovery.mjs"
+          ],
+          "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+          "log_sha256": "697d7bd5ddfb72d1aaee011c6d9b1f57b5abd6fed962a2e11ac9b42fe1e6c4e8"
+        },
+        {
+          "label": "community-period-regression",
+          "exit_code": 0,
+          "command": [
+            "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+            "scripts/check-community-period.mjs"
+          ],
+          "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+          "log_sha256": "80ea2b2191700b94c695f6a8ee604af9446644e0bbd986d6bf217a04c80fd8cf"
+        },
+        {
+          "label": "exercise-company-preview",
+          "exit_code": 0,
+          "command": [
+            "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+            "scripts/check-library-exercise-companies.mjs"
+          ],
+          "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+          "log_sha256": "e480a166749450cc628d4727ca16ac453f31a05982a28a5f222e9b34ce7663c1"
+        },
+        {
+          "label": "current-library-company-app",
+          "exit_code": 0,
+          "command": [
+            "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+            "scripts/check-library-company.mjs"
+          ],
+          "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+          "log_sha256": "a199eae074cecfe2c4508dfdb3ce647b85b524a38f8926f93dcd9a2671120f48"
+        },
+        {
+          "label": "interview-source-preview",
+          "exit_code": 0,
+          "command": [
+            "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+            "scripts/check-interview-source-preview.mjs"
+          ],
+          "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+          "log_sha256": "df69a78f24f7e47b956a75a5df001c11baa4e18a2d6b111844877e614d5087ec"
+        },
+        {
+          "label": "source-inline-reading",
+          "exit_code": 0,
+          "command": [
+            "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+            "scripts/check-source-inline-reading.mjs"
+          ],
+          "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+          "log_sha256": "ef53ba2b36c39e6e66826b976f9e0112f54bf7270bb790850f2d5645d23ee39e"
+        },
+        {
+          "label": "full-frontend-check",
+          "exit_code": 0,
+          "command": [
+            "npm",
+            "run",
+            "check"
+          ],
+          "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+          "log_sha256": "ab576b6fae8e47952739cfef3505bb63d4f04681231d3d04c7ab506e83a2d879"
+        },
+        {
+          "label": "wasm-driver",
+          "exit_code": 0,
+          "command": [
+            "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+            "web/scripts/check-wasm-cases.mjs"
+          ],
+          "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+          "log_sha256": "07a89237a76cd71e9dfde55cec33f1e0523d7d9fbc8a0d70e9cea3fe8c6985d1"
+        },
+        {
+          "label": "pages-policy",
+          "exit_code": 0,
+          "command": [
+            "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+            "web/scripts/check-pages-release.cjs"
+          ],
+          "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+          "log_sha256": "2d1b13db615e47c7d3de6f8509ee0e6f4ecc0fa0c89da9d79b836e0609b1eac5"
+        },
+        {
+          "label": "build",
+          "exit_code": 0,
+          "command": [
+            "npm",
+            "run",
+            "build"
+          ],
+          "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+          "log_sha256": "7971b4868f6a731a0f3f14b690a7262dbc68f5efa3e407ea7efd90f8dc49f00a"
+        },
+        {
+          "label": "pages-profile-build",
+          "exit_code": 0,
+          "command": [
+            "npm",
+            "run",
+            "build"
+          ],
+          "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+          "log_sha256": "4dbbba4141d9f7040787426fc0daef2ee3e88ee40c180a6ab0b6eb1f260e349e"
+        },
+        {
+          "label": "pages-assets",
+          "exit_code": 0,
+          "command": [
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+            "-B",
+            "web/scripts/check-pages-assets.py"
+          ],
+          "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+          "log_sha256": "0993cbc4d95cc36149c53c7792b5012ee98647d17449c8017e72d54299bcfcaa"
+        },
+        {
+          "label": "retain-production-assets-check",
+          "exit_code": 0,
+          "command": [
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+            "-B",
+            "web/scripts/retain-pages-assets.py",
+            "web/dist",
+            "--check"
+          ],
+          "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+          "log_sha256": "d05ba4b6b267a04e71780d1d6126b8d52facd356405345eda593c0bb2cb40fc6"
+        },
+        {
+          "label": "generated-worker",
+          "exit_code": 0,
+          "command": [
+            "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-330/verify-generated-worker.mjs"
+          ],
+          "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+          "log_sha256": "e8680d4bfbb46ef5b0230ddfad23c317c1baaa8538a56c82afed5d4b4e450bd9"
+        },
+        {
+          "label": "nested-wasm",
+          "exit_code": 0,
+          "command": [
+            "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-330/check-nested-wasm.mjs"
+          ],
+          "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+          "log_sha256": "6b1bd7a5a9cb4e55dd1017c95b68a3aa5e69a263b45b61da0f209443804dbdbc"
+        }
+      ],
+      "execution_plan_sha256": "ba12e21d1fbf4b1cf15ab13d7fe035d308290e0b006c821479f32fef840a62ff",
+      "modules": 89,
+      "mutants": 406,
+      "performance_qualified": false,
+      "main_adopted": false,
+      "ci_triggered": false,
+      "pushed": false,
+      "published": false,
+      "deployed": false,
+      "goal_status": "active"
+    }
+  },
+  "evidence_archive": {
+    "status": "verified_candidate080_evidence_archive",
+    "head": "e94bfed7d2984d207f82b3ef08cf48a2f6c0c7f3",
+    "version": "0.80.0",
+    "source": 284,
+    "archive": "packages/stridetorch/benchmarks/results/qualification-0.80-harness.tar.gz",
+    "archive_sha256": "6af44271f4ff13465d7ca69592831278e85553ce81f5fb8de034b072f3eadafd",
+    "archive_bytes": 24199023,
+    "files": 3096,
+    "manifest_sha256": "4b5dfb0fdfc9675d9601ac8a2e93da339fc3a609efd9cfc4f2b94125e9bb2e4e",
+    "all_member_hashes_verified": true,
+    "runtime_resources": 65,
+    "main_adopted": false,
+    "ci_triggered": false,
+    "published": false,
+    "goal_status": "active"
+  },
+  "performance_scope": {
+    "existing_flow_regression_gate_passed": true,
+    "controls_within_five_percent": true,
+    "scope": "8 existing HVP and24 ordinary flows, each of3 fresh processes in each CPU/Node/Chrome runtime. All12 HVP flows, including4 new norm flows, are reported.",
+    "norm_costs_reported": true,
+    "universal_performance_or_native_parity_claim": false
+  },
+  "public_metadata_refresh": {
+    "result_file": "torch-iteration-329/result.json",
+    "sha256": "7c7da0c5f78286a7c56e62fb836b62b4c6978f9ad72ad252446229985784d98a",
+    "result": {
+      "status": "passed_public_metadata_refresh_runtime_unchanged",
+      "artifacts": [
+        {
+          "path": "dist/stridetorch-0.80.0-py3-none-any.whl",
+          "sha256": "e94a4652060ea7bf70eb509a2cb6d1a5567d36f5396b005107d30531dd90895f",
+          "resources": 65
+        },
+        {
+          "path": "rebuilt/stridetorch-0.80.0-py3-none-any.whl",
+          "sha256": "e94a4652060ea7bf70eb509a2cb6d1a5567d36f5396b005107d30531dd90895f",
+          "resources": 65
+        },
+        {
+          "path": "dist/stridetorch-0.80.0.tar.gz",
+          "sha256": "1dde16e1fad1fc1b47ffe7df5e2556ffeae4d0f1ed6bdf532f752006150b545b"
+        }
+      ],
+      "receipts": [
+        {
+          "label": "public",
+          "exit_code": 0,
+          "log_sha256": "b2f65e358458929274338fd6755e7b4c2677fe4803f4919f0077047dd7d612d1"
+        },
+        {
+          "label": "sdist-rebuild",
+          "exit_code": 0,
+          "log_sha256": "217921f63538417e564cf05f62c41956b640e94b543571bf1f00bff15926d331"
+        }
+      ],
+      "runtime_resources": 65,
+      "readme_sha256": "00ebede7da9156f316961d257254c61a389183d3a3865848343804fbb63a6d3c",
+      "runtime_unchanged": true,
+      "previous_installed_package_proof": "23ff95be05e62417c5205e26aec82c587f20fd1e4950145223f7f207c8e87ade",
+      "ci_triggered": false,
+      "published": false,
+      "main_adopted": false,
+      "goal_status": "active"
+    }
+  },
+  "previous_complete_application_gates": {
     "result_file": "torch-iteration-327/result.json",
     "sha256": "123d1fbb0a0efb7759347a0fd87c42eeb3196e31b77541ae06810fc47c5be104",
     "result": {
@@ -4177,71 +4515,273 @@
       "goal_status": "active"
     }
   },
-  "evidence_archive": {
-    "status": "verified_candidate080_evidence_archive",
-    "head": "e94bfed7d2984d207f82b3ef08cf48a2f6c0c7f3",
-    "version": "0.80.0",
-    "source": 284,
-    "archive": "packages/stridetorch/benchmarks/results/qualification-0.80-harness.tar.gz",
-    "archive_sha256": "6af44271f4ff13465d7ca69592831278e85553ce81f5fb8de034b072f3eadafd",
-    "archive_bytes": 24199023,
-    "files": 3096,
-    "manifest_sha256": "4b5dfb0fdfc9675d9601ac8a2e93da339fc3a609efd9cfc4f2b94125e9bb2e4e",
-    "all_member_hashes_verified": true,
-    "runtime_resources": 65,
-    "main_adopted": false,
-    "ci_triggered": false,
-    "published": false,
-    "goal_status": "active"
-  },
-  "performance_scope": {
-    "existing_flow_regression_gate_passed": true,
-    "controls_within_five_percent": true,
-    "scope": "8 existing HVP and24 ordinary flows, each of3 fresh processes in each CPU/Node/Chrome runtime. All12 HVP flows, including4 new norm flows, are reported.",
-    "norm_costs_reported": true,
-    "universal_performance_or_native_parity_claim": false
-  },
-  "public_metadata_refresh": {
-    "result_file": "torch-iteration-329/result.json",
-    "sha256": "7c7da0c5f78286a7c56e62fb836b62b4c6978f9ad72ad252446229985784d98a",
+  "latest_content_delta_gates": {
+    "result_file": "torch-iteration-332/result.json",
+    "sha256": "4debf6d2ee8b2ce4aece54b137d0375879bdf3c7f6871e71d646a08084e4918d",
     "result": {
-      "status": "passed_public_metadata_refresh_runtime_unchanged",
-      "artifacts": [
-        {
-          "path": "dist/stridetorch-0.80.0-py3-none-any.whl",
-          "sha256": "e94a4652060ea7bf70eb509a2cb6d1a5567d36f5396b005107d30531dd90895f",
-          "resources": 65
-        },
-        {
-          "path": "rebuilt/stridetorch-0.80.0-py3-none-any.whl",
-          "sha256": "e94a4652060ea7bf70eb509a2cb6d1a5567d36f5396b005107d30531dd90895f",
-          "resources": 65
-        },
-        {
-          "path": "dist/stridetorch-0.80.0.tar.gz",
-          "sha256": "1dde16e1fad1fc1b47ffe7df5e2556ffeae4d0f1ed6bdf532f752006150b545b"
-        }
-      ],
+      "status": "passed_reviewed_followups_delta_application_gates",
+      "full_frontend_carry_forward": {
+        "path": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-330/result.json",
+        "sha256": "d8a956c28381374d572e8daae520680599b0a72019e5e990743b64cef5b98803",
+        "qualified_head": "625a79e49e747ffa9ac90801d5aae029f971644a",
+        "scope": "Only10 optional bilingual followups were appended in5 existing guides; every previous guide/core prompt/followup field and all production source code are unchanged. Revalidate all direct data readers, both builds and actual Worker."
+      },
+      "data_delta_review": {
+        "path": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-314/latest-followups-merge.json",
+        "sha256": "ccb8adb7c6e0ca6aa25357b1257e435891d1f2662a0341fa3798fef0e2d79535"
+      },
+      "head": "8b0c833de2a7f4e556a865437a0d2d67edf7ece6",
+      "source": 284,
+      "resources": 65,
+      "source_hashes": {
+        "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+        "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+        "_normalization.py": "ee0e0abca72343d13425ba430fda9d8933198ac52297115c55ce621faca2a06c",
+        "_nn.py": "6fac6422569a18167eb0a9d978320aa0483e11be989c0c21f5fcefd73999ae63",
+        "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+        "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+        "_multihead.py": "c5319edfd61a8e12fcf18b0e6059bf3f841a0dd80b8faab573b3773b2d2acacf",
+        "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+        "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+        "_convolution.py": "303f7562ae23518ef46bcfbca259d4d6894e490dbe992d8181079b09bf363d5a",
+        "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+        "_errors.py": "d4db8985fff533c02b354e750fde07bbec3996c0c90273a2d48f1629ecc96fb5",
+        "_module.py": "badab7a25f3d66170c5a5fdd1c2b4f36f611bb1628e58f151dae9c4641b13727",
+        "_graph.py": "6aaa666f2a0f44cd52ca3b2af5e9d8b6aa92cf9fa809d40b9c347ddf8341944e",
+        "_distance.py": "a40f4e2749314790a3a9e7626739aaf0b570c6ad254bcb500d07853c87e2ec7f",
+        "_ops.py": "ef501ff790e00cee47e0b62a761cbfa3eaba159f96b01277a2350bab1d81628d",
+        "_transpose_convolution.py": "74edf86685872218f32936633823c760257c727283d77b00f67f95a32bfe14d9",
+        "_attention.py": "833112810b85ffd4e905aa3421d9e91d60c4a23e7d08f27b292a2af8a639d2d6",
+        "_api.py": "770703dbaa1572af9935d6258467ac64f12d50152b47022ad7500e3f1f099a45",
+        "_sequences.py": "75964a026e7cbaff8fda6106f3c894f5a22da790c6bedbfd183196289d437afc",
+        "_convolution_padding.py": "4ec1b307faf7d6ca39d7b4e2eeeac8da383b813cc21407dd8825d04b44acf8d3",
+        "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+        "_cholesky.py": "cd4e7b8d607365719afd3d601df6c1aa45b40d223c816315a6e038eebca60b6c",
+        "_batchnorm.py": "b7de9ab4c6c2738e0de528b4a44e944adc185e0b854c8d8c8837fe0c8463b848",
+        "__init__.py": "ce48266ffd581cf03e974b35ff81ebed2764f0635caaac12c5af6a4c4d312e64",
+        "_determinants.py": "dc12f1ef1f7b8e7bc8155f92c100bb31843e11fd519a4ca295fea606a31eed42",
+        "_promotion.py": "d53ffa3fcfbd70841f52fcad2007c8dc51414526b68319a45d1878eaaa040b82",
+        "_arithmetic.py": "93dbdc5a799aa3366dcdc64e406a4a6a23b4dc666b4a3acf46598bfe3578f860",
+        "_linalg.py": "8392805de1e95c8f408bc7b0fd7a3574418a24feabded8bc4bf7c8c430304d1d",
+        "_pooling.py": "5cb9ced0bf9ed79c8549e3c7696a5b110e53af43203bae047b6d27efee2888cb",
+        "_tensor.py": "8cbfd3ac8d87500d21e700e07429e0000ca670fafd7fea1cd42cb2963db50879",
+        "runtime.py": "106b9b3af6797ac670e0dcb1896e1b24d2e342e96f76ec8c91e9ba89cd4128d2",
+        "_registry.py": "fed7ca219d645cf317a51091e83440f9f65da5ce4ab1562d5acddec59057abc0",
+        "_defaults.py": "3584396a1ab6c345f4a9f0b94e33f13b050b8a21eeea959b518a3ea8705a5a17",
+        "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+        "_random.py": "1beca3230d7fb7a1f92ef1a7e4a64e19c5e39be5ab8401c1e36ef3b08abdc414",
+        "_optim.py": "55412c079ba627054436549a2eee7df84f465b17ceaae37559ad826177b2b489",
+        "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+        "_average_pooling.py": "0ca22fbb892ad41d1bcc95519166ddf542d66676bd61c7ea62ba7866190fb629",
+        "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+        "_fused_matrix.py": "8c9f98fd33ee514db590ac097a78caf122cfe97ec2f3e7ee3fe19878ea554fbe",
+        "_state.py": "730a58a1aba37c75ead580ad69e052ad01c3937698f8fa07f79015ae68d53bdd",
+        "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+        "_average_pooling3d.py": "1d81e78165eae51e762c3213ff4f2eba05ef123d3a8eb26f355f11073aa01ec2",
+        "_nn_modules.py": "5bc5a95df66792f270dc44b65151ac174e5ae8b08dcf452181776243d2bb7664",
+        "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+        "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+        "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+        "_autograd.py": "a777410d559e6bbad6bc968f269372b7dd9e046f5c311cc537c29d1d5d9855e1",
+        "_instancenorm.py": "2e365e6cb8e8c7afa1935c6158fb5ed80ece5a47d1e870dc06ea245120a2396d",
+        "_transformer.py": "4be0544e0008cc6917e12053ece7290ecee7f70cc9dedeb6efbf771a177ec0fd",
+        "_layout.py": "1c88dd00b2ab186704a58790695ad1fdfc5b489e79761a878135463e60253c1e",
+        "_higher_order.py": "a2fb116c9ad0ebe452e164397f15a26b059444ace6293a0d4af01e1a05fd849b",
+        "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+        "_groupnorm.py": "46826f1f1e5040417ad64d5910c3ecb77025e0a340acdff4d86e760f3c95181d",
+        "_vector_norm.py": "9d1d8114a602589ba705be7f2d16643daffa189a759a1675b5354eed85a8d2b3",
+        "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+        "_legacy.py": "46fc7a2ff0b3ea57454ea1ef4551e2cd455b3ce887733b0d1030b80b425feefb",
+        "_pooling3d.py": "982511ea21dd05d6289c9080a8d6b185a66aac6bce9e7fbbecd59196fb51c320",
+        "_matmul.py": "aa15727e0ad4bcbb9abe1ff958a4b7138767331cf7303d1422b47201b541dab9",
+        "_optimizer.py": "9f6c93a0fdd538a6aa00f3b5770212fe1cbf214bf7cbb525e50b93a160e3b5d9",
+        "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+        "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+        "_activation.py": "f5e27e4cbd11677d90bc293719837da22e88f483939d16601b2c824594fc32ea",
+        "_construction.py": "656661a62d89fcdfb2e10dc197e6e3706d6e6f714e6e1a841718ddc421eb48fb"
+      },
+      "application_cpu_sha256": "e2d44faff04ee0911de8cc89046d1d386aaac5c2ed6eeed9e4c904ca86c6cea3",
+      "native_catalog_sha256": "a2069793841291e15cd08b5ae27918376d4964b91d1db709c1a736d7ab5290a0",
+      "wasm_catalog_sha256": "f52e4790f720fba3dd2eb485ada159a40714e8b6d8b6bf7d308dac81e84eebac",
+      "export_sha256": "de9cd1dd60f553215027556d1103446d657f968a4cff4f1e7baa25324bc9b5c0",
       "receipts": [
         {
-          "label": "public",
+          "label": "verify-export",
           "exit_code": 0,
-          "log_sha256": "b2f65e358458929274338fd6755e7b4c2677fe4803f4919f0077047dd7d612d1"
+          "command": [
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+            "-B",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-332/verify-export.py"
+          ],
+          "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+          "log_sha256": "a4d230641cb622a1bb0cb5fc7216f748e233acc1f9e2109b0f564ac4f7d17870"
         },
         {
-          "label": "sdist-rebuild",
+          "label": "study-followups",
           "exit_code": 0,
-          "log_sha256": "217921f63538417e564cf05f62c41956b640e94b543571bf1f00bff15926d331"
+          "command": [
+            "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+            "scripts/check-study-followups.mjs"
+          ],
+          "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+          "log_sha256": "665b694a73e883610861702cbdb96dd33546101b18e25d5d74dcf264f53a426c"
+        },
+        {
+          "label": "preparation-guides",
+          "exit_code": 0,
+          "command": [
+            "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+            "scripts/check-preparation-guides.mjs"
+          ],
+          "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+          "log_sha256": "94d1a168fbc6e36b8ec7cbbea8f7db8dfd85704d88f5d2cc2b88b7012ba9b7f8"
+        },
+        {
+          "label": "concept-journey",
+          "exit_code": 0,
+          "command": [
+            "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+            "scripts/check-concept-journey.mjs"
+          ],
+          "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+          "log_sha256": "a67db0d513574e009d4ca77e85d68de738b2d2117d40bbd74b3cf972b7f6234a"
+        },
+        {
+          "label": "wasm-driver",
+          "exit_code": 0,
+          "command": [
+            "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+            "web/scripts/check-wasm-cases.mjs"
+          ],
+          "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+          "log_sha256": "07a89237a76cd71e9dfde55cec33f1e0523d7d9fbc8a0d70e9cea3fe8c6985d1"
+        },
+        {
+          "label": "pages-policy",
+          "exit_code": 0,
+          "command": [
+            "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+            "web/scripts/check-pages-release.cjs"
+          ],
+          "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+          "log_sha256": "2d1b13db615e47c7d3de6f8509ee0e6f4ecc0fa0c89da9d79b836e0609b1eac5"
+        },
+        {
+          "label": "build",
+          "exit_code": 0,
+          "command": [
+            "npm",
+            "run",
+            "build"
+          ],
+          "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+          "log_sha256": "95a3b4f25d9a562c9fbdb0d4d331ce434aa618b23de9b52c24385b803cd66524"
+        },
+        {
+          "label": "pages-profile-build",
+          "exit_code": 0,
+          "command": [
+            "npm",
+            "run",
+            "build"
+          ],
+          "cwd": "/Users/david/Developer/PaperLeet-torch-release/web",
+          "log_sha256": "fb0ef4a26b0b6ee11ff2f599af982c8066ead9b7e5ed1ad35e1ea8199e36841c"
+        },
+        {
+          "label": "pages-assets",
+          "exit_code": 0,
+          "command": [
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+            "-B",
+            "web/scripts/check-pages-assets.py"
+          ],
+          "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+          "log_sha256": "0993cbc4d95cc36149c53c7792b5012ee98647d17449c8017e72d54299bcfcaa"
+        },
+        {
+          "label": "retain-production-assets-check",
+          "exit_code": 0,
+          "command": [
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+            "-B",
+            "web/scripts/retain-pages-assets.py",
+            "web/dist",
+            "--check"
+          ],
+          "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+          "log_sha256": "d05ba4b6b267a04e71780d1d6126b8d52facd356405345eda593c0bb2cb40fc6"
+        },
+        {
+          "label": "generated-worker",
+          "exit_code": 0,
+          "command": [
+            "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-332/verify-generated-worker.mjs"
+          ],
+          "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+          "log_sha256": "e8680d4bfbb46ef5b0230ddfad23c317c1baaa8538a56c82afed5d4b4e450bd9"
+        },
+        {
+          "label": "nested-wasm",
+          "exit_code": 0,
+          "command": [
+            "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-332/check-nested-wasm.mjs"
+          ],
+          "cwd": "/Users/david/Developer/PaperLeet-torch-release",
+          "log_sha256": "6b1bd7a5a9cb4e55dd1017c95b68a3aa5e69a263b45b61da0f209443804dbdbc"
         }
       ],
+      "execution_plan_sha256": "9a14aa224dd4e161992ceee5e41b26079dd762ac8b71c00f11bcb23ec26566c5",
+      "modules": 89,
+      "mutants": 406,
+      "performance_qualified": false,
+      "main_adopted": false,
+      "ci_triggered": false,
+      "pushed": false,
+      "published": false,
+      "deployed": false,
+      "goal_status": "active"
+    },
+    "fresh_full_frontend_rerun": false,
+    "scope": "Prior full frontend/source qualification carries forward after a strictly reviewed optional-content append. All direct data consumers, both builds and actual Worker passed anew."
+  },
+  "main_sync_archives": [
+    {
+      "status": "verified_candidate080_main_sync_evidence_archive",
+      "head": "625a79e49e747ffa9ac90801d5aae029f971644a",
+      "version": "0.80.0",
+      "source": 284,
+      "archive": "packages/stridetorch/benchmarks/results/qualification-0.80-main-sync-harness.tar.gz",
+      "archive_sha256": "98b338519497527416bbf4cab8231af17484cf1d750afb92692538481a163ba1",
+      "archive_bytes": 3217560,
+      "files": 436,
+      "manifest_sha256": "9059058dc345d4d2336f80ce976a8d0e274440829aeae256c0509b29f59f2fe9",
+      "all_member_hashes_verified": true,
       "runtime_resources": 65,
-      "readme_sha256": "00ebede7da9156f316961d257254c61a389183d3a3865848343804fbb63a6d3c",
-      "runtime_unchanged": true,
-      "previous_installed_package_proof": "23ff95be05e62417c5205e26aec82c587f20fd1e4950145223f7f207c8e87ade",
+      "main_adopted": false,
       "ci_triggered": false,
       "published": false,
+      "goal_status": "active"
+    },
+    {
+      "status": "verified_candidate080_followups_evidence_archive",
+      "head": "8b0c833de2a7f4e556a865437a0d2d67edf7ece6",
+      "version": "0.80.0",
+      "source": 284,
+      "archive": "packages/stridetorch/benchmarks/results/qualification-0.80-followups-harness.tar.gz",
+      "archive_sha256": "7929212203456d6c605b54feaada58a89075692727784b5265c30e1db5fffc40",
+      "archive_bytes": 1403045,
+      "files": 108,
+      "manifest_sha256": "034edac1d49aaec6ecfe2d56d7226d5ecead0fe0d608c8b2dedd1d077b4cce2b",
+      "all_member_hashes_verified": true,
+      "runtime_resources": 65,
       "main_adopted": false,
+      "ci_triggered": false,
+      "published": false,
       "goal_status": "active"
     }
-  }
+  ],
+  "latest_merged_remote_main": "17509f5004d78c16c236f88aafb5586fd142ae05"
 }
