@@ -386,3 +386,43 @@ examples omit truncation; the joint rotation preserves positive target depths
 but changes a coordinate-L1 objective. No rotation parameter is added to the
 solver. These original derivations introduce no new numerical judge/SDK probe,
 solver, grading rule, model-training result, benchmark or deployment.
+
+The distillation/policy expansion adds sixteen original bilingual follow-ups in
+eight previously unenriched guides: OPD, OPSD alignment/clipping, SDPO feedback
+and top-k tails, DistiLLM-2, GLM-5 off-policy correction and PKPO. The collection
+now has 160 follow-ups across 80 guides. All 144 earlier follow-ups, 267 core
+prompts and 89 guide identities remain equal as parsed objects. The unchanged
+deferred reader fixture checks every new question/hint in both languages and
+retains native disclosure, notes-gate and private editor behavior. This adds no
+company attribution or measured interview-frequency claims.
+
+Primary background is pinned to [GKD v3 §3](https://arxiv.org/html/2306.13649v3),
+[OPSD v3 §3.2](https://arxiv.org/html/2601.18734v3),
+[SDPO v2 feedback and Appendix A.3](https://arxiv.org/html/2601.20802v2),
+[DistiLLM-2 v2 §2.2](https://arxiv.org/html/2503.07067v2),
+[GLM-5 v2 §4.1.2](https://arxiv.org/html/2602.15763v2),
+and [PKPO v5 Eqs.12/33](https://arxiv.org/html/2505.15201v5).
+The local bilingual statements determine reductions, gradient boundaries,
+finite inputs and the permitted tie behavior. The new algebra and counterexamples
+are editorial derivations, rather than quotations or paper benchmark results.
+
+Manual review distinguishes fixed-sample OPD gradients from the derivative of
+its sampling measure; its two-step example fixes later-state divergences and
+varies one BOS logit. Proportional vocabulary refinement is loss-only. Alignment
+adjoints treat student/teacher tensors independently, and shifting precomputed
+arrays makes no claim about a model's positional invariance or causal masking.
+Pointwise clipped terms retain signed contributions; the loose -1/e lower bound
+uses x log x, and the forward-gradient example avoids the clipping kink.
+
+SDPO's peer tie-break concerns row identity, while its token-weighting example
+holds logits and availability fixed. Coarse zero KL can hide a nonzero tail KL.
+Across different k, log-sum monotonicity requires nested partitions; the uniform
+four-class counterexample deliberately permits nonnested tied selections. It
+does not add a stable/nested tie-break to the implementation or grading contract.
+DistiLLM-2 bounds require positive alpha; its gradient example differentiates
+through the student's mixture path before two-source scaling. The off-policy
+bias example assumes a known true behavior distribution, and its normalization
+example distinguishes rejected tokens from padding at different conditional
+positions. PKPO comparisons concern fixed sample groups, not population
+stationarity or bias. No new SDK/numerical judge/native/WASM/GPU execution,
+solver implementation, grading rule, training result or deployment is claimed.

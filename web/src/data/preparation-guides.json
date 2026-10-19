@@ -3650,6 +3650,30 @@
             "en": "Use a 1:3 BOS distribution and nearly absorbing token states. The first-token frequency approaches 0.75, while later tokens follow that first choice. Also test unequal lengths, an empty mask and a grad-enabled teacher. This loss averages valid tokens, unlike the later OPSD exercise that weights responses equally."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "sampled-prefix-occupancy-term",
+          "question": {
+            "zh": "定长两步、全部 token 有效。仅 BOS 的第 0 个学生 logit 依赖 θ，后续各状态的散度固定为 d₀=0、d₁=d₂=c>0。在 BOS 概率为 (1/2,1/4,1/4) 时，冻结采样前缀得到的平均梯度，是否等于重新采样意义下期望损失 J 的全导数？",
+            "en": "Use two fixed-length steps with all tokens valid. Only student BOS logit 0 depends on θ; later state divergences are fixed at d₀=0 and d₁=d₂=c>0. At BOS probabilities (1/2,1/4,1/4), does the mean gradient with sampled prefixes held fixed equal the full derivative of the resampled expected loss J?"
+          },
+          "hint": {
+            "zh": "写成 J=[D_BOS(θ)+Σⱼpθ(j)dⱼ]/2。固定前缀的 helper 梯度只有第一项的导数；全导数还含 [Σⱼdⱼ∂θpθ(j)]/2。softmax 给出 ∂θp₀=1/4，其余概率导数之和为 −1/4，所以缺少的项为 −c/8。后续学生 logits 固定，教师也固定；正的 c 可由不同的有限教师 logits 实现。这是在理想算术下比较两种求导对象，不要求在本题新增 REINFORCE。题目明确不穿过离散采样求导，因此固定样本上的正确反传不等于对采样分布也求导。",
+            "en": "Write J=[D_BOS(θ)+Σⱼpθ(j)dⱼ]/2. The fixed-prefix helper gradient differentiates only the first term; the full derivative also contains [Σⱼdⱼ∂θpθ(j)]/2. Softmax gives ∂θp₀=1/4 and the other probability derivatives sum to −1/4, so the missing term is −c/8. Later student logits and all teacher logits are fixed; distinct finite teacher logits can realize c>0. This ideal-arithmetic example distinguishes differentiation targets, without requiring a new REINFORCE term in the exercise. Correct backpropagation on fixed samples does not also differentiate the sampling distribution."
+          }
+        },
+        {
+          "id": "proportional-vocabulary-refinement",
+          "question": {
+            "zh": "只考察给定前缀上的 loss：把三类词表中的一类，在学生和教师中都等比例拆成两个子类，其余概率和有效 token mask 不变。完整词表的 forward/reverse KL 是否变化？为什么这能识别误用词表均值的实现？",
+            "en": "Consider only the loss at supplied prefixes. Split one class of a three-class vocabulary into two equal subclasses in both student and teacher, keeping all other probabilities and the valid-token mask fixed. Do full-vocabulary forward/reverse KL change? How does this detect an incorrect vocabulary mean?"
+          },
+          "hint": {
+            "zh": "原项 pᵢ log(pᵢ/qᵢ) 变成两个 (pᵢ/2)log[(pᵢ/2)/(qᵢ/2)]，相加仍为原项；交换 p、q 后同样成立。有效 token 分母未变，故正确 loss 不变。若错对词表取均值，则从 D/3 变成 D/4。用原学生 logit zᵢ 构造两个 zᵢ−ln2、其余 logits 不变时，归一化常数也不变，因此对原参数求导的链式结果同样保持。比较的是固定前缀与等比例拆分，不涉及改变 Markov 采样器后的轨迹分布。",
+            "en": "The term pᵢ log(pᵢ/qᵢ) becomes two copies of (pᵢ/2)log[(pᵢ/2)/(qᵢ/2)], whose sum is unchanged; swapping p and q proves the other direction. The valid-token denominator stays fixed, so the correct loss is invariant. A vocabulary mean instead changes D/3 to D/4. Constructing both student child logits as zᵢ−ln2 while retaining the other logits preserves the partition function, so chain-rule derivatives with respect to the original parameters are invariant too. This is a fixed-prefix, proportional-refinement argument, not a claim about a modified Markov sampler's trajectory distribution."
+          }
+        }
       ]
     },
     {
@@ -3692,6 +3716,30 @@
             "en": "Select student positions [1,2,3] and teacher positions [4,5,6]. Add an empty response with zero output and student gradient. Perturb unselected prompt/padding positions, permute the batch, check input immutability and confirm no teacher gradient to distinguish offset, masking and branch-mixing errors."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "gather-adjoint-and-index-shift",
+          "question": {
+            "zh": "两条回答长度为 (2,1)，学生 prompt 长度为 (2,4)，教师为 (5,3)。把两套 logits 视为独立输入，求对齐位置及任意上游梯度 U 的回传位置。若在已给 logits 数组前各插入一行，并同步把 prompt 长度加一，应保持什么不变量？",
+            "en": "Two response lengths are (2,1), with student prompt lengths (2,4) and teacher lengths (5,3). Treat the two logit tensors as independent inputs. Identify the aligned positions and the backward locations for arbitrary upstream gradient U. What remains invariant if a row is prepended to each supplied logit array and both prompt lengths increase by one?"
+          },
+          "hint": {
+            "zh": "学生两行分别选择 [1,2] 与 [3]，教师选择 [4,5] 与 [2]；mask 是 [[真,真],[真,假]]。对 Σ student_out·U，学生输入梯度把有效 U 散射回这些索引，其余位置为零；独立教师输入的分支被 detach。前插行并移动 prompt 坐标后，选择的原始数值和 mask 完全相同，学生梯度也只平移一行。这是对预计算数组的索引等变性，不是声称真实语言模型在改变 prompt 或绝对位置编码后输出不变。",
+            "en": "Student rows select [1,2] and [3]; teacher rows select [4,5] and [2]. The mask is [[true,true],[true,false]]. For Σ student_out·U, scatter valid U back to those student indices and leave all others zero; the independent teacher input branch is detached. Prepending a row and shifting prompt coordinates preserves the selected original values and mask, while translating student gradients by one row. This is index equivariance of precomputed arrays, not invariance of a real language model to changed prompts or absolute positional encodings."
+          }
+        },
+        {
+          "id": "alignment-cannot-certify-causality",
+          "question": {
+            "zh": "假设上游学生模型误用了非因果 attention，并已把将要预测的回答 token 信息写进 prompt_length−1+j 处的有限 logits。即使 helper 的索引、mask、shape 和梯度全部正确，能否证明学生没有看到答案？应把哪一层的检查与对齐检查分开？",
+            "en": "Suppose an upstream student model accidentally uses noncausal attention and has already encoded the target response token in the finite logits at prompt_length−1+j. If the helper's indices, mask, shapes and gradients are all correct, can that certify absence of answer leakage? Which checks belong outside alignment?"
+          },
+          "hint": {
+            "zh": "不能。可以在每个待选择位置放入有限向量 c·one_hot(目标 token)，c>0；gather 仍完全符合张量接口，却只是在搬运已泄漏的信息。helper 不接收 token、attention mask 或模型计算图的语义，无法判断某个数组如何产生。应在上游独立核对学生的因果 mask、next-token 评分时点和缓存；教师按设计可以额外读取参考解。该反例说明接口的可观测性边界，不要求对齐函数检查一个未传入的模型，也不声称发生了真实训练泄漏。",
+            "en": "No. Put a finite vector c·one_hot(target token), c>0, at every selected position: gather still meets its tensor contract while transporting leaked information. The helper receives no tokens, attention mask or semantic account of the upstream model, so it cannot distinguish how the array was produced. Check student causal masking, next-token scoring time and caches upstream; the teacher is deliberately allowed a reference solution. This is an observability limitation of the interface, not a requirement for the helper to inspect an unavailable model or evidence of an actual training leak."
+          }
+        }
       ]
     },
     {
@@ -3732,6 +3780,30 @@
           "hint": {
             "zh": "用学生 p=[0.03,0.17,0.8]、教师 q=[0.8,0.15,0.05]，tau=0.01，forward 结果约为 -0.147404。分别计算每个有符号项，并换成 reverse 再比较。梯度差分应避开恰好等于 tau 的拐点；再用不等长度与空回答检查回答等权平均。",
             "en": "Use student p=[0.03,0.17,0.8], teacher q=[0.8,0.15,0.05] and tau=0.01: forward loss is about -0.147404. Calculate each signed term, then compare reverse KL. Keep finite differences away from clipping boundaries, and test unequal-length plus empty responses for equal response weighting."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "signed-clipping-universal-bounds",
+          "question": {
+            "zh": "逐词表项上限截断后的 loss 可以为负，但是否可以任意趋向负无穷？在有限 logits、V 类词表和 τ>0 下，分别为 forward 与 reverse 的单 token 截断和给出不依赖概率最小值的上下界，并说明回答级平均是否保留这些界。",
+            "en": "Pointwise upper-clipped loss may be negative, but can it approach negative infinity? With finite logits, V classes and τ>0, bound each token's forward and reverse clipped sum without using a minimum probability. Do response-level averages preserve the bounds?"
+          },
+          "hint": {
+            "zh": "forward 的负项写为 pᵢ xᵢ ln xᵢ，其中 xᵢ=qᵢ/pᵢ，利用 x ln x≥−1/e；负项之和至少为 −Σ负项位置pᵢ/e≥−1/e。正项截断后仍非负，且每个词表项至多 τ，所以 −1/e≤D_clip≤Vτ。reverse 交换 p、q 后同理。每条非空回答取 token 均值、再与空回答的零一起按 B 平均，仍保留这些松界。这里用理想实数算术，不声称界在固定 τ 下可取到，也不由值界推出梯度界或恢复 KL 的非负性。",
+            "en": "For forward KL, write each negative term as pᵢxᵢ ln xᵢ with xᵢ=qᵢ/pᵢ. Since x ln x≥−1/e, their sum is at least −Σ_negative pᵢ/e≥−1/e. Clipped positive terms remain nonnegative and every term is at most τ, giving −1/e≤D_clip≤Vτ. Swap p and q for reverse KL. Averaging tokens within nonempty responses and then averaging all B responses, including empty-response zeros, preserves these loose bounds. This ideal-real-arithmetic argument does not claim attainability at fixed τ, a gradient bound, or restoration of KL nonnegativity."
+          }
+        },
+        {
+          "id": "clipped-term-softmax-coupling",
+          "question": {
+            "zh": "forward 情况下，某个词表项被上限截断，是否意味着对应学生 logit 的梯度必为零？单个有效 token，p=(1/10,9/10)、q=(9/10,1/10)、τ=1/10，计算两个学生 logits 的梯度，并解释 softmax 耦合。",
+            "en": "For forward clipping, must a student's logit have zero gradient whenever its own vocabulary contribution is clipped? For one valid token, p=(1/10,9/10), q=(9/10,1/10) and τ=1/10, compute both student-logit gradients and explain softmax coupling."
+          },
+          "hint": {
+            "zh": "远离截断阈值，令 U 为未被截断的项集合。冻结 q 后，∂L/∂zⱼ=pⱼΣᵢ∈Uqᵢ−qⱼ·1[j∈U]。例中第 0 项为 (9/10)ln9>τ，第 1 项为负，故 U={1}，梯度是 (1/100,−1/100)。第 0 项自身的导数虽被截断为零，第 1 项仍通过 log-softmax 的归一化依赖 z₀；两个 logit 梯度之和为零。不能把“某项饱和”理解为把对应学生 logit 从整条计算图中 detach。该推导只针对 forward、单 token 且不在 min 的拐点。",
+            "en": "Away from clipping thresholds, let U contain the unclipped terms. With q fixed, ∂L/∂zⱼ=pⱼΣᵢ∈Uqᵢ−qⱼ·1[j∈U]. Here term 0 is (9/10)ln9>τ and term 1 is negative, so U={1}; the gradient is (1/100,−1/100). Clipping kills the derivative of term 0 itself, but term 1 still depends on z₀ through log-softmax normalization. The two logit gradients sum to zero. A saturated contribution does not detach its corresponding logit from the whole graph. This calculation is for forward clipping, one token, and points away from the min kink."
           }
         }
       ]
@@ -3929,6 +4001,30 @@
             "en": "Use question_ids=[7,8,7,7,9,10], success=[F,T,T,T,F,F], rich_feedback=[T,F,F,T,T,F]. Expect indices [2,1,2,3,-1,-1] and availability [T,T,T,T,T,F]. One eligible token with student [0.8,0.2] and teacher [0.4,0.6] gives KL=0.8·ln2+0.2·ln(1/3). Also check zero gradients at unavailable positions, no teacher gradient and a differentiable zero with no feedback."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "peer-order-and-self-priority",
+          "question": {
+            "zh": "同题三次尝试，success=(假,真,真)，第 0 次还有 rich feedback。按本题规则会选哪些索引？交换两个成功尝试的物理顺序后，失败尝试所借用的具体答案是否必须不变？区分成功优先、自身优先与最小行号约定。",
+            "en": "Three attempts share a question, success=(false,true,true), and attempt 0 also has rich feedback. Which indices are selected? If the two successful attempts exchange physical order, must the failed attempt borrow the same specific answer? Separate solution priority, self priority and the lowest-row-index convention."
+          },
+          "hint": {
+            "zh": "原索引为 (1,1,2)，availability 全真；第 0 次的 rich feedback 不覆盖已有同题成功解，成功尝试则各选自身。交换原行 1、2 后，新数组的最小成功索引仍是 1，但它现在对应另一份成功答案。映回旧行身份时，失败尝试的选择从原行 1 变成原行 2。因此确定性的最小行号规则对这种并列选择并不保持答案身份的排列等变性；这只是本题明确的 tie-break，不应改成全局首个成功、跨题借用或把所有成功尝试统一指向同一行。",
+            "en": "The original indices are (1,1,2), with all availability flags true. Rich feedback for attempt 0 does not override an existing same-question success, while successful attempts select themselves. After exchanging original rows 1 and 2, the smallest successful new index remains 1 but refers to the other answer. Mapping back to original identities changes the failed attempt's source from old row 1 to old row 2. The deterministic lowest-index tie-break is therefore not answer-identity permutation equivariant in this tied selection. It is an explicit exercise convention, not a reason to choose a global success, borrow across questions or redirect successful attempts away from themselves."
+          }
+        },
+        {
+          "id": "eligible-token-weighting",
+          "question": {
+            "zh": "只考察 feedback_reverse_kl，固定 logits 与 availability：两条可用回答分别有 1 和 3 个有效 token，逐 token 散度恒为 a、b。loss 是否是 (a+b)/2？添加任意长的不可用回答，或复制第一条可用回答，各会怎样改变归一化？",
+            "en": "Consider only feedback_reverse_kl, with logits and availability fixed. Two available responses have 1 and 3 valid tokens, with constant per-token divergences a and b. Is the loss (a+b)/2? What happens when an arbitrarily long unavailable response is added, or when the first available response is duplicated?"
+          },
+          "hint": {
+            "zh": "本题按所有符合 token_mask 且 feedback_available 的 token 平均，所以 L=(a+3b)/4。不可用回答不增加分子或分母，长度无关；复制第一条可用回答则得到 (2a+3b)/5，一般会改变目标。可用但全 padding 的回答同样不计入 token 分母。这里刻意冻结给定 logits 和 availability，不重新运行成功解路由。由此只能说明 token 加权规则，不能把它宣称为按题目或按回答均衡，也不能套用另一个 OPSD 题里“空回答仍计入 B”的约定。",
+            "en": "The denominator counts all tokens satisfying both token_mask and feedback_available, so L=(a+3b)/4. An unavailable response adds neither numerator nor denominator regardless of length. Duplicating the first available response gives (2a+3b)/5 and generally changes the objective. An available but all-padding response contributes no denominator tokens either. This loss-only comparison freezes supplied logits and availability rather than rerunning solution routing. It establishes token weighting, not equal question/response weighting; do not import the other OPSD exercise's convention that empty responses remain in a B denominator."
+          }
+        }
       ]
     },
     {
@@ -3969,6 +4065,30 @@
           "hint": {
             "zh": "学生 p=[0.6,0.25,0.15]，教师 q=[0.3,0.2,0.5]：两桶为 [0.6,0.4] 与 [0.3,0.7]，KL=0.6·ln2+0.4·ln(4/7)，约 0.19204。教师自己的最大项不同，可揭露索引错误；选中项各自归一化会错误地得到零。在无并列排名处做有限差分，并验证 k=2 与 k=3 都等于完整 KL。极端 logits 还应保持有限。",
             "en": "For student p=[0.6,0.25,0.15] and teacher q=[0.3,0.2,0.5], the bins are [0.6,0.4] and [0.3,0.7]. KL=0.6·ln2+0.4·ln(4/7), about 0.19204. The teacher's largest entry differs, exposing wrong indices; separately normalizing singleton selections incorrectly gives zero. Use finite differences away from ranking ties, verify k=2 and k=3 equal full KL, and check finite values for extreme logits."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "zero-coarse-positive-full",
+          "question": {
+            "zh": "p=(3/5,3/10,1/10)、q=(3/5,1/10,3/10)，取学生 top-1。聚合后的 KL 为零，是否说明学生已匹配教师？分解完整 KL 与聚合 KL 的差，并判断 top-1 索引局部稳定时该聚合目标的学生梯度。",
+            "en": "Let p=(3/5,3/10,1/10), q=(3/5,1/10,3/10), and use student top-1. If the coarsened KL is zero, has the student matched the teacher? Decompose the gap from full KL and identify the coarsened student gradient where the top-1 index is locally stable."
+          },
+          "hint": {
+            "zh": "两桶都是 (3/5,2/5)，所以聚合 KL=0；完整 KL 却是 (1/5)ln3>0。链式分解给出 D_full=D_coarse+p_tail·KL(p(.|tail)||q(.|tail))；尾内分布分别为 (3/4,1/4) 和 (1/4,3/4)。聚合分布相等时，在局部固定的 top-1 划分下，学生 logits 的聚合 KL 梯度为零，仍无法看见尾内如何分配概率。teacher 始终冻结。这是信息聚合产生的盲区，不是要求删除 tail 或把 top-k 子向量重新归一化。",
+            "en": "Both two-bin distributions are (3/5,2/5), giving coarse KL=0, but full KL=(1/5)ln3>0. The chain rule is D_full=D_coarse+p_tail·KL(p(.|tail)||q(.|tail)); tail conditionals are (3/4,1/4) and (1/4,3/4). At matching coarse distributions, student-logit gradients of the coarse KL are zero for the locally fixed top-1 partition, despite the unresolved tail allocation. The teacher stays frozen. This is information lost by aggregation, not a reason to remove the tail or renormalize the selected subvector."
+          }
+        },
+        {
+          "id": "non-nested-ties-and-kl-order",
+          "question": {
+            "zh": "“k 增大时聚合 KL 必单调上升”需要怎样的集合条件？取均匀四类学生 p，教师 q=(1,5,5,5)/16；k=1 合法地选 {0}，k=2 合法地选 {1,2}。比较两次结果，说明任意并列 tie-break 与嵌套划分的区别。",
+            "en": "What set condition supports the claim that coarse KL increases with k? Take uniform four-class student p and teacher q=(1,5,5,5)/16. A legal tied top-1 selects {0}, while a legal tied top-2 selects {1,2}. Compare the two values and distinguish arbitrary tie choices from nested partitions."
+          },
+          "hint": {
+            "zh": "若所选集合嵌套，增加一个独立桶就是细化划分，log-sum 不等式给出非减性；它不保证严格增加。例中的 D₁=(1/4)ln4+(3/4)ln(4/5)，D₂=(1/2)ln(4/5)+(1/2)ln(4/3)，所以 D₁−D₂=(1/4)ln(9/5)>0。均匀学生使这两种索引选择都符合接口，但划分不嵌套。每次结果仍不超过完整 KL。本题允许并列处任意 topk 选择，因此不能把跨 k 的嵌套性当成额外判题条件；此处只比较值，不对排序并列点求导。",
+            "en": "Nested selected sets refine the partition by splitting out another bin, so the log-sum inequality gives nondecrease, not necessarily strict increase. Here D₁=(1/4)ln4+(3/4)ln(4/5), while D₂=(1/2)ln(4/5)+(1/2)ln(4/3), hence D₁−D₂=(1/4)ln(9/5)>0. Uniform student probabilities make both index choices legal, but their partitions are not nested. Each value still lies below full KL. The interface permits arbitrary tied topk choices, so cross-k nesting is not an additional grading requirement. This compares values without differentiating a sorting tie."
           }
         }
       ]
@@ -4013,6 +4133,30 @@
           "hint": {
             "zh": "设 B=1、alpha_t=alpha_s=0、beta=0.5；教师来源有两个有效 token、学生来源有一个，均用教师 p=[0.8,0.2]、学生 q=[0.4,0.6]。损失应为 (2·KL(p||q)+KL(q||p))/4。追加全遮挡 padding 不改变损失；复制全部有效 token 则使其翻倍。分别令 beta=0/1 隔离分支，再做中心差分、教师无梯度与全遮挡零梯度检查。",
             "en": "Take B=1, alpha_t=alpha_s=0 and beta=0.5, with two valid teacher-source tokens and one student-source token. Use teacher p=[0.8,0.2] and student q=[0.4,0.6] throughout. Expect (2·KL(p||q)+KL(q||p))/4. Masked padding leaves loss unchanged; duplicating all valid tokens doubles it. Isolate branches with beta=0/1, then check central differences, frozen teachers and zero gradients under an all-false mask."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "skew-mixture-loss-bounds",
+          "question": {
+            "zh": "当 0<α≤1，SKL 与 SRKL 的每个位置是否有只依赖 α 的统一上界？将该界带入两源 loss，保留有效 token 数 M_t、M_s 和 2B 分母。为什么不能由此得出整个 batch loss 与回答长度无关？",
+            "en": "For 0<α≤1, do per-position SKL and SRKL have a uniform bound depending only on α? Carry it into the two-source loss using valid-token counts M_t and M_s and its 2B denominator. Why does this not make the batch loss independent of response length?"
+          },
+          "hint": {
+            "zh": "SKL 的混合分母至少为 αp，SRKL 的混合分母至少为 αq；两者都是归一化分布之间的 KL，所以 0≤D≤−lnα。若 α_t、α_s 都为正，则 L≤[(1−β)M_t(−lnα_t)+βM_s(−lnα_s)]/(2B)。本题求 token 之和而非 token 均值，重复非零散度的位置会增加 L。α=1 时相应散度和学生梯度均为零；α=0 时普通 KL 在全部有限 logits 的集合上没有统一有限上界，不能把 ln0 直接当作可计算数值。这些是理想算术下的值界，不是训练效果保证。",
+            "en": "The SKL mixture denominator is at least αp, and the SRKL denominator at least αq. Each is a KL between normalized distributions, so 0≤D≤−lnα. For positive α_t and α_s, L≤[(1−β)M_t(−lnα_t)+βM_s(−lnα_s)]/(2B). This exercise sums tokens rather than averaging them, so repeating positions with nonzero divergence increases L. At α=1, the corresponding divergence and student gradient are zero. At α=0, ordinary KL has no uniform finite bound over all finite logits; ln0 is not a numerical value to evaluate. These ideal-arithmetic value bounds are not a training-performance guarantee."
+          }
+        },
+        {
+          "id": "mixture-retains-student-gradient",
+          "question": {
+            "zh": "在本题 p 表示固定教师、q 表示学生。令 p=(3/4,1/4)、q=(1/2,1/2)、α=1/2，计算 SKL 对两个学生 logits 的梯度。若把整个混合分布 m=αp+(1−α)q 一起 detach，前向值虽相同，反传还正确吗？",
+            "en": "Here p is the fixed teacher and q the student. With p=(3/4,1/4), q=(1/2,1/2) and α=1/2, compute SKL gradients for the two student logits. If the whole mixture m=αp+(1−α)q is detached, is backward still correct despite an unchanged forward value?"
+          },
+          "hint": {
+            "zh": "m=(5/8,3/8)，p/m=(6/5,2/3)。一般有 ∂SKL/∂zⱼ=(1−α)qⱼ[Σᵢqᵢpᵢ/mᵢ−pⱼ/mⱼ]。括号中的公共均值为 14/15，因此梯度是 (−1/15,1/15)。教师 p 要冻结，但混合分布里的学生 q 路径必须保留；若 detach 整个 m，SKL 中已没有学生路径，会失去该非零梯度。不要把单个位置的推导混入两源 loss 的 β 或 1/(2B) 系数，也不能把 forward 值相同当成梯度等价。",
+            "en": "m=(5/8,3/8) and p/m=(6/5,2/3). In general ∂SKL/∂zⱼ=(1−α)qⱼ[Σᵢqᵢpᵢ/mᵢ−pⱼ/mⱼ]. The common mean is 14/15, yielding (−1/15,1/15). Freeze teacher p, but retain the q path inside the mixture. Detaching all of m removes the student path from SKL and loses this nonzero gradient. This is a single-position calculation before the two-source β and 1/(2B) coefficients. Equal forward values do not imply equivalent backward graphs."
           }
         }
       ]
@@ -4326,6 +4470,30 @@
             "en": "With low=.5, high=1, rollout scores −2, ratios [1,4,.25], three valid tokens and advantage=3, expect weights [1,0,0], loss 2 and logp gradient [−1,0,0]. Check computed endpoints, NaN padding, extreme differences and empty masks. Verify the analytic frozen-weight gradient; recomputing weights across finite differences changes the surrogate."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "discarding-is-not-unbiased-is",
+          "question": {
+            "zh": "在额外假设的单步二动作例子中，真实 rollout 分布 q=(1/2,1/2)，当前策略 p=(9/10,1/10)，固定奖励/优势为 (1,0)，clip_low=clip_high=1/5。与完整重要性采样相比，双边丢弃后的期望策略梯度是否仍无偏？",
+            "en": "In an additional one-step two-action example, the true rollout distribution is q=(1/2,1/2), current policy p=(9/10,1/10), fixed rewards/advantages are (1,0), and clip_low=clip_high=1/5. Does double-sided rejection preserve the expected policy gradient of full importance sampling?"
+          },
+          "hint": {
+            "zh": "比率为 (9/5,1/5)，都在严格区间 (4/5,6/5) 外，故权重、loss 梯度均为零。让 θ 为第一动作的 softmax logit，第二个 logit 固定，则期望奖励为 p₀，∂θp₀=9/100；未丢弃的冻结重要性权重给出负奖励目标的梯度 −9/100，丢弃后却是 0。这里假设已知真实行为分布、每条回答只有一个有效 token，避免把报告的 rollout 代理分布当成额外定理。例子说明稳定性筛选可以引入偏差与梯度饥饿，不代表实际训练一定失败，也不要求删除题目规定的筛选。",
+            "en": "The ratios are (9/5,1/5), both outside the strict interval (4/5,6/5), so weights and loss gradients vanish. Let θ be the first action's softmax logit with the second logit fixed. Expected reward is p₀ and ∂θp₀=9/100. Unrejected detached importance weights yield gradient −9/100 for the negative-reward objective, while rejection yields 0. This assumes a known true behavior distribution and one valid token per response; it does not promote the report's rollout proxy into an extra theorem. Stability filtering can introduce bias and gradient starvation, without proving training failure or changing the required rejection rule."
+          }
+        },
+        {
+          "id": "zero-weight-is-not-padding",
+          "question": {
+            "zh": "同一回答有两个原始有效 token，A=1，当前概率分别为 (2/5,4/5)，对应 rollout 概率均为 2/5，双边宽度均为 1/5。只把第二个位置改成 padding，权重数组仍会是 (1,0)，那么 loss 与第一个 logp 的梯度是否也必须相同？",
+            "en": "One response has two originally valid tokens, A=1, current token probabilities (2/5,4/5), and rollout probability 2/5 at both positions, with both clipping widths 1/5. Mark only the second position as padding: weights remain (1,0). Must the loss and first logp gradient remain the same?"
+          },
+          "hint": {
+            "zh": "原比率为 (1,2)，第二项被丢弃，但仍计入原始有效 token 分母 M=2。因此 L=−log(2/5)/2，对直接 logp₀ 的梯度为 −1/2。改为 padding 后 M=1，loss 和该梯度都变为原来的两倍；权重数组却没变。权重为零可能表示 padding、越界比率或端点，不能仅用 weights!=0 重建分母。这里的两个 token 属于不同条件位置，给出的概率不要求相加为一；权重与 A 冻结，求的是直接 logp 因子的梯度。",
+            "en": "The original ratios are (1,2). Token 1 is rejected but still counts in M=2, so L=−log(2/5)/2 and the direct logp₀ gradient is −1/2. Turning it into padding makes M=1, doubling both loss and this gradient despite identical weights. Zero weight can mean padding, a rejected ratio or an endpoint, so weights!=0 cannot reconstruct the denominator. These are tokens at different conditional positions, so their stated probabilities need not sum to one. Weights and A are frozen; the derivative is for the direct logp factor."
+          }
+        }
       ]
     },
     {
@@ -4368,6 +4536,30 @@
           "hint": {
             "zh": "对 rewards=[3,−1,1]、k=2，最大值估计为 7/3，系数为 [2,0,2/3]；log_probs=[−1,−2,−3] 时 loss=4。枚举小组全部子集做独立对照。k=N 时只剩最大与次大的差，并列最大则全零；k>=2 平移同组奖励不改系数。再检查置换、负奖励、N=1、大组合数及冻结奖励梯度。",
             "en": "For rewards [3,−1,1] and k=2, expect maximum estimate 7/3 and coefficients [2,0,2/3]; log_probs [−1,−2,−3] give loss 4. Compare against exhaustive small subsets. At k=N only the top-two gap remains; tied maxima give zeros. Also check shifts for k≥2, permutations, negatives, singletons, large binomials and frozen rewards."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "reward-shift-and-coefficient-meaning",
+          "question": {
+            "zh": "给一组奖励统一加常数 c，maxk_estimate 与 pkpo_weights 各怎样变化？以 N=3、rewards=(0,1,2)、k=2 和 c=−5 为例，解释为什么系数既不是概率，也不必加起来等于期望最大值。k=1 的有限批次 loss 是否有同样的数值不变性？",
+            "en": "If every reward in a group increases by a constant c, how do maxk_estimate and pkpo_weights change? Use N=3, rewards=(0,1,2), k=2 and c=−5 to explain why coefficients are neither probabilities nor required to sum to the estimated maximum. Is the finite-batch k=1 loss equally invariant?"
+          },
+          "hint": {
+            "zh": "所有子集最大值都加 c，因此估计量加 c；k≥2 的 leave-one-out 差值不变，系数和固定 log_probs 上的 loss 均不变。例中的最大值估计为 5/3，系数为 (0,1/3,1)，和为 4/3；平移后估计为 −10/3，系数仍相同。不能据此把系数归一化成概率或按组去均值。k=1 使用零空集 baseline，系数从 rᵢ/N 变成 (rᵢ+c)/N，有限批次 loss 多出 −(c/N)Σᵢlog_probsᵢ，一般不为零。这里只比较给定采样组的数值，不把有限样本的变化误称为总体期望的偏差。",
+            "en": "Every subset maximum increases by c, so the estimate increases by c. For k≥2, leave-one-out differences, coefficients and loss at fixed log_probs stay unchanged. Here the estimate is 5/3 and coefficients (0,1/3,1) sum to 4/3. After shifting, the estimate is −10/3 while coefficients stay fixed. Do not normalize them into probabilities or center them by group. At k=1 the empty-set baseline is zero, so coefficients change from rᵢ/N to (rᵢ+c)/N and finite-batch loss gains −(c/N)Σᵢlog_probsᵢ, generally nonzero. This compares given sample groups; a finite-sample change is not by itself population bias."
+          }
+        },
+        {
+          "id": "tied-maxima-and-policy-coefficients",
+          "question": {
+            "zh": "rewards=(0,1,1) 时，k=2 与 k=3 的最大值估计相同。它们的策略系数也相同吗？为什么“已经得到高最大值”既不能保证本批次有非零系数，也不能证明总体目标已平坦？",
+            "en": "For rewards=(0,1,1), the expected-maximum estimates at k=2 and k=3 are equal. Are their policy coefficients equal too? Why does a high observed maximum neither guarantee nonzero coefficients in this batch nor prove a flat population objective?"
+          },
+          "hint": {
+            "zh": "两种估计都为 1。k=2 时，两个大小为 1 的奖励各在与 0 配对的子集中独自提高最大值，故系数为 (0,1/3,1/3)。k=3 时，移除任一并列最高样本后仍有另一个 1，三个 leave-one-out 增益全为零，系数为 (0,0,0)。因此不能把 max 的奖励导数或任意 top-1 归因拿来替代本题的冻结策略系数；并列也不意味着对所有 k 都零。这个样本组的零策略信号不排除其他组出现独有的最佳样本，也不建立总体期望最大值的驻点。",
+            "en": "Both estimates equal 1. For k=2, each reward-1 sample uniquely improves the maximum in its subset paired with 0, giving coefficients (0,1/3,1/3). At k=3, removing either tied maximum leaves the other 1, so all leave-one-out gains vanish and coefficients are (0,0,0). Neither reward derivatives of max nor arbitrary top-1 attribution can replace the detached policy coefficients. Ties do not imply zero coefficients for every k. A zero signal for this sample group does not rule out unique best samples in other groups or establish a stationary point of the population expected maximum."
           }
         }
       ]
