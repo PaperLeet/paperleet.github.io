@@ -72,6 +72,8 @@ export default function Interviews({route,problems,papers,catalogError,onRetryCa
  const feedError=(ownerMismatch?t('收藏列表与当前账号不一致，请刷新账号后重试。','This saved list does not match your account. Refresh your account and retry.'):undefined)||feed.error||(feed.data&&!validFeed?t('面经数据暂时无法读取，请重试。','The reports could not be read. Try again.'):undefined);
  const summaryError=statistics.error||(statistics.data&&!summary?t('统计数据暂时无法读取，请重试。','The statistics could not be read. Try again.'):undefined);
  const scope=interviewHref(filters),readingOwner=accountLoading?undefined:user?'account:'+user.id:'guest';
+ const filterActor=JSON.stringify([user?.id,!!accountLoading]),filterLease=useRef({actor:filterActor,scope});filterLease.current={actor:filterActor,scope};
+ function canChangeFilter(){const current=readInterviewRoute(appLocation.hash);return filterLease.current.actor===filterActor&&filterLease.current.scope===scope&&validRoute&&!!current&&interviewHref(current)===scope;}
  // Local ordering and practice filters keep pending input within the same evidence scope.
  const searchScope=filters.view==='reports'?params.toString():summaryParams.toString();
  const record=currentReadingReturn();
@@ -122,7 +124,7 @@ export default function Interviews({route,problems,papers,catalogError,onRetryCa
     <InterviewBrowseFilters key={user?.id||'guest'} filters={filters} loading={!!accountLoading} outcomeAvailable={capabilities?.interview_outcome_filter===true} contextAvailable={capabilities?.interview_context_filters===true} availabilityNotice={filterSupport.kind==='ready'} searchHelp={searchHelp} outcomeHelp={outcomeHelp} onChange={value=>{const current=readInterviewRoute(appLocation.hash);if(current&&interviewHref(current)===interviewHref(filters))change(value);}}/>
    </div>}
    {filters.view!=='reports'&&<p id={searchHelp} className="interview-search-help">{filters.view==='questions'?t('搜索中英文名称、论文、实现目标或面经中的公司标签；多个关键词用空格分隔。','Search bilingual titles, papers, implementation goals or companies in source reports. Separate keywords with spaces.')+t(' 难度与时长只筛选知识点列表；下方准备路径完整展示。',' Difficulty and duration filter the concept list; preparation paths below remain complete.'):t('支持中英文公司名称，多个关键词用空格分隔。','Search Chinese or English company names. Separate keywords with spaces.')}</p>}
-   <InterviewActiveFilters readOnly={!hostedEdition} filters={filters} problems={problems} onChange={update=>{(filterControls.current||readonlyNotice.current)?.focus({preventScroll:true});change(update);}}/>
+   <InterviewActiveFilters readOnly={!hostedEdition} filters={filters} problems={problems} canAct={canChangeFilter} focusFallback={()=>searchInput.current||filterControls.current||readonlyNotice.current} onChange={change}/>
    <InterviewConceptContext filters={filters} problems={problems} saved={saved} ready={progressReady} error={progressError} catalogError={catalogError} onRetryCatalog={onRetryCatalog} onRetryProgress={onRetryProgress}/>
    {filters.company&&(filters.view!=='companies'||companies.length>0)&&<InterviewCompanyOverview communityAvailable={hostedEdition} filters={filters} summary={summary} practice={hostedEdition&&filterSupport.kind==='ready'?{owner:readingOwner||'checking',problems,saved,progressReady:progressReady&&!accountLoading,progressError,catalogError,summaryLoading:statistics.loading,summaryError,onRetrySummary:()=>setStatisticsRetry(value=>value+1),onRetryProgress,onRetryCatalog}:undefined}/>}
 

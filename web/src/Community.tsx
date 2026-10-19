@@ -633,6 +633,12 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
   const writing=useWritingDisclosure(JSON.stringify([user?.id,draftScope]));
   const pending = loading || data.requestKey !== requestKey;
   const emptyPage=!pending&&page>1&&!data.items.length,pageCount=Math.max(1,Math.ceil(data.total/PAGE_SIZE)),lastPage=Math.min(MAX_COMMUNITY_PAGE,pageCount),viewLocation=typeof location==='undefined'?'':appLocation.hash;
+  const filterActor=JSON.stringify([user?.id,!!accountLoading]),filterLease=useRef({actor:filterActor,scope:returnTo});filterLease.current={actor:filterActor,scope:returnTo};
+  function canChangeFilter(){
+    if(filterLease.current.actor!==filterActor||filterLease.current.scope!==returnTo)return false;
+    const current=readCommunityFeed(appLocation.hash);
+    return embedded?appLocation.hash===viewLocation:!!current&&communityFeedHref(current.topicId,current.state)===returnTo;
+  }
   const error = failure?.requestKey===requestKey ? failure.kind==='timeout'
     ? t('讨论加载超时，请重试。当前搜索与筛选已保留。','Loading discussions timed out. Retry with your current search and filters.')
     : failure.message : '';
@@ -804,11 +810,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
               </select></label>}
             </div>
           </div>
-          <CommunityFeedFilters boards={taxonomy.data.boards} tags={taxonomy.data.tags} filters={filters} onChange={change=>{
-            // Keep keyboard focus on a stable control group when a chip disappears.
-            // Synchronous intent cannot override a later route/account/editor action.
-            toolbar.current?.focus({preventScroll:true});choose(change);
-          }}/>
+          <CommunityFeedFilters boards={taxonomy.data.boards} tags={taxonomy.data.tags} filters={filters} canAct={canChangeFilter} focusFallback={()=>searchInput.current||toolbar.current} onChange={choose}/>
           <CommunityTagContext value={tag} onClear={()=>{toolbar.current?.focus({preventScroll:true});choose({tag:undefined});}}/>
           {!embedded&&topicId && (
             catalogLoading ? <Loading /> : catalogError ? (

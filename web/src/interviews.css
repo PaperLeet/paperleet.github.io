@@ -48,11 +48,15 @@
 .interview-selects select,.interview-results-heading select { min-width:0; max-width:100%; min-height:40px; padding:6px 24px 6px 10px; border:1px solid var(--line); border-radius:7px; background:var(--surface); color:var(--text-secondary); font-size:var(--type-small); }
 .interview-selects select { width:100%; }
 .interview-active-filters { display:flex; flex-wrap:wrap; align-items:center; gap:7px; margin-top:12px; }
-.interview-active-filters > button:not(.text-button) { display:inline-flex; align-items:center; gap:6px; min-width:0; max-width:100%; min-height:40px; padding:7px 10px; border:1px solid transparent; border-radius:6px; background:var(--surface2); font-size:var(--type-small); color:var(--text-secondary); }
-.interview-active-filters > button:not(.text-button) span { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.interview-active-filters > button:not(.text-button) { display:inline-flex; align-items:center; gap:7px; min-width:0; max-width:100%; min-height:44px; padding:7px 10px; border:1px solid var(--line); border-radius:8px; background:var(--surface2); font-size:var(--type-small); line-height:1.6; color:var(--text-secondary); }
+.interview-active-filters > button:not(.text-button) span { min-width:0; max-width:24rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .interview-active-filters > button:not(.text-button) svg { flex:none; }
-.interview-active-filters > button:not(.text-button):hover { border-color:var(--line); color:var(--text); }
-.interview-active-filters > .text-button { margin-left:auto; min-height:40px; font-size:var(--type-small); }
+.interview-active-filters > button:not(.text-button):hover { border-color:var(--accent); color:var(--accent); }
+.interview-active-filters > .text-button { margin-left:auto; min-height:44px; padding:7px 10px; border-radius:8px; font-size:var(--type-small); }
+.interview-active-filters > .text-button:hover { background:var(--surface2); }
+.interview-active-filters > button { transition:background-color .15s,border-color .15s,color .15s; }
+.interview-active-filters > button:not(.text-button):active { background:var(--surface); }
+@media(prefers-reduced-motion:reduce) { .interview-active-filters > button { transition:none; } }
 .interview-filter-bar:focus-visible,.interview-results-heading:focus-visible { outline:2px solid var(--accent); outline-offset:4px; border-radius:8px; }
 .interview-results-heading { scroll-margin-top:100px; }
 .interview-results-heading { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; margin-block:18px 12px; font-size:var(--type-small); color:var(--muted); }
