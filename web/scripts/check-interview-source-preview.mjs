@@ -58,7 +58,7 @@ try{
  const code=document.querySelector('#private-code');code.setSelectionRange(2,8,'backward');code.scrollTop=27;code.scrollLeft=14;sessionStorage.setItem('source-private-draft','Never publish');const storage=JSON.stringify({...sessionStorage});
  code.focus();await answer(first,feed());assert.equal(document.activeElement,code,'Async source data never takes newer focus');
  assert(document.querySelector('.interview-source-author').textContent.includes('Research Institute'));assert(!document.querySelector('.interview-source-author a'));assert(!document.querySelector('.interview-source-excerpt img'));assert(!document.querySelector('img[src="https://example.test/image.png"]'),'Remote body images cannot load from a plain source excerpt');
- assert.equal(document.querySelector('.interview-source-excerpt').textContent,'Approach with a clear explanation.');
+ assert.equal(document.querySelector('.interview-source-excerpt .post-excerpt').textContent,'Approach with a clear explanation.');
  assert.equal(nav.communityPostReturn(document.querySelector('.interview-source-title').getAttribute('href'),postId),scope);
  assert.equal(document.querySelectorAll('.interview-source-item').length,1);assert.equal(document.querySelectorAll('[data-interview-facet]').length,3);
  const allSource=document.querySelector('.interview-source-toolbar a');assert.equal(allSource.getAttribute('href'),sourceHref);
