@@ -83,5 +83,13 @@ source-equivalence records and replay dependencies. The archive has 661 files,
 628 unique payloads and SHA-256
 `e867f2d80b959bf21fbc3a9a634321ee2ffaa53a0eb2a8251f30599e2725c1e9`.
 The earlier [development record](torch-runtime-0.82-development.md) retains the
-full independent oracle and SDK evidence. Main adoption is recorded separately
-after remote verification. No CI, tag, publication or deployment is requested.
+full independent oracle and SDK evidence.
+
+Main adopted commit `905f4da206a6168838efabeae147ec5af55b3fec`. The
+[remote adoption receipt](../../packages/stridetorch/benchmarks/results/qualification-0.82-main-adoption.json)
+verifies all 66 runtime resources, 183 active export identities and seven
+release-policy files from that same remote commit. It observes zero workflow
+runs for the adopted SHA and confirms Pages still serves `gh-pages` rather
+than main. The ordinary guarded push used normal object negotiation; no tag,
+CI dispatch, publication or deployment was requested. The continuing runtime
+improvement goal remains active.
