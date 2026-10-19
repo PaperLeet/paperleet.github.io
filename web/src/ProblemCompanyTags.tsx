@@ -17,20 +17,24 @@ import {keepReadingTriggerVisible} from './readingViewport';
 import {useWorkspaceIntent} from './useWorkspaceIntent';
 import './interviews.css';
 import './problem-interview-preview.css';
+import {practiceEvidenceOrigin,type PracticeEvidenceOrigin} from './practiceEvidenceOrigin';
 
 const SourceReports=deferredFeature<Parameters<typeof import('./InterviewSourcePreview').InterviewSourceReports>[0]>(()=>import('./InterviewSourcePreview').then(module=>({default:module.InterviewSourceReports})),['关联面经','linked experiences'],{failure:(_props,retry)=><PreviewFailure retry={retry}/>});
 function PreviewFailure({retry}:{retry:()=>void}){const {t}=useI18n();return <p className="problem-interview-status" role="alert">{t('面经预览暂时无法加载，仍可继续练习。','The preview could not load. You can keep practicing.')} <button type="button" className="text-button" onClick={retry}>{t('重试预览','Retry preview')}</button></p>;}
 type Props={problemId:string;number?:number;onCode?:()=>void};
 export default function ProblemCompanyTags(props:Props){
  const {user,loading}=useAccount(),owner=user?.id||'guest';
+ const [route,setRoute]=useState(()=>appLocation.hash);
+ useEffect(()=>{const changed=()=>setRoute(appLocation.hash);window.addEventListener('hashchange',changed);window.addEventListener('popstate',changed);return()=>{window.removeEventListener('hashchange',changed);window.removeEventListener('popstate',changed);};},[]);
+ const origin=practiceEvidenceOrigin(route,props.problemId,props.number);
  if(loading)return null;
- return <CompanyTags key={JSON.stringify([owner,props.problemId])} {...props} owner={owner} enabled={hostedEdition}/>;
+ return <CompanyTags key={JSON.stringify([owner,props.problemId,origin?.company,origin?.days])} {...props} owner={owner} enabled={hostedEdition} route={route} origin={origin}/>;
 }
-function CompanyTags({problemId,number,onCode,owner,enabled}:Props&{owner:string;enabled:boolean}){
+function CompanyTags({problemId,number,onCode,owner,enabled,route,origin:sourceOrigin}:Props&{owner:string;enabled:boolean;route:string;origin?:PracticeEvidenceOrigin}){
  const {t,locale}=useI18n(),id=useId(),hint=useId(),toggle=useRef<HTMLButtonElement>(null),panel=useRef<HTMLElement>(null),root=useRef<HTMLDivElement>(null),periodControl=useRef<HTMLSelectElement>(null);
- const [days,setDays]=useState<ProblemInterviewPeriod>('365'),[company,setCompany]=useState(''),[seen,setSeen]=useState(false);
- const [retry,setRetry]=useState(0),[opening,setOpening]=useState<string>(),[route,setRoute]=useState(()=>appLocation.hash),lastRoute=useRef(appLocation.hash);
- useEffect(()=>{const changed=()=>{if(lastRoute.current===appLocation.hash)return;lastRoute.current=appLocation.hash;setOpening(undefined);setRoute(appLocation.hash);};window.addEventListener('hashchange',changed);window.addEventListener('popstate',changed);return()=>{window.removeEventListener('hashchange',changed);window.removeEventListener('popstate',changed);};},[]);
+ const [days,setDays]=useState<ProblemInterviewPeriod>(sourceOrigin?.days||'365'),[company,setCompany]=useState(sourceOrigin?.company||''),[seen,setSeen]=useState(false);
+ const [retry,setRetry]=useState(0),[opening,setOpening]=useState<string>(),lastRoute=useRef(route);
+ useEffect(()=>{if(lastRoute.current!==route){lastRoute.current=route;setOpening(undefined);}},[route]);
  const resource=useInterviewResource<unknown>('community/interviews/summary?days='+days+'&problem_id='+encodeURIComponent(problemId),enabled,retry,owner);
  const result=readProblemInterviewEvidence(resource.data,problemId,days),companies=result?.companies,evidence=result?.evidence;
  if(!seen&&!!companies?.length)setSeen(true);
@@ -64,9 +68,13 @@ function CompanyTags({problemId,number,onCode,owner,enabled}:Props&{owner:string
  if(!enabled)return null;
  return <div ref={root} className="problem-interview-reference">
   <div className="problem-interview-reference-heading"><strong>{t('面经参考','Interview evidence')}</strong><label>{t('发布时间','Published')}<select ref={periodControl} value={days} aria-describedby={hint} onChange={event=>{const value=event.target.value;if(problemInterviewPeriods.includes(value as ProblemInterviewPeriod))setDays(value as ProblemInterviewPeriod);}}>{problemInterviewPeriods.map(value=><option value={value} key={value}>{period(value)}</option>)}</select></label><small id={hint}>{t('社区自述 · 非官方考频','Community reports · Not official frequency')}</small></div>
+  {sourceOrigin&&<div className="problem-interview-origin" role="group" aria-label={t('来源列表的公司与发布时间','Company and publication period from the source list')}><span>{t('面经预览来源：','Experience preview from your list: ')}<b>{sourceOrigin.company?interviewLabel('companies',sourceOrigin.company,locale==='en'):t('全部公司','All companies')}</b> · {period(sourceOrigin.days)}</span>{(company!==sourceOrigin.company||days!==sourceOrigin.days)&&<button type="button" className="text-button" onClick={event=>{
+   if(!current||!root.current?.isConnected||interviewPracticePreviewScope(appLocation.hash,problemId,number)!==current)return;
+   if(document.activeElement===event.currentTarget)periodControl.current?.focus({preventScroll:true});setCompany(sourceOrigin.company);setDays(sourceOrigin.days);
+  }}>{t('恢复公司与时间','Restore company and period')}</button>}</div>}
   {error?<div className="problem-company-evidence problem-company-retry" role="status"><small>{t('公司面经暂时无法读取，仍可继续练习。','Company experiences are unavailable. You can keep practicing.')}</small><button type="button" onClick={event=>{if(document.activeElement===event.currentTarget)periodControl.current?.focus({preventScroll:true});setRetry(value=>value+1);}}>{t('重试面经','Retry experiences')}</button></div>:resource.loading?<p className="problem-interview-status" role="status">{t('正在核对本题的面经依据…','Checking report evidence for this exercise…')}</p>:companies?.length?<div className="problem-company-evidence"><small>{period(days)}{t('面经提及',' report mentions')}</small><InterviewCompanySources companies={companies} problemId={problemId} filters={filters} preview={current?{panelId:id,company,open:expanded,onSelect:previewCompany}:undefined}/><AppLink href={interviewHref({...filters,view:'questions'})}>{t('查看统计依据','Explore report-based counts')}</AppLink></div>:<p className="problem-interview-status" role="status">{t('当前时间范围暂无公开面经提及此题，可调整范围或去社区查看与分享。','No public reports mention this exercise in this period. Change the period or explore and share experiences.')} <AppLink href={sourceHref} target="_blank" rel="noopener noreferrer">{t('查看与分享面经','Explore and share experiences')}<ArrowUpRight size={13} aria-hidden="true"/></AppLink></p>}
   {current&&!!companies?.length&&<p className="problem-company-preview-hint">{t('点击公司标签，在这里预览关联面经。','Select a company tag to preview its linked experiences here.')}</p>}
-  {current&&seen&&<button ref={toggle} type="button" className="problem-interview-toggle" aria-expanded={expanded} aria-controls={id} onClick={event=>{if(!root.current?.isConnected||interviewPracticePreviewScope(appLocation.hash,problemId,number)!==current)return;if(expanded)close();else{origin.current=event.currentTarget;setOpening(current);}}}>{expanded?<ChevronUp size={14} aria-hidden="true"/>:<ChevronDown size={14} aria-hidden="true"/>}{expanded?t('收起面经预览','Collapse experience preview'):t('预览关联面经','Preview linked experiences')}</button>}
+  {current&&seen&&<button ref={toggle} type="button" className="problem-interview-toggle" aria-expanded={expanded} aria-controls={id} onClick={event=>{if(!root.current?.isConnected||interviewPracticePreviewScope(appLocation.hash,problemId,number)!==current)return;if(expanded)close();else{origin.current=event.currentTarget;setOpening(current);}}}>{expanded?<ChevronUp size={14} aria-hidden="true"/>:<ChevronDown size={14} aria-hidden="true"/>}{expanded?t('收起面经预览','Collapse experience preview'):company?t(`预览 ${interviewLabel('companies',company,locale==='en')} 面经`,`Preview ${interviewLabel('companies',company,locale==='en')} experiences`):t('预览关联面经','Preview linked experiences')}</button>}
   <section id={id} ref={panel} hidden={!expanded} className="problem-interview-panel interview-source-preview" role="region" aria-label={t('本题关联面经预览','Linked experience preview for this exercise')} onKeyDown={event=>{
    if(event.key!=='Escape'||event.defaultPrevented||event.repeat||event.nativeEvent.isComposing||event.nativeEvent.keyCode===229||event.ctrlKey||event.metaKey||event.altKey||event.shiftKey)return;
    event.preventDefault();event.stopPropagation();close();
