@@ -20,6 +20,9 @@
 .preparation-guide-actions { display:flex; align-items:center; flex-wrap:wrap; gap:12px; margin-top:17px; padding-top:14px; border-top:1px solid var(--line); }
 .preparation-guide-actions .text-button,.preparation-guide-error .text-button { display:inline-flex; align-items:center; gap:5px; min-height:36px; font-size:var(--type-small); }
 .preparation-guide-actions .button { min-height:40px; font-size:var(--type-small); }
+.preparation-guide-reading-controls { display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:8px 14px; margin-left:auto; }
+.preparation-guide-reading-controls .text-button { min-height:44px; }
+.preparation-guide-close-icon { transform:rotate(180deg); flex:none; }
 .preparation-guide-error { color:var(--muted); }
 .preparation-handbook { margin-top:32px; }
 .preparation-handbook-intro { font-size:var(--type-small); line-height:1.85; color:var(--muted); margin:0 0 15px; }
@@ -34,6 +37,6 @@
 .preparation-guide-catalog-notice button { margin-left:8px; font-size:var(--type-small); }
 #preparation-handbook-heading { scroll-margin-top:120px; }
 #preparation-handbook-heading:focus-visible { outline:2px solid var(--accent); outline-offset:5px; border-radius:3px; }
-@media(max-width:600px) { .preparation-guide-selector { align-items:stretch; flex-direction:column; gap:7px; } .preparation-guide > summary small { flex-basis:100%; margin-left:24px; } .preparation-guide-body { padding:14px; } }
+@media(max-width:600px) { .preparation-guide-selector { align-items:stretch; flex-direction:column; gap:7px; } .preparation-guide > summary small { flex-basis:100%; margin-left:24px; } .preparation-guide-body { padding:14px; } .preparation-guide-reading-controls { flex-basis:100%; margin-left:0; justify-content:space-between; } }
 @media(pointer:coarse) { .preparation-hint > summary,.preparation-guide-actions :is(a,button),.preparation-guide-error button,.preparation-handbook-scope > button { min-height:44px; } .preparation-hint > summary { align-items:center; } }
 @media(prefers-reduced-motion:no-preference) { .preparation-guide > summary > svg,.preparation-hint > summary svg { transition:transform .16s ease; } }
