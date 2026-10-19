@@ -5,6 +5,8 @@
 .interview-company-tags .interview-company-source>small{font-size:var(--type-meta);font-family:var(--font-mono);color:var(--accent)}
 .interview-company-tags .interview-company-source:hover,.interview-company-more>summary:hover{border-color:var(--accent);color:var(--text);background:var(--surface)}
 .interview-company-source:focus-visible,.interview-company-more>summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.interview-company-tags button.interview-company-source{cursor:pointer;text-align:start}
+.interview-company-tags .interview-company-source[aria-expanded=true]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 9%,var(--surface));color:var(--accent)}
 .interview-company-more{min-width:0;max-width:100%}
 .interview-company-more>summary{cursor:pointer;list-style:none;color:var(--accent)}
 .interview-company-more>summary::-webkit-details-marker{display:none}

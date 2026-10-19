@@ -1,4 +1,14 @@
 .problem-company-evidence>small,.problem-company-evidence>a{font-size:var(--type-small)}
+.problem-company-preview-hint{margin:8px 0 0;font-size:var(--type-small);line-height:1.7;color:var(--muted)}
+.problem-interview-preview-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px;min-width:0}
+.problem-interview-preview-heading>div{display:flex;align-items:center;gap:10px;min-width:0}
+.problem-interview-preview-heading>div>div{min-width:0}
+.problem-interview-preview-heading .organization-logo{flex:none}
+.problem-interview-preview-heading h3{margin:0;color:var(--text);font-size:var(--type-body);font-weight:600;line-height:1.6;overflow-wrap:anywhere;scroll-margin-top:100px}
+.problem-interview-preview-heading h3:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:3px}
+.problem-interview-preview-heading p{margin:3px 0 0;color:var(--muted);font-size:var(--type-small);line-height:1.7;overflow-wrap:anywhere}
+.problem-interview-close{display:inline-flex;align-items:center;justify-content:center;flex:none;min-width:44px;min-height:44px;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--text-secondary);cursor:pointer}
+.problem-interview-close:hover{border-color:var(--accent);color:var(--text)}
 .problem-interview-panel .interview-source-title>svg{margin-inline-start:6px;vertical-align:middle;color:var(--muted)}
 .problem-interview-actions{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px 16px;margin-top:16px;padding-top:12px;border-top:1px solid var(--line)}
 .problem-interview-actions>div{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
