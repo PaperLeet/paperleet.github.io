@@ -18,7 +18,13 @@ try{
  function Frame(){const[value,setValue]=useState(filters);filters=value;external=next=>{location.hash=nav.interviewHref(next);setValue(next);};return React.createElement('form',{onSubmit:event=>{event.preventDefault();submits++;},onKeyDown:()=>outerKeys++},React.createElement(Language),React.createElement(Comparison,{key:owner,owner,filters:value,summary,loading:false,problems,saved:{},progressReady:true,onChange:change=>{updates.push(change);external({...value,...change});}}),React.createElement('textarea',{'aria-label':'Private reflection',defaultValue:'Unpublished private implementation'}));}
  const render=async()=>act(async()=>{root??=createRoot(document.querySelector('#root'));root.render(React.createElement(React.StrictMode,null,React.createElement(LocaleProvider,null,React.createElement(Frame))));});
  const change=async(node,value)=>act(async()=>{Object.getOwnPropertyDescriptor(node.tagName==='SELECT'?dom.window.HTMLSelectElement.prototype:dom.window.HTMLInputElement.prototype,'value').set.call(node,value);node.dispatchEvent(new dom.window.Event(node.tagName==='SELECT'?'change':'input',{bubbles:true}));});
- const click=async node=>{assert(node);await act(async()=>{node.focus();node.click();});};
+ const click=async node=>{assert(node);await act(async()=>{
+  node.focus();const disclosure=node.tagName==='SUMMARY'&&node.parentElement?.tagName==='DETAILS'?node.parentElement:undefined;
+  // Native details emits toggle asynchronously, and may coalesce fast changes.
+  // Await that event before reading React content controlled by onToggle.
+  const toggled=disclosure?new Promise((resolve,reject)=>{const done=()=>{clearTimeout(timer);resolve();};const timer=setTimeout(()=>{disclosure.removeEventListener('toggle',done);reject(Error('Native comparison toggle did not settle'));},3000);disclosure.addEventListener('toggle',done,{once:true});}):undefined;
+  node.click();if(toggled)await toggled;
+ });};
  const key=async(node,extra)=>{const event=new dom.window.KeyboardEvent('keydown',{bubbles:true,cancelable:true,...extra});await act(async()=>node.dispatchEvent(event));return event;};
  const panel=()=>document.querySelector('.company-comparison'),search=()=>panel().querySelector('input[type=search]'),selects=()=>[...panel().querySelectorAll('.company-comparison-controls select')],rows=()=>[...panel().querySelectorAll('tbody tr')],button=text=>[...panel().querySelectorAll('button')].find(node=>node.textContent===text),status=()=>panel().querySelector('.company-choice-finder [role=status]');
  location.hash=nav.interviewHref(filters);await render();const initialHref=location.hash,stored=JSON.stringify({...sessionStorage}),source=JSON.stringify(summary),code=document.querySelector('textarea');code.setSelectionRange(2,12,'backward');code.scrollTop=41;code.scrollLeft=23;
