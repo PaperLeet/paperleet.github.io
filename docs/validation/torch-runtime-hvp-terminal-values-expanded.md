@@ -96,8 +96,9 @@ and 10% regression bounds. There are no individual-case replacement runs.
 The complete first campaign remains failed/inconclusive and preserved. The
 follow-up is a separately identified precision experiment, not deletion or
 relabeling of those five failures. All three original NumPy 1.26.4 and Chrome
-processes already pass their original controls. Follow-up results, packaging,
-application/export qualification and any eventual integration remain pending.
+processes already pass their original controls. The follow-up is now complete and remains inconclusive (see below). The
+terminal-HVP candidate is not adopted; release packaging and application/export
+qualification for this optimization have not been performed.
 The independent-library objective, further core APIs and GPU investigation
 continue; production GPU support stays disabled.
 
@@ -109,3 +110,26 @@ tar hard links for identical bytes), 1,294,084 bytes, SHA-256
 native oracles in the existing 0.81 data-follow-up archive; external runtime
 dependencies and original absolute paths need adaptation. The precision source
 and plans are included before any precision-run output exists.
+
+## Completed precision follow-up: retain failed gates, no adoption
+
+All six prespecified processes have complete 32-case primary records. The
+original supervisor stopped after its second process: Node's primary JSON
+contains all 32 cases, but its stdout mirror contains only the first 12.
+Experiment 421 verifies every primary batch, recomputed median, both ratios,
+source identity and the matching stdout prefix. That failed mirror check is
+preserved. A fresh driver adds a per-case ledger and synchronous host writes;
+423 runs only the four previously unrun processes. All four durable ledgers and
+stdout mirrors match their respective primary records. No completed measurement
+is replaced or repeated.
+
+Across all 192 precision cases, 12 A/A controls fail (all in Node). Two first-cycle
+batches fall below the unchanged 100 ms floor: 97.854 ms on CPU and 99.643 ms in
+Node. CPU cycle 2's float64 zero-norm case also exceeds the 10% candidate
+regression limit using the ratio of medians: 1.17359, while its paired-block
+ratio is 1.02126. Both estimators were required; the paired diagnostic does not
+waive that failure. The result remains **inconclusive**, and the canonical
+runtime retains its qualified 0.81 HVP implementation. Numerical and scoped
+memory evidence remain useful, but do not establish a complete latency benefit.
+
+[Machine-readable precision results](../../packages/stridetorch/benchmarks/results/hvp-terminal-precision-followup.json) and [verified raw archive](../../packages/stridetorch/benchmarks/results/hvp-terminal-precision-followup-harness.tar.gz): 48 files, 991,560 bytes, SHA-256 `8aa3b3ac0456db5f5e43f8b2acd95b4c53bb0bb589c62eeba4b9a0441ff132d1`. The replay manifest links the earlier archive for frozen implementations, workload and independent oracle inputs.
