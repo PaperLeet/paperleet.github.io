@@ -155,3 +155,6 @@ button.card-comment-context:hover{border-inline-start-color:var(--accent);backgr
 @container post-interaction (max-width:560px){.card-actions>.card-post-quote{min-width:44px;padding-inline:10px}.card-post-quote>span{display:none}}
 
 .card-comments-empty>.text-button{margin-block:4px;margin-inline-end:8px}
+.card-comment-paging{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:12px}
+.card-comment-paging>.card-more-comments{flex:1 1 180px;width:auto;margin:0;min-height:44px}
+.card-comment-paging>.reply-list-compact{flex:0 1 auto}
