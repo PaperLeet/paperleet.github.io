@@ -3,9 +3,9 @@
 The 0.80 candidate is applied on `codex/torch-transformer`, after merging upstream
 main through `ec4370149d7e19fdb9368262965e442f23b0f3e9`. Standalone correctness,
 installed-package ownership and the measured CPU/WASM performance controls have
-completed. The full application CPU suite passed; remaining current PaperLeet integration
-gates are in progress. This
-candidate has not been adopted on remote main, published, tagged or deployed;
+completed. Full local PaperLeet application integration passed at
+`e94bfed7d2984d207f82b3ef08cf48a2f6c0c7f3`. This candidate is awaiting the
+guarded main push and has not been published, tagged or deployed;
 no GitHub workflow was dispatched. BrowserTorch remains a naming proposal.
 
 This version record is distinct from the earlier numbered iteration-80 report,
@@ -138,7 +138,7 @@ including cold/resident transfers and readback, is required before selecting a
 GPU route. A previous fixture's secure-context hashing error was found before
 GPU execution; its replacement verifies payload hashes inside Pyodide.
 
-## Application integration still required
+## Local application integration
 
 The full application CPU suite completed with 45,854 passed, one optional Docker
 submission test skipped and no failures/errors (45,855 collected). Source/test
@@ -188,13 +188,25 @@ and horizontal scroll when local ordering/practice filters change, while actual
 evidence-source changes reset to the applied query. The six original checks and
 the real App library/filter-recovery journey all pass (seven focused checks).
 The rejected route-based source and full-App failure remain retained.
-Full frontend/type/build verification is still pending.
-Remaining gates are the complete frontend check, both build profiles, generated
-Worker identity, retained
-immutable assets and an actual nested-route browser submission with matrix,
-norm and alternating-branch HVP assertions. Existing payloads are preserved.
+The subsequent full frontend check passed all current precheck/check commands.
+Both hash/local and current hosted Pages build profiles passed TypeScript,
+catalog-math, initial bundle/deferred-loading and static-route checks. The hosted
+profile verified 166 HTTP 200 routes. Generated Worker bytes match a fresh
+in-memory esbuild regeneration; old immutable assets and the active export remain
+unchanged. A fresh Chrome 155.0.8059.82 loaded the actual nested attention page,
+entered matrix/norm/alternating-HVP assertions through CodeMirror and completed
+the real opaque Worker run with 7/7 tests and no page errors. No server submission
+or account mutation occurred.
 
-After those checks, reconcile any newer upstream main changes, archive/audit
-the exact evidence and use the existing guarded main-push procedure. No CI,
-release or deployment is part of this local qualification. Broader core coverage,
-independent-library readiness and GPU backend work remain active.
+The [evidence archive](../../packages/stridetorch/benchmarks/results/qualification-0.80-harness.tar.gz)
+contains 3,096 individually verified files (24,199,023 compressed bytes), including
+selected code, harnesses, raw results and failed attempts. SHA-256:
+`6af44271f4ff13465d7ca69592831278e85553ce81f5fb8de034b072f3eadafd`.
+Dependency environments and pytest temporary trees are excluded; original
+harnesses retain their recorded paths and require configuration when replayed
+elsewhere. The archive retains the failed raw WASM/native norm-HVP point gate.
+
+The remaining adoption step is a fresh remote/active-release-chain audit and an
+ordinary guarded main push. No CI, release or deployment is part of this local
+qualification. Broader core coverage, independent-library readiness, norm-HVP
+efficiency and matched GPU performance work remain active.

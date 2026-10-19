@@ -2102,8 +2102,9 @@ changes and sums. The callback still executes once. Caller-owned tensor types
 and gradient buffers remain unchanged; temporary graph owners are released on
 success and failure. This does not enable public `autograd.grad(create_graph=True)`
 or differentiable HVP outputs, and unrecorded existing graphs retain their old
-HVP path. Version 0.80 has completed standalone CPU/WASM, minimum-NumPy and
-installed-package checks; its PaperLeet application integration is in progress.
+HVP path. Version 0.80 has completed standalone CPU/WASM, minimum-NumPy,
+installed-package and local PaperLeet application checks. The qualification
+record below tracks main adoption separately.
 
 Float32 public scalar powers retain their storage-precision arithmetic. Only
 private Tensor pullbacks inside a recorded norm HVP use double scalar exponent

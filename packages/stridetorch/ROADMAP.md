@@ -872,7 +872,7 @@ source-commit deployment was superseded and is not claimed as published.
   GPU-backend evaluation continue toward independent-library quality.
 
 
-## Version 0.80 qualification in progress
+## Version 0.80 local qualification
 
 - Fix captured-numerator reverse division and functional JVP/HVP graph barriers;
   add 120 public regressions for branching, inactive pullbacks, caller state and
@@ -885,9 +885,9 @@ source-commit deployment was superseded and is not claimed as published.
 - Retain three-process CPU/Node/Chrome timing evidence for 24 ordinary and 12
   HVP flows, including all norm costs. Larger scalar powers improve; small
   polynomial HVPs remain slower than 0.77 and vector-norm curvature needs work.
-- Qualify the full current PaperLeet application, export, catalog budgets,
-  frontend and actual nested browser Worker before adopting on main. This
-  integration has not been pushed, published, tagged or deployed.
+- Full current PaperLeet application, export, catalog budgets, frontend, both
+  build profiles and the actual nested browser Worker passed. Main adoption
+  is tracked separately; no CI, publication, tag or deployment was requested.
 - A bounded host WebGPU service completed matched forward/matrix-VJP controls
   through the opaque Python Worker, including transfers and cleanup. Whole-call
   timing, resident tensor graph/autograd integration and a demonstrated benefit
