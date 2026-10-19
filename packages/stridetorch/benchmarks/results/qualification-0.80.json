@@ -1,5 +1,5 @@
 {
-  "status": "candidate080_local_application_qualified_main_adoption_pending",
+  "status": "adopted_on_main_without_ci_or_publication",
   "version": "0.80.0",
   "source": 284,
   "resources": {
@@ -3687,7 +3687,7 @@
     "production_torch_gpu_backend_enabled": false
   },
   "application_qualified": true,
-  "main_adopted": false,
+  "main_adopted": true,
   "ci_triggered": false,
   "published": false,
   "deployed": false,
@@ -4783,5 +4783,7 @@
       "goal_status": "active"
     }
   ],
-  "latest_merged_remote_main": "17509f5004d78c16c236f88aafb5586fd142ae05"
+  "latest_merged_remote_main": "17509f5004d78c16c236f88aafb5586fd142ae05",
+  "adopted_commit": "1aa40a0e70d07a75217a27a7b06664f4dec00658",
+  "remote_adoption_record": "qualification-0.80-main-adoption.json"
 }

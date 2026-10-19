@@ -4,8 +4,10 @@ The 0.80 candidate is applied on `codex/torch-transformer`, after merging upstre
 main through `17509f5004d78c16c236f88aafb5586fd142ae05`. Standalone correctness,
 installed-package ownership and the measured CPU/WASM performance controls have
 completed. Full local PaperLeet application integration passed at
-`e94bfed7d2984d207f82b3ef08cf48a2f6c0c7f3`. This candidate is awaiting the
-guarded main push and has not been published, tagged or deployed;
+`e94bfed7d2984d207f82b3ef08cf48a2f6c0c7f3`, with subsequent upstream
+reconciliation recorded below. Main adopted the qualified 0.80 runtime at
+`1aa40a0e70d07a75217a27a7b06664f4dec00658`. It has not been published, tagged
+or deployed;
 no GitHub workflow was dispatched. BrowserTorch remains a naming proposal.
 
 This version record is distinct from the earlier numbered iteration-80 report,
@@ -233,7 +235,11 @@ both wheels have identical hashes and all 65 runtime resources are unchanged.
 Installed numerical/alias/uninstall proofs therefore retain their original
 scope, without repeating them for a documentation-only edit.
 
-The remaining adoption step is a fresh remote/active-release-chain audit and an
-ordinary guarded main push. No CI, release or deployment is part of this local
+The final remote/active-release-chain audit passed and the unchanged mandatory
+wrapper performed an ordinary main push. The first TLS transfer failed without
+advancing main; a fresh guarded retry succeeded. Remote main and all 65 runtime
+files were then verified against the adopted commit tree. No workflow exists for
+that commit, and Pages still publishes from the separate `gh-pages` branch.
+See the [adoption record](../../packages/stridetorch/benchmarks/results/qualification-0.80-main-adoption.json). No CI, release or deployment is part of this local
 qualification. Broader core coverage, independent-library readiness, norm-HVP
 efficiency and matched GPU performance work remain active.
