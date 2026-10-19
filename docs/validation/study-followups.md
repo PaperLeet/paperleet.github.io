@@ -346,3 +346,43 @@ a constant forward value map in ideal arithmetic, while the required surrogate
 freezes its base-point transform; separate caller losses can still update the
 original codebook variable. No new numerical judge/SDK execution, training
 result, benchmark, grading rule, solver implementation or deployment is claimed.
+
+The world-model/representation expansion adds fourteen original bilingual
+follow-ups across Causal-JEPA, LeWM prediction, LeWM planning, SIGReg, VISReg,
+REPA and MoGe alignment. There are now 144 follow-ups in 72 enriched guides.
+All 130 previous follow-ups, 267 core prompts and 89 guide identities remain
+equal as parsed objects. The existing deferred-reader fixture checks each new
+question and hint in both languages and retains native disclosure/editor state.
+These editorial discussions add no company attribution or interview-frequency
+measurements.
+
+Primary background is pinned to [Causal-JEPA v2 §4.2](https://arxiv.org/html/2602.11389v2),
+[LeWorldModel v2 objectives and CEM](https://arxiv.org/html/2603.19312v2),
+[LeJEPA v1 characteristic-function regularization](https://arxiv.org/html/2511.08544v1),
+[VISReg v1 §3.1](https://arxiv.org/html/2606.02572v1),
+[REPA v4 alignment](https://arxiv.org/html/2410.06940v4),
+and [MoGe v3 optimal alignment](https://arxiv.org/html/2410.19115v3).
+Local bilingual statements determine the teaching reductions, quadrature,
+gradient boundaries, diagonal refit and detached alignment interfaces.
+
+Manual algebra keeps additional hypotheses explicit. Causal-JEPA’s shard
+example has different supervised history counts and zero future error. Its
+identical-anchor lower bound assumes a deterministic slot-equivariant predictor
+with no other identity information; it is not a new helper requirement or causal
+identification claim. LeWM’s scalar recurrence compares fixed latent coordinates.
+Its zero stationary-point example assumes a linear predictor and the literal
+fixed-direction SIGReg callback; it does not establish a typical training path.
+The CEM covariance example uses an external, independent, unclipped Gaussian
+sampler, while the existing toy clips its actions. Cost-rank equivalence fixes D
+and ideal arithmetic; cost values still have to satisfy the sum contract.
+
+SIGReg’s shard identity requires common directions, nodes and target, and its
+nullspace claim concerns direct feature coordinates. VISReg’s positive-epsilon
+example isolates the shape component and distinguishes the stopped denominator
+from a rebuilt forward derivative. Its V=3,N=2,D=1 view example includes the
+anchor path. REPA’s tangent-step example directly updates one patch above the
+floor; its zero-student gradient keeps teacher targets detached. Both MoGe
+examples omit truncation; the joint rotation preserves positive target depths
+but changes a coordinate-L1 objective. No rotation parameter is added to the
+solver. These original derivations introduce no new numerical judge/SDK probe,
+solver, grading rule, model-training result, benchmark or deployment.
