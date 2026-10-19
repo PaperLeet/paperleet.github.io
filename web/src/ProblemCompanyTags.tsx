@@ -1,3 +1,4 @@
+import {activeSourcePreview,sourcePreviewEscape} from './sourcePreviewKeyboard';
 import {appLocation} from './appLocation';
 import AppLink from './AppLink';
 import {useEffect,useId,useLayoutEffect,useRef,useState} from 'react';
@@ -46,7 +47,7 @@ function CompanyTags({problemId,number,onCode,owner,enabled,route,origin:sourceO
   if(expanded&&heading.current?.isConnected&&!heading.current.closest('[hidden]')&&claim()){heading.current.focus({preventScroll:true});keepReadingTriggerVisible(heading.current,100);}
   else intent.cancel();
  },[opening,company,expanded]);
- const here=()=>!!opening&&!!root.current?.isConnected&&interviewPracticePreviewScope(appLocation.hash,problemId,number)===opening;
+ const here=()=>expanded&&activeSourcePreview(root.current)&&interviewPracticePreviewScope(appLocation.hash,problemId,number)===opening;
  function close(){
   if(!here())return;
   pendingFocus.current=undefined;intent.cancel();
@@ -57,7 +58,7 @@ function CompanyTags({problemId,number,onCode,owner,enabled,route,origin:sourceO
   setOpening(undefined);
  }
  function previewCompany(value:string,opener:HTMLButtonElement){
-  if(!current||!root.current?.isConnected||interviewPracticePreviewScope(appLocation.hash,problemId,number)!==current||!companies?.some(row=>row.company===value&&row.reports>0&&row.contributors>0))return;
+  if(!current||!activeSourcePreview(root.current)||interviewPracticePreviewScope(appLocation.hash,problemId,number)!==current||!companies?.some(row=>row.company===value&&row.reports>0&&row.contributors>0))return;
   if(expanded&&company===value){close();return;}
   origin.current=opener;pendingFocus.current=intent.create();setCompany(value);setOpening(current);
  }
@@ -69,14 +70,14 @@ function CompanyTags({problemId,number,onCode,owner,enabled,route,origin:sourceO
  return <div ref={root} className="problem-interview-reference">
   <div className="problem-interview-reference-heading"><strong>{t('面经参考','Interview evidence')}</strong><label>{t('发布时间','Published')}<select ref={periodControl} value={days} aria-describedby={hint} onChange={event=>{const value=event.target.value;if(problemInterviewPeriods.includes(value as ProblemInterviewPeriod))setDays(value as ProblemInterviewPeriod);}}>{problemInterviewPeriods.map(value=><option value={value} key={value}>{period(value)}</option>)}</select></label><small id={hint}>{t('社区自述 · 非官方考频','Community reports · Not official frequency')}</small></div>
   {sourceOrigin&&<div className="problem-interview-origin" role="group" aria-label={t('来源列表的公司与发布时间','Company and publication period from the source list')}><span>{t('面经预览来源：','Experience preview from your list: ')}<b>{sourceOrigin.company?interviewLabel('companies',sourceOrigin.company,locale==='en'):t('全部公司','All companies')}</b> · {period(sourceOrigin.days)}</span>{(company!==sourceOrigin.company||days!==sourceOrigin.days)&&<button type="button" className="text-button" onClick={event=>{
-   if(!current||!root.current?.isConnected||interviewPracticePreviewScope(appLocation.hash,problemId,number)!==current)return;
+   if(!current||!activeSourcePreview(root.current)||interviewPracticePreviewScope(appLocation.hash,problemId,number)!==current)return;
    if(document.activeElement===event.currentTarget)periodControl.current?.focus({preventScroll:true});setCompany(sourceOrigin.company);setDays(sourceOrigin.days);
   }}>{t('恢复公司与时间','Restore company and period')}</button>}</div>}
   {error?<div className="problem-company-evidence problem-company-retry" role="status"><small>{t('公司面经暂时无法读取，仍可继续练习。','Company experiences are unavailable. You can keep practicing.')}</small><button type="button" onClick={event=>{if(document.activeElement===event.currentTarget)periodControl.current?.focus({preventScroll:true});setRetry(value=>value+1);}}>{t('重试面经','Retry experiences')}</button></div>:resource.loading?<p className="problem-interview-status" role="status">{t('正在核对本题的面经依据…','Checking report evidence for this exercise…')}</p>:companies?.length?<div className="problem-company-evidence"><small>{period(days)}{t('面经提及',' report mentions')}</small><InterviewCompanySources companies={companies} problemId={problemId} filters={filters} preview={current?{panelId:id,company,open:expanded,onSelect:previewCompany}:undefined}/><AppLink href={interviewHref({...filters,view:'questions'})}>{t('查看统计依据','Explore report-based counts')}</AppLink></div>:<p className="problem-interview-status" role="status">{t('当前时间范围暂无公开面经提及此题，可调整范围或去社区查看与分享。','No public reports mention this exercise in this period. Change the period or explore and share experiences.')} <AppLink href={sourceHref} target="_blank" rel="noopener noreferrer">{t('查看与分享面经','Explore and share experiences')}<ArrowUpRight size={13} aria-hidden="true"/></AppLink></p>}
   {current&&!!companies?.length&&<p className="problem-company-preview-hint">{t('点击公司标签，在这里预览关联面经。','Select a company tag to preview its linked experiences here.')}</p>}
-  {current&&seen&&<button ref={toggle} type="button" className="problem-interview-toggle" aria-expanded={expanded} aria-controls={id} onClick={event=>{if(!root.current?.isConnected||interviewPracticePreviewScope(appLocation.hash,problemId,number)!==current)return;if(expanded)close();else{origin.current=event.currentTarget;setOpening(current);}}}>{expanded?<ChevronUp size={14} aria-hidden="true"/>:<ChevronDown size={14} aria-hidden="true"/>}{expanded?t('收起面经预览','Collapse experience preview'):company?t(`预览 ${interviewLabel('companies',company,locale==='en')} 面经`,`Preview ${interviewLabel('companies',company,locale==='en')} experiences`):t('预览关联面经','Preview linked experiences')}</button>}
+  {current&&seen&&<button ref={toggle} type="button" className="problem-interview-toggle" aria-expanded={expanded} aria-controls={id} onClick={event=>{if(!activeSourcePreview(root.current)||interviewPracticePreviewScope(appLocation.hash,problemId,number)!==current)return;if(expanded)close();else{origin.current=event.currentTarget;setOpening(current);}}}>{expanded?<ChevronUp size={14} aria-hidden="true"/>:<ChevronDown size={14} aria-hidden="true"/>}{expanded?t('收起面经预览','Collapse experience preview'):company?t(`预览 ${interviewLabel('companies',company,locale==='en')} 面经`,`Preview ${interviewLabel('companies',company,locale==='en')} experiences`):t('预览关联面经','Preview linked experiences')}</button>}
   <section id={id} ref={panel} hidden={!expanded} className="problem-interview-panel interview-source-preview" role="region" aria-label={t('本题关联面经预览','Linked experience preview for this exercise')} onKeyDown={event=>{
-   if(event.key!=='Escape'||event.defaultPrevented||event.repeat||event.nativeEvent.isComposing||event.nativeEvent.keyCode===229||event.ctrlKey||event.metaKey||event.altKey||event.shiftKey)return;
+   if(!here()||!sourcePreviewEscape(event))return;
    event.preventDefault();event.stopPropagation();close();
   }}>{expanded&&<>
    <header className="problem-interview-preview-heading"><div>{company&&<OrganizationLogo id={company} size={28}/>}<div><h3 ref={heading} tabIndex={-1}>{company?t(`${interviewLabel('companies',company,locale==='en')}的关联面经`,`${interviewLabel('companies',company,locale==='en')} linked experiences`):t('本题关联面经','Linked experiences for this exercise')}</h3><p>{!resource.loading&&!error&&selected?t(`${selected.reports} 篇公开面经 · ${selected.contributors} 位分享者`,`${selected.reports} public ${selected.reports===1?'report':'reports'} · ${selected.contributors} ${selected.contributors===1?'contributor':'contributors'}`):period(days)}</p></div></div><button type="button" className="problem-interview-close" aria-label={t('关闭关联面经预览','Close linked experience preview')} onClick={close}><X size={17} aria-hidden="true"/></button></header>

@@ -16,6 +16,7 @@ button[aria-busy=true],button:disabled[aria-busy=true]{cursor:progress}
 :where(.community-query,.interview-search,.company-choice-search):focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--control-focus)}
 .paper-library .library-toolbar{padding:12px;gap:10px;background:var(--surface2);border:1px solid var(--line);border-radius:12px}
 .paper-library .library-toolbar :is(.search,.select-wrap){border:1px solid var(--line);border-radius:var(--control-radius);background:var(--surface);transition:border-color .15s,box-shadow .15s}
+.paper-library .library-toolbar :is(.search,.select-wrap):hover:not(:focus-within){border-color:var(--text-secondary)}
 .paper-library .library-toolbar :is(.search,.select-wrap):focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--control-focus)}
 .paper-library .library-toolbar :is(.search input,.select-wrap select):focus-visible{outline:none}
 .paper-library .library-toolbar .search{height:auto;min-height:46px}
@@ -42,6 +43,8 @@ button[aria-busy=true],button:disabled[aria-busy=true]{cursor:progress}
 .paper-library .table-head{border:1px solid var(--line);border-radius:9px 9px 0 0;font-weight:550;color:var(--text-secondary)}
 .paper-library .problem-row{transition:background-color .15s}
 .paper-library .problem-row:focus-visible{outline-offset:-3px;background:var(--surface2)}
+.paper-library .paper-result-group:focus-within>.problem-row{background:color-mix(in srgb,var(--accent) 7%,var(--surface))}
+.paper-library .problem-row:active{background:color-mix(in srgb,var(--accent) 12%,var(--surface))}
 .paper-library .problem-row>svg:last-child{transition:transform .15s,color .15s}
 .paper-library .problem-row:is(:hover,:focus-visible)>svg:last-child{transform:translateX(2px);color:var(--accent)}
 .paper-library .paper-info{min-width:0}
@@ -118,3 +121,17 @@ button[aria-busy=true],button:disabled[aria-busy=true]{cursor:progress}
 .paper-library .library-filter-kind{flex:none;color:var(--muted);font-size:var(--type-meta);font-weight:400;white-space:nowrap}
 .paper-library .library-filter-value{min-width:0;max-width:18rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
 .paper-library .active-filters button:hover .library-filter-value{color:var(--accent)}
+/* Shared controls retain native keyboard behavior and clear busy/error states. */
+:where(.social-page,.profile-page,.settings-page,.community-page,.interview-hub,.paper-library,.workspace) :is(input:not([type]),input[type=text],input[type=search],input[type=email],input[type=password],input[type=url],input[type=number],select,textarea):not(.cm-textfield){box-sizing:border-box;max-width:100%;border-radius:var(--control-radius);color:var(--text);font-family:var(--font-sans);transition:border-color .15s,box-shadow .15s}
+:where(.social-page,.profile-page,.settings-page,.community-page,.interview-hub,.paper-library) :is(input:not([type]),input[type=text],input[type=search],input[type=email],input[type=password],input[type=url],input[type=number],select){min-height:44px;padding:8px 11px;line-height:1.5}
+:where(.social-page,.profile-page,.settings-page,.community-page,.interview-hub,.paper-library,.workspace) select:not([multiple]):not([size]){appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238b9099' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:31px;cursor:pointer}
+.paper-library .select-wrap select{background-image:none;padding-right:4px}.paper-library .select-wrap:focus-within{outline:none}
+:where(.social-page,.profile-page,.settings-page,.community-page,.interview-hub,.paper-library,.workspace) :is(input,select,textarea):disabled{cursor:not-allowed;opacity:.6}
+:where(.button,.text-button,.icon-button){border-radius:var(--control-radius)}.button{min-height:44px}.button:disabled,.text-button:disabled,.icon-button:disabled{cursor:not-allowed;box-shadow:none;transform:none;text-decoration:none}
+:where(button,summary)[aria-busy=true]{cursor:progress}
+@media(hover:hover){:where(.social-page,.profile-page,.settings-page,.community-page,.interview-hub) :is(input:not([type]),input[type=text],input[type=search],input[type=email],input[type=password],input[type=url],input[type=number],select,textarea):not(:disabled):hover{border-color:color-mix(in srgb,var(--text-secondary) 45%,var(--line))}}
+:is(input,select,textarea)[aria-invalid=true]:not(:disabled){border-color:var(--red,#d65363)}:is(input,select,textarea)[aria-invalid=true]:focus-visible{outline-color:var(--red,#d65363)}
+:where(summary){transition:color .15s,background-color .15s,border-color .15s}
+@media(prefers-reduced-motion:no-preference){:is(.workspace-layout-popover,.editor-tool-actions){animation:control-surface-enter .14s ease-out}@keyframes control-surface-enter{from{opacity:0}to{opacity:1}}}
+@media(pointer:coarse){:where(.social-page,.profile-page,.settings-page,.community-page,.interview-hub,.paper-library) :is(input:not([type]),input[type=text],input[type=search],input[type=email],input[type=password],input[type=url],input[type=number],select),.button{min-height:44px}}
+@media(prefers-reduced-motion:reduce){:where(input,select,textarea,button,summary){transition:none!important}}

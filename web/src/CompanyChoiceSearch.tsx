@@ -11,7 +11,7 @@ export default function CompanyChoiceSearch({value,onChange,count,statusId}:{val
    <input ref={input} type="search" maxLength={200} value={value} aria-label={t('查找对比公司','Find companies to compare')} aria-describedby={`${help} ${statusId}`} placeholder={t('搜索公司中英文名称或标识…','Search company name or identifier…')} onChange={event=>onChange(composing.current||(event.nativeEvent as InputEvent).isComposing?event.target.value:Array.from(event.target.value).slice(0,100).join(''))} onCompositionStart={()=>{composing.current=true;}} onCompositionEnd={event=>{composing.current=false;onChange(Array.from(event.currentTarget.value).slice(0,100).join(''));}} onKeyDown={event=>{
     const ime=composing.current||event.nativeEvent.isComposing||event.keyCode===229;
     if(event.key==='Enter'){event.stopPropagation();if(!ime)event.preventDefault();return;}
-    if(event.key==='Escape'&&!ime&&value){event.preventDefault();event.stopPropagation();clear();}
+    if(event.key==='Escape'&&!ime&&!event.repeat&&!event.ctrlKey&&!event.metaKey&&!event.altKey&&!event.shiftKey&&value){event.preventDefault();event.stopPropagation();clear();}
    }}/>
    {!!value&&<button type="button" aria-label={t('清空对比公司搜索','Clear comparison company search')} onClick={clear}><X size={16} aria-hidden="true"/></button>}
   </div>

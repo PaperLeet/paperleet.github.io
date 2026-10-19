@@ -34,7 +34,7 @@ export default function HeaderAccountMenu(props:HeaderAccountMenuProps) {
     const frame=requestAnimationFrame(()=>panel.current?.focus({preventScroll:true}));
     const outside=(event:PointerEvent)=>{if(!root.current?.contains(event.target as Node))setOpen(false);};
     const escape=(event:KeyboardEvent)=>{
-      if(event.key!=='Escape'||event.defaultPrevented)return;
+      if(event.key!=='Escape'||event.defaultPrevented||event.isComposing||event.keyCode===229||event.repeat||event.ctrlKey||event.metaKey||event.altKey||event.shiftKey)return;
       event.preventDefault();setOpen(false);trigger.current?.focus({preventScroll:true});
     };
     window.addEventListener('hashchange',close);
@@ -47,7 +47,7 @@ export default function HeaderAccountMenu(props:HeaderAccountMenuProps) {
     if(event.relatedTarget&&!event.currentTarget.contains(event.relatedTarget as Node))setOpen(false);
   }}>
     <button type="button" className="account-menu-trigger" ref={trigger} aria-haspopup="dialog" aria-expanded={open} aria-controls={id} aria-label={t('打开个人菜单','Open personal menu')} title={t('个人菜单','Personal menu')} onClick={()=>setOpen(value=>!value)} onKeyDown={event=>{
-      if(event.key==='ArrowDown'){event.preventDefault();setOpen(true);}
+      if(event.key==='ArrowDown'&&!event.nativeEvent.isComposing&&event.keyCode!==229&&!event.repeat&&!event.ctrlKey&&!event.metaKey&&!event.altKey&&!event.shiftKey){event.preventDefault();setOpen(true);}
     }}>{user?<Avatar user={user} size={32}/>:<span className="guest-avatar" aria-hidden="true"><UserRound size={18}/></span>}</button>
     {open&&<section className="account-menu-panel" ref={panel} tabIndex={-1} id={id} role="dialog" aria-label={t('个人菜单','Personal menu')}>
       <AccountMenuContent {...props} user={user} loading={loading} savedAvailable={capabilities?.community_bookmarks===true} adminAvailable={capabilities?.admin_workspace===true} moderationAvailable={capabilities?.community_reports===true} reportsAvailable={capabilities?.community_report_history===true} onClose={()=>{close();trigger.current?.focus({preventScroll:true});}}/>

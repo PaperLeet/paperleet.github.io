@@ -1,3 +1,4 @@
+import {DailyProblemRow} from './DailyChallenges';
 import {useRef} from 'react';
 import {ArrowRight} from 'lucide-react';
 import AppLink from './AppLink';
@@ -32,6 +33,7 @@ export default function LibraryCollections({papers,problems,saved,progressReady}
           </AppLink>;
         })}
       </nav>
+      <DailyProblemRow problems={problems}/>
     </section>
  );
 }

@@ -29,7 +29,9 @@ try{
  assert.equal(field(),original);assert.equal(field().value,'working search 😀');assert.deepEqual([field().selectionStart,field().selectionEnd,field().selectionDirection,field().scrollLeft],[2,7,'backward',17]);
  const clear=document.querySelector('[aria-label="清空搜索"]');clear.focus();await click(clear);assert.deepEqual(calls,['']);assert.equal(document.activeElement,original);assert.equal(field().value,'');
  applied='';await render();calls.length=0;await click(document.querySelector('#locale'));const storage=JSON.stringify({...localStorage});
- await edit('not submitted');field().focus();let escaped=0;const escape=event=>{if(event.key==='Escape')escaped++;};window.addEventListener('keydown',escape);
+ await edit('not submitted');field().focus();
+ for(const extra of [{ctrlKey:true},{metaKey:true},{altKey:true},{shiftKey:true},{repeat:true},{isComposing:true},{keyCode:229}]){const ignored=await key('keydown','Escape',extra);assert(!ignored.defaultPrevented);assert.equal(field().value,'not submitted','Modified, repeated and IME Escape never erase input');}
+let escaped=0;const escape=event=>{if(event.key==='Escape')escaped++;};window.addEventListener('keydown',escape);
  const cancelled=await key('keydown','Escape');assert(cancelled.defaultPrevented);assert.equal(escaped,0);assert.equal(field().value,'');assert.equal(calls.length,0);assert.equal(location.href,url);assert.equal(JSON.stringify({...localStorage}),storage);assert.equal(document.activeElement,original);
  const empty=await key('keydown','Escape');assert(!empty.defaultPrevented);assert.equal(escaped,1);window.removeEventListener('keydown',escape);
  await edit('new text');const draftClear=document.querySelector('[aria-label="Clear search"]');draftClear.focus();await click(draftClear);assert.equal(calls.length,0,'Discarding an unapplied query cannot reset pagination');assert.equal(document.activeElement,field());

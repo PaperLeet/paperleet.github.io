@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useAccount } from './social';
 import type { Report } from './types';
 import type { QueuedJudgeController, QueuedJudgeView } from './queuedJudgeController';
-import { submissionModuleLoadError, pendingSubmissionModuleLoadError } from './judgeJobs';
+import { submissionModuleLoadError, pendingSubmissionModuleLoadError } from './judgeJobMessages';
 
 const empty=(owner:string):QueuedJudgeView=>({owner,reconnecting:false,error:''});
 function clientId(){
@@ -14,7 +14,7 @@ function clientId(){
 }
 type Context={owner:string;disposed:boolean;controller?:QueuedJudgeController;promise:Promise<QueuedJudgeController>};
 export function useQueuedJudge(owner:string,ready:boolean,onReport:(report:Report,owner:string)=>void){
-  const {health,user}=useAccount(),[client]=useState(clientId),[view,setView]=useState(()=>empty(owner));
+  const {health,user}=useAccount(),client=useRef<string|undefined>(undefined),[view,setView]=useState(()=>empty(owner));
   const callback=useRef(onReport);callback.current=onReport;
   const current=useRef({owner,ready});current.current={owner,ready};
   const context=useRef<Context|undefined>(undefined);
@@ -25,7 +25,8 @@ export function useQueuedJudge(owner:string,ready:boolean,onReport:(report:Repor
     const alive=()=>!next.disposed&&context.current===next&&current.current.owner===owner&&current.current.ready;
     next.promise=import('./queuedJudgeController').catch(()=>{throw new Error(submissionModuleLoadError);}).then(module=>{
       if(!alive())throw new DOMException('Owner changed','AbortError');
-      return next.controller=new module.QueuedJudgeController({owner,client,expectedUser:health?.mode==='hosted'?user?.id:undefined,
+      const identifier=client.current||clientId();client.current=identifier;
+      return next.controller=new module.QueuedJudgeController({owner,client:identifier,expectedUser:health?.mode==='hosted'?user?.id:undefined,
         alive,onView:setView,onReport:(report,runOwner)=>{if(alive())callback.current(report,runOwner);}});
     });
     context.current=next;return next.promise;

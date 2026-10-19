@@ -1,0 +1,429 @@
+{
+  "version": 1,
+  "source": "TrenTorch",
+  "source_url": "https://trentorch.com/problemset",
+  "reviewed_on": "2026-10-19",
+  "basis": "company-inspired-practice-not-interview-reports",
+  "items": [
+    {
+      "id": "trentorch-company-201",
+      "title": "stable softmax logits",
+      "company": "Netflix",
+      "difficulty": "E",
+      "url": "https://trentorch.com/ide/stable-softmax-logits-company-201",
+      "related_modules": [
+        "architecture/attention"
+      ]
+    },
+    {
+      "id": "trentorch-company-202",
+      "title": "distance normalized features",
+      "company": "Uber",
+      "difficulty": "E",
+      "url": "https://trentorch.com/ide/distance-normalized-features-company-202",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-203",
+      "title": "entropy of clicks",
+      "company": "Google",
+      "difficulty": "E",
+      "url": "https://trentorch.com/ide/entropy-of-clicks-company-203",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-204",
+      "title": "missing value mean imputation",
+      "company": "Microsoft",
+      "difficulty": "E",
+      "url": "https://trentorch.com/ide/missing-value-mean-imputation-company-204",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-205",
+      "title": "min max feature scaling",
+      "company": "AWS",
+      "difficulty": "E",
+      "url": "https://trentorch.com/ide/min-max-feature-scaling-company-205",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-206",
+      "title": "precision recall metrics",
+      "company": "Amazon",
+      "difficulty": "E",
+      "url": "https://trentorch.com/ide/precision-recall-metrics-company-206",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-207",
+      "title": "cosine knn vote",
+      "company": "Spotify",
+      "difficulty": "E",
+      "url": "https://trentorch.com/ide/cosine-knn-vote-company-207",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-208",
+      "title": "gini impurity",
+      "company": "Cloudflare",
+      "difficulty": "E",
+      "url": "https://trentorch.com/ide/gini-impurity-company-208",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-209",
+      "title": "best stump threshold",
+      "company": "Zomato",
+      "difficulty": "E",
+      "url": "https://trentorch.com/ide/best-stump-threshold-company-209",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-210",
+      "title": "majority bag vote",
+      "company": "Airbnb",
+      "difficulty": "E",
+      "url": "https://trentorch.com/ide/majority-bag-vote-company-210",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-211",
+      "title": "kmeans assignment",
+      "company": "Meta",
+      "difficulty": "E",
+      "url": "https://trentorch.com/ide/kmeans-assignment-company-211",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-212",
+      "title": "center features for pca",
+      "company": "Apple",
+      "difficulty": "E",
+      "url": "https://trentorch.com/ide/center-features-for-pca-company-212",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-213",
+      "title": "relu layer",
+      "company": "OpenAI",
+      "difficulty": "E",
+      "url": "https://trentorch.com/ide/relu-layer-company-213",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-214",
+      "title": "dense forward pass",
+      "company": "NVIDIA",
+      "difficulty": "E",
+      "url": "https://trentorch.com/ide/dense-forward-pass-company-214",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-215",
+      "title": "batchnorm inference",
+      "company": "Databricks",
+      "difficulty": "E",
+      "url": "https://trentorch.com/ide/batchnorm-inference-company-215",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-216",
+      "title": "sgd update",
+      "company": "Snowflake",
+      "difficulty": "E",
+      "url": "https://trentorch.com/ide/sgd-update-company-216",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-217",
+      "title": "clip gradient norm",
+      "company": "DoorDash",
+      "difficulty": "E",
+      "url": "https://trentorch.com/ide/clip-gradient-norm-company-217",
+      "related_modules": [
+        "foundations/gradient_clipping"
+      ]
+    },
+    {
+      "id": "trentorch-company-218",
+      "title": "masked sequence mean",
+      "company": "Flipkart",
+      "difficulty": "E",
+      "url": "https://trentorch.com/ide/masked-sequence-mean-company-218",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-219",
+      "title": "attention weighted sum",
+      "company": "Swiggy",
+      "difficulty": "E",
+      "url": "https://trentorch.com/ide/attention-weighted-sum-company-219",
+      "related_modules": [
+        "architecture/attention"
+      ]
+    },
+    {
+      "id": "trentorch-company-220",
+      "title": "causal mask",
+      "company": "Razorpay",
+      "difficulty": "E",
+      "url": "https://trentorch.com/ide/causal-mask-company-220",
+      "related_modules": [
+        "architecture/attention"
+      ]
+    },
+    {
+      "id": "trentorch-company-221",
+      "title": "token frequency",
+      "company": "LinkedIn",
+      "difficulty": "E",
+      "url": "https://trentorch.com/ide/token-frequency-company-221",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-222",
+      "title": "sigmoid logits",
+      "company": "ByteDance",
+      "difficulty": "E",
+      "url": "https://trentorch.com/ide/sigmoid-logits-company-222",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-223",
+      "title": "confusion matrix counts",
+      "company": "Salesforce",
+      "difficulty": "E",
+      "url": "https://trentorch.com/ide/confusion-matrix-counts-company-223",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-224",
+      "title": "standardize column",
+      "company": "Shopify",
+      "difficulty": "E",
+      "url": "https://trentorch.com/ide/standardize-column-company-224",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-225",
+      "title": "pairwise distance matrix",
+      "company": "Pinterest",
+      "difficulty": "E",
+      "url": "https://trentorch.com/ide/pairwise-distance-matrix-company-225",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-226",
+      "title": "weighted covariance",
+      "company": "CRED",
+      "difficulty": "M",
+      "url": "https://trentorch.com/ide/weighted-covariance-company-226",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-227",
+      "title": "stratified split",
+      "company": "Booking.com",
+      "difficulty": "M",
+      "url": "https://trentorch.com/ide/stratified-split-company-227",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-228",
+      "title": "leakage safe standardization",
+      "company": "Myntra",
+      "difficulty": "M",
+      "url": "https://trentorch.com/ide/leakage-safe-standardization-company-228",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-229",
+      "title": "roc best threshold",
+      "company": "Reddit",
+      "difficulty": "M",
+      "url": "https://trentorch.com/ide/roc-best-threshold-company-229",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-230",
+      "title": "ridge solve",
+      "company": "Discord",
+      "difficulty": "M",
+      "url": "https://trentorch.com/ide/ridge-solve-company-230",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-231",
+      "title": "best tree split",
+      "company": "Zoom",
+      "difficulty": "M",
+      "url": "https://trentorch.com/ide/best-tree-split-company-231",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-232",
+      "title": "random forest vote",
+      "company": "Grab",
+      "difficulty": "M",
+      "url": "https://trentorch.com/ide/random-forest-vote-company-232",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-233",
+      "title": "pca top component",
+      "company": "Meesho",
+      "difficulty": "M",
+      "url": "https://trentorch.com/ide/pca-top-component-company-233",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-234",
+      "title": "dbscan core point",
+      "company": "Ola",
+      "difficulty": "M",
+      "url": "https://trentorch.com/ide/dbscan-core-point-company-234",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-235",
+      "title": "gmm responsibility",
+      "company": "PhonePe",
+      "difficulty": "M",
+      "url": "https://trentorch.com/ide/gmm-responsibility-company-235",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-236",
+      "title": "binary cross entropy",
+      "company": "Mistral",
+      "difficulty": "M",
+      "url": "https://trentorch.com/ide/binary-cross-entropy-company-236",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-237",
+      "title": "conv1d valid",
+      "company": "Intel",
+      "difficulty": "M",
+      "url": "https://trentorch.com/ide/conv1d-valid-company-237",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-238",
+      "title": "dropout training",
+      "company": "Oracle",
+      "difficulty": "M",
+      "url": "https://trentorch.com/ide/dropout-training-company-238",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-239",
+      "title": "adam one step",
+      "company": "Coinbase",
+      "difficulty": "M",
+      "url": "https://trentorch.com/ide/adam-one-step-company-239",
+      "related_modules": [
+        "optimization/adamw"
+      ]
+    },
+    {
+      "id": "trentorch-company-240",
+      "title": "cosine learning rate",
+      "company": "Adobe",
+      "difficulty": "M",
+      "url": "https://trentorch.com/ide/cosine-learning-rate-company-240",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-241",
+      "title": "layernorm row",
+      "company": "Atlassian",
+      "difficulty": "M",
+      "url": "https://trentorch.com/ide/layernorm-row-company-241",
+      "related_modules": [
+        "architecture/layer_norm"
+      ]
+    },
+    {
+      "id": "trentorch-company-242",
+      "title": "scaled dot attention",
+      "company": "Twilio",
+      "difficulty": "M",
+      "url": "https://trentorch.com/ide/scaled-dot-attention-company-242",
+      "related_modules": [
+        "architecture/attention"
+      ]
+    },
+    {
+      "id": "trentorch-company-243",
+      "title": "lstm cell",
+      "company": "Lyft",
+      "difficulty": "M",
+      "url": "https://trentorch.com/ide/lstm-cell-company-243",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-244",
+      "title": "beam search step",
+      "company": "Zoom",
+      "difficulty": "M",
+      "url": "https://trentorch.com/ide/beam-search-step-company-244",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-245",
+      "title": "sinusoidal position encoding",
+      "company": "Amazon",
+      "difficulty": "M",
+      "url": "https://trentorch.com/ide/sinusoidal-position-encoding-company-245",
+      "related_modules": [
+        "architecture/positional_encoding"
+      ]
+    },
+    {
+      "id": "trentorch-company-246",
+      "title": "bpe single merge",
+      "company": "Netflix",
+      "difficulty": "M",
+      "url": "https://trentorch.com/ide/bpe-single-merge-company-246",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-247",
+      "title": "perplexity from loss",
+      "company": "Microsoft",
+      "difficulty": "M",
+      "url": "https://trentorch.com/ide/perplexity-from-loss-company-247",
+      "related_modules": [
+        "foundations/next_token_loss"
+      ]
+    },
+    {
+      "id": "trentorch-company-248",
+      "title": "gradient accumulation",
+      "company": "Cloudflare",
+      "difficulty": "M",
+      "url": "https://trentorch.com/ide/gradient-accumulation-company-248",
+      "related_modules": [
+        "foundations/gradient_accumulation"
+      ]
+    },
+    {
+      "id": "trentorch-company-249",
+      "title": "early stopping patience",
+      "company": "Uber",
+      "difficulty": "M",
+      "url": "https://trentorch.com/ide/early-stopping-patience-company-249",
+      "related_modules": []
+    },
+    {
+      "id": "trentorch-company-250",
+      "title": "gradient check one parameter",
+      "company": "Google",
+      "difficulty": "M",
+      "url": "https://trentorch.com/ide/gradient-check-one-parameter-company-250",
+      "related_modules": []
+    }
+  ]
+}

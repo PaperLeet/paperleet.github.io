@@ -48,7 +48,7 @@ try {
     response = { sent: true, challenge: 'login-challenge', retry_after: 60 }; failure = pending = undefined;
     root = createRoot(container);
     await act(async () => root.render(React.createElement(LocaleProvider, null, organization
-      ? React.createElement(OrganizationSignIn, { emailLoginAvailable: emailAvailable, providers: [{ id: 'google', available: true }] })
+      ? React.createElement(OrganizationSignIn, { emailLoginAvailable: emailAvailable, providers: options.providers || [{ id: 'google', available: true }],returnTo:'#/22' })
       : React.createElement(SignIn, { enabled, workEmailRegistration: true }))));
   }
   async function change(node, value) {
@@ -126,6 +126,15 @@ try {
   assert(container.querySelector('.login-security [role=status]'));
   await click(container.querySelector('.login-security button'));
   assert(container.querySelector('.organization-login-button').disabled);
+  await render({organization:true,emailAvailable:false,providers:[{id:'github',available:true}]});
+  const github=()=>[...container.querySelectorAll('.organization-login-button')].find(node=>node.textContent.includes('GitHub'));
+  assert(github()?.disabled,'GitHub shares the same challenge gate as other sign-in methods');before=requests.length;await click(github());assert.equal(requests.length,before);
+  await act(async()=>widgets.at(-1).callback('github-one-use-token'));assert(!github().disabled);
+  response={url:'https://unexpected.test/authorize'};await click(github());
+  assert.equal(requests.at(-1).path,'account/oauth/github/start');assert.deepEqual(requests.at(-1).payload,{return_to:'#/22',turnstile_token:'github-one-use-token'});
+  assert(container.querySelector('[role=alert]').textContent.includes('invalid destination'));assert(github().disabled,'A rejected destination consumes the one-use challenge and allows a fresh verification');
+  await act(async()=>widgets.at(-1).callback('github-retry-token'));failure=new SocialError('GitHub temporarily unavailable',503);await click(github());assert(container.querySelector('[role=alert]').textContent.includes('GitHub temporarily unavailable'));assert.equal(requests.at(-1).payload.turnstile_token,'github-retry-token');
+  console.log('PASS GitHub OAuth UI: literal capability entry, shared challenge gate, exact provider/start payload and practice return, one-use token reset, rejected foreign destination and recoverable provider failure');
   delete capabilities.turnstile_site_key;
   await stop();
   delete window.turnstile;

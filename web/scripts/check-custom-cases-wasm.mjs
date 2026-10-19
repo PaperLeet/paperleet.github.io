@@ -1,0 +1,41 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import {createServer} from 'vite';
+import {loadPyodide} from 'pyodide';
+import {loadJudgePackages} from '../public/browser-judge/packages.mjs';
+const server=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom',optimizeDeps:{noDiscovery:true,include:[]}});
+try {
+  const {customCasePython}=await server.ssrLoadModule('/src/customCasePython.ts');
+  const {parseCustomCase,readCustomResult}=await server.ssrLoadModule('/src/customCaseModel.ts');
+  assert.throws(()=>parseCustomCase('solve','{}','{}','',['solve']));
+  assert.throws(()=>parseCustomCase('other','[]','{}','',['solve']));
+  assert.throws(()=>parseCustomCase('solve','[]','[]','',['solve']));
+  assert.throws(()=>parseCustomCase('solve','['+'0,'.repeat(20000)+'0]','{}','',['solve']));
+  const catalog=JSON.parse(fs.readFileSync('public/data/index.json'));
+  const entry=catalog.problems.find(row=>row.id==='architecture/attention');
+  const read=relative=>JSON.parse(fs.readFileSync(path.join('public/data',relative)));
+  const manifest=read(entry.browser_judge.bundle_url),runtime=read(manifest.runtime_bundle_url);
+  const bundle={...manifest,adapter:runtime.adapter,harness:runtime.harness,files:{...runtime.files,...manifest.files}};
+  const py=await loadPyodide({indexURL:path.resolve('node_modules/pyodide/'),packageCacheDir:path.resolve('public/browser-runtime/pyodide-0.29.4/'),stdout(){},stderr(){}});
+  await loadJudgePackages(py,manifest.packages);
+  py.globals.set('bundle_json',JSON.stringify(bundle));
+  py.runPython("import json\nbundle=json.loads(bundle_json)\nexec(compile(bundle['harness'],'browser_harness.py','exec'))\nprepare(bundle,bundle['adapter'],'/judge')");
+  const run=(source,input)=>{py.globals.set('learner_source',source);py.globals.set('custom_case_json',JSON.stringify(input));const raw=JSON.parse(py.runPython(customCasePython));assert(readCustomResult(raw));return raw;};
+  const test=parseCustomCase('solve','[3,4]','{}','5',['solve']);
+  let result=run('def solve(a,b):\n    print("hello")\n    return (a*a+b*b)**0.5',test);
+  assert.equal(result.output,5);assert.equal(result.matches,true);assert.equal(result.stdout,'hello\n');
+  result=run('def solve(a,b): return a+b',test);assert.equal(result.matches,false);
+  result=run('def solve(a,b): raise ValueError("deliberate")',test);assert.equal(result.ok,false);assert(result.error.includes('learner.py'));assert(result.error.includes('deliberate'));
+  result=run('import torch\ndef solve(x,scale=1): return {"scaled": x*scale}',{function:'solve',args:[{__tensor__:[[1,2],[3,4]],dtype:'float64'}],kwargs:{scale:2},expected:{scaled:[[2,4],[6,8]]}});
+  assert.equal(result.matches,true);assert.deepEqual(result.output,{scaled:[[2,4],[6,8]]});
+  result=run('def solve():\n    print("x"*20000)\n    return float("inf")',{function:'solve',args:[],kwargs:{}});assert(result.stdout.endsWith('[Output truncated]'));assert.equal(result.output,'inf');
+  result=run('def solve(): print("😀"*20000)',{function:'solve',args:[],kwargs:{}});assert(readCustomResult(result));
+  result=run('def solve(): return list(range(20000))',{function:'solve',args:[],kwargs:{}});assert.equal(result.ok,false);assert(result.error.includes('limit'));
+  result=run('def solve(): raise SystemExit(1)',{function:'solve',args:[],kwargs:{}});assert.equal(result.ok,false);
+  result=run('def solve(): return True',{function:'solve',args:[],kwargs:{},expected:1});assert.equal(result.matches,false);
+  // A real maintained implementation and its tensor return, not just a toy stub.
+  result=run(bundle.reference,{function:'scaled_dot_product_attention',args:[{__tensor__:[[[[2,0,0,0]]]]},{__tensor__:[[[[1,0,0,0],[0,0,0,0]]]]},{__tensor__:[[[[4],[8]]]]}],kwargs:{}});
+  assert(result.ok,result.error);assert(Array.isArray(result.output));
+  console.log('Custom cases: real Pyodide, maintained attention reference, tensors, kwargs, comparisons, exceptions and bounded Console passed.');
+}finally{await server.close();}

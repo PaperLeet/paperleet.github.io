@@ -33,10 +33,12 @@ if (onlineAccounts) {
   assert(!bellEntry && !manifest['src/InboxPanel.tsx'], 'Unavailable notification controls must be removed from offline editions');
 }
 for (const key of ['src/queuedJudgeController.ts','src/queueAdmission.ts']) {
-  if (process.env.VITE_PUBLIC_SITE === '1') assert(!manifest[key], `${key} must be removed from the browser-only edition`);
+  const name=key.slice(4,-3);
+  const entries=Object.entries(manifest).filter(([id,entry])=>id===key||entry.name===name);
+  if (process.env.VITE_PUBLIC_SITE === '1') assert(!entries.length, `${key} must be removed from the browser-only edition`);
   else {
-    assert(manifest[key]?.isDynamicEntry, `${key} must load only when server judging is needed`);
-    assert(!initial.has(key), `${key} must not load with the paper library`);
+    assert(entries.length===1&&entries[0][1].isDynamicEntry, `${key} must remain a unique deferred server-judge entry`);
+    assert(!initial.has(entries[0][0]), `${key} must not load with the paper library`);
   }
 }
 for (const key of ['src/ResetCodeButton.tsx', 'src/Settings.tsx', 'src/Achievements.tsx', 'src/AchievementObserver.tsx', 'src/BrowserResultActions.tsx', 'src/JudgeRuntimeDetails.tsx', 'src/WorkspaceTestResults.tsx', 'src/WorkspaceLayoutMenu.tsx', 'src/HeaderAccountMenu.tsx', 'src/Interviews.tsx', 'src/ProblemCompanyTags.tsx', 'src/ProblemOverview.tsx']) {
@@ -51,6 +53,10 @@ assert(history.length===1&&!initial.has(history[0][0]), 'Private report history 
 const comparison=Object.entries(manifest).filter(([,entry])=>entry.name==='ModerationSnapshotComparison'&&entry.isDynamicEntry);
 assert(comparison.length===1&&!initial.has(comparison[0][0]), 'Optional moderator snapshot comparison must stay uniquely deferred');
 const files = [...initial].map(key => manifest[key].file);
+for(const marker of ['Invalid judge job response','X-PaperLeet-Client-ID','/api/judge/jobs']){
+ assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes(marker)), 'Job request and polling transport must stay out of the initial library shell');
+ if(process.env.VITE_PUBLIC_SITE!=='1')assert(Object.values(manifest).some(entry=>entry.file.endsWith('.js')&&fs.readFileSync(`dist/${entry.file}`,'utf8').includes(marker)), 'Deferred server job transport must remain available');
+}
 const reportPreview=Object.entries(manifest).filter(([,entry])=>entry.name==='InterviewSourcePreview'&&entry.isDynamicEntry);
 assert(reportPreview.length===1&&!initial.has(reportPreview[0][0]), 'Source experience preview must remain a unique deferred entry');
 assert(manifest['src/MarkdownSectionNav.tsx']?.isDynamicEntry&&!initial.has('src/MarkdownSectionNav.tsx'), 'Optional writing section navigation must remain deferred');
@@ -239,8 +245,10 @@ assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes(
 assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('.community-code-manual')), 'Community code reading styles must remain deferred');
 assert(Object.values(manifest).some(entry => entry.file.endsWith('.js') && fs.readFileSync(`dist/${entry.file}`, 'utf8').includes('community-code-manual')), 'Deferred community Markdown must include the manual code-copy recovery');
 assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('KaTeX_Main-Regular')), 'Math font styles must load with rich text rather than the homepage');
-assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('.python-definition-nav')), 'Python navigation styles must stay deferred with the editor');
-assert((manifest['src/PythonEditor.tsx'].css || []).some(file => fs.readFileSync(`dist/${file}`, 'utf8').includes('.python-definition-nav')), 'The enhanced editor must include its navigation layout');
+assert([...css].every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes('.python-editor-palette')), 'Python navigation styles must stay deferred with the editor');
+assert((manifest['src/PythonEditor.tsx'].css || []).some(file => fs.readFileSync(`dist/${file}`, 'utf8').includes('.python-editor-palette')), 'The enhanced editor must include its navigation layout');
+assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.cm-paperleet-search')), 'Editor search styles must remain deferred');
+assert((manifest['src/PythonEditor.tsx'].css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.cm-paperleet-search')), 'Deferred editor must ship its find and replace layout');
 for (const marker of ['community-tag-browser','Tag filtering is unavailable','community-selected-tags','admin-taxonomy-toolbar']) {
   assert(files.every(file => !fs.readFileSync(`dist/${file}`, 'utf8').includes(marker)), 'Community management and tag interfaces must remain deferred');
   assert(Object.values(manifest).some(entry => entry.file.endsWith('.js') && fs.readFileSync(`dist/${entry.file}`, 'utf8').includes(marker)), 'Deferred community views must include their management and tag interfaces');

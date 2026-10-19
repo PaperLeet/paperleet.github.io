@@ -48,7 +48,7 @@ import { getProblemStats, useProblemStats } from "./ProblemStats";
 import { ResizableSplit } from "./deferredPages";
 import { recommendPractice, nextPractice } from "./practice-recommendation";
 import { useQueuedJudge } from "./useQueuedJudge";
-import { jobErrorText } from "./judgeJobs";
+import { jobErrorText } from "./judgeJobMessages";
 import { reloadApp } from './appRecovery';
 import { useBrowserJudge } from "./useBrowserJudge";
 import { browserReason } from "./browserMessages";
@@ -69,6 +69,8 @@ import { readPaperRegistryRoute,discussionPracticeReturn,readFavoriteRoute,libra
 import "./community.css";
 
 const BrowserLearningNotice=deferredFeature<Parameters<typeof import('./BrowserLearningNotice').BrowserLearningNotice>[0]>(()=>import('./BrowserLearningNotice').then(module=>({default:module.BrowserLearningNotice})),['学习进度提示','learning progress notice'],{loading:()=>null,failure:(_props,retry)=><span className="browser-learning-notice-recovery"><FeatureRetry retry={retry} label={['重试学习进度提示','Retry progress notice']}/></span>});
+const CatalogFeedback=deferredFeature(()=>import('./CatalogFeedback'),['题库','Catalog']);
+const ChallengePanels=deferredFeature(()=>import('./ChallengePanels'),['练习','practice']);
 const EditorTools=deferredFeature(()=>import('./EditorTools'),['',''],{loading:()=> <EditorToolsFallback/>,failure:(_props,retry)=><EditorToolsFallback retry={retry}/>});
 const BrowserRunProgressBody=deferredFeature<import('react').ComponentProps<typeof import('./BrowserRunProgress').BrowserRunProgressBody>>(()=>import('./BrowserRunProgress').then(module=>({default:module.BrowserRunProgressBody})),['运行进度','run progress'],{loading:()=>null,failure:(_props,retry)=><FeatureRetry retry={retry}/>});
 const CommunitySubmissions=deferredFeature(()=>import('./CommunitySubmissions'),['累计提交','total submissions'],{loading:()=>null,failure:()=>null});
@@ -145,6 +147,7 @@ function Workspace() {
     [toast, setToast] = useState(""),
     [font, setFont] = useState(initialEditorFontSize),
     [theme, setTheme] = useState<Theme>(initialTheme);
+  const [customBusy,setCustomBusy]=useState(false);
   const [resultNotice, setResultNotice] = useState<SubmissionCompletion>();
   const [mobilePane, setMobilePane] = useState<"read" | "code">("read");
   const [focusMode, setFocusMode] = useState(false);
@@ -308,7 +311,7 @@ function Workspace() {
   }
   const browserAvailable = !!problem?.browser_judge;
   const browserHere = browser.problem === problem?.id;
-  const running = preparingRun || judge.active || browser.active;
+  const running = preparingRun || judge.active || browser.active || customBusy;
   const canRun = !!problem && !running && practice.ready && !(!browserAvailable && hosted && (!user || !online || !!practice.conflicts[problem.id]));
   useEffect(() => { if (judge.pending?.problem) lastServerProblem.current = judge.pending.problem; }, [judge.pending?.problem]);
   const latestBrowserRun = latestRun?.owner === practice.owner && latestRun.problem === problem?.id && latestRun.mode === "browser";
@@ -510,6 +513,7 @@ function Workspace() {
     /##\s*6[.、．]?\s*(?:怎么运行|编写与运行|在网页中运行|Write and run|Run your implementation|Running)[^\n]*\n[\s\S]*?(?=\n##\s*7|$)/,
     `## 6. ${t("编写与运行", "Write and run")}\n\n${problem?.browser_judge ? t("在右侧完成实现，点击「运行测试」，通过后解锁坑点。注册或登录后提交，可保存解答和成绩到「我的提交」。", "Write code on the right, then Run tests to unlock Notes. Join or sign in, then Submit to save your solution and results in My submissions.") : t("在右侧完成实现，登录后 Submit。服务端会判题并保存解答和结果，可在「我的提交」中查看。", "Write code on the right, then sign in and Submit. The server judges your solution and saves it in My submissions.")}\n\n${t("游客草稿自动保存在当前浏览器，刷新后恢复，不会自动并入账号。", "Guest drafts save in this browser and survive reloads, separately from your account.")}\n`,
   );
+  const libraryActive=!problem&&path!=='daily-challenge'&&!submissionPage&&!communityPage&&!messagesPage&&!interviewPage&&!accountPage&&!settingsPage&&!achievementsPage&&!profileUsername;
   const workspaceSaveState = practice.error || (problem && practice.conflicts[problem.id]) ? "warning"
     : practice.loading || !practice.ready ? "loading"
     : practice.saving || practice.pending ? "saving" : "saved";
@@ -522,21 +526,9 @@ function Workspace() {
           <Brand />
           <nav aria-label={t("主导航", "Main navigation")}>
             <AppLink
-              className={
-                !problem &&
-                !submissionPage &&
-                !communityPage &&
-                !messagesPage &&
-                !interviewPage &&
-                !accountPage &&
-                !settingsPage &&
-                !achievementsPage &&
-                !profileUsername
-                  ? "active"
-                  : ""
-              }
+              className={libraryActive ? "active" : ""}
               href={sourcePostReturn||interviewReturn||registryReturn ? '#' : libraryReturn || '#'}
-              aria-current={!problem && !submissionPage && !communityPage && !messagesPage && !interviewPage && !accountPage && !settingsPage && !achievementsPage && !profileUsername ? 'page' : undefined}
+              aria-current={libraryActive ? 'page' : undefined}
             >
               <BilingualText zh="论文题库" en="Papers" />
             </AppLink>
@@ -574,7 +566,7 @@ function Workspace() {
           </div>
         </div>
       </header>
-      {backupOpen && <WorkspaceBackup key={practice.owner} owner={practice.owner} problems={problems} saved={saved} backups={practice.backups} conflicts={practice.conflicts}
+      {backupOpen && <WorkspaceBackup key={`backup:${practice.owner}`} owner={practice.owner} problems={problems} saved={saved} backups={practice.backups} conflicts={practice.conflicts}
         recovery={{blocked:!!editorRecoveryReason,reason:editorRecoveryReason,reload:() => {
           if (!editorRecoveryReason && practice.owns(practice.owner)) location.reload();
         }}}
@@ -602,6 +594,8 @@ function Workspace() {
           backupReady={practice.owner !== 'unresolved' && problems.length > 0}
           accountHref={user ? hostedAppHref('#/account') : undefined}
           workspaceName={user ? t(`${user.display_name} 的账号工作区`, `${user.display_name}’s account workspace`) : t('当前练习工作区', 'Current practice workspace')} />
+      ) : path === 'daily-challenge' ? (
+        <main><ChallengePanels problems={problems} route={id}/></main>
       ) : interviewPage ? (
         <Interviews route={id} papers={papers} problems={problems} catalogError={loadError} onRetryCatalog={()=>void loadCatalog()} saved={learningSaved} progressReady={progressReady} progressError={practice.error || (learning.failed ? "unavailable" : undefined)} onRetryProgress={()=>{practice.retry();learning.retry();}} />
       ) : path === 'paper-registry' ? (
@@ -634,21 +628,14 @@ function Workspace() {
           onPublished={loadCatalog}
         />
       ) : loadError ? (
-        <main className="load-error">
-          <AlertCircle size={35} aria-hidden="true"/>
-          <h2>{t("题库暂时不可用", "Catalog unavailable")}</h2>
-          <p>{loadError}</p>
-          <button className="button" onClick={loadCatalog}>
-            {t("重新加载", "Reload")}
-          </button>
-        </main>
+        <CatalogFeedback error={loadError} onRetry={loadCatalog}/>
       ) : !problems.length ? (
         <main className="loading">
           <span className="spinner" />
           {t("正在加载论文题库…", "Loading papers…")}
         </main>
       ) : !sourceProblem && !selectedPaper && !libraryView ? (
-        <main className="route-not-found"><BookOpen size={32} /><h1>{t("找不到这篇论文或模块", "Paper or module not found")}</h1><p>{t("链接可能已失效，或内容已经调整。", "This link may be outdated or the content may have changed.")}</p><code>{path.slice(0,120)}</code><AppLink className="button" href={libraryReturn || "#"}><ArrowLeft size={15} />{backLabel}</AppLink></main>
+        <CatalogFeedback path={path} href={libraryReturn||"#"} label={backLabel}/>
       ) : sourceProblem && !problem ? (
         <main className={detailError === sourceProblem.detail_url ? "load-error" : "loading"}>
           {detailError === sourceProblem.detail_url ? <>
@@ -873,6 +860,7 @@ function Workspace() {
                   <span>{running ? t("运行中…", "Running…") : browserRunStopped ? t("已停止", "Stopped") : runCancelled ? t("已取消", "Cancelled") : runFailed ? t("运行未完成", "Run incomplete") : hasCurrentSyntaxError ? t("语法错误", "Syntax error") : reportSource === "changed" || syntaxFailure ? t("代码已修改", "Code changed") : report && reportSource !== "current" ? t("上次运行", "Previous run") : report ? `${report.tests.filter(test => test.passed).length} / ${report.tests.length}` : t("等待运行", "Ready to run")}</span>
                 </div>
                 <div id="problem-results-content">
+                  <ChallengePanels key={`custom:${practice.owner}:${problem.id}`} problem={problem} source={currentSource} ready={practice.ready&&!practice.loading} busy={running&&!customBusy} onBusyChange={setCustomBusy}/>
                   {currentRunNotice && <div className="practice-notice" role="alert">{currentRunNotice}</div>}
                   {preparingRun && !browser.active && !judge.active && <p className="practice-notice" role="status">{t("正在准备运行…", "Preparing your run…")}</p>}
                   {problem.browser_judge && (browser.active || browser.reasons[problem.id] || browser.diagnostics[problem.id] || completedBrowserReport) && <div className="browser-judge-panel">
@@ -997,6 +985,7 @@ function Workspace() {
                   </div>
             </section>
             <section className="editor-pane" id="problem-editor-panel">
+              <div className="editor-header">
               <div className="pane-tabs editor-tabs" role="tablist" aria-label={t('工作区视图','Workspace view')} onKeyDown={navigateTabs}>
                 <button
                   id="editor-tab-code"
@@ -1008,7 +997,7 @@ function Workspace() {
                   onClick={() => setRightTab("code")}
                 >
                   <Code2 size={15} />
-                  {t("代码", "Code")}
+                  {t("代码", "Code")}<span className="editor-tab-filename">solution.py</span>
                 </button>
                 <button
                   id="editor-tab-lab"
@@ -1025,22 +1014,11 @@ function Workspace() {
                 {user && <button id="editor-tab-history" role="tab" aria-selected={rightTab==="history"} tabIndex={rightTab==="history"?0:-1} aria-controls="editor-history-view" className={rightTab === "history" ? "selected" : ""} onClick={() => setRightTab("history")}>
                   {t("我的提交", "My submissions")}
                 </button>}
-                <span className="editor-language">Python 3 · PyTorch</span>
               </div>
-              <div className="editor-history" id="editor-history-view" role="tabpanel" aria-labelledby="editor-tab-history" hidden={rightTab!=='history' || !user}>
-                {rightTab === 'history' && user && <SolutionHistory key={`${practice.owner}:${problem.id}`} owner={practice.owner} problem={problem} revision={submissionRevision} />}
-              </div>
-              <div className="editor-lab" id="editor-lab-view" role="tabpanel" aria-labelledby="editor-tab-lab" tabIndex={0} hidden={rightTab!=='lab'}>
-                {rightTab === 'lab' && <Visuals key={problem.id} problem={problem} report={report} sourceState={reportSource} initialView="auto" />}
-              </div>
-              <div className="editor-workbench" id="editor-code-view" role="tabpanel" aria-labelledby="editor-tab-code" hidden={rightTab!=='code'}>
-                  <div className="editor-code-panel" id="problem-code-panel">
-                  <div className="editor-tools">
-                    <span className="editor-filename">
-                      <WorkspacePanelIcon name="file" size={13} />
-                      solution.py
-                    </span>
-                    <div>
+                  <div className="editor-tools" hidden={rightTab!=='code'}>
+                    <details className="editor-actions">
+                      <summary aria-label={t('编辑器操作','Editor actions')} title={t('编辑器操作','Editor actions')}>···</summary>
+                      <div className="editor-actions-panel">
                       <EditorTools owner={practice.owner} problem={problem} saved={current} ready={practice.ready}
                         busy={practice.pending||practice.saving||running} conflict={!!practice.conflicts[problem.id]} failed={!!practice.error} signedIn={!!user}
                         font={font} onFont={setFont} canUseCode={()=>practice.ready&&practice.owns(practice.owner)&&[problem.id,String(problem.number)].includes(routePath(getId()))}
@@ -1056,8 +1034,18 @@ function Workspace() {
                       >
                         <WorkspacePanelIcon name="download" size={14}/>
                       </button>
-                    </div>
+                      </div>
+                    </details>
                   </div>
+              </div>
+              <div className="editor-history" id="editor-history-view" role="tabpanel" aria-labelledby="editor-tab-history" hidden={rightTab!=='history' || !user}>
+                {rightTab === 'history' && user && <SolutionHistory key={`${practice.owner}:${problem.id}`} owner={practice.owner} problem={problem} revision={submissionRevision} />}
+              </div>
+              <div className="editor-lab" id="editor-lab-view" role="tabpanel" aria-labelledby="editor-tab-lab" tabIndex={0} hidden={rightTab!=='lab'}>
+                {rightTab === 'lab' && <Visuals key={problem.id} problem={problem} report={report} sourceState={reportSource} initialView="auto" />}
+              </div>
+              <div className="editor-workbench" id="editor-code-view" role="tabpanel" aria-labelledby="editor-tab-code" hidden={rightTab!=='code'}>
+                  <div className="editor-code-panel" id="problem-code-panel">
                   <div className="editor-copy-recovery"/>
                   <div className="code-editor">
                     <PythonEditor

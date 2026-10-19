@@ -1,3 +1,4 @@
+import {activeSourcePreview,sourcePreviewEscape} from './sourcePreviewKeyboard';
 import {useId,useLayoutEffect,useRef,useState} from 'react';
 import {Building2,ChevronUp,X} from 'lucide-react';
 import AppLink from './AppLink';
@@ -32,7 +33,7 @@ function Companies({problem,returnTo,owner,favoriteAvailable}:LibraryCompanyGene
  const resource=useInterviewResource<unknown>('community/interviews/summary?'+new URLSearchParams({days,problem_id:problem.id}),visited&&sameView,retry,scope);
  const evidence=readProblemInterviewEvidence(resource.data,problem.id,days),error=resource.error||(resource.data&&!evidence?t('暂时无法确认本题的公司来源，请重试。','Could not confirm company sources for this exercise. Please retry.'):'');
  const name=locale==='en'?problem.translations?.en?.title||problem.title:problem.title;
- const here=()=>sameView&&root.current?.isConnected&&!root.current.closest('[hidden],[aria-hidden="true"]')&&!!matchesCurrentView();
+ const here=()=>sameView&&activeSourcePreview(root.current)&&!!matchesCurrentView();
  function matchesCurrentView(){const now=readLibraryRoute(appLocation.hash);return now&&libraryHref(now.collectionId,now.filters)===returnTo;}
  useLayoutEffect(()=>{
   const claim=pending.current;if(!claim)return;pending.current=undefined;
@@ -41,7 +42,7 @@ function Companies({problem,returnTo,owner,favoriteAvailable}:LibraryCompanyGene
  function close(){if(!here()||!open)return;pending.current=undefined;intent.cancel();if(panel.current?.contains(document.activeElement)){toggle.current?.focus({preventScroll:true});if(toggle.current)keepReadingTriggerVisible(toggle.current,100);}setPreviewCompany('');setOpen(false);}
  if(!sameView)return null;
  return <div ref={root} className="library-exercise-companies" data-company-problem={problem.id} onKeyDown={event=>{
-  if(!open||event.key!=='Escape'||event.defaultPrevented||event.repeat||event.nativeEvent.isComposing||event.nativeEvent.keyCode===229||event.ctrlKey||event.metaKey||event.altKey||event.shiftKey||(event.target as HTMLElement).closest('input,textarea,select,[contenteditable]:not([contenteditable="false"])'))return;
+  if(!open||!here()||!sourcePreviewEscape(event))return;
   event.preventDefault();event.stopPropagation();close();
  }}>
   <div className="library-exercise-row-actions" role="group" aria-label={t(`${name}的题目操作`,`Exercise actions for ${name}`)} data-favorite-available={favoriteAvailable||undefined}>{favoriteAvailable&&<LibraryExerciseFavorite problemId={problem.id} problemName={name} returnTo={returnTo} showStudyLists={false} canAct={()=>!!here()}/>}
