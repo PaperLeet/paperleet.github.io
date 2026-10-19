@@ -22,7 +22,7 @@ function inventory(directory, prefix = '') {
   return files;
 }
 function artifact(mode, directory, sha, env = process.env) {
-  assert(/^[a-f0-9]{40}$/.test(sha), 'Expected a full source revision');
+  assert(typeof sha === 'string' && sha.length === 40 && /^[a-f0-9]+$/.test(sha), 'Expected a full source revision');
   assert(fs.statSync(path.join(directory, 'index.html')).isFile(), 'Missing production homepage');
   const filename = path.join(directory, metadata);
   if (mode === 'write') {

@@ -65,7 +65,7 @@ jobs:
           VITE_HOSTED_APP_URL: https://app.paperleet.com
         run: |
           npm run build
-          node scripts/pages-build-metadata.cjs write dist "$GITHUB_SHA"
+          node scripts/pages-build-metadata.cjs write dist "$(git rev-parse HEAD)"
       - name: Validate production asset retention
         run: |
           python web/scripts/check-pages-assets.py
