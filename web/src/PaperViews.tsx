@@ -115,7 +115,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
     resultsHeading.current?.focus({preventScroll:true});resultsHeading.current?.scrollIntoView({block:'start',behavior:'instant'});
     change({page:next>1?next:undefined,page_size:nextSize===20?undefined:nextSize},true);
   }
-  const pagination={page,size,total:rowIds.length,modules:!!moduleView,listId,onPage:(page:number)=>paginate(page),onSize:(size:import('./libraryNavigation').LibraryPageSize)=>paginate(outOfRange?1:Math.floor(offset/size)+1,size)};
+  const pagination={page,size,canAct:currentView,total:rowIds.length,modules:!!moduleView,listId,onPage:(page:number)=>paginate(page),onSize:(size:import('./libraryNavigation').LibraryPageSize)=>paginate(outOfRange?1:Math.floor(offset/size)+1,size)};
   useEffect(() => {
     if (waitingForStatus) return;
     let disposed = false, stop: (() => void) | undefined;

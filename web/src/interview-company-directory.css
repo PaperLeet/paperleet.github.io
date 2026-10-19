@@ -1,19 +1,19 @@
 .interview-company-directory { margin-top:22px; min-width:0; }
-.company-directory-toolbar { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; }
+.company-directory-toolbar { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px 18px; padding:12px 14px; border:1px solid var(--line); border-radius:12px; background:var(--surface2); }
 .company-directory-toolbar > p { margin:0; color:var(--muted); font-size:var(--type-small); font-variant-numeric:tabular-nums; }
 .company-directory-toolbar label { display:flex; align-items:center; gap:8px; color:var(--muted); font-size:var(--type-small); }
-.company-directory-toolbar select { min-width:0; min-height:40px; padding:7px 10px; border:1px solid var(--line); border-radius:7px; background:var(--surface); color:var(--text); font-size:var(--type-control); }
+.company-directory-toolbar select { min-width:160px; min-height:44px; padding:7px 10px; border:1px solid var(--line); border-radius:7px; background:var(--surface); color:var(--text); font-size:var(--type-control); }
 .company-directory-hint { margin:10px 0 0; font-size:var(--type-small); line-height:1.8; color:var(--muted); overflow-wrap:anywhere; }
 .interview-company-directory .interview-company-grid { margin-top:16px; }
 .interview-company-entry { display:flex; flex-direction:column; min-width:0; overflow:hidden; border:1px solid var(--line); border-radius:12px; background:var(--surface); }
 .interview-company-entry:focus-within { border-color:var(--accent); }
 .interview-company-entry > .interview-company-card { flex:1; border:0; border-radius:0; background:transparent; }
 .interview-company-entry > .interview-company-card:hover { background:color-mix(in srgb,var(--accent) 4%,var(--surface)); }
-.interview-company-entry .interview-company-card > b { padding-right:8px; line-height:1.5; overflow-wrap:anywhere; }
+.interview-company-entry .interview-company-card > b { padding-right:8px; font-size:var(--type-lead); font-weight:600; line-height:1.5; overflow-wrap:anywhere; }
 .interview-company-entry .interview-company-resource-count { margin-top:auto; padding-top:6px; color:var(--muted); font-size:var(--type-small); line-height:1.6; }
 .interview-company-entry .company-directory-concepts { color:var(--accent); }
-.company-directory-actions { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,120px),1fr)); gap:1px; border-top:1px solid var(--line); background:var(--line); }
-.company-directory-actions :is(a,button) { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:6px; min-width:0; min-height:40px; padding:9px 8px; background:var(--surface2); color:var(--muted); font-size:var(--type-small); line-height:1.5; text-align:center; overflow-wrap:anywhere; }
+.company-directory-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1px; border-top:1px solid var(--line); background:var(--line); }
+.company-directory-actions :is(a,button) { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:6px; min-width:0; min-height:44px; padding:9px 8px; background:var(--surface2); color:var(--muted); font-size:var(--type-small); line-height:1.5; text-align:center; overflow-wrap:anywhere; }
 .company-directory-actions :is(a,button):hover { color:var(--accent); background:var(--surface); }
 .company-directory-toolbar select:focus-visible,.interview-company-entry a:focus-visible { outline:2px solid var(--accent); outline-offset:-3px; }
 @media(max-width:760px) { .interview-company-directory .interview-company-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
@@ -22,7 +22,7 @@
 
 .company-directory-learning > p { margin:14px 0 0; font-size:var(--type-small); line-height:1.7; color:var(--muted); }
 .company-directory-recovery { display:flex; align-items:center; flex-wrap:wrap; gap:6px 12px; margin-top:10px; padding:10px 12px; border:1px solid var(--line); border-radius:8px; background:var(--surface); font-size:var(--type-small); line-height:1.7; color:var(--muted); }
-.company-directory-recovery > button { min-height:40px; padding:7px 9px; color:var(--accent); font:inherit; cursor:pointer; }
+.company-directory-recovery > button { min-height:44px; padding:7px 9px; color:var(--accent); font:inherit; cursor:pointer; }
 .company-directory-practice { display:grid; gap:7px; padding:12px 18px; border-top:1px solid var(--line); background:var(--surface); font-size:var(--type-small); line-height:1.6; min-width:0; }
 .company-directory-practice > div { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:4px 12px; }
 .company-directory-practice span,.company-directory-practice small { color:var(--muted); font-size:var(--type-small); }
@@ -33,3 +33,28 @@
 .company-directory-practice progress::-moz-progress-bar { background:var(--accent); }
 .company-directory-recovery > button:focus-visible { outline:2px solid var(--accent); outline-offset:2px; border-radius:5px; }
 @media(pointer:coarse) { .company-directory-recovery > button { min-height:44px; } }
+
+.company-directory-results{min-width:0;scroll-margin-top:96px}
+.interview-company-entry:hover{border-color:color-mix(in srgb,var(--accent) 40%,var(--line))}
+.interview-company-entry .interview-company-mark{display:grid;place-items:center;width:48px;height:48px;border-radius:12px;background:var(--surface2)}
+.interview-company-entry>.interview-company-card{padding:20px;gap:10px}
+.interview-company-entry .interview-company-card>svg{top:36px;right:20px}
+.company-directory-actions>.company-target-button,.company-directory-actions>a:only-child{grid-column:1/-1}
+.company-directory-actions>.company-target-button[aria-pressed=true]{background:color-mix(in srgb,var(--accent) 8%,var(--surface));color:var(--accent);font-weight:550}
+.company-directory-actions>[aria-busy=true]{cursor:progress}
+.company-directory-actions>:focus-visible{position:relative;z-index:1;outline:2px solid var(--accent);outline-offset:-3px}
+.company-directory-toolbar select:hover{border-color:var(--text-secondary)}
+@media(max-width:420px){.company-directory-toolbar{align-items:stretch}.company-directory-toolbar>p{flex-basis:100%}.company-directory-toolbar select{min-width:0}.interview-company-entry>.interview-company-card{padding:18px}}
+@media(prefers-reduced-motion:no-preference){.interview-company-entry,.company-directory-actions>:is(a,button),.company-directory-toolbar select{transition:background-color .15s,border-color .15s,color .15s}}
+@media(forced-colors:active){.company-directory-actions>.company-target-button[aria-pressed=true]{outline:2px solid Highlight;outline-offset:-3px}}
+
+.company-directory-controls{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:10px 16px;min-width:0}
+.company-directory-toolbar .company-directory-target-toggle{min-height:44px;padding:8px 11px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--text-secondary);cursor:pointer}
+.company-directory-target-toggle input[type=checkbox]{appearance:auto;flex:none;width:16px;height:16px;min-width:16px;min-height:16px;margin:0;padding:0;accent-color:var(--accent);cursor:pointer}
+.company-directory-target-toggle input:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.company-directory-target-toggle input:disabled{cursor:not-allowed}
+.company-directory-target-toggle>small{display:grid;place-items:center;min-width:23px;padding:1px 5px;border-radius:5px;background:var(--surface2);font-size:var(--type-meta);font-variant-numeric:tabular-nums}
+.company-directory-toolbar .company-directory-target-toggle[data-selected=true]{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 6%,var(--surface))}
+.company-directory-target-state>div{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px 16px}
+@media(max-width:620px){.company-directory-controls{flex-basis:100%;justify-content:space-between}.company-directory-toolbar .company-directory-target-toggle{flex:1 1 auto}.company-directory-controls>label:last-child{flex:1 1 200px}.company-directory-controls select{flex:1;min-width:0}}
+@media(forced-colors:active){.company-directory-target-toggle[data-selected=true]{outline:2px solid Highlight;outline-offset:-3px}}

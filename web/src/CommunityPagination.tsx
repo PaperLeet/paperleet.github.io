@@ -22,7 +22,7 @@ export default function CommunityPagination({offset,total,count,onChange,label,c
    <NumberedPages page={page} pages={available} totalPages={pages} controls={controls} onChange={next=>go((next-1)*PAGE_SIZE)}/>
    <button type="button" data-pagination-control="" disabled={!valid||page>=available} aria-label={t('下一页','Next page')} aria-controls={controls} onClick={()=>go(offset+PAGE_SIZE)}><ChevronRight size={17} aria-hidden="true"/></button>
   </div>
-  {pages>=4&&<PageJump page={page} maxPage={available} controls={controls} onChange={next=>go((next-1)*PAGE_SIZE)} label={t('跳转列表页码','Jump to list page')}/>}
+  {pages>=4&&<PageJump canAct={()=>isPaginationActive(root.current)&&canAct()} page={page} maxPage={available} controls={controls} onChange={next=>go((next-1)*PAGE_SIZE)} label={t('跳转列表页码','Jump to list page')}/>}
   {pages>MAX_COMMUNITY_PAGE&&<p className="community-page-limit">{t('结果较多，请使用搜索或筛选缩小范围。','There are too many results to browse at once. Narrow the search or filters.')}</p>}
   {expired&&<button type="button" className="community-page-recovery" aria-controls={controls} onClick={()=>go(0)}>{t('返回第一页','Return to first page')}</button>}
  </nav>;

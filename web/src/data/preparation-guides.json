@@ -1151,6 +1151,30 @@
             "en": "Combine hand-computable coefficients, a mixed-time batch and a variance check. Array index zero corresponds to the paper’s first noising step here."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "marginals-versus-coupling",
+          "question": {
+            "zh": "固定 x0，在多个时间调用 q_sample 时重复使用同一份标准高斯 noise，得到的联合轨迹就是 DDPM 的逐步前向链吗？",
+            "en": "For fixed x0, does reusing one standard Gaussian noise in q_sample at multiple times produce the DDPM forward chain jointly?"
+          },
+          "hint": {
+            "zh": "各时间的边缘分布正确，但联合分布一般不同。记 a_s、a_t 为累计 alpha，0<a_t<a_s<1。共享噪声时，给定 x0 的跨时间协方差为 sqrt((1-a_s)*(1-a_t))*I；DDPM 的独立逐步增量给出 sqrt(a_t/a_s)*(1-a_s)*I。闭式边缘采样没有指定完整轨迹耦合。",
+            "en": "Each marginal is correct, but the joint distribution generally differs. Write cumulative alphas as a_s and a_t, with 0<a_t<a_s<1. Conditional on x0, shared noise gives covariance sqrt((1-a_s)*(1-a_t))*I; independent DDPM increments give sqrt(a_t/a_s)*(1-a_s)*I. A closed-form marginal sampler does not specify the full trajectory coupling."
+          }
+        },
+        {
+          "id": "coarsened-beta",
+          "question": {
+            "zh": "把方差为 beta1、beta2 的相邻两步合成一步，只想保持终点的前向边缘，beta 能直接相加吗？",
+            "en": "To merge adjacent forward steps with variances beta1 and beta2 while preserving the endpoint marginal, can you just add the betas?"
+          },
+          "hint": {
+            "zh": "信号保留因子相乘，所以 beta_eff=1-(1-beta1)*(1-beta2)=beta1+beta2-beta1*beta2；多步则取保留因子的乘积。直接相加会漏掉交叉项。本题线性调度固定首尾 beta，改变 T 也不自动保持相同累计 alpha；比较终点应核对累计系数，而非只对齐索引。",
+            "en": "Signal-retention factors multiply, so beta_eff=1-(1-beta1)*(1-beta2)=beta1+beta2-beta1*beta2; extend this using a product for more steps. Addition drops the cross term. This exercise fixes the linear schedule endpoints, so changing T does not automatically preserve cumulative alpha. Compare cumulative coefficients, not just indices."
+          }
+        }
       ]
     },
     {
@@ -1193,6 +1217,30 @@
           "hint": {
             "zh": "固定同一对数据与噪声，对旋转角做中心有限差分，再分别检查 alpha=0 与 sigma=0。提供的除法 clamp 只保证有限值，不能恢复端点已经丢失的信息。",
             "en": "Fix the same data/noise pair and take a central finite difference in angle, then test alpha=0 and sigma=0 separately. The supplied division clamp keeps values finite; it cannot recover information absent at an endpoint."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "rotation-energy",
+          "question": {
+            "zh": "不要求 x0 与 epsilon 正交，是否仍有 ||x_t||^2+||v||^2=||x0||^2+||epsilon||^2？这个检查能揭露什么，又会漏掉什么？",
+            "en": "Without requiring x0 and epsilon to be orthogonal, does ||x_t||^2+||v||^2=||x0||^2+||epsilon||^2 still hold? What can this check reveal or miss?"
+          },
+          "hint": {
+            "zh": "当每个位置 alpha^2+sigma^2=1 时，展开两项的交叉内积会抵消，不需要数据和噪声向量正交。可用相关的非零输入检查旋转的符号与缩放；只用正交输入可能掩盖部分符号错误。但把整个 v 取反不会改变能量，因此仍需方向和往返检查。",
+            "en": "With alpha^2+sigma^2=1 at every position, cross inner products cancel; the data and noise vectors need not be orthogonal. Correlated nonzero inputs can expose sign and scale errors that orthogonal inputs may hide. Negating the entire v leaves energy unchanged, so also check orientation and round trips."
+          }
+        },
+        {
+          "id": "normalization-premise",
+          "question": {
+            "zh": "作为归一化前提之外的思考实验，把 alpha、sigma 都乘正数 k（k≠1）后重算 x_t、v，再照搬无除法逆变换，会恢复原输入吗？",
+            "en": "As a thought experiment outside the normalization premise, scale both alpha and sigma by positive k≠1, recompute x_t and v, then reuse the division-free inverse. Does it recover the inputs?"
+          },
+          "hint": {
+            "zh": "一般不会，朴素逆变换会得到 k^2*x0 与 k^2*epsilon。一般矩阵的逆还需除以 alpha^2+sigma^2，只有该值为 1 时才是转置即逆。这解释了为何本题必须使用已开方且归一化的信号/噪声系数，不能直接塞入累计 alpha。这个推导不扩大当前接口，也不要求改写已提供的辅助函数。",
+            "en": "Generally no: the naive inverse returns k^2*x0 and k^2*epsilon. The general inverse also divides by alpha^2+sigma^2; only when this equals one is the transpose the inverse. This explains the normalized standard-deviation coefficients and why raw cumulative alpha cannot be substituted. The derivation does not extend the interface or require changing supplied helpers."
           }
         }
       ]
@@ -1238,6 +1286,30 @@
             "en": "Check posterior coefficients and final-step noise masking before fixed-seed distribution metrics. Finite discretization and finite samples naturally introduce error."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "posterior-not-convex-average",
+          "question": {
+            "zh": "q_posterior 的均值由 x0 和 x_t 两项组成，它们的系数必须加起来等于 1 吗？能否再做一次权重归一化？",
+            "en": "Must the two coefficients of x0 and x_t in q_posterior sum to one? Can you normalize those weights again?"
+          },
+          "hint": {
+            "zh": "这些系数来自带信号缩放的高斯条件分布，一般不构成和为 1 的凸组合。额外归一化会改变解析后验。可以令 x0=x_t 为同一个非零值，保留公式中的系数和来检查；索引 t=0 是特殊边界，此时前一累计 alpha 为 1，均值回到 x0、方差为零。",
+            "en": "The coefficients come from a Gaussian conditional with signal scaling and generally do not form a convex combination summing to one. Renormalization changes the analytic posterior. Set x0=x_t to one nonzero value and retain the actual coefficient sum as a check. Index t=0 is special: previous cumulative alpha is one, the mean is x0 and variance is zero."
+          }
+        },
+        {
+          "id": "coupled-variance-options",
+          "question": {
+            "zh": "固定 x_t、epsilon 预测、逐样本时间和同一噪声 z，怎样比较 beta 与 posterior 两种 p_sample_step 输出并定位最终噪声屏蔽错误？",
+            "en": "Holding x_t, epsilon predictions, per-example times and the same noise z fixed, how can you compare beta and posterior p_sample_step outputs and catch a missing final-noise mask?"
+          },
+          "hint": {
+            "zh": "对 t>0 的行，后验均值相同，beta 选项减去 posterior 选项应为 [sqrt(beta_t)-sqrt(tilde_beta_t)]*z。对 t=0 的行，两种选项都必须忽略 z，因此差值为零，不能机械套用前一式。混合时间 batch 能区分逐行屏蔽与只看 batch 第一个时间的错误。",
+            "en": "For rows with t>0 the posterior mean is shared, so beta output minus posterior output is [sqrt(beta_t)-sqrt(tilde_beta_t)]*z. At t=0 both ignore z and the difference is zero; the preceding formula must not be applied blindly. Mixed-time batches distinguish rowwise masking from incorrectly using only the first time."
+          }
+        }
       ]
     },
     {
@@ -1278,6 +1350,30 @@
           "hint": {
             "zh": "相邻时间 eta=1 可核对 DDPM 后验方差；完美单点预测器应在一步或多步后到达同一个干净点。固定初始噪声比较网格，反演只检验误差随步数下降，不要求有限步逐位可逆。",
             "en": "At adjacent times, eta=1 checks the DDPM posterior variance. A perfect point predictor must reach the same clean point in one or many steps. Compare grids with fixed initial noise; inversion checks error reduction with more steps rather than bitwise reversibility at finite steps."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "equal-coefficients-identity",
+          "question": {
+            "zh": "在避开数值下限的 0<a<1 区间，令目标累计系数 b=a，ddim_step 应是什么映射？通过它能证明 epsilon 预测正确吗？",
+            "en": "Away from numerical floors with 0<a<1, set the target cumulative coefficient b=a. What map should ddim_step produce, and does passing it prove epsilon predictions correct?"
+          },
+          "hint": {
+            "zh": "此时 sigma=0，sqrt(a)*x0_hat 与 sqrt(1-a)*epsilon 的噪声项抵消，应返回 x_t，与 eta 和传入噪声无关。错误的 epsilon 预测也可能被这条恒等关系完全抵消，所以它只验证更新代数的一部分，不能当成去噪器准确率或生成质量的证据。",
+            "en": "Here sigma=0 and the epsilon terms in sqrt(a)*x0_hat plus sqrt(1-a)*epsilon cancel, returning x_t independently of eta and supplied noise. Even incorrect epsilon predictions can cancel in this identity. It verifies part of the update algebra, not denoiser accuracy or generation quality."
+          }
+        },
+        {
+          "id": "eta-one-coarse-transition",
+          "question": {
+            "zh": "eta=1 是否意味着任意跳步都等于依次执行所有 DDPM 小步？怎样写出这一跳对应的有效 beta？",
+            "en": "Does eta=1 make any skipped step equal to executing every DDPM step in between? What is the effective beta for the skipped transition?"
+          },
+          "hint": {
+            "zh": "从目标累计信号 b 到当前 a 的有效前向 beta 是 1-a/b；对应条件后验方差为 (1-b)/(1-a)*(1-a/b)。相邻时间时它恢复 DDPM 的 posterior 方差，采用相同预测、无裁剪和同一噪声时可比较单步公式。跳过时间后，缺少的中间模型调用并不会自动被一跳等价替代。",
+            "en": "The effective forward beta from cumulative signal b to a is 1-a/b, giving conditional posterior variance (1-b)/(1-a)*(1-a/b). Adjacent times recover the DDPM posterior variance, allowing a one-step comparison with the same prediction, no clipping and shared noise. Skipping times does not automatically reproduce the omitted intermediate model calls."
           }
         }
       ]
@@ -1322,6 +1418,30 @@
           "hint": {
             "zh": "同一状态可能来自多对端点，条件速度存在不可约方差。还要核对积分方向和采样分布；单点 oracle 是特殊情形。",
             "en": "A state can arise from multiple endpoint pairs, leaving irreducible conditional-velocity variance. Also check integration direction and generated distributions; a point-data oracle is a special case."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "time-density-versus-clock",
+          "question": {
+            "zh": "把抽样时间换成非均匀分布，和把路径重新写成 t=s^2，是同一件事吗？速度目标什么时候需要多乘 2s？",
+            "en": "Is sampling time nonuniformly the same as reparameterizing the path by t=s^2? When must the velocity target gain a factor of 2s?"
+          },
+          "hint": {
+            "zh": "仅改变原时间 t 的抽样密度时，线性路径对 t 的导数仍是 x1-x0，只改变训练中的时间权重。若改用 s 作新的积分时钟，路径为 (1-s^2)*x0+s^2*x1，按链式法则对 s 的速度才是 2s*(x1-x0)；复用原速度场时，要在 t=s^2 求值再乘 2s。不要把抽样密度的改变误作路径导数的改变。",
+            "en": "Changing only the sampling density of the original t leaves the linear-path derivative x1-x0 unchanged but changes time weighting in training. With a new integration clock s, the path is (1-s^2)*x0+s^2*x1 and its s-velocity is 2s*(x1-x0) by the chain rule; reuse the original field by evaluating it at t=s^2 and multiplying by 2s. Sampling density and path derivative are distinct."
+          }
+        },
+        {
+          "id": "colliding-conditional-pairs",
+          "question": {
+            "zh": "只含两对一维端点 (-1,1)、(1,-1)，均取 t=1/2。若模型逐样本使用同一确定性函数且只看 (x_t,t)，这个 batch 的 CFM 损失能降到零吗？",
+            "en": "Take one-dimensional endpoint pairs (-1,1) and (1,-1), both at t=1/2. Can CFM loss be zero if the model applies the same deterministic per-example function using only (x_t,t)?"
+          },
+          "hint": {
+            "zh": "两行的模型输入均为 (0,1/2)，但速度目标分别为 2 和 -2。若共同预测为 a，本题的全元素均方误差为 [(a-2)^2+(a+2)^2]/2=a^2+4，最小值在 a=0，仍为 4。这个固定双样本例子具体说明了条件速度冲突；它不是完整数据分布的全局损失下界，也不是模型能读取样本编号时的结论。",
+            "en": "Both inputs are (0,1/2), but targets are 2 and -2. For their shared prediction a, the all-element mean squared error is [(a-2)^2+(a+2)^2]/2=a^2+4, minimized at a=0 with value four. This fixed two-example illustration is not a global loss bound for the full distribution and does not apply to a model given sample identities."
           }
         }
       ]
@@ -4758,6 +4878,30 @@
             "en": "Reduce by selected targets; keep connected zero without targets and use stable log-softmax."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "visible-change-is-not-selection",
+          "question": {
+            "zh": "如果随机替换碰巧选中原词，或走了保留原词的分支，能根据 corrupted != tokens 决定哪些位置参与 MLM 损失吗？",
+            "en": "If random replacement happens to choose the original token, or the unchanged branch is taken, can corrupted != tokens identify the MLM loss sites?"
+          },
+          "hint": {
+            "zh": "不能。selected 决定监督位置，输入有没有可见变化是另一件事。选中且 draws=0.85、random_ids 等于原词时，输入仍等于原词但标签必须保留；draws=0.95 的保留分支也一样。用变化位置重建标签会少算监督数。未选中位置才使用 ignore_index，标签不移位。",
+            "en": "No. Selection determines supervision independently of visible corruption. At a selected site with draws=0.85 and random_ids equal to the original token, the input stays equal but its label remains valid. The same holds for draws=0.95. Rebuilding labels from changed tokens undercounts targets. Unselected sites use ignore_index; targets are not shifted."
+          }
+        },
+        {
+          "id": "selected-count-merge",
+          "question": {
+            "zh": "把同一批固定 logits 拆成两个有效标签数不同的微批次后，如何还原整批 masked_lm_loss？",
+            "en": "After splitting the same fixed logits into microbatches with different valid-label counts, how do you recover the full masked_lm_loss?"
+          },
+          "hint": {
+            "zh": "保留各自的有效标签数 n1、n2，按 (n1*L1+n2*L2)/(n1+n2) 合并，而不是平均两个均值。全忽略微批次权重为零；若总数也为零，仍需保持本题的图连接零和零梯度。追加全忽略 padding 不应改变损失，损坏输入的可见变化数不能代替有效标签数。",
+            "en": "Keep valid-label counts n1 and n2 and merge as (n1*L1+n2*L2)/(n1+n2), not an unweighted mean of means. A fully ignored microbatch has zero weight. If the total is also zero, retain graph-connected zero and zero gradients. Ignored padding must not change the loss, and visible corruption counts cannot replace valid-label counts."
+          }
+        }
       ]
     },
     {
@@ -4801,6 +4945,30 @@
             "en": "Check a logit such as -1000 against analytic derivatives and finite differences; adversarial losses need not decrease monotonically."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "common-logit-shift",
+          "question": {
+            "zh": "给 real 和 fake 的所有 logits 同加一个常数，损失会像 softmax 那样不变吗？全零点的一阶导数为零足以证明不变吗？",
+            "en": "Are the losses invariant to adding one constant to every real and fake logit, as softmax is? Does a zero first derivative at all-zero logits prove invariance?"
+          },
+          "hint": {
+            "zh": "令原 logits 全为零，平移 c 后 L_D=softplus(-c)+softplus(c)，L_G=softplus(-c)。前者在 c=0 驻点并不代表处处不变，后者也随 c 改变。这里是两个独立二元目标的均值之和，不是把 real/fake 合在同一个类别 softmax 里。",
+            "en": "Start with all-zero logits. After shift c, L_D=softplus(-c)+softplus(c) and L_G=softplus(-c). The stationary discriminator loss at c=0 is not constant everywhere, and the generator loss changes too. These are separate binary objectives, not one categorical softmax over real and fake samples."
+          }
+        },
+        {
+          "id": "joint-fake-logit-minimum",
+          "question": {
+            "zh": "如果把同一组 fake logits 当作独立变量，同时最小化等权的 L_D+L_G，能代替交替的 D/G 更新吗？",
+            "en": "If the same fake logits are independent variables, can minimizing an equally weighted L_D+L_G replace alternating D/G updates?"
+          },
+          "hint": {
+            "zh": "只看 N 个 fake logits 的共同贡献：每项为 [softplus(f)+softplus(-f)]/N，导数为 [2*sigmoid(f)-1]/N，会把 f 推向 0，而单独的非饱和 G 项希望它增大。这是梯度归属错误的反例，不是 GAN 均衡证明。损失内部仍保留梯度，D/G 的参数冻结与样本 detach 由调用方分别安排。",
+            "en": "The shared contribution of each of N fake logits is [softplus(f)+softplus(-f)]/N, with derivative [2*sigmoid(f)-1]/N. It pushes f toward zero, whereas the non-saturating G term alone pushes it upward. This counterexample concerns gradient ownership, not a proof of GAN equilibrium. Keep gradients inside the losses; callers separately arrange D/G parameter freezing and sample detachment."
+          }
+        }
       ]
     },
     {
@@ -4841,6 +5009,30 @@
           "hint": {
             "zh": "Jacobian 对角项为 M/q；采样后对照均值 x、方差 x²p/q，不把它当成泛化证明。",
             "en": "The Jacobian diagonal is M/q; compare sampled mean x and variance x²p/q without claiming generalization."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "consecutive-masks",
+          "question": {
+            "zh": "连续两次 inverted Dropout，中间没有其他运算，能合成一次吗？独立掩码与重复使用同一个掩码有什么区别？",
+            "en": "Can two consecutive inverted-dropout operations with nothing between them be merged? How do independent masks differ from reusing one mask?"
+          },
+          "hint": {
+            "zh": "设两次保留概率 q1、q2 都大于零。独立时，逐元素保留掩码的交集以 q1*q2 的概率为真，缩放也正好是 1/(q1*q2)，因此等效丢弃概率为 1-q1*q2。相同概率下重复使用一个掩码则破坏独立性，不能沿用这个结论；也不能跨过非线性层直接合并。掩码仍由调用方提供。",
+            "en": "Let both keep probabilities q1 and q2 be positive. With independent masks, their elementwise intersection is true with probability q1*q2 and the scale is 1/(q1*q2), giving drop probability 1-q1*q2. Reusing one mask at the same probability breaks independence. Nor can you merge across an intervening nonlinear layer. The caller still supplies the masks."
+          }
+        },
+        {
+          "id": "mean-versus-squared-loss",
+          "question": {
+            "zh": "固定标量 x 和目标 c，训练输出 Y 的期望等于推理输出 x，是否就有相同的期望平方损失？",
+            "en": "For fixed scalars x and target c, does E[Y]=x imply that training and inference have equal expected squared loss?"
+          },
+          "hint": {
+            "zh": "在 0<p<1、q=1-p 时，展开平方可得 E[(Y-c)^2]=(x-c)^2+Var(Y)=(x-c)^2+x^2*p/q。保持激活均值没有消除损失中的方差项，也不能推出经过任意非线性网络后的输出均值不变。这是固定输入上的解析比较，不是泛化改善的保证。",
+            "en": "For 0<p<1 and q=1-p, expanding the square gives E[(Y-c)^2]=(x-c)^2+Var(Y)=(x-c)^2+x^2*p/q. Preserving the activation mean leaves a variance term in the loss and does not preserve the output mean through arbitrary nonlinear networks. This fixed-input identity is not a generalization guarantee."
           }
         }
       ]

@@ -37,6 +37,12 @@ try{
  page(2).style.display='none';await key(page(1),'ArrowRight');assert.equal(document.activeElement,page(3),'Keyboard traversal skips page buttons hidden by the responsive layout');page(2).style.removeProperty('display');
  await act(async()=>page(1).focus());pager().setAttribute('inert','');assert(!(await key(page(1),'End')).defaultPrevented);assert.equal(document.activeElement,page(1));pager().removeAttribute('inert');
  const ordinaryJump=pager().querySelector('.page-jump');assert(ordinaryJump,'Small catalogs also offer direct page entry');const entry=ordinaryJump.querySelector('input');await act(async()=>entry.focus());assert.deepEqual([entry.selectionStart,entry.selectionEnd],[0,entry.value.length],'Tabbing to a page input selects the current number for replacement');assert(!(await key(entry,'ArrowRight')).defaultPrevented);assert.equal(document.activeElement,entry,'Page-strip keys leave text editing alone');assert.equal(changes.length,beforeKeyboard);
+ for(const attr of ['hidden','inert','aria-hidden']){
+  const nav=pager(),before=changes.length;nav.setAttribute(attr,attr==='aria-hidden'?'true':'');
+  await input(entry,'0');const focus=document.querySelector('textarea');await act(async()=>focus.focus());
+  await act(async()=>ordinaryJump.dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true})));assert(document.activeElement===focus,'An inactive pager cannot claim validation focus');assert(!entry.hasAttribute('aria-invalid'));
+  await select(size(),50);await act(async()=>page(2).click());assert.equal(changes.length,before,'An inactive pager cannot resize or change the live library');nav.removeAttribute(attr);
+ }
  console.log('PASS library page keyboard: focus-only arrow/Home/End navigation, disabled and responsive hidden buttons, inert/IME/modifier guards, native input replacement and no accidental page changes');
  await input(entry,'2');await act(async()=>ordinaryJump.dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true})));assert.equal(nav.readLibraryRoute(current).filters.page,2);await click(page(1));
  await click(page(2));assert.equal(nav.readLibraryRoute(current).filters.page,2);assert(changes.at(-1).paging);assert.deepEqual(rows().map(r=>r.dataset.paperId),ordered.slice(20,40).map(p=>p.id));assert.equal(document.activeElement,document.querySelector('.library-result-summary'));assert(focusScrolls>0);assert(document.querySelector('.library-results').textContent.includes(`${catalog.problems.length} modules`));assert(pager().textContent.includes('21–40'));

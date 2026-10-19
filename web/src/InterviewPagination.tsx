@@ -18,7 +18,7 @@ export default function InterviewPagination({page,total,onChange,controls,canAct
    <NumberedPages page={page} pages={available} totalPages={pages} controls={controls} onChange={go}/>
    <button type="button" data-pagination-control="" disabled={!valid||page>=available} aria-label={t('下一页','Next page')} aria-controls={controls} onClick={()=>go(page+1)}><span className="pagination-arrow-label">{t('下一页','Next')}</span><ChevronRight size={15} aria-hidden="true"/></button>
   </div>
-  {pages>=4&&<PageJump className="interview-page-jump" page={page} maxPage={available} controls={controls} onChange={go} label={t('跳转面经页码','Jump to experience page')}/>}
+  {pages>=4&&<PageJump canAct={()=>isPaginationActive(root.current)&&canAct()} className="interview-page-jump" page={page} maxPage={available} controls={controls} onChange={go} label={t('跳转面经页码','Jump to experience page')}/>}
   {pages>MAX_INTERVIEW_PAGE&&<p className="interview-page-limit">{t(`最多可浏览前 ${MAX_INTERVIEW_PAGE} 页，请按公司、岗位或时间缩小范围。`,`The first ${MAX_INTERVIEW_PAGE} pages are available. Narrow the company, role or time range to find more relevant experiences.`)}</p>}
  </nav>;
 }
