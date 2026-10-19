@@ -12,6 +12,13 @@ import torch_bridge as core
 
 
 class _RpcBackend:
+    def __init__(self):
+        from js import matrix_rpc
+        check = getattr(matrix_rpc, 'requireFeatures', None)
+        if not callable(check):
+            raise RuntimeError('Resident offload requires capability negotiation; reload the client and GPU service together')
+        check('program-matmul-f32', 'program-retain-inputs')
+
     def program(self, jobs, resolved, retain_outputs, retain_inputs):
         from matrix_client import MatrixProgram
         from types import SimpleNamespace

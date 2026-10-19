@@ -94,6 +94,20 @@ class MatrixProgram:
         return len(self.inputs) + len(self.nodes) - 1
 
     def run(self, outputs, *, read=True, retain=False, retain_inputs=(), retain_outputs=None):
+        outputs = tuple(outputs)
+        retained = (retain,)*len(outputs) if retain_outputs is None else tuple(retain_outputs)
+        if len(retained) != len(outputs):
+            raise ValueError('Expected one retention flag per computed output')
+        retained_inputs = tuple(retain_inputs)
+        if any(type(ref) is not int or not 0 <= ref < len(self.inputs) or isinstance(self.inputs[ref], Matrix) for ref in retained_inputs):
+            raise ValueError('Only newly uploaded inputs can be retained')
+        if len(set(retained_inputs)) != len(retained_inputs):
+            raise ValueError('Retained inputs must be unique')
+        if retained_inputs:
+            check = getattr(self.client, 'requireFeatures', None)
+            if not callable(check):
+                raise RuntimeError('Retained inputs require capability negotiation; reload the client and GPU service together')
+            check('program-matmul-f32', 'program-retain-inputs')
         inputs = []
         for value in self.inputs:
             if isinstance(value, Matrix):
@@ -106,15 +120,6 @@ class MatrixProgram:
                 if value.ndim != 2 or value.dtype != np.float32:
                     raise TypeError('A 2D float32 array is required')
                 inputs.append(dict(rows=value.shape[0], cols=value.shape[1], data=np.ascontiguousarray(value).reshape(-1)))
-        outputs = tuple(outputs)
-        retained = (retain,)*len(outputs) if retain_outputs is None else tuple(retain_outputs)
-        if len(retained) != len(outputs):
-            raise ValueError('Expected one retention flag per computed output')
-        retained_inputs = tuple(retain_inputs)
-        if any(type(ref) is not int or not 0 <= ref < len(self.inputs) or isinstance(self.inputs[ref], Matrix) for ref in retained_inputs):
-            raise ValueError('Only newly uploaded inputs can be retained')
-        if len(set(retained_inputs)) != len(retained_inputs):
-            raise ValueError('Retained inputs must be unique')
         descriptors = [dict(ref=ref, read=read, retain=flag) for ref,flag in zip(outputs,retained)]
         descriptors.extend(dict(ref=ref,read=False,retain=True) for ref in retained_inputs)
         convert = lambda value: to_js(value, dict_converter=Object.fromEntries)

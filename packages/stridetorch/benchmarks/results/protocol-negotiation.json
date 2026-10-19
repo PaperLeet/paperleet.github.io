@@ -1,0 +1,369 @@
+{
+  "status": "qualified_matrix_rpc_capability_negotiation",
+  "canonical_runtime_version": "0.83.0",
+  "native": {
+    "numpy25": {
+      "tests": 132,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "numpy126": {
+      "tests": 132,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "repository": {
+      "tests": 132,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "repository_checks": {
+    "status": "passed_repository_negotiation_checks",
+    "qualified_files": {
+      "gpu-service.mjs": "c94d08573ba975d071e1065b8a6e91b383708dfe3cb2d211f75109556db5b26b",
+      "rpc-client.mjs": "821155085f2566f8a8376357143dccbf51277da955d0edf51dc22117a631527d",
+      "rpc-protocol.mjs": "e2c27e380aae4e41ff0ece2e3adb1059ac785d2ca8c39c76fcf7840974829d92",
+      "matrix_client.py": "6774feaca4e82e24193c8790bcbd4b57b6ce69e02191609ee61525c37bc88187",
+      "resident_bridge.py": "985194d145e9a05087c3257d8a6e8331f1e13200142d6973b56ce2524219a9c1",
+      "check-negotiation.mjs": "c84762c3e4d863e74acef52fce33114c0e82668af18d76d8169f2e166a540416",
+      "test_negotiation.py": "9d9bbb21815e94fb6012016b9643b3397a5961f0c2463d49d200398991dbc97a",
+      "fixtures/protocol-v0/rpc-client.mjs": "d957e947748db6433535c2d26a384b3504fc549b9f05f5a7a6002b6e5bf80d38",
+      "fixtures/protocol-v0/gpu-service.mjs": "ddb5a3c6305e7efdbbc82b174804d8de429b53d761ab1d3682ed27522d8fe54b",
+      "fixtures/protocol-v0/README.md": "56b85aa8679480693e0915d1b72aa6de1f32a45181511ca653b12d333d3f078d",
+      "fixtures/protocol-v0/plan-program.mjs": "48f840e4f2b1ee53b62923546f9748a96fbcb5bd9db3e1d7db9b9e169365f0c1"
+    },
+    "portable_checks": {
+      "negotiation": {
+        "cases": 39,
+        "log_sha256": "ecaa61f27b05f37336683259d6ced1aed8df29199c4abf0e225ab22bb91eb77b"
+      },
+      "program": {
+        "cases": 63,
+        "log_sha256": "7f20a97583bf95ea8daf2a28c05e2aef0e384120edd854b64b60a1ccec91bbd6"
+      },
+      "protocol": {
+        "cases": 9,
+        "log_sha256": "f21f86e340c07298c04ed27b587e98eb0300be4d9c8aac2bfc7db6001e48611c"
+      },
+      "primitive": {
+        "cases": 39,
+        "log_sha256": "fd15e1e602dca60199c40105ce363111f9628b89ca1bfd01c171633c0421257d"
+      },
+      "cancel-drain": {
+        "cases": 4,
+        "log_sha256": "9095b6728285e1aec803f31d47fbfcac914bedd2e629e43424176b92e2f4c964"
+      }
+    },
+    "package_inputs_unchanged": 206,
+    "exports_unchanged": 183,
+    "shader_execution_quotas_unchanged": true,
+    "default_runtime_changed": false,
+    "ci_triggered": false,
+    "goal_status": "active"
+  },
+  "actual_gpu": {
+    "browser": "155.0.8059.82",
+    "gpu_info": {
+      "vendor": "apple",
+      "architecture": "metal-3",
+      "fallback": false,
+      "secure_context": true
+    },
+    "worker": {
+      "secure_context": false,
+      "origin": "null",
+      "gpu_exposed": false,
+      "pyodide": "0.29.4"
+    },
+    "cases": 51,
+    "state_controls": 31,
+    "compatibility": {
+      "status": "passed_real_browser_protocol_compatibility",
+      "cases": 4,
+      "rows": [
+        {
+          "kind": "new_client_old_service_actual_program_and_release",
+          "passed": true
+        },
+        {
+          "kind": "old_client_new_service_actual_program_and_release",
+          "passed": true
+        },
+        {
+          "kind": "python_retention_refused_before_conversion_and_rpc",
+          "passed": true
+        },
+        {
+          "kind": "python_resident_session_refused_before_ownership",
+          "passed": true
+        }
+      ]
+    },
+    "capabilities": {
+      "modern": {
+        "name": "stridetorch-matrix-rpc",
+        "major": 1,
+        "minor": 0,
+        "legacy": false,
+        "features": [
+          "program-matmul-f32",
+          "program-retain-inputs"
+        ]
+      },
+      "legacy": {
+        "name": "stridetorch-matrix-rpc",
+        "major": 0,
+        "minor": 0,
+        "legacy": true,
+        "features": [
+          "program-matmul-f32"
+        ]
+      },
+      "future_error": "IncompatibleProtocol",
+      "future_closed": true
+    },
+    "host_disposals": [
+      {
+        "type": "disposed",
+        "reason": "client closed",
+        "stats": {
+          "resident_handles": 0,
+          "resident_bytes": 0,
+          "total_bytes": 0,
+          "allocations": 0,
+          "peak_bytes": 12582944,
+          "submitted": 173,
+          "completed": 173,
+          "closed": true
+        }
+      },
+      {
+        "type": "disposed",
+        "reason": "client closed",
+        "stats": {
+          "resident_handles": 0,
+          "resident_bytes": 0,
+          "total_bytes": 0,
+          "allocations": 0,
+          "peak_bytes": 96,
+          "submitted": 1,
+          "completed": 1,
+          "closed": true
+        }
+      },
+      {
+        "type": "disposed",
+        "reason": "client closed",
+        "stats": {
+          "resident_handles": 0,
+          "resident_bytes": 0,
+          "total_bytes": 0,
+          "allocations": 0,
+          "peak_bytes": 96,
+          "submitted": 1,
+          "completed": 1,
+          "closed": true
+        }
+      },
+      {
+        "type": "disposed",
+        "reason": "client closed",
+        "stats": {
+          "resident_handles": 0,
+          "resident_bytes": 0,
+          "total_bytes": 0,
+          "allocations": 0,
+          "peak_bytes": 0,
+          "submitted": 0,
+          "completed": 0,
+          "closed": true
+        }
+      }
+    ],
+    "main_requests": 226
+  },
+  "performance": {
+    "status": "analyzed_negotiation_overhead_comparison",
+    "source": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-573",
+    "rows": [
+      {
+        "size": 256,
+        "kind": "steady_single",
+        "controls_passed": true,
+        "aa": [
+          1.0000000000000073,
+          1.0042701716331872
+        ],
+        "ratios": [
+          1.0115628496829547,
+          1.0304311290986385
+        ],
+        "resident_benefit": false,
+        "overhead_gate_passed": true,
+        "baseline_ms": 3.389473684210527,
+        "resident_ms": 3.4368421052631417,
+        "minimum_batch_ms": 47.2999999999999,
+        "individual_flags": []
+      },
+      {
+        "size": 256,
+        "kind": "steady_chain",
+        "controls_passed": true,
+        "aa": [
+          1.0021541010770647,
+          0.9854391194680152
+        ],
+        "ratios": [
+          1.0077571669477143,
+          1.0151667113053633
+        ],
+        "resident_benefit": false,
+        "overhead_gate_passed": true,
+        "baseline_ms": 6.70555555555552,
+        "resident_ms": 6.8277777777777535,
+        "minimum_batch_ms": 39.200000000000124,
+        "individual_flags": []
+      },
+      {
+        "size": 256,
+        "kind": "changing_rhs",
+        "controls_passed": true,
+        "aa": [
+          0.9691749773345456,
+          0.9897134703764671
+        ],
+        "ratios": [
+          1.017225747960109,
+          1.0080566980023629
+        ],
+        "resident_benefit": false,
+        "overhead_gate_passed": true,
+        "baseline_ms": 3.7899999999999894,
+        "resident_ms": 3.914705882352935,
+        "minimum_batch_ms": 51.49999999999988,
+        "individual_flags": []
+      },
+      {
+        "size": 512,
+        "kind": "steady_single",
+        "controls_passed": true,
+        "aa": [
+          0.992499999999988,
+          1.0000195427008012
+        ],
+        "ratios": [
+          0.9937194696441054,
+          0.9942660826937746
+        ],
+        "resident_benefit": false,
+        "overhead_gate_passed": true,
+        "baseline_ms": 11.99999999999992,
+        "resident_ms": 11.866666666666692,
+        "minimum_batch_ms": 55.200000000001026,
+        "individual_flags": []
+      },
+      {
+        "size": 512,
+        "kind": "steady_chain",
+        "controls_passed": true,
+        "aa": [
+          0.9808612440191348,
+          0.9925441371717761
+        ],
+        "ratios": [
+          0.9851904090268078,
+          0.9885420537594463
+        ],
+        "resident_benefit": false,
+        "overhead_gate_passed": true,
+        "baseline_ms": 24.38333333333335,
+        "resident_ms": 23.299999999999876,
+        "minimum_batch_ms": 45.79999999999984,
+        "individual_flags": []
+      },
+      {
+        "size": 512,
+        "kind": "changing_rhs",
+        "controls_passed": true,
+        "aa": [
+          0.9504195270785595,
+          0.9706196941518832
+        ],
+        "ratios": [
+          0.9527078565980185,
+          0.9840065529281155
+        ],
+        "resident_benefit": false,
+        "overhead_gate_passed": true,
+        "baseline_ms": 13.11,
+        "resident_ms": 12.558333333333227,
+        "minimum_batch_ms": 50.10000000000004,
+        "individual_flags": [
+          {
+            "size": 512,
+            "kind": "changing_rhs",
+            "cycle": 2,
+            "aa": 0.9215547703180205,
+            "paired_aa": 0.9314337568058066,
+            "floor": 0.05010000000000003
+          }
+        ]
+      }
+    ],
+    "individual_flags": [
+      {
+        "size": 512,
+        "kind": "changing_rhs",
+        "cycle": 2,
+        "aa": 0.9215547703180205,
+        "paired_aa": 0.9314337568058066,
+        "floor": 0.05010000000000003
+      }
+    ],
+    "processes": 6,
+    "contexts": 18,
+    "production_changed": false,
+    "all_preplanned_controls_passed": true,
+    "all_overhead_gates_passed": true,
+    "claimed_speedup": false,
+    "candidate_adopted": false,
+    "goal_status": "active"
+  },
+  "features": [
+    "program-matmul-f32",
+    "program-retain-inputs"
+  ],
+  "protocol": {
+    "name": "stridetorch-matrix-rpc",
+    "major": 1,
+    "minor": 0
+  },
+  "legacy_computed_programs_supported": true,
+  "incompatible_startup_abandoned": true,
+  "additional_discovery_rpc": 0,
+  "raw_send_is_low_level": true,
+  "shader_execution_and_quotas_unchanged": true,
+  "canonical_resources_unchanged": 66,
+  "public_sdk_sources_unchanged": 93,
+  "active_export_identities_unchanged": 183,
+  "package_inputs_unchanged": 206,
+  "automatic_dispatch": false,
+  "public_gpu_storage": false,
+  "ci_triggered": false,
+  "tags_pushed": false,
+  "published": false,
+  "deployed": false,
+  "goal_status": "active",
+  "raw_archive": {
+    "path": "packages/stridetorch/benchmarks/results/protocol-negotiation-harness.tar.gz",
+    "sha256": "46721a754cdf51f94e6795e97f7eade71bf0853880eda14b6c3aa6a577d853f4",
+    "files": 357,
+    "unique_payloads": 181,
+    "bytes": 806545,
+    "all_payloads_verified": true
+  }
+}

@@ -1,5 +1,6 @@
 // Experimental fixed-operation service. This is not a supported torch device.
 import {planProgram} from './plan-program.mjs';
+import {PROTOCOL} from './rpc-protocol.mjs';
 export const LIMITS = Object.freeze({bytes:32*1024*1024,matrixBytes:4*1024*1024,
   dimension:1024,macs:256*1024*1024,handles:24,pending:8,requests:4096,leaseMs:120000,
   programInputs:8,programNodes:8,programOutputs:8});
@@ -238,7 +239,7 @@ export function servePort(port,engine,{limits=LIMITS,onClosed=()=>{}}={}){
   };
   port.onmessageerror=()=>void close('message error');port.start();
   engine.lost.then(value=>{if(!closing)void close('GPU device lost: '+value.reason);});
-  send({event:'ready',info:engine.info,limits});
+  send({event:'ready',info:engine.info,limits,protocol:PROTOCOL});
   return {close,stats:()=>({...engine.stats(),pending:tickets.size})};
 }
 

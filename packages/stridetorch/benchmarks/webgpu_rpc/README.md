@@ -5,6 +5,38 @@ This developer prototype keeps the Python execution Worker inside an opaque-orig
 The sandbox receives a MessagePort capability for a fixed matrix protocol. These
 files do not enable a torch GPU device or change the supported CPU/WASM runtime.
 
+## Protocol compatibility
+
+Await `client.ready` before loading the Python wrappers. A current service
+advertises protocol `stridetorch-matrix-rpc` version 1.0, with the optional
+`program-matmul-f32` and `program-retain-inputs` features. Inspect the immutable
+`client.protocol` snapshot, or use `client.supports(feature)` and
+`client.requireFeatures(...features)`. Discovery uses the existing ready event
+and sends no additional RPC.
+
+An older, unadvertised service remains usable for the original matrix operations
+and computed-output programs. It does not grant input retention. Retained-input
+programs and the default resident session reject missing capabilities before
+array conversion, upload or GPU ownership. They do not silently retry on CPU.
+Older clients still work with a current service for their original operations.
+
+An explicitly incompatible or malformed protocol rejects `ready` with
+`IncompatibleProtocol` and sends a close request. Startup timeout and closing
+during startup also abandon the session. Public operation wrappers wait for
+startup; raw `send()` remains a low-level protocol/testing API. The host's
+original lease and resource quotas still apply. Future minor versions may
+advertise unknown features; the client enables only its known intersection.
+
+Run the cross-version tests with:
+
+```sh
+node packages/stridetorch/benchmarks/webgpu_rpc/check-negotiation.mjs
+```
+
+`fixtures/protocol-v0` preserves a historical client, service and planner for
+these tests. See [the compatibility qualification](../../../../docs/validation/torch-webgpu-protocol-negotiation.md)
+for real-browser checks and the measured steady-state overhead.
+
 The three implementation files have no PaperLeet imports. `gpu-service.mjs` runs
 as a module Worker, or exports `createGpuEngine` and `servePort` for a trusted host.
 `rpc-client.mjs` implements the MessagePort client. `matrix_client.py` provides
