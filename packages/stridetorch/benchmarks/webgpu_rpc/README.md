@@ -79,6 +79,14 @@ obtain independent CPU snapshots and resident matrices. The context manager
 closes all still-live retained outputs in one validated `release_many` call;
 individual Matrix objects also retain their ordinary `close` method.
 
+A [matched whole-call comparison against StrideTorch 0.80](../../../../docs/validation/torch-runtime-webgpu-whole-call-0.80.md)
+measures actual CPU autograd against these explicit GPU VJPs, including uploads,
+RPC, both gradients and three owned CPU snapshots. Three fresh Chrome processes
+show a benefit for the tested 256/512 float32 matrix workloads and a loss for
+small matrices. The raw batches, A/A controls and short-batch limitations are
+retained; the results do not establish a general dispatch threshold or enable
+a torch GPU backend.
+
 The host validates the entire DAG, shapes and peak byte/work/handle requirements
 before allocating. The 268,435,456 multiply-accumulate limit applies to the
 **sum** of all nodes. The 32 MiB allocation limit includes new uploads, computed
