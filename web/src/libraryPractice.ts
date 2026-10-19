@@ -1,7 +1,7 @@
 import { status } from './types';
 import type { Paper, Problem, Saved } from './types';
 import { paperCollections, papersInCollection } from './paperCollections';
-import { normalizeLibraryFilters, sortLibraryPapers, sameLibraryTag, type LibraryFilters } from './libraryNavigation';
+import { normalizeLibraryFilters, sortLibraryPapers, sameLibraryTag, isExerciseSort, type LibraryFilters } from './libraryNavigation';
 import { parseArxivUrl } from './arxivLinks';
 
 type Practice = { problems: Problem[]; saved: Record<string, Saved> };
@@ -62,7 +62,12 @@ export function selectLibraryPractice(papers: Paper[], problems: Problem[], save
     .filter(problem => !moduleStatus || filters.state === 'all' || status(problem, saved[problem.id]) === filters.state);
   if(filters.company){const rank=new Map([...companyModules!].map((id,index)=>[id,index]));modules.sort((a,b)=>(rank.get(a.id)??Infinity)-(rank.get(b.id)??Infinity));}
   else if(filters.view==='modules'&&collection?.kind!=='course'){
-    if(filters.sort==='title'){const title=(p:Problem)=>locale==='en'?p.translations?.en?.title||p.title:p.title;modules.sort((a,b)=>title(a).localeCompare(title(b),locale==='en'?'en':'zh-CN',{numeric:true})||a.number-b.number);}
+    if(isExerciseSort(filters.sort)){
+      const difficulty=filters.sort.startsWith('difficulty'),direction=filters.sort.endsWith('-desc')?-1:1,rank:Record<string,number>={E:0,M:1,H:2};
+      const value=(problem:Problem)=>difficulty?rank[problem.difficulty]??3:problem.estimated_minutes||25;
+      modules.sort((a,b)=>(value(a)-value(b))*direction||a.number-b.number);
+    }
+    else if(filters.sort==='title'){const title=(p:Problem)=>locale==='en'?p.translations?.en?.title||p.title:p.title;modules.sort((a,b)=>title(a).localeCompare(title(b),locale==='en'?'en':'zh-CN',{numeric:true})||a.number-b.number);}
     else if(filters.sort==='newest'||filters.sort==='oldest'){const rank=new Map(sortLibraryPapers(visible,filters.sort).flatMap(p=>p.module_ids).map((id,index)=>[id,index]));modules.sort((a,b)=>rank.get(a.id)!-rank.get(b.id)!);}
     else modules.sort((a,b)=>a.number-b.number);
   }

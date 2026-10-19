@@ -18,15 +18,12 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { navigateTabs } from "./tabNavigation";
 import { PaperDetail, PreparationGuide, InterviewPracticeNextStep, Interviews, ProblemOverview, ProblemSolutionPanel, Community, UserProfile, Account, SolutionHistory, SubmissionResultPage, Submissions, Visuals, WorkspaceTestResults, Prose, PythonEditor, WorkspaceBackup, QueueAdmissionNotice, ModuleNavigator, BrowserDraftBackups, SettingsPage, Achievements, AchievementObserver, BrowserResultActions, JudgeRuntimeDetails, WorkspaceLayoutMenu } from "./deferredPages";
 import {
-  ArrowDownToLine,
   ArrowLeft,
   ArrowRight,
   AlertCircle,
   BookOpen,
   Check,
   CheckCircle2,
-  Maximize2,
-  Minimize2,
   Code2,
   LockKeyhole,
   Loader2,
@@ -738,7 +735,7 @@ function Workspace() {
               setFocusMode(false);
               setLayoutRequest({horizontal:{ratio}});
             }} />
-            <button className="workspace-focus-toggle" aria-pressed={focusMode} title={t("专注写代码，按 Esc 返回分栏", "Focus on code; press Esc to restore both panels")} onClick={() => { if (!focusMode) openEditor(); setFocusMode(value => !value); }}>{focusMode ? <Minimize2 size={14} /> : <Maximize2 size={14} />}{focusMode ? t("退出专注", "Exit focus") : t("专注模式", "Focus mode")}</button>
+            <button className="workspace-focus-toggle" aria-pressed={focusMode} title={t("专注写代码，按 Esc 返回分栏", "Focus on code; press Esc to restore both panels")} onClick={() => { if (!focusMode) openEditor(); setFocusMode(value => !value); }}>{focusMode ? <WorkspacePanelIcon name="unfocus" size={14}/> : <WorkspacePanelIcon name="focus" size={14}/>}{focusMode ? t("退出专注", "Exit focus") : t("专注模式", "Focus mode")}</button>
             {readFavoriteRoute(libraryReturn||'')?.list?<StudyListPracticeNavigation key={`${practice.owner}:${problem.id}`} problemId={problem.id} returnTo={libraryReturn!} problems={problems}/>:<ModuleNavigator key={problem.id} course={inCourse&&!directLibrary} current={problem} modules={listPractice?practiceScope.problems:siblingModules} allModules={problems} saved={learningSaved} ready={progressReady} scopeReady={companyReady&&(!directLibrary||scopeView?.filters.state==='all'||progressReady)} returnTo={libraryReturn} />}
           </div>
           <div className="mobile-workspace-switch" role="group" aria-label={t("练习视图", "Practice view")}>
@@ -1063,7 +1060,7 @@ function Workspace() {
                         aria-label={t("下载实现", "Download code")}
                         onClick={()=>{if(practice.ready&&practice.owns(practice.owner)&&[problem.id,String(problem.number)].includes(routePath(getId())))download(`problem-${problem.number}.py`,current.code??problem.starter);}}
                       >
-                        <ArrowDownToLine size={14} />
+                        <WorkspacePanelIcon name="download" size={14}/>
                       </button>
                     </div>
                   </div>

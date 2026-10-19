@@ -2,7 +2,9 @@ import { paperCollections } from './paperCollections';
 import type { Paper } from './types';
 import {readInterviewRoute,interviewHref} from './interviewNavigation';
 
-export type LibrarySort = 'default' | 'newest' | 'oldest' | 'title';
+export type ExerciseSort='difficulty'|'difficulty-desc'|'duration'|'duration-desc';
+export const isExerciseSort=(value:unknown):value is ExerciseSort=>typeof value==='string'&&['difficulty','difficulty-desc','duration','duration-desc'].includes(value);
+export type LibrarySort = 'default' | 'newest' | 'oldest' | 'title' | ExerciseSort;
 export type LibraryPageSize = 20 | 50 | 100;
 export type PaperRegistryView={query:string;category:string;sort:LibrarySort;page:number};
 export type LibraryFilters = { query: string; category: string; tag: string; difficulty: string; runtime: string; state: string; sort?: LibrarySort; view?:'modules'; company?:string; company_days?:string; page?:number; page_size?:LibraryPageSize };
@@ -51,7 +53,8 @@ export function readLibraryRoute(route: string): { collectionId?: string; filter
   const view=value.params.get('view');
   if(view!==null&&!['papers','modules'].includes(view))return;
   const sort = value.params.get('sort');
-  if (sort && !['default', 'newest', 'oldest', 'title'].includes(sort)) return;
+  if (sort && !['default', 'newest', 'oldest', 'title'].includes(sort)&&!isExerciseSort(sort)) return;
+  if(isExerciseSort(sort)&&(view!=='modules'||company||paperCollections.find(item=>item.id===collectionId)?.kind==='course'))return;
   const page=value.params.get('page')??'1',size=value.params.get('page_size')??'20';
   if(!/^[1-9]\d{0,4}$/.test(page)||+page>10000||!['20','50','100'].includes(size))return;
   return { collectionId, filters:{...filters,...companyScope,...(view==='modules'?{view:'modules' as const}:{}),...(sort&&sort!=='default'?{sort:sort as LibrarySort}:{}),...(+page>1?{page:+page}:{}),...(size!=='20'?{page_size:+size as LibraryPageSize}:{})} };
@@ -95,7 +98,7 @@ export function paperRegistryHref(view:PaperRegistryView):string{
 
 /** Use stable paper numbers by default, with optional bibliography sorting. */
 export function sortLibraryPapers(papers: Paper[], sort: LibrarySort = 'default'): Paper[] {
-  if (sort === 'default') return [...papers].sort((a, b) => a.number - b.number);
+  if (sort === 'default'||isExerciseSort(sort)) return [...papers].sort((a, b) => a.number - b.number);
   return [...papers].sort((a, b) => {
     if (sort === 'title') return a.short_title.localeCompare(b.short_title, 'en', { numeric: true }) || a.number - b.number;
     if (!a.year || !b.year) return a.year ? -1 : b.year ? 1 : a.number - b.number;
@@ -108,6 +111,7 @@ export function normalizeLibraryFilters(filters: LibraryFilters, papers: Paper[]
   const category = filters.category === 'all' || papers.some(paper => paper.category === filters.category) ? filters.category : 'all';
   const tag = filters.tag === 'all' || papers.some(paper => (category === 'all' || paper.category === category) && paper.tags.some(tag => sameLibraryTag(tag, filters.tag))) ? filters.tag : 'all';
   const {company,company_days,...rest}=filters;
+  if(isExerciseSort(rest.sort)&&(rest.view!=='modules'||company))delete rest.sort;
   return { ...rest, category, tag, runtime: 'all',...(company?{company,...(company_days&&company_days!=='365'?{company_days}:{})}:{}) };
 }
 
