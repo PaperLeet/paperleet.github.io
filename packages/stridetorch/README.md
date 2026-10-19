@@ -1514,6 +1514,73 @@ under its existing content-addressed runtime assets. The independent wheel has
 only a NumPy runtime dependency. It contains no problem catalog, judge, pytest,
 PyTorch binaries, or browser application code.
 
+## Experimental browser GPU integration
+
+The installed distribution includes the explicit
+`stridetorch.experimental.webgpu` namespace. It provides `MatmulOffload`,
+`ResidentMatmulOffload`, `Matrix`, `MatrixProgram` and `ProgramResult`; callers no
+longer need Python files from the benchmark directory. Importing this namespace
+works in CPython without Pyodide and leaves native `torch` imports untouched.
+Actual browser transport requires Pyodide and a compatible attached host client.
+
+Export the installed JS service modules and notices into one adjacent host
+directory:
+
+```python
+from pathlib import Path
+from stridetorch.experimental.webgpu import service_sources
+
+assets = Path('webgpu-assets')
+assets.mkdir(exist_ok=True)
+for name, source in service_sources().items():
+    (assets / name).write_text(source, encoding='utf-8')
+```
+
+The host creates a module Worker from `gpu-service.mjs`, delivers a MessagePort
+to it with `{type: 'connect'}`, and sends the other port to the Python Worker.
+There, import `MatrixRpc` from `rpc-client.mjs`, construct it with that port,
+await `client.ready` and set `self.matrix_rpc = client`. Enter Python through
+`runPythonAsync` or another JSPI-compatible entry point. The host owns Worker
+shutdown and its application isolation boundary.
+
+After that explicit setup:
+
+```python
+from stridetorch import torch
+from stridetorch.experimental.webgpu import ResidentMatmulOffload
+
+with ResidentMatmulOffload() as offload:
+    a = torch.ones(256, 256, dtype=torch.float32, requires_grad=True)
+    b = torch.ones(256, 256, dtype=torch.float32, requires_grad=True)
+    output = offload(a, b)
+    output.square().mean().backward()
+```
+
+Values and gradients remain CPU Tensors. Eligible finite float32 2D products
+and ordinary first-order pullbacks use the bounded GPU service. Unsupported
+inputs, `no_grad` and AD transforms retain their CPU paths. Transport errors
+propagate. Protocol/capability checks refuse unavailable input retention before
+upload; they do not silently retry failed GPU work on CPU. The resident cache
+owns at most eight buffers and 8 MiB of logical payload by default. Close the
+session explicitly or use its context manager.
+
+`MatmulOffload(client=...)` and `ResidentMatmulOffload(client=...)` borrow an
+explicit host client. A resident session fixes its default client at construction;
+a stateless offload fixes it at its first GPU submission. Replacing the host's
+global client does not retarget an existing offload. These wrappers release their
+own buffers and leave client/Worker shutdown to the host.
+
+For offline Pyodide hosts, `stridetorch.experimental.webgpu.source_files()`
+returns the complete optional package payload, including the JS assets and
+redistribution notices. The normal `stridetorch.runtime.source_files()` export
+remains unchanged and excludes this opt-in integration. This is an experimental
+API, not an enabled torch device or automatic `torch.matmul` replacement.
+
+See [the packaging qualification](../../docs/validation/torch-webgpu-package.md)
+for installed wheel/sdist and real-browser checks. The repository's old Python
+benchmark import names and JS module URLs remain compatibility entries when
+the package/source tree is available.
+
 ## Development
 
 From the PaperLeet repository:

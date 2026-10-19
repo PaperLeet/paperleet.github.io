@@ -5,6 +5,15 @@ This developer prototype keeps the Python execution Worker inside an opaque-orig
 The sandbox receives a MessagePort capability for a fixed matrix protocol. These
 files do not enable a torch GPU device or change the supported CPU/WASM runtime.
 
+The canonical implementation now ships in the installed
+`stridetorch.experimental.webgpu` package. This directory keeps tests and
+compatibility imports. Python aliases share the canonical module and reentry
+gate; JS files re-export the canonical package modules. Repository-based hosts
+may retain these URLs while serving the package source tree. Independent hosts
+should export the adjacent assets with `service_sources()` instead of copying
+these thin JS entry points. See the
+[installed-package setup](../../README.md#experimental-browser-gpu-integration).
+
 ## Protocol compatibility
 
 Await `client.ready` before loading the Python wrappers. A current service
@@ -37,7 +46,7 @@ node packages/stridetorch/benchmarks/webgpu_rpc/check-negotiation.mjs
 these tests. See [the compatibility qualification](../../../../docs/validation/torch-webgpu-protocol-negotiation.md)
 for real-browser checks and the measured steady-state overhead.
 
-The three implementation files have no PaperLeet imports. `gpu-service.mjs` runs
+The packaged implementation has no PaperLeet imports. `gpu-service.mjs` runs
 as a module Worker, or exports `createGpuEngine` and `servePort` for a trusted host.
 `rpc-client.mjs` implements the MessagePort client. `matrix_client.py` provides
 explicit resident float32 2D matrices in Pyodide, with upload, multiplication,
@@ -54,6 +63,8 @@ The archived fixture demonstrates one such handshake; it is not a production
 judge integration.
 
 ```python
+from stridetorch.experimental.webgpu import Matrix
+
 with Matrix.upload(a) as left, Matrix.upload(b) as right:
     with left.matmul(right) as output:
         result = output.numpy()

@@ -20,6 +20,7 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 stridetorch = ["LICENSE", "NOTICE"]
+"stridetorch.experimental.webgpu" = ["*.mjs"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

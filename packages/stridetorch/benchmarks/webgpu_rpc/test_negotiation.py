@@ -1,6 +1,5 @@
 """Capability refusals must happen before Python ndarray conversion or RPC."""
-import importlib.util
-from pathlib import Path
+import importlib
 import sys
 from types import SimpleNamespace
 import pytest
@@ -38,11 +37,7 @@ def client_module(monkeypatch, client):
         raise AssertionError('RPC or JS conversion happened before feature refusal')
     monkeypatch.setitem(sys.modules, 'js', SimpleNamespace(matrix_rpc=client, Object=SimpleNamespace(fromEntries=forbidden)))
     monkeypatch.setitem(sys.modules, 'pyodide.ffi', SimpleNamespace(run_sync=forbidden, to_js=forbidden))
-    path = Path(__file__).with_name('matrix_client.py')
-    spec = importlib.util.spec_from_file_location('negotiation_matrix_client', path)
-    value = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(value)
-    return value
+    return importlib.import_module('stridetorch.experimental.webgpu.matrix_client')
 
 
 class NoConvert:

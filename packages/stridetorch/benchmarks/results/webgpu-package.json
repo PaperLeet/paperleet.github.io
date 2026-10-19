@@ -1,0 +1,879 @@
+{
+  "status": "qualified_installed_experimental_webgpu_package",
+  "version": "0.83.0",
+  "version_scope": "Unpublished development distribution; CPU root66 and default autograd62 remain byte-identical",
+  "public_namespace": "stridetorch.experimental.webgpu",
+  "public_package_files": 77,
+  "core_root_resources_unchanged": 66,
+  "default_autograd_embed_unchanged": 62,
+  "schedules_embed_unchanged": 6,
+  "public_sdist_sdk_files": 94,
+  "public_private_artifacts": [
+    {
+      "path": "public-dist/stridetorch-0.83.0-py3-none-any.whl",
+      "sha256": "a85cdd46b360cfc30469512b3d9cbcf7f503626fcdb8b56cd749d9b3c4a4a3f3",
+      "runtime_resources": 77
+    },
+    {
+      "path": "private-dist/paperleet-0.1.0-py3-none-any.whl",
+      "sha256": "9400da5f3db4ba4dcf707f18eb71e2a48317c31c9268b22f0e0b0e2b32fa8186",
+      "runtime_resources": 66
+    },
+    {
+      "path": "public-dist/stridetorch-0.83.0.tar.gz",
+      "sha256": "319dd5041e1361b5600f51768768063219fce87524351bb6f8ddeece5fc44a93"
+    },
+    {
+      "path": "public-rebuild/stridetorch-0.83.0-py3-none-any.whl",
+      "sha256": "a85cdd46b360cfc30469512b3d9cbcf7f503626fcdb8b56cd749d9b3c4a4a3f3",
+      "runtime_resources": 77
+    },
+    {
+      "path": "private-dist/paperleet-0.1.0.tar.gz",
+      "sha256": "4c5edc7c44fccbf143c427fa686da18a5f64225a10f8a5eac24f06a3419343d7"
+    },
+    {
+      "path": "private-rebuild/paperleet-0.1.0-py3-none-any.whl",
+      "sha256": "9400da5f3db4ba4dcf707f18eb71e2a48317c31c9268b22f0e0b0e2b32fa8186",
+      "runtime_resources": 66
+    }
+  ],
+  "targeted_native": {
+    "numpy25": {
+      "tests": 150,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "numpy126": {
+      "tests": 150,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "root_packages": {
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "full_installed_sdk": {
+    "status": "passed_installed_final_full_sdk",
+    "receipts": [
+      {
+        "label": "numpy25",
+        "exit_code": 0,
+        "totals": {
+          "tests": 12322,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+          "-I",
+          "-B",
+          "-c",
+          "import sys;sys.path.insert(0,sys.argv[1]);import pytest;raise SystemExit(pytest.main(sys.argv[2:]))",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-595/installed",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-595/public-sdist/stridetorch-0.83.0/tests",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp=/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-596/numpy25-tmp",
+          "--junitxml=/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-596/numpy25.xml"
+        ],
+        "seconds": 22.271186415993725,
+        "log_sha256": "c5266c0ff4f5d0bb60f5249c42b0138b50ad288779af6fbbcfc50bda646be994"
+      },
+      {
+        "label": "numpy126",
+        "exit_code": 0,
+        "totals": {
+          "tests": 12322,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 3
+        },
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-137/native26-env/bin/python",
+          "-I",
+          "-B",
+          "-c",
+          "import sys;sys.path.insert(0,sys.argv[1]);import pytest;raise SystemExit(pytest.main(sys.argv[2:]))",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-595/installed",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-595/public-sdist/stridetorch-0.83.0/tests",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp=/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-596/numpy126-tmp",
+          "--junitxml=/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-596/numpy126.xml"
+        ],
+        "seconds": 28.282830415992066,
+        "log_sha256": "dd9bc076240f278835fb12b5c521c5fc920c2257094eb621abfdd085f6a89fd2"
+      }
+    ],
+    "public_sdk_files": 94,
+    "source_checkout_on_import_path": false,
+    "ci_triggered": false,
+    "goal_status": "active"
+  },
+  "portable_checks": {
+    "negotiation": {
+      "cases": 39,
+      "log_sha256": "5cce8cb66c84adab2534153f1c2dda2f28aef5921bd0f8a33f795f88267d83f5"
+    },
+    "program": {
+      "cases": 63,
+      "log_sha256": "7f20a97583bf95ea8daf2a28c05e2aef0e384120edd854b64b60a1ccec91bbd6"
+    },
+    "protocol": {
+      "cases": 9,
+      "log_sha256": "2100b3304efbe62c1e8dcdf67de0dc38094b5413aafe220061c9d38989ba8777"
+    },
+    "primitive": {
+      "cases": 39,
+      "log_sha256": "fd15e1e602dca60199c40105ce363111f9628b89ca1bfd01c171633c0421257d"
+    },
+    "cancel-drain": {
+      "cases": 4,
+      "log_sha256": "9095b6728285e1aec803f31d47fbfcac914bedd2e629e43424176b92e2f4c964"
+    }
+  },
+  "actual_gpu": {
+    "browser": "155.0.8059.82",
+    "gpu_info": {
+      "vendor": "apple",
+      "architecture": "metal-3",
+      "fallback": false,
+      "secure_context": true
+    },
+    "worker": {
+      "secure_context": false,
+      "origin": "null",
+      "gpu_exposed": false,
+      "pyodide": "0.29.4"
+    },
+    "cases": 51,
+    "state_controls": 31,
+    "compatibility": {
+      "status": "passed_real_browser_protocol_compatibility_and_client_binding",
+      "cases": 7,
+      "rows": [
+        {
+          "kind": "new_client_old_service_actual_program_and_release",
+          "passed": true
+        },
+        {
+          "kind": "old_client_new_service_actual_program_and_release",
+          "passed": true
+        },
+        {
+          "kind": "python_retention_refused_before_conversion_and_rpc",
+          "passed": true
+        },
+        {
+          "kind": "python_resident_session_refused_before_ownership",
+          "passed": true
+        },
+        {
+          "kind": "resident_constructor_client_pinned_across_global_replacement",
+          "passed": true
+        },
+        {
+          "kind": "explicit_resident_borrows_client_without_using_global",
+          "passed": true
+        },
+        {
+          "kind": "stateless_default_and_explicit_client_remain_pinned_for_forward_and_vjp",
+          "passed": true
+        }
+      ]
+    },
+    "installed_package": {
+      "files": 77,
+      "compatibility_aliases_share_canonical_modules": true,
+      "wheel_sha256": "a85cdd46b360cfc30469512b3d9cbcf7f503626fcdb8b56cd749d9b3c4a4a3f3",
+      "canonical_module": "/stridetorch/experimental/webgpu/torch_bridge.py",
+      "service_assets_and_notices": 6
+    },
+    "host_disposals": [
+      {
+        "type": "disposed",
+        "reason": "client closed",
+        "stats": {
+          "resident_handles": 0,
+          "resident_bytes": 0,
+          "total_bytes": 0,
+          "allocations": 0,
+          "peak_bytes": 12582944,
+          "submitted": 183,
+          "completed": 183,
+          "closed": true
+        }
+      },
+      {
+        "type": "disposed",
+        "reason": "client closed",
+        "stats": {
+          "resident_handles": 0,
+          "resident_bytes": 0,
+          "total_bytes": 0,
+          "allocations": 0,
+          "peak_bytes": 96,
+          "submitted": 1,
+          "completed": 1,
+          "closed": true
+        }
+      },
+      {
+        "type": "disposed",
+        "reason": "client closed",
+        "stats": {
+          "resident_handles": 0,
+          "resident_bytes": 0,
+          "total_bytes": 0,
+          "allocations": 0,
+          "peak_bytes": 96,
+          "submitted": 1,
+          "completed": 1,
+          "closed": true
+        }
+      },
+      {
+        "type": "disposed",
+        "reason": "client closed",
+        "stats": {
+          "resident_handles": 0,
+          "resident_bytes": 0,
+          "total_bytes": 0,
+          "allocations": 0,
+          "peak_bytes": 0,
+          "submitted": 0,
+          "completed": 0,
+          "closed": true
+        }
+      }
+    ]
+  },
+  "resident_performance": {
+    "status": "analyzed_package_migration_overhead",
+    "source": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-591",
+    "rows": [
+      {
+        "size": 256,
+        "kind": "steady_single",
+        "controls_passed": true,
+        "aa": [
+          0.9955747436589433,
+          0.9992441815706887
+        ],
+        "ratios": [
+          1.0038735983690195,
+          1.0001701254855118
+        ],
+        "resident_benefit": false,
+        "overhead_gate_passed": true,
+        "baseline_ms": 3.4062499999999716,
+        "candidate_ms": 3.4194444444444443,
+        "minimum_batch_ms": 46.499999999999986,
+        "individual_flags": []
+      },
+      {
+        "size": 256,
+        "kind": "steady_chain",
+        "controls_passed": true,
+        "aa": [
+          1.0103519668737027,
+          1.0012614317250006
+        ],
+        "ratios": [
+          1.018633540372671,
+          1.010804751045467
+        ],
+        "resident_benefit": false,
+        "overhead_gate_passed": true,
+        "baseline_ms": 6.622222222222283,
+        "candidate_ms": 6.9277777777777185,
+        "minimum_batch_ms": 46.00000000000026,
+        "individual_flags": [
+          {
+            "size": 256,
+            "kind": "steady_chain",
+            "cycle": 0,
+            "aa": 1.0593120805369087,
+            "paired_aa": 1.0012614317250006,
+            "floor": 0.05820000000000025
+          }
+        ]
+      },
+      {
+        "size": 256,
+        "kind": "changing_rhs",
+        "controls_passed": true,
+        "aa": [
+          1.0213192419825068,
+          1.0068071137349863
+        ],
+        "ratios": [
+          1.009779833309235,
+          1.0159113796575976
+        ],
+        "resident_benefit": false,
+        "overhead_gate_passed": true,
+        "baseline_ms": 3.8156250000000447,
+        "candidate_ms": 3.852941176470595,
+        "minimum_batch_ms": 51.80000000000007,
+        "individual_flags": []
+      },
+      {
+        "size": 512,
+        "kind": "steady_single",
+        "controls_passed": true,
+        "aa": [
+          1.0033333333333292,
+          1.0207852470549548
+        ],
+        "ratios": [
+          1.027431421446364,
+          1.0157790021426463
+        ],
+        "resident_benefit": false,
+        "overhead_gate_passed": true,
+        "baseline_ms": 12.000000000000055,
+        "candidate_ms": 12.359999999999971,
+        "minimum_batch_ms": 56.69999999999931,
+        "individual_flags": []
+      },
+      {
+        "size": 512,
+        "kind": "steady_chain",
+        "controls_passed": true,
+        "aa": [
+          0.975852272727266,
+          0.9900527770593477
+        ],
+        "ratios": [
+          1.0276988636363622,
+          1.0136853781046489
+        ],
+        "resident_benefit": false,
+        "overhead_gate_passed": true,
+        "baseline_ms": 23.73333333333324,
+        "candidate_ms": 24.116666666666713,
+        "minimum_batch_ms": 65.09999999999927,
+        "individual_flags": []
+      },
+      {
+        "size": 512,
+        "kind": "changing_rhs",
+        "controls_passed": true,
+        "aa": [
+          0.9813153961136027,
+          0.9766732582902367
+        ],
+        "ratios": [
+          0.9850523168908836,
+          0.9766488413547139
+        ],
+        "resident_benefit": false,
+        "overhead_gate_passed": true,
+        "baseline_ms": 13.379999999999992,
+        "candidate_ms": 13.180000000000014,
+        "minimum_batch_ms": 49.80000000000118,
+        "individual_flags": []
+      }
+    ],
+    "individual_flags": [
+      {
+        "size": 256,
+        "kind": "steady_chain",
+        "cycle": 0,
+        "aa": 1.0593120805369087,
+        "paired_aa": 1.0012614317250006,
+        "floor": 0.05820000000000025
+      }
+    ],
+    "processes": 6,
+    "contexts": 18,
+    "production_changed": false,
+    "all_preplanned_controls_passed": true,
+    "all_overhead_gates_passed": true,
+    "claimed_speedup": false,
+    "candidate_adopted": false,
+    "goal_status": "active"
+  },
+  "hotpath_identity_audit": {
+    "status": "passed_final_packaged_webgpu_audit",
+    "native": {
+      "numpy25": {
+        "tests": 150,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "numpy126": {
+        "tests": 150,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "root_packages": {
+        "tests": 12,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "root_wheels": [
+      {
+        "path": "torch-iteration-597/root-tmp/runtime-wheels0/wheels/paperleet-0.1.0-py3-none-any.whl",
+        "sha256": "766e4c7d8782714b8adff719744d0a0b440b6705029057ae90893ddb628cd28e",
+        "package_files": 66
+      },
+      {
+        "path": "torch-iteration-597/root-tmp/runtime-wheels0/wheels/stridetorch-0.83.0-py3-none-any.whl",
+        "sha256": "14e55a27d9059515cb5e0d76502da1e62d6b6a8e0ef8285b02fef3eec200baf9",
+        "package_files": 77
+      }
+    ],
+    "public_package_files": 77,
+    "private_core_files": 66,
+    "default_exports_unchanged": 183,
+    "js_shader_planner_protocol_unchanged": true,
+    "full_sdk": {
+      "status": "passed_installed_final_full_sdk",
+      "receipts": [
+        {
+          "label": "numpy25",
+          "exit_code": 0,
+          "totals": {
+            "tests": 12322,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "command": [
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+            "-I",
+            "-B",
+            "-c",
+            "import sys;sys.path.insert(0,sys.argv[1]);import pytest;raise SystemExit(pytest.main(sys.argv[2:]))",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-595/installed",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-595/public-sdist/stridetorch-0.83.0/tests",
+            "-q",
+            "-p",
+            "no:cacheprovider",
+            "--basetemp=/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-596/numpy25-tmp",
+            "--junitxml=/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-596/numpy25.xml"
+          ],
+          "seconds": 22.271186415993725,
+          "log_sha256": "c5266c0ff4f5d0bb60f5249c42b0138b50ad288779af6fbbcfc50bda646be994"
+        },
+        {
+          "label": "numpy126",
+          "exit_code": 0,
+          "totals": {
+            "tests": 12322,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 3
+          },
+          "command": [
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-137/native26-env/bin/python",
+            "-I",
+            "-B",
+            "-c",
+            "import sys;sys.path.insert(0,sys.argv[1]);import pytest;raise SystemExit(pytest.main(sys.argv[2:]))",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-595/installed",
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-595/public-sdist/stridetorch-0.83.0/tests",
+            "-q",
+            "-p",
+            "no:cacheprovider",
+            "--basetemp=/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-596/numpy126-tmp",
+            "--junitxml=/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-596/numpy126.xml"
+          ],
+          "seconds": 28.282830415992066,
+          "log_sha256": "dd9bc076240f278835fb12b5c521c5fc920c2257094eb621abfdd085f6a89fd2"
+        }
+      ],
+      "public_sdk_files": 94,
+      "source_checkout_on_import_path": false,
+      "ci_triggered": false,
+      "goal_status": "active"
+    },
+    "gpu": {
+      "browser": "155.0.8059.82",
+      "gpu_info": {
+        "vendor": "apple",
+        "architecture": "metal-3",
+        "fallback": false,
+        "secure_context": true
+      },
+      "worker": {
+        "secure_context": false,
+        "origin": "null",
+        "gpu_exposed": false,
+        "pyodide": "0.29.4"
+      },
+      "cases": 51,
+      "state_controls": 31,
+      "compatibility": {
+        "status": "passed_real_browser_protocol_compatibility_and_client_binding",
+        "cases": 7,
+        "rows": [
+          {
+            "kind": "new_client_old_service_actual_program_and_release",
+            "passed": true
+          },
+          {
+            "kind": "old_client_new_service_actual_program_and_release",
+            "passed": true
+          },
+          {
+            "kind": "python_retention_refused_before_conversion_and_rpc",
+            "passed": true
+          },
+          {
+            "kind": "python_resident_session_refused_before_ownership",
+            "passed": true
+          },
+          {
+            "kind": "resident_constructor_client_pinned_across_global_replacement",
+            "passed": true
+          },
+          {
+            "kind": "explicit_resident_borrows_client_without_using_global",
+            "passed": true
+          },
+          {
+            "kind": "stateless_default_and_explicit_client_remain_pinned_for_forward_and_vjp",
+            "passed": true
+          }
+        ]
+      },
+      "installed_package": {
+        "files": 77,
+        "compatibility_aliases_share_canonical_modules": true,
+        "wheel_sha256": "a85cdd46b360cfc30469512b3d9cbcf7f503626fcdb8b56cd749d9b3c4a4a3f3",
+        "canonical_module": "/stridetorch/experimental/webgpu/torch_bridge.py",
+        "service_assets_and_notices": 6
+      },
+      "host_disposals": [
+        {
+          "type": "disposed",
+          "reason": "client closed",
+          "stats": {
+            "resident_handles": 0,
+            "resident_bytes": 0,
+            "total_bytes": 0,
+            "allocations": 0,
+            "peak_bytes": 12582944,
+            "submitted": 183,
+            "completed": 183,
+            "closed": true
+          }
+        },
+        {
+          "type": "disposed",
+          "reason": "client closed",
+          "stats": {
+            "resident_handles": 0,
+            "resident_bytes": 0,
+            "total_bytes": 0,
+            "allocations": 0,
+            "peak_bytes": 96,
+            "submitted": 1,
+            "completed": 1,
+            "closed": true
+          }
+        },
+        {
+          "type": "disposed",
+          "reason": "client closed",
+          "stats": {
+            "resident_handles": 0,
+            "resident_bytes": 0,
+            "total_bytes": 0,
+            "allocations": 0,
+            "peak_bytes": 96,
+            "submitted": 1,
+            "completed": 1,
+            "closed": true
+          }
+        },
+        {
+          "type": "disposed",
+          "reason": "client closed",
+          "stats": {
+            "resident_handles": 0,
+            "resident_bytes": 0,
+            "total_bytes": 0,
+            "allocations": 0,
+            "peak_bytes": 0,
+            "submitted": 0,
+            "completed": 0,
+            "closed": true
+          }
+        }
+      ]
+    },
+    "resident_hotpath_matches_measured_binding": true,
+    "performance_source": "torch-iteration-591",
+    "source_identity_changes": {
+      "torch_bridge.py": [
+        "MatmulOffload.__init__",
+        "MatmulOffload._rpc_submit"
+      ],
+      "resident_bridge.py": [
+        "ResidentMatmulOffload.__init__",
+        "_RpcBackend.__init__"
+      ]
+    },
+    "unmeasured_stateless_scope": "Client selection now pins at first submission; numerical/VJP tests pass, no stateless latency claim",
+    "global_rebinding_negative_control": "594 fails on initial586 candidate, final595 SDK and598 real browser pass",
+    "earlier588_fixture_failure_preserved": true,
+    "ci_triggered": false,
+    "goal_status": "active"
+  },
+  "package_inputs": {
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/pyproject.toml": "234722ca9a2161c8033b79af5b1dd61a4afecc221343bdc53462e93eccc06a47",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/README.md": "5e797cf39e00d199ff50458bd48292eb1d403026c0784d78e879efac21809589",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/ROADMAP.md": "b7fa758d060261d67f2a7c321e519caec715a109a3fc5e40c3e4039f932c5896",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_hvp_branching.py": "2ffe8bdd8fed1aa81525536064c79531180202a934b410235f33b22a8f18de04",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_transpose_convolution.py": "4d18e3c6171926d1c9a4d3546fa830d2e157ad85cb9103b11f1d9a12a15d3b96",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_dispatch.py": "03b0400d11748e200e90fd0b9928db1fab72028a67a2cb1c9a512fa26e213ca3",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_tensor_reverse.py": "137cc31ca64d89eee981d770199b2e81d4843f1b0672ed554e34f76fc9e6e78b",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_functional_jvp.py": "b33c5325a3fd9bfc68049c01f95755633d83f8a2fe24a4ce8b14a3a776eeeddc",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_convolution_padding.py": "35b1a8675f08ad04ca29d728bb5dd2dcdcfa709ff64de30dde78e82c6a6d85c4",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_gradient_clipping.py": "1b6350a5848daec49710808bf26952a4881bd493c08b97a1fa2506137e2e6ed3",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_statistics.py": "922ee229ca9aa9b11317111bbd098fb72dbfd9ce319e04abc0fb13e995120587",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_groupnorm.py": "a8580f3f7b288e307521370cfd75da40a0e7b9a5757626af91a8d9b3ae1461d5",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_cholesky.py": "717954fe681f7c3389f521a00dc1724e6cf362c888cab4304ca482c3a12ca9e8",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_module_operator_pickle.py": "779f57c62675804f802edb92a6614846ca4dca820ef287e30598798aa9b3a1cd",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_det_jvp.py": "fcfd11ade46639a6e65674e6de0fc008afddf1403f6f5247bc7b49db7bd29ab7",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_average_pooling.py": "580b03a8db0a3e3b3511cbefb3a91c810d7217d31aa24d3be032640c4de7d983",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_binary_saved_values.py": "24a2959fedf83e280ea199bf6635c96d4128f1239e2ba040a698febe804f5b5e",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_cholesky_solve.py": "750c7a3ac78f1aaa33be288c10db0a2bdce5567d7ff01ebd440d7b4dca300a40",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_feature_detection.py": "64720a88f93955b8e4c2dd77f715a0946a9d30944455e69d8eddd5b35f11452b",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_inactive_pullbacks.py": "a2cbad3892819d25800cceefc987eaab48c97775decd515df25664dcdbe150bb",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_numpy_inputs.py": "12dd339bbd67c94b9344028b548e4e9581edbf5f9e98c09001948feca7ee3d09",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_pooling.py": "1e3084a7e1cbf621a7ae89fe6f3dc09fd2a8bed5fe2fc589cee6c19f8a448989",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_multihead_attention.py": "7c1f19b34350d82830173bf9396b6587526a80cb03379b0788151efe76735774",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_joint_dense_routing.py": "13fd87c3122fc33b4447999fdf2717a7a06c99b6e939d07328e630aa522ecbd1",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_solve.py": "e70d2d31985251279ea15232eddb68cab2d3c4d83338dfc07195cf31f027ecde",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_attention_efficiency.py": "b8c0a688080daf0d44583a1ceb6ee8d667ce7c8c7902ebec5cbd900744b2876e",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_matmul_wasm.py": "e8ff147dd3f34502c2b81554239324654a1e5443446dd0059d88335aa380a003",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_inverse_routing.py": "8690040ab5add71b26a8b84b19ab573c1c7838770fe4b41f8fae21875f620bb5",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_conversion_modes.py": "02ecc5f021b1b6760f7759c21427657c4d74c33c949fd0e27ef1b3bc47c064a9",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_joint_vjp.py": "6ef4c6c9a28a75c9c85269a501219bbf757999bd966baaeafd7fb04b12e0b54d",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_vector_products.py": "d78466441d5fdc4eefea25109d1fa96132b154687f8bacb81f4a2b8b068cc40e",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_graph_lifecycle.py": "d901d5c45d9181ed76669121c496ebc2d80b1a9c709617485502f088fe5b2214",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_convolution.py": "e12a4c53b40dd9676b2a97d24ed40c0250478d29ab2407e56e679c4564e1a787",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_shape_ops.py": "d89cb23a04e066da8a898517ef6cadd5a6bdf17b9b6a77a0c103e455d94d43a1",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_functional_vjp.py": "a1742810e909e9ed61446d06e4b1f3a42bf031ffb2d40c782a862a58c240aafd",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_matmul_saved_values.py": "b72604301d3fc0c5c2949123c52c5186c093986ef27eae6a51e730230b97b6c8",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_functional_jacobian.py": "ba54c24fb2cbd8ff64945945b3e8ac3ba61edea5a7c0b9dabdeb9267f7e1f01b",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_default_dtype.py": "9ee250d17a6ab3f9ad4f75d76df18abda334507d47151ab83b0f4dbc3f0cb92f",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_module_lifecycle.py": "06f02aba6da7e747360acbe18a90b788dbcf8387b8725bd566faeee0a8032367",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_indexing.py": "707e89caed5a6ade3a8de275889ebb36fb2113c426687cf3bf66a813aef79a38",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_batchnorm.py": "714a93de40a470bc13926b4750d33cf892a170fc5d41c906e71f22701002f275",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_distances.py": "4b32dad3c4b5ff6855624995a2cf0b6aa07eee61e226c9d759f7b107c60b33a9",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_optimizer_lifecycle.py": "9a4012f9813e7df1a34ae5453266db1bf6f16608117bfc8b5703f4bd69d43281",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_promotion.py": "6de47c6915485b2ae2a9c28163187e249279e1d787156f01200dfc85cf2dd58e",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_hvp_determinant.py": "0aec95bfa9a4149465ab941c2e81b072a8c044c17632e0601c283f2d4e66d991",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_functional_jacobian_contracts.py": "f6c1f61fcdf251ae4314802f3e14eab3e07aaf97e38137a9445e3f2c9ba66197",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_binary_operand_lifetime.py": "0c449e32fa1b2be94e733cadeea461ba805f79a62a0383a26fe7068a28ff3e42",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_hvp_graph_barriers.py": "94bf9f0a8228fa0e8b72a20ecb1e6e737807cebbd3176fe24767e8b4277d16bc",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_construction.py": "47acf73e5d314964ac03944b2107da0b93b4364128c66cce2e29eef8992be393",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_vector_norm.py": "aac0ce7e5cd86190f69d15a331e3f60e1700a26703a55876043018219ac078cf",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_cholesky_inverse.py": "ae8ae9b061905c69aab4522390d8cda2edd4ae6a306b484944a3d854e933d75e",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_attention.py": "f4ed553499459a60c6498c70f93064dac30b2d472a21b727b4ee18cfa5cc2bac",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_pooling_1d.py": "4b1024f2980e68165f411cf79ff158c2e1ba962988e08d0ab168a9745c4d1307",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_piecewise_jvp.py": "3d08013af6a90726079cfdeaf9f9240bd438ac128140de04bf8e0e43b2a473c8",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_logical_zero.py": "40928776e993acc3c505cdbcee067faa4fa1c899b73981ed344e4fb90b1bb4ee",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_triangular.py": "1ab4fa125cec9b822a24524eef8d746bc50daaf607b7ad704cdb5e0e1291e170",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_functional_jvp_dependencies.py": "22e8916713ef787c6ac434630fc2d874dc4888189e0768830251c18735d07ffc",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_jvp_preprocessing_subclass.py": "d0e051bb40aebdae9a3531214aa0ada84727a29c9c65f80330177e39734ed7bf",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_hvp_reachable_branches.py": "521d275ea7b6ab7e2e7093f628739d94d33fa48efa7427924f2a78a0f88aef0a",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_linalg_failures.py": "31a744e4c1d31bff80563f4b5fa9ce9d0d99201fc74d1e6118802da624ae70f5",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_nn_workflows.py": "72c119d67eda81667d4ee724ad7be06c7c3920baf296f7a2ada193d5d2ca9e70",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_mean.py": "867deb8e234478da7bdd4263ec11b0756afd28d9669575eb4c24839424ae5b2b",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_sequences.py": "82ee7a7ac434d64a1ea0a3ede4a50867f5672afbf419ea57444317cebd81dd87",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_joint_lifetime.py": "1a2206833bd113b040205f6401f5d6cae039421dfd8d83f62067c651367a66ff",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_pooling_3d.py": "a44ac8c6d64af2312342a0969de66203be1a6766be4152ec3059e159752031eb",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_standalone.py": "bb6f3bb267a2fdb0d1cf9b869c9c4c2c6f95f99f203770321f9de620f715bdb5",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_average_pooling_plans.py": "e3178c03b2737785f4efcd21573bd50437330b73ae12c9e3377b812e57a3350b",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_instancenorm.py": "c796b279cb74d953d2b9c96df73f595b7778fd4728c6ca94a5b5bfe3c861cd08",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_functional_hvp.py": "1d2f50eec55fecc4acfbfcd33d1e418e1ecf42d2b3494abc12e153ccfc427fa6",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_logdet.py": "59470bbf4f8b823a78226c52e3582cf885588437202579c542ede523b8c573af",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_ieee.py": "9543376063e9eafc4e2106433bb388ae28b82c3aa44935e63d3e43044fed18d5",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_hvp_reverse_cleanup.py": "0c62cf2b443956f04b826c39963d8de5939d2015efeca7dcb2f330818467ea65",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_tensor_hooks.py": "dabaf33b081a77bf9ea43e9d5d2bd1390e1b047b7d3f03168d8509a155d9fcb5",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_gradient_layout.py": "a45bb2b0d6412ee3618dd9358f586c869e1fb7cc3a46ac015073e3ad8e1d5b87",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_layout.py": "87ab8b5dcfd870c9591132708440cd4383f28b0be1dd78414e50d2a88ea310e6",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_matrix_products.py": "b8af62449ddb562b914b35d08438a8e41ea9de2242c2ebdfaf86ee1e1933656e",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_scheduler_lifecycle.py": "859bde279273c8499f7ec59dcd562d54a84517eccbb1c990cb7a2c05df22c6b2",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_selective_joint.py": "2d47b60a268ebe910f457e48244956fd663136312b7d1b8022f9560072390469",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_reflected_division.py": "f28de13ec21264be85922551c347b2375a0a3050ad980767c1376bf2d9b0c477",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_determinant_policy.py": "421cdd9c3b64f4a3ced815ffd628c692c3b028793d803d18a5889c1ef405b5fa",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_batched_matmul_wasm.py": "b22394f1f50f95bc24fde1cb67566776f12522a7e33e5206cd5c56f0c2497d4e",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_arithmetic.py": "e3afb61f5401dd280a6c87b46d4a01a9956030e59448073b48e865adf89fdd20",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_serialization.py": "995bb62c72bc28aa17cee2fabc0b677eb08b9c623b04cd1f557617f2a0368b59",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_axis_transforms.py": "721efb1d7a5f510ce5f409ec9f5f7420a6c3c5793a51e8e34294e424523ef063",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_module_hooks.py": "ecc90cf5628fff6db0a8fcf85fa9ad3cf504794e8b08e46330f0fb1ef28b172f",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_power_precision.py": "94742bff404b5fe2004b6da1e11243256e4bd4c7fda42b37b3f97a56ab4ad311",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_transformer.py": "3ddfc1959ac15f8bacdd5e2ea4a127235aaafb9d66f81ba3192374fb19d70428",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_average_pooling_1d.py": "87a7ef3de39c98a3dd3147d972719d9cdb7f7d85dcbf635ab6ab8cc3d8127792",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_classification.py": "36c08943bb1e9bf94814a071bbfb1898581416f74b1e12f55fced3331ccac13b",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_functional_numpy_escape.py": "2248867acd5e6ffbccd1a72cad022de88317c910fce5e37ed6a81917b46cc78f",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_joint_gradient_release.py": "f2f555a3b4d97dc23e8b50d2d28a083098fd8be40248001b71e528cb30ee94e2",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_nan_reductions.py": "f16bd636408791ec5d744d448ba3e6ed50c007f83995764156553df17a9e55ca",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_average_pooling_3d.py": "9ef4a808534c6b3ecf3733da524ed93700351e7e2a49399a629492b32ae29c43",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_inverse.py": "f61c7321c65e61249943d1aef0d2b56e03355e796bec7d70370e15dfe41fab6d",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_fused_matrix.py": "c99c2551d5e0695a96fbd2f9fe61d4355afe84d3bb7f239d0892572aede11c36",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_linear_wasm.py": "f90aee71c0052043ca3252ee96f71b773bec698d6cea0c542b716bc3dbe69e3e",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_normalization.py": "ee0e0abca72343d13425ba430fda9d8933198ac52297115c55ce621faca2a06c",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_nn.py": "6fac6422569a18167eb0a9d978320aa0483e11be989c0c21f5fcefd73999ae63",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_multihead.py": "c5319edfd61a8e12fcf18b0e6059bf3f841a0dd80b8faab573b3773b2d2acacf",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_convolution.py": "303f7562ae23518ef46bcfbca259d4d6894e490dbe992d8181079b09bf363d5a",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_errors.py": "d4db8985fff533c02b354e750fde07bbec3996c0c90273a2d48f1629ecc96fb5",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_module.py": "badab7a25f3d66170c5a5fdd1c2b4f36f611bb1628e58f151dae9c4641b13727",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_graph.py": "6aaa666f2a0f44cd52ca3b2af5e9d8b6aa92cf9fa809d40b9c347ddf8341944e",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_distance.py": "a40f4e2749314790a3a9e7626739aaf0b570c6ad254bcb500d07853c87e2ec7f",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_ops.py": "ef501ff790e00cee47e0b62a761cbfa3eaba159f96b01277a2350bab1d81628d",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_transpose_convolution.py": "74edf86685872218f32936633823c760257c727283d77b00f67f95a32bfe14d9",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_attention.py": "e84044bc25147aa9424d06d91c269aa4741c8441e25253976f48e850384c00a3",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_api.py": "9666e22d867fe822e6769cb07dad8bca11e75def9c894cc36e5b2be0667eb111",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_sequences.py": "75964a026e7cbaff8fda6106f3c894f5a22da790c6bedbfd183196289d437afc",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_convolution_padding.py": "4ec1b307faf7d6ca39d7b4e2eeeac8da383b813cc21407dd8825d04b44acf8d3",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_cholesky.py": "cd4e7b8d607365719afd3d601df6c1aa45b40d223c816315a6e038eebca60b6c",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_batchnorm.py": "b7de9ab4c6c2738e0de528b4a44e944adc185e0b854c8d8c8837fe0c8463b848",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/__init__.py": "b17fde9cfc11d177ba5ca30c113a7452a7670faf686a6534d3da16e7dfa6b3db",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_determinants.py": "dc12f1ef1f7b8e7bc8155f92c100bb31843e11fd519a4ca295fea606a31eed42",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_promotion.py": "d53ffa3fcfbd70841f52fcad2007c8dc51414526b68319a45d1878eaaa040b82",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_arithmetic.py": "93dbdc5a799aa3366dcdc64e406a4a6a23b4dc666b4a3acf46598bfe3578f860",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_linalg.py": "8392805de1e95c8f408bc7b0fd7a3574418a24feabded8bc4bf7c8c430304d1d",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_pooling.py": "5cb9ced0bf9ed79c8549e3c7696a5b110e53af43203bae047b6d27efee2888cb",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_tensor.py": "8cbfd3ac8d87500d21e700e07429e0000ca670fafd7fea1cd42cb2963db50879",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/runtime.py": "106b9b3af6797ac670e0dcb1896e1b24d2e342e96f76ec8c91e9ba89cd4128d2",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_registry.py": "fed7ca219d645cf317a51091e83440f9f65da5ce4ab1562d5acddec59057abc0",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_defaults.py": "3584396a1ab6c345f4a9f0b94e33f13b050b8a21eeea959b518a3ea8705a5a17",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_random.py": "1beca3230d7fb7a1f92ef1a7e4a64e19c5e39be5ab8401c1e36ef3b08abdc414",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_optim.py": "55412c079ba627054436549a2eee7df84f465b17ceaae37559ad826177b2b489",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_average_pooling.py": "0ca22fbb892ad41d1bcc95519166ddf542d66676bd61c7ea62ba7866190fb629",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_fused_matrix.py": "8c9f98fd33ee514db590ac097a78caf122cfe97ec2f3e7ee3fe19878ea554fbe",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_state.py": "730a58a1aba37c75ead580ad69e052ad01c3937698f8fa07f79015ae68d53bdd",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_average_pooling3d.py": "1d81e78165eae51e762c3213ff4f2eba05ef123d3a8eb26f355f11073aa01ec2",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_nn_modules.py": "5bc5a95df66792f270dc44b65151ac174e5ae8b08dcf452181776243d2bb7664",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_autograd.py": "6c5fd6ad7dc4fbdecad93464b6a995df9415b901cb57a3807afa8ce086b3f805",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_instancenorm.py": "2e365e6cb8e8c7afa1935c6158fb5ed80ece5a47d1e870dc06ea245120a2396d",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_transformer.py": "4be0544e0008cc6917e12053ece7290ecee7f70cc9dedeb6efbf771a177ec0fd",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_layout.py": "1c88dd00b2ab186704a58790695ad1fdfc5b489e79761a878135463e60253c1e",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_higher_order.py": "a2fb116c9ad0ebe452e164397f15a26b059444ace6293a0d4af01e1a05fd849b",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_gradient_utils.py": "6ca0c769446932900014d5799445946ec944f6078b411f4157a7aa7c0d36307c",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_groupnorm.py": "46826f1f1e5040417ad64d5910c3ecb77025e0a340acdff4d86e760f3c95181d",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_vector_norm.py": "9d1d8114a602589ba705be7f2d16643daffa189a759a1675b5354eed85a8d2b3",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_legacy.py": "46fc7a2ff0b3ea57454ea1ef4551e2cd455b3ce887733b0d1030b80b425feefb",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_pooling3d.py": "982511ea21dd05d6289c9080a8d6b185a66aac6bce9e7fbbecd59196fb51c320",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_matmul.py": "593f120f3baae128131da5d9a1f9cd226e505c66e3b05b094f8cfc46f9e517f8",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_optimizer.py": "9f6c93a0fdd538a6aa00f3b5770212fe1cbf214bf7cbb525e50b93a160e3b5d9",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_activation.py": "f5e27e4cbd11677d90bc293719837da22e88f483939d16601b2c824594fc32ea",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/_construction.py": "656661a62d89fcdfb2e10dc197e6e3706d6e6f714e6e1a841718ddc421eb48fb",
+    "/Users/david/Developer/PaperLeet-torch-release/pyproject.toml": "dd89124a866c04b57f6973a0c9746a2e5a5a29560d3478c26352491d9571d9ba",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/catalog.py": "735dc6c4ccf7e2e3b0a56e28e5b8f7aac8c29b575bc19a72f17e4c067f745a8c",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/server.py": "f312e1a8bf80422d77dd4982f16f9e42d13f074b5f94093cb1d577695daf3ddd",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/browser_judge.py": "d5033ddc6dc9af8bbe16606d584a529e26fe732a237462081c7b8723197ac5c1",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/config.py": "ab5de5eceb0f614eebdfd4fec23aea0f61bc05b23a7f2cbcda2be89fff246ed8",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/interview_catalog.json": "289c1abb5047131c32a1d30f98ef13d20739bb9727c5738cebc9fab5b96ed34c",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/browser_config.py": "9c5654ed110b924b4ad913d0e12ac227187caf203da6608eb9bee90a4a4e06c0",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/paper_catalog.py": "e63b9b5de167af2a0f40264f84944fde3063e18f12f6d6c394b74b66b3d0ec64",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/export.py": "656d3e730fb5bdfd9d177f1bd7b60248240ddc39e71d5cf422cef26a5e6e2aa8",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/cli.py": "42fa213186e077572065a992301786936f6a1d7a0a7264da6ef68d7f8c80ec72",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/daily_challenges.json": "729205e84bbf19f12d1964860f15847385a719918a1d7d9b8081447c3efbc573",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/daily_challenges.py": "5a226d21cbe5a4762757f04797e2bb6c795acecc1205f20ddd6d2f2c78fb094a",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/_vendor/__init__.py": "65dab731441f63d4010fbbceed668bda77e2b5c8661f62649f5bb60be7880240",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/browser/numpy_autograd.py": "ef98c04e33ed652716e904314af8a94d795f3d2443c9651c69a41f1a78e699f1",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/browser/harness.py": "ca16c0c73f0b3d66e8f51993652da0517c78919dd3934a304d1669dd42cf6ff2",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/browser/schedules_numpy.py": "dca3a6b7fcfcae1909b13d3d20b7211b1a4c91c8892c5eedf039a69ca86fcb0f",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/common/oracles.py": "a581d1a393422467bd1f2e08ed6f409cb2e00709d3dc95d6daaaa323c85c26e7",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/common/rl_envs.py": "43df0e150cf20bcea021b297e82399d9143e74af4b8a082f1d3bf8b532885646",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/common/metrics.py": "d73783449d6f563d4c41f153a9c17710d8f7949ed0b1797f200028bc7af9cf61",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/common/models.py": "88d639d18bf3986d61e6b8cbb89624d49379e7a7a0690c5bbe7081bea178ae92",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/common/comparisons.py": "17271ed561a9be613c8ce0f3e08bbe53f61e45661b4dfb43e6c6b9f95210c21f",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/common/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/common/asserts.py": "8a341a2df520bdd62442135065bb3b0fe63942515bf97ff2c83d00484a5ed5e1",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/common/toydata.py": "e0bf163bc9080de0a2f7799df5d08a9b0ae1103e837070419f8624aac66a2e13",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/submissions/worker.py": "d1d64a8ae6ec60e8ae923a3d6b950a20a42f0fb8aa6c07052abfb04eb54a038a",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/submissions/harness.py": "1a1e3046fc173037b3a4d54aa791fe9f01f581efee3866724041c3f5473966a6",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/submissions/arxiv.py": "f8833d949870884190b9ddc181752e44866d142f94f6e09878f38a72bb41cb7f",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/submissions/Dockerfile": "caee1d53d6105cd5139e337c0efcd153480a4462141b253fbe83b25bedae7425",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/submissions/checks.py": "18c61d522c98db88575f5dd1fd30b9b61fdab384a07aef0aaf65261828f51278",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/submissions/__init__.py": "316984484d70c7c32dd253350490d0ff036e4df6ed65aa51a930da2a6463faf0",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/submissions/model.py": "f2ad7e63c8ee78d4a46a2bba2f76f3a1cb388881da2a47e06c670416a02bb04a",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/submissions/README.md": "5f8faacf8cf46a003c4fcd83d26d65f8333085d01aaf4c8a2ab7c1b63f9de16d",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/submissions/sandbox.py": "2360228a855b273108655eddcedad372f860af2c92926964f10ed4fcf36f2077",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/submissions/artifacts.py": "467ed9e0e041f4f6a24ea0e2b34df6b95ee42f0eab298b77fce01c8f39d9a5a0",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/judge/queue.py": "faa434aa80e4701f8aec9d4a7bac1a36ae1084e1802a9cfe702165420e67c322",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/judge/runner.py": "20bc3a9521d9e241bbcc8675340d7e5d6fd26c08d9bb91468b5710553ac23de8",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/judge/mutation.py": "f1bfbec15f2ae6cc36d818ec1d22658985fadf6bf4fbd7b26c6ea10df40999a1",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/judge/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/judge/loader.py": "18b8b4cbaa197e78f4db3bdf387ba760b75a026a5ba8ccaae78a61fe9e2b6dc3",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/judge/jobs_api.py": "b14089adbb6c496b68f021c31a46c5c9629c093c599dca0f92d0ff7fef69bde9",
+    "/Users/david/Developer/PaperLeet-torch-release/paperleet/judge/pytest_plugin.py": "3399c70b440fab97fa2acdebb5b7b3a24266c7958686b44f805656e324f2b4d9",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/experimental/__init__.py": "2a70b6f35b65cc542a55ec54f5987acebe18e0a2703cd601185c906acb59a4b3",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/experimental/webgpu/resident_bridge.py": "e4ed73e2e1bf41b5187d381004383e7276dcb0b5b3df6aa1fb9c367334cb70b7",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/experimental/webgpu/rpc-client.mjs": "821155085f2566f8a8376357143dccbf51277da955d0edf51dc22117a631527d",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/experimental/webgpu/__init__.py": "d92d4e79d00422256c5a1e379e6963039a4c6165099d7ff7bf0c8563498d245e",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/experimental/webgpu/gpu-service.mjs": "c94d08573ba975d071e1065b8a6e91b383708dfe3cb2d211f75109556db5b26b",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/experimental/webgpu/torch_bridge.py": "9dec8bdbc9a9a8faed300b6f1e36a6c64c47f431aeb3ffb809358d7a4ba9b5b8",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/experimental/webgpu/plan-program.mjs": "53e91df4357582cec150aa1660a2cdc7144c88c7b2d749f2aee4e13fe059a02d",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/experimental/webgpu/resources.py": "8eec5dbad1d03d465dc7b00f08a4243ee3f98737480cf96b7e0b7bc01d2b2041",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/experimental/webgpu/_pyodide.py": "190e8e4691b434ac942d86e7a2c67b908ee9e692c3945a6a4f08b2bb9cfe31d4",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/experimental/webgpu/matrix_client.py": "67fdb3d1e403996cb363e08fd67330177612a3dacca51ddad3bf627624c08c52",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/experimental/webgpu/rpc-protocol.mjs": "e2c27e380aae4e41ff0ece2e3adb1059ac785d2ca8c39c76fcf7840974829d92",
+    "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/tests/test_webgpu_package.py": "518fbb15c68420d1ba7a5bb1c0434c42bf6d9be94897be41a0495e4a257abb1a"
+  },
+  "all_qualification_inputs": 243,
+  "active_export_identities_unchanged": 183,
+  "borrowed_client_pinned": true,
+  "default_gpu_dispatch_enabled": false,
+  "public_gpu_tensor_storage": false,
+  "stable_gpu_api": false,
+  "ci_triggered": false,
+  "tags_pushed": false,
+  "published": false,
+  "deployed": false,
+  "goal_status": "active",
+  "raw_archive": {
+    "path": "packages/stridetorch/benchmarks/results/webgpu-package-harness.tar.gz",
+    "sha256": "1f68b93e2acca88f2fc509a86db6f6ce58dbd86141f3c4abfaddcbf73907a1f9",
+    "files": 2629,
+    "unique_payloads": 433,
+    "bytes": 5981932,
+    "all_payloads_verified": true
+  }
+}
