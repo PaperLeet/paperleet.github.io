@@ -37,7 +37,8 @@ export function planProgram(request,{limits,find,residentCount,totalBytes}){
   const seen=new Set();
   for(const entry of request.outputs){
     keys(entry,['ref','read','retain']);
-    requireValue(integer(entry.ref,inputs.length,values.length-1),'Reference','Only computed nodes may be program outputs');
+    requireValue(integer(entry.ref,0,values.length-1),'Reference','Invalid output reference');
+    if(entry.ref<inputs.length)requireValue(!inputs[entry.ref].existing && entry.read===false && entry.retain===true,'Reference','Only new uploads may be exported as unread retained inputs');
     requireValue(!seen.has(entry.ref),'Protocol','Program outputs must be unique');seen.add(entry.ref);
     requireValue(typeof entry.read==='boolean'&&typeof entry.retain==='boolean'&&(entry.read||entry.retain),'Protocol','An output must be read or retained');
     const value=values[entry.ref];if(entry.read)readBytes+=value.bytes;if(entry.retain)retained++;

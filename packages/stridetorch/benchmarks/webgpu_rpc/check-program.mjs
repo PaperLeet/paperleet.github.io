@@ -67,6 +67,42 @@ await check('cancelled real-engine result discards every retained output',async(
   assert.equal((await client.cancel(ticket.id)).cancelled,true);controls.held=null;held.resolve();await rejected;
   assert.equal(engine.stats().resident_handles,1);assert.equal(engine.stats().total_bytes,16);await service.close('done');client.fail(new Error('done'));
 });
+
+await check('fresh uploaded input retention shares the same atomic program',async({engine})=>{
+ const value=request({retain:false});value.outputs.push({ref:0,read:false,retain:true});
+ const result=await engine.execute(value);assert.equal(result.outputs[0].data.byteLength,16);assert(result.outputs[1].handle);assert.equal(result.outputs[1].data,undefined);
+ assert.equal(engine.stats().resident_handles,2);assert.equal(engine.stats().total_bytes,32);assert.equal(engine.stats().peak_bytes,112);
+ engine.discard(result);assert.equal(engine.stats().resident_handles,1);assert.equal(engine.stats().total_bytes,16);
+});
+await check('existing input handle cannot be exported as a second owner',async({engine,existing,controls})=>{
+ const value=request({retain:false});value.inputs[0]={handle:existing.handle};value.outputs.push({ref:0,read:false,retain:true});
+ await assert.rejects(engine.execute(value),error=>error.code==='Reference');assert.equal(controls.allocation,0);
+ assert.equal(engine.stats().resident_handles,1);
+});
+await check('fresh input retention consumes handle budget before allocation',async({engine,controls})=>{
+ const value=request();value.outputs.push({ref:0,read:false,retain:true});
+ await assert.rejects(engine.execute(value),error=>error.code==='Capacity');assert.equal(controls.allocation,0);
+},{changes:{handles:2}});
+await check('duplicate retained upload is rejected before allocation',async({engine,controls})=>{
+ const value=request();value.outputs.push({ref:0,read:false,retain:true},{ref:0,read:false,retain:true});
+ await assert.rejects(engine.execute(value),error=>error.code==='Protocol');assert.equal(controls.allocation,0);
+});
+for(const point of ['allocate:1','allocate:2','allocate:3','allocate:4','allocate:5','write','encode','bind','pass','dispatch','copy','finish','submit','map','range','unmap','validation','pop']){
+ await check('retained upload transaction rollback on '+point,async({engine,controls})=>{
+  const value=request();value.outputs.push({ref:0,read:false,retain:true},{ref:1,read:false,retain:true});
+  controls.point=point;const before=engine.stats();await assert.rejects(engine.execute(value));assert(controls.triggered);
+  assert.equal(engine.stats().resident_handles,1);assert.equal(engine.stats().total_bytes,before.total_bytes);assert.equal(controls.live.size,1);
+ });
+}
+await check('cancellation discards uploaded inputs as well as computed results',async({engine,controls})=>{
+ const channel=new MessageChannel();const service=servePort(channel.port1,engine);const client=new MatrixRpc(channel.port2);await client.ready;
+ const held={};held.promise=new Promise((resolve,reject)=>{held.resolve=resolve;held.reject=reject;});controls.held=held;
+ const value=request({read:false});value.outputs.push({ref:0,read:false,retain:true},{ref:1,read:false,retain:true});
+ const {id:_,op:__,...fields}=value;const ticket=client.send('program',fields);const rejected=assert.rejects(ticket.promise,error=>error.code==='Cancelled');
+ for(let i=0;i<100&&!controls.trace.includes('fence');i++)await new Promise(resolve=>setTimeout(resolve,2));assert(controls.trace.includes('fence'));
+ assert.equal((await client.cancel(ticket.id)).cancelled,true);controls.held=null;held.resolve();await rejected;
+ assert.equal(engine.stats().resident_handles,1);assert.equal(engine.stats().total_bytes,16);await service.close('done');client.fail(new Error('done'));
+});
 const source_sha256=Object.fromEntries(['gpu-service.mjs','plan-program.mjs','rpc-client.mjs','check-program.mjs','gpu-fixture.mjs'].map(name=>[name,createHash('sha256').update(fs.readFileSync(new URL('./'+name,import.meta.url))).digest('hex')]));
 const report={status:'passed',cases:rows.length,rows,source_sha256,scope:'Actual planner/engine and RPC code with an injected WebGPU surface, to validate preflight/allocation/fence/error/retained-handle lifecycle. No shader execution or numerical GPU claim.'};
 if(process.env.GPU_PROGRAM_RESULT)fs.writeFileSync(process.env.GPU_PROGRAM_RESULT,JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify({status:report.status,cases:report.cases}));

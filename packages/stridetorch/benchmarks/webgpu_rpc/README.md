@@ -56,7 +56,8 @@ float64/complex/special-value coverage or a GPU training backend.
 ## Bounded multi-operation programs
 
 `MatrixProgram` groups up to eight input descriptors, eight fixed matmul nodes
-and eight distinct computed outputs into one request. Add all inputs before
+and eight distinct result descriptors into one request. Results cover computed
+outputs and explicitly retained fresh uploads. Add all inputs before
 nodes. Inputs can be float32 NumPy arrays (copied when `run` submits them) or
 live `Matrix` objects owned by the same client/session. References returned by
 `input`/`matmul` identify values inside this program; forward/cyclic references
@@ -79,6 +80,15 @@ obtain independent CPU snapshots and resident matrices. The context manager
 closes all still-live retained outputs in one validated `release_many` call;
 individual Matrix objects also retain their ordinary `close` method.
 
+`run(..., retain_inputs=(ar, br))` retains selected newly uploaded inputs in the
+same transaction as computation. They are returned in `result.input_matrices`,
+keyed by their input references, and are released by the same context manager.
+These input exports are unread and retained; existing `Matrix` handles cannot
+be exported as additional owners. `retain_outputs=(True, False, ...)` selects
+retention per computed output while keeping the original `read` behavior.
+All result descriptors share the existing eight-output and 24-handle limits.
+The host planner and Python client must both include this extension.
+
 A [matched whole-call comparison against StrideTorch 0.80](../../../../docs/validation/torch-runtime-webgpu-whole-call-0.80.md)
 measures actual CPU autograd against these explicit GPU VJPs, including uploads,
 RPC, both gradients and three owned CPU snapshots. Three fresh Chrome processes
@@ -95,7 +105,7 @@ Large programs may need partitioning even when each individual product is valid.
 No default budget is increased by this interface.
 
 One command submission contains the compute passes and final readback copies.
-Only requested retained outputs survive the transaction. Ordinary rollback
+Only requested retained results and fresh input exports survive the transaction. Ordinary rollback
 drains already queued writes before releasing tracked buffers; failure to drain
 invalidates the device and its existing handles. Cancellation still skips queued
 requests or discards all newly retained outputs after execution. It does not
@@ -218,3 +228,44 @@ three owned CPU outputs. See the
 [Tensor offload report](../../../../docs/validation/torch-webgpu-tensor-offload.md)
 for results and remaining boundaries. Small matrices remain slower on GPU;
 these measurements do not define a general automatic dispatch threshold.
+
+## Resident Tensor offload sessions
+
+`ResidentMatmulOffload` adds an explicit context for reusing immutable GPU
+buffers between calls. It retains input values, forward intermediates and
+pullbacks needed by an adjacent GPU node. It still returns ordinary CPU Tensors
+and executes every requested matrix program; numerical results are not
+memoized.
+
+```python
+from resident_bridge import ResidentMatmulOffload
+
+with ResidentMatmulOffload() as offload:
+    hidden = offload(x, first_weight)
+    output = offload(hidden, second_weight)
+    output.square().mean().backward()
+```
+
+The default cache holds at most eight matrices and 8 MiB of private CPU shadows
+and corresponding GPU values. `max_entries` and `max_bytes` can only reduce
+those bounds. Missing values are uploaded and retained by the computation
+request; evictions are released together. Values that cannot fit are passed as
+ordinary inline descriptors, preserving the existing host quotas. A sampled
+signature filters candidates, followed by a full bit comparison before reuse.
+
+`clear()` frees the cache while keeping the session open. `close()` releases all
+owned buffers, is idempotent and rejects new forward calls. Graphs already
+returned can finish on CPU after intentional closure. Transport failures remain
+errors, with newly owned resources rolled back; failed cleanup retains the
+ownership records so `close()` can retry. Close and clear are explicit RPC
+boundaries. The original AD/mutation checks and CPU fallbacks remain, and no
+default torch device or judge path is changed.
+
+Run both developer test modules with the command above, adding
+`packages/stridetorch/benchmarks/webgpu_rpc/test_resident_bridge.py`.
+The [resident-session report](../../../../docs/validation/torch-webgpu-resident-session.md)
+includes native/GPU state checks, direct transfer traces and all six paired
+performance contexts, including continuously updated weights. Cache lookup,
+per-call evictions, uploads and copies are timed; session setup and final close
+are checked separately. This remains an opt-in prototype tied to private 0.83
+graph interfaces.

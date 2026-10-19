@@ -56,13 +56,14 @@ class Matrix:
 
 
 class ProgramResult:
-    def __init__(self, matrices, arrays, client):
+    def __init__(self, matrices, arrays, client, input_matrices=None):
         self.matrices = tuple(matrices)
         self.arrays = tuple(arrays)
         self.client = client
+        self.input_matrices = {} if input_matrices is None else input_matrices
 
     def close(self):
-        live = [value for value in self.matrices if value is not None and not value.closed]
+        live = [value for value in (*self.matrices, *self.input_matrices.values()) if value is not None and not value.closed]
         if live and not self.client.closed:
             run_sync(self.client.releaseMany(to_js([value.handle for value in live])))
         for value in live:
@@ -92,7 +93,7 @@ class MatrixProgram:
         self.nodes.append(dict(a=a, b=b, transposeA=transpose_a, transposeB=transpose_b))
         return len(self.inputs) + len(self.nodes) - 1
 
-    def run(self, outputs, *, read=True, retain=False):
+    def run(self, outputs, *, read=True, retain=False, retain_inputs=(), retain_outputs=None):
         inputs = []
         for value in self.inputs:
             if isinstance(value, Matrix):
@@ -105,18 +106,31 @@ class MatrixProgram:
                 if value.ndim != 2 or value.dtype != np.float32:
                     raise TypeError('A 2D float32 array is required')
                 inputs.append(dict(rows=value.shape[0], cols=value.shape[1], data=np.ascontiguousarray(value).reshape(-1)))
-        descriptors = [dict(ref=ref, read=read, retain=retain) for ref in outputs]
+        outputs = tuple(outputs)
+        retained = (retain,)*len(outputs) if retain_outputs is None else tuple(retain_outputs)
+        if len(retained) != len(outputs):
+            raise ValueError('Expected one retention flag per computed output')
+        retained_inputs = tuple(retain_inputs)
+        if any(type(ref) is not int or not 0 <= ref < len(self.inputs) or isinstance(self.inputs[ref], Matrix) for ref in retained_inputs):
+            raise ValueError('Only newly uploaded inputs can be retained')
+        if len(set(retained_inputs)) != len(retained_inputs):
+            raise ValueError('Retained inputs must be unique')
+        descriptors = [dict(ref=ref, read=read, retain=flag) for ref,flag in zip(outputs,retained)]
+        descriptors.extend(dict(ref=ref,read=False,retain=True) for ref in retained_inputs)
         convert = lambda value: to_js(value, dict_converter=Object.fromEntries)
         result = run_sync(self.client.program(convert(inputs), convert(self.nodes), convert(descriptors)))
-        matrices, arrays = [], []
+        matrices, arrays, input_matrices = [], [], {}
         try:
-            for output in result.outputs:
-                matrices.append(Matrix(output.handle, (output.rows, output.cols), self.client) if retain else None)
-                arrays.append(np.array(output.data.to_py(), dtype=np.float32, copy=True).reshape((output.rows, output.cols)) if read else None)
+            for descriptor, output in zip(descriptors, result.outputs):
+                matrix = Matrix(output.handle, (output.rows, output.cols), self.client) if descriptor['retain'] else None
+                array = np.array(output.data.to_py(), dtype=np.float32, copy=True).reshape((output.rows, output.cols)) if descriptor['read'] else None
+                if descriptor['ref'] in retained_inputs:
+                    input_matrices[descriptor['ref']] = matrix
+                else:
+                    matrices.append(matrix);arrays.append(array)
         except BaseException:
-            # Host handles already exist if conversion fails after the reply.
-            handles = [output.handle for output in result.outputs if retain]
+            handles = [output.handle for descriptor,output in zip(descriptors,result.outputs) if descriptor['retain']]
             if handles and not self.client.closed:
                 run_sync(self.client.releaseMany(to_js(handles)))
             raise
-        return ProgramResult(matrices, arrays, self.client)
+        return ProgramResult(matrices, arrays, self.client, input_matrices)

@@ -95,7 +95,11 @@ class MatmulOffload:
         with program.run(outputs) as result:
             return list(result.arrays)
 
-    def _execute(self, jobs, checks, *, metadata=False, seed=None, seed_owned=None):
+    def _submit_jobs(self, jobs, retain_outputs):
+        return self.submit(jobs)
+
+    def _execute(self, jobs, checks, *, metadata=False, seed=None, seed_owned=None,
+                 retain_outputs=None):
         global _busy
         if _busy:
             raise RuntimeError('A GPU Tensor submission is already active in this Python runtime')
@@ -115,8 +119,11 @@ class MatmulOffload:
         values=[]
         _busy = True
         try:
+            offset = 0
             for group in groups:
-                result = self.submit(tuple(group))
+                retain = tuple(retain_outputs[offset:offset+len(group)]) if retain_outputs is not None else (False,)*len(group)
+                offset += len(group)
+                result = self._submit_jobs(tuple(group), retain)
                 if not isinstance(result, (tuple, list)) or len(result) != len(group):
                     raise RuntimeError('GPU transport returned an invalid output count')
                 for value, (a, b, ta, tb) in zip(result, group):
@@ -143,7 +150,7 @@ class MatmulOffload:
             return a @ b
         left = _Snapshot(a)
         right = left if a is b else _Snapshot(b)
-        output, = self._execute([(left.owned, right.owned, False, False)], (left, right), metadata=True)
+        output, = self._execute([(left.owned, right.owned, False, False)], (left, right), metadata=True, retain_outputs=(True,))
         # Keep original version/identity guards, not obsolete forward copies.
         left.owned = right.owned = None
         if not left.activity and not right.activity:
@@ -163,8 +170,14 @@ class MatmulOffload:
             if needs[0]:jobs.append((seed_owned, fresh[id(right)].owned, False, True));checks.append(fresh[id(right)]);targets.append(0)
             if needs[1]:jobs.append((fresh[id(left)].owned, seed_owned, True, False));checks.append(fresh[id(left)]);targets.append(1)
             eligible = _ordinary_mode() and all(_supported_pair(x.T if ta else x, y.T if tb else y) for x, y, ta, tb in jobs)
-            computed = self._execute(jobs, checks, seed=g, seed_owned=seed_owned) if eligible else [_cpu_product(*job) for job in jobs]
+            def upstream(index):
+                node = (a if index == 0 else b)._grad_node
+                joint = getattr(node, 'joint', None)
+                return joint is not None and getattr(joint[0], '_offload_owner', None) is self
+            keep = tuple(upstream(index) for index in targets)
+            computed = self._execute(jobs, checks, seed=g, seed_owned=seed_owned, retain_outputs=keep) if eligible else [_cpu_product(*job) for job in jobs]
             for index, value in zip(targets, computed):values[index]=value
             return tuple(values)
+        backward._offload_owner = self
         versioned = ((b,) if left.activity else ()) + ((a,) if right.activity else ())
         return _autograd.joint_result(output, (a, b), backward, versioned=versioned, prune_inputs=True)

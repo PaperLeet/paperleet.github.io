@@ -1,0 +1,821 @@
+{
+  "status": "qualified_batched_resident_tensor_offload_session",
+  "canonical_runtime_version": "0.83.0",
+  "native": {
+    "native25": {
+      "tests": 123,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "native126": {
+      "tests": 123,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "repository_checks": {
+    "status": "passed_repository_resident_and_legacy_tests",
+    "totals": {
+      "tests": 123,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "qualified_files": {
+      "torch_bridge.py": "4058bb250879a5871719a87bddc307e72534c64d018388c0aa93a690db052330",
+      "resident_bridge.py": "4fc504e40ac4d2419537e265771beeff4dcea31140bc9e1d4392db6fbea09ed9",
+      "matrix_client.py": "9987c86f0a93703980bfb18a09d355f890b1cef0fd16e778ad4130e44fc8fe2d",
+      "plan-program.mjs": "53e91df4357582cec150aa1660a2cdc7144c88c7b2d749f2aee4e13fe059a02d",
+      "check-program.mjs": "566e5ed45b626d9bff91dbf13d1e6ba0db055c91b3a2599f4d658cc3ae2079dd",
+      "test_resident_bridge.py": "074575c15266e3f69a840193ab0d863514ab68e2013ff83f7944e2f6280ca4ce"
+    },
+    "package_inputs_unchanged": 206,
+    "canonical_runtime_unchanged": true,
+    "production_changed": false,
+    "ci_triggered": false,
+    "goal_status": "active"
+  },
+  "portable_checks": {
+    "program": {
+      "cases": 63,
+      "log_sha256": "7f20a97583bf95ea8daf2a28c05e2aef0e384120edd854b64b60a1ccec91bbd6"
+    },
+    "protocol": {
+      "cases": 9,
+      "log_sha256": "ba35382f64052ac4c4cf9348718470fb52c981bf368668a13d7b0290ad6dd1b6"
+    },
+    "primitive": {
+      "cases": 39,
+      "log_sha256": "fd15e1e602dca60199c40105ce363111f9628b89ca1bfd01c171633c0421257d"
+    },
+    "cancel-drain": {
+      "cases": 4,
+      "log_sha256": "9095b6728285e1aec803f31d47fbfcac914bedd2e629e43424176b92e2f4c964"
+    }
+  },
+  "actual_gpu": {
+    "browser": "155.0.8059.82",
+    "gpu_info": {
+      "vendor": "apple",
+      "architecture": "metal-3",
+      "fallback": false,
+      "secure_context": true
+    },
+    "worker": {
+      "secure_context": false,
+      "origin": "null",
+      "gpu_exposed": false,
+      "pyodide": "0.29.4"
+    },
+    "cases": 51,
+    "controls": [
+      {
+        "kind": "five_step_optimizer_with_nonleaf_transposed_weight",
+        "passed": true
+      },
+      {
+        "kind": "forward_input",
+        "passed": true,
+        "callback": {
+          "grad_enabled": true,
+          "unrelated_requires_grad": true
+        },
+        "gpu_programs": 1
+      },
+      {
+        "kind": "forward_view_alias",
+        "passed": true,
+        "callback": {
+          "grad_enabled": true,
+          "unrelated_requires_grad": true
+        },
+        "gpu_programs": 1
+      },
+      {
+        "kind": "forward_activity",
+        "passed": true,
+        "callback": {
+          "grad_enabled": true,
+          "unrelated_requires_grad": true
+        },
+        "gpu_programs": 1
+      },
+      {
+        "kind": "forward_mode",
+        "passed": true,
+        "callback": {
+          "grad_enabled": true,
+          "unrelated_requires_grad": true
+        },
+        "gpu_programs": 1
+      },
+      {
+        "kind": "forward_reentry",
+        "passed": true,
+        "callback": {
+          "grad_enabled": true,
+          "unrelated_requires_grad": true
+        },
+        "gpu_programs": 1
+      },
+      {
+        "kind": "backward_operand_mutation",
+        "passed": true
+      },
+      {
+        "kind": "backward_seed_mutation",
+        "passed": true
+      },
+      {
+        "kind": "no_grad_cpu_route_does_not_suspend_or_expose_temporary_mode",
+        "passed": true,
+        "callback": {
+          "stage": "after_no_grad",
+          "grad_enabled": true,
+          "unrelated_requires_grad": true
+        },
+        "gpu_programs": 0
+      },
+      {
+        "kind": "jvp_cpu_fallback",
+        "passed": true,
+        "gpu_programs": 0
+      },
+      {
+        "kind": "hvp_cpu_fallback",
+        "passed": true,
+        "gpu_programs": 0
+      },
+      {
+        "kind": "float64_cpu_fallback",
+        "passed": true,
+        "gpu_programs": 0
+      },
+      {
+        "kind": "real_backward_accumulation_output_hook_and_retain_grad",
+        "passed": true
+      },
+      {
+        "kind": "retained_graph_fresh_gradient_buffers_and_consumption",
+        "passed": true
+      },
+      {
+        "kind": "forward_raw",
+        "passed": true
+      },
+      {
+        "kind": "backward_operand_raw",
+        "passed": true
+      },
+      {
+        "kind": "backward_seed_raw",
+        "passed": true
+      },
+      {
+        "kind": "signed_zero_raw",
+        "passed": true
+      },
+      {
+        "kind": "numpy_changes_between_calls_use_current_backward_values",
+        "passed": true
+      },
+      {
+        "kind": "two_gpu_nodes_and_retained_upstream_gradient_C",
+        "passed": true,
+        "programs": 4,
+        "uploads": 4
+      },
+      {
+        "kind": "two_gpu_nodes_and_retained_upstream_gradient_F",
+        "passed": true,
+        "programs": 4,
+        "uploads": 4
+      },
+      {
+        "kind": "two_gpu_nodes_and_retained_upstream_gradient_slice",
+        "passed": true,
+        "programs": 4,
+        "uploads": 4
+      },
+      {
+        "kind": "five_step_two_gpu_node_training",
+        "passed": true
+      },
+      {
+        "kind": "warm_reuse_executes_two_new_programs_without_upload",
+        "passed": true,
+        "first": {
+          "uploads": 68,
+          "upload_bytes": 8279604,
+          "cache_hits": 266,
+          "programs": 157,
+          "inline_upload_bytes": 0,
+          "retained_results": 42,
+          "evictions": 68,
+          "entries": 4,
+          "resident_bytes": 22576,
+          "owned_leases": 4,
+          "closed": false,
+          "failed": false,
+          "max_entries": 8,
+          "max_bytes": 8388608
+        },
+        "second": {
+          "uploads": 68,
+          "upload_bytes": 8279604,
+          "cache_hits": 271,
+          "programs": 159,
+          "inline_upload_bytes": 0,
+          "retained_results": 42,
+          "evictions": 68,
+          "entries": 4,
+          "resident_bytes": 22576,
+          "owned_leases": 4,
+          "closed": false,
+          "failed": false,
+          "max_entries": 8,
+          "max_bytes": 8388608
+        }
+      },
+      {
+        "kind": "bounded_inline_descriptors_0",
+        "passed": true
+      },
+      {
+        "kind": "bounded_inline_descriptors_40",
+        "passed": true
+      },
+      {
+        "kind": "bounded_inline_descriptors_128",
+        "passed": true
+      },
+      {
+        "kind": "reentrant_saved_backward_and_close_keep_outer_gate",
+        "passed": true
+      },
+      {
+        "kind": "existing_graph_backward_after_close_uses_cpu",
+        "passed": true
+      },
+      {
+        "kind": "atomic_input_retention_and_no_existing_handle_alias_export",
+        "passed": true
+      },
+      {
+        "kind": "sample_signature_collision_uses_full_bits",
+        "passed": true
+      }
+    ],
+    "final_cache": {
+      "uploads": 69,
+      "upload_bytes": 8279620,
+      "cache_hits": 273,
+      "programs": 161,
+      "inline_upload_bytes": 0,
+      "retained_results": 43,
+      "evictions": 68,
+      "entries": 6,
+      "resident_bytes": 22608,
+      "owned_leases": 6,
+      "closed": false,
+      "failed": false,
+      "max_entries": 8,
+      "max_bytes": 8388608
+    },
+    "host_disposals": [
+      {
+        "type": "disposed",
+        "reason": "client closed",
+        "stats": {
+          "resident_handles": 0,
+          "resident_bytes": 0,
+          "total_bytes": 0,
+          "allocations": 0,
+          "peak_bytes": 12582944,
+          "submitted": 173,
+          "completed": 173,
+          "closed": true
+        }
+      }
+    ],
+    "requests": 226
+  },
+  "performance": {
+    "status": "analyzed_resident_comparison",
+    "source": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-556",
+    "rows": [
+      {
+        "size": 256,
+        "kind": "steady_single",
+        "controls_passed": true,
+        "aa": [
+          1.0274086378737495,
+          0.9815621659188485
+        ],
+        "ratios": [
+          0.7790697674418608,
+          0.7841609435652434
+        ],
+        "resident_benefit": true,
+        "baseline_ms": 4.370000000000007,
+        "resident_ms": 3.4208333333333356,
+        "minimum_batch_ms": 38.69999999999996,
+        "individual_flags": []
+      },
+      {
+        "size": 256,
+        "kind": "steady_chain",
+        "controls_passed": true,
+        "aa": [
+          0.979838709677423,
+          0.983212605607429
+        ],
+        "ratios": [
+          0.7466782206816897,
+          0.7650366286482733
+        ],
+        "resident_benefit": true,
+        "baseline_ms": 8.85714285714277,
+        "resident_ms": 6.638888888888861,
+        "minimum_batch_ms": 40.20000000000046,
+        "individual_flags": [
+          {
+            "size": 256,
+            "kind": "steady_chain",
+            "cycle": 1,
+            "aa": 0.9350086655112662,
+            "paired_aa": 1.049138531825919,
+            "floor": 0.04020000000000046
+          }
+        ]
+      },
+      {
+        "size": 256,
+        "kind": "changing_rhs",
+        "controls_passed": true,
+        "aa": [
+          1.00857327725655,
+          0.9928097750869289
+        ],
+        "ratios": [
+          0.8592650508209555,
+          0.8342812709373619
+        ],
+        "resident_benefit": true,
+        "baseline_ms": 4.5678571428571395,
+        "resident_ms": 3.925000000000004,
+        "minimum_batch_ms": 43.099999999999916,
+        "individual_flags": []
+      },
+      {
+        "size": 512,
+        "kind": "steady_single",
+        "controls_passed": true,
+        "aa": [
+          0.9942827442827452,
+          0.986895521554615
+        ],
+        "ratios": [
+          0.7760629921259842,
+          0.7777707864917123
+        ],
+        "resident_benefit": true,
+        "baseline_ms": 15.875000000000083,
+        "resident_ms": 12.320000000000064,
+        "minimum_batch_ms": 50.199999999999804,
+        "individual_flags": []
+      },
+      {
+        "size": 512,
+        "kind": "steady_chain",
+        "controls_passed": true,
+        "aa": [
+          1.0154597233523117,
+          1.020289115646264
+        ],
+        "ratios": [
+          0.7968627450980521,
+          0.783520415576872
+        ],
+        "resident_benefit": true,
+        "baseline_ms": 30.725000000000115,
+        "resident_ms": 24.516666666666374,
+        "minimum_batch_ms": 44.800000000000395,
+        "individual_flags": [
+          {
+            "size": 512,
+            "kind": "steady_chain",
+            "cycle": 2,
+            "aa": 1.0561307901907258,
+            "paired_aa": 1.0263295099061516,
+            "floor": 0.05889999999999951
+          }
+        ]
+      },
+      {
+        "size": 512,
+        "kind": "changing_rhs",
+        "controls_passed": true,
+        "aa": [
+          0.9874114870180835,
+          1.011947895770808
+        ],
+        "ratios": [
+          0.8395672333848545,
+          0.835501158600698
+        ],
+        "resident_benefit": true,
+        "baseline_ms": 15.887500000000054,
+        "resident_ms": 13.230000000000253,
+        "minimum_batch_ms": 57.39999999999945,
+        "individual_flags": []
+      }
+    ],
+    "individual_flags": [
+      {
+        "size": 256,
+        "kind": "steady_chain",
+        "cycle": 1,
+        "aa": 0.9350086655112662,
+        "paired_aa": 1.049138531825919,
+        "floor": 0.04020000000000046
+      },
+      {
+        "size": 512,
+        "kind": "steady_chain",
+        "cycle": 2,
+        "aa": 1.0561307901907258,
+        "paired_aa": 1.0263295099061516,
+        "floor": 0.05889999999999951
+      }
+    ],
+    "processes": 6,
+    "contexts": 18,
+    "production_changed": false,
+    "all_preplanned_controls_passed": true,
+    "candidate_adopted": false,
+    "goal_status": "active"
+  },
+  "initial_resident_campaign": {
+    "status": "analyzed_resident_comparison",
+    "source": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-552",
+    "rows": [
+      {
+        "size": 256,
+        "kind": "steady_single",
+        "controls_passed": true,
+        "aa": [
+          0.9880000000000012,
+          0.997227870982323
+        ],
+        "ratios": [
+          0.84328091493925,
+          0.8391405145122925
+        ],
+        "resident_benefit": true,
+        "baseline_ms": 6.24999999999999,
+        "resident_ms": 5.281818181818185,
+        "minimum_batch_ms": 43.20000000000057,
+        "individual_flags": [
+          {
+            "size": 256,
+            "kind": "steady_single",
+            "cycle": 1,
+            "aa": 0.9183535762483286,
+            "paired_aa": 0.9873554515418483,
+            "floor": 0.04320000000000057
+          }
+        ]
+      },
+      {
+        "size": 256,
+        "kind": "steady_chain",
+        "controls_passed": true,
+        "aa": [
+          1.0029090909090905,
+          1.0013989564874068
+        ],
+        "ratios": [
+          0.8885017421602827,
+          0.8857530784946046
+        ],
+        "resident_benefit": true,
+        "baseline_ms": 11.479999999999935,
+        "resident_ms": 10.274999999999961,
+        "minimum_batch_ms": 42.90000000000038,
+        "individual_flags": []
+      },
+      {
+        "size": 256,
+        "kind": "changing_rhs",
+        "controls_passed": true,
+        "aa": [
+          1.0332900994379601,
+          1.0328950927879785
+        ],
+        "ratios": [
+          1.1430222222222157,
+          1.1214489830223462
+        ],
+        "resident_benefit": false,
+        "baseline_ms": 5.681818181818182,
+        "resident_ms": 6.494444444444408,
+        "minimum_batch_ms": 54.49999999999999,
+        "individual_flags": []
+      },
+      {
+        "size": 512,
+        "kind": "steady_single",
+        "controls_passed": true,
+        "aa": [
+          1.0187012987012922,
+          1.0145376957515078
+        ],
+        "ratios": [
+          0.8536330371144818,
+          0.8524613496842508
+        ],
+        "resident_benefit": true,
+        "baseline_ms": 23.912499999999948,
+        "resident_ms": 20.4125,
+        "minimum_batch_ms": 50.50000000000043,
+        "individual_flags": []
+      },
+      {
+        "size": 512,
+        "kind": "steady_chain",
+        "controls_passed": true,
+        "aa": [
+          0.9927385892116167,
+          0.9756794901641277
+        ],
+        "ratios": [
+          0.8785228377065162,
+          0.8870226656811956
+        ],
+        "resident_benefit": true,
+        "baseline_ms": 48.20000000000002,
+        "resident_ms": 41.74999999999996,
+        "minimum_batch_ms": 49.19999999999902,
+        "individual_flags": []
+      },
+      {
+        "size": 512,
+        "kind": "changing_rhs",
+        "controls_passed": true,
+        "aa": [
+          1.000801282051266,
+          0.9935561538859985
+        ],
+        "ratios": [
+          1.0393258426966119,
+          1.0397237827715422
+        ],
+        "resident_benefit": false,
+        "baseline_ms": 18.28333333333328,
+        "resident_ms": 18.387500000000056,
+        "minimum_batch_ms": 44.40000000000044,
+        "individual_flags": [
+          {
+            "size": 512,
+            "kind": "changing_rhs",
+            "cycle": 2,
+            "aa": 1.074749316317233,
+            "paired_aa": 1.0279900099589225,
+            "floor": 0.04440000000000044
+          }
+        ]
+      }
+    ],
+    "individual_flags": [
+      {
+        "size": 256,
+        "kind": "steady_single",
+        "cycle": 1,
+        "aa": 0.9183535762483286,
+        "paired_aa": 0.9873554515418483,
+        "floor": 0.04320000000000057
+      },
+      {
+        "size": 512,
+        "kind": "changing_rhs",
+        "cycle": 2,
+        "aa": 1.074749316317233,
+        "paired_aa": 1.0279900099589225,
+        "floor": 0.04440000000000044
+      }
+    ],
+    "processes": 6,
+    "contexts": 18,
+    "production_changed": false,
+    "all_preplanned_controls_passed": true,
+    "candidate_adopted": false,
+    "goal_status": "active"
+  },
+  "initial_candidate_adopted": false,
+  "initial_regressions_preserved": true,
+  "transfer_trace": {
+    "status": "passed_resident_transfer_trace",
+    "cases": 4,
+    "rows": [
+      {
+        "provider": "stateless",
+        "phase": "cold",
+        "programs": 4,
+        "compute_nodes": 6,
+        "rpc_requests": 4,
+        "input_bytes": 47320,
+        "readback_bytes": 27064,
+        "events": [
+          {
+            "label": "stateless-cold",
+            "input_bytes": 13992,
+            "nodes": 1,
+            "readback_bytes": 4292
+          },
+          {
+            "label": "stateless-cold",
+            "input_bytes": 6264,
+            "nodes": 1,
+            "readback_bytes": 2516
+          },
+          {
+            "label": "stateless-cold",
+            "input_bytes": 8780,
+            "nodes": 2,
+            "readback_bytes": 6264
+          },
+          {
+            "label": "stateless-cold",
+            "input_bytes": 18284,
+            "nodes": 2,
+            "readback_bytes": 13992
+          }
+        ]
+      },
+      {
+        "provider": "stateless",
+        "phase": "warm",
+        "programs": 4,
+        "compute_nodes": 6,
+        "rpc_requests": 4,
+        "input_bytes": 47320,
+        "readback_bytes": 27064,
+        "events": [
+          {
+            "label": "stateless-warm",
+            "input_bytes": 13992,
+            "nodes": 1,
+            "readback_bytes": 4292
+          },
+          {
+            "label": "stateless-warm",
+            "input_bytes": 6264,
+            "nodes": 1,
+            "readback_bytes": 2516
+          },
+          {
+            "label": "stateless-warm",
+            "input_bytes": 8780,
+            "nodes": 2,
+            "readback_bytes": 6264
+          },
+          {
+            "label": "stateless-warm",
+            "input_bytes": 18284,
+            "nodes": 2,
+            "readback_bytes": 13992
+          }
+        ]
+      },
+      {
+        "provider": "resident",
+        "phase": "cold",
+        "programs": 4,
+        "compute_nodes": 6,
+        "rpc_requests": 4,
+        "input_bytes": 18480,
+        "readback_bytes": 27064,
+        "events": [
+          {
+            "label": "resident-cold",
+            "input_bytes": 13992,
+            "nodes": 1,
+            "readback_bytes": 4292
+          },
+          {
+            "label": "resident-cold",
+            "input_bytes": 1972,
+            "nodes": 1,
+            "readback_bytes": 2516
+          },
+          {
+            "label": "resident-cold",
+            "input_bytes": 2516,
+            "nodes": 2,
+            "readback_bytes": 6264
+          },
+          {
+            "label": "resident-cold",
+            "input_bytes": 0,
+            "nodes": 2,
+            "readback_bytes": 13992
+          }
+        ]
+      },
+      {
+        "provider": "resident",
+        "phase": "warm",
+        "programs": 4,
+        "compute_nodes": 6,
+        "rpc_requests": 4,
+        "input_bytes": 0,
+        "readback_bytes": 27064,
+        "events": [
+          {
+            "label": "resident-warm",
+            "input_bytes": 0,
+            "nodes": 1,
+            "readback_bytes": 4292
+          },
+          {
+            "label": "resident-warm",
+            "input_bytes": 0,
+            "nodes": 1,
+            "readback_bytes": 2516
+          },
+          {
+            "label": "resident-warm",
+            "input_bytes": 0,
+            "nodes": 2,
+            "readback_bytes": 6264
+          },
+          {
+            "label": "resident-warm",
+            "input_bytes": 0,
+            "nodes": 2,
+            "readback_bytes": 13992
+          }
+        ]
+      }
+    ],
+    "cache_before_close": {
+      "uploads": 4,
+      "upload_bytes": 18480,
+      "cache_hits": 16,
+      "programs": 8,
+      "inline_upload_bytes": 0,
+      "retained_results": 3,
+      "evictions": 0,
+      "entries": 7,
+      "resident_bytes": 29580,
+      "owned_leases": 7,
+      "closed": false,
+      "failed": false,
+      "max_entries": 8,
+      "max_bytes": 8388608
+    },
+    "final_stats": {
+      "resident_handles": 0,
+      "resident_bytes": 0,
+      "total_bytes": 0,
+      "allocations": 0,
+      "peak_bytes": 57628,
+      "submitted": 16,
+      "completed": 16,
+      "closed": false
+    },
+    "source": "Actual MatrixRpc.program descriptors and returned typed-array byte lengths; no timed measurements",
+    "production_changed": false
+  },
+  "new_program_semantics": "Only fresh uploaded inputs may be exported unread+retained; existing handles cannot be exported as second owners; per-computed-output retention is optional; all original limits and shader unchanged",
+  "cache_limits": {
+    "entries": 8,
+    "bytes": 8388608,
+    "shadow_data_bytes_bounded": true
+  },
+  "memoizes_computed_results": false,
+  "readback_still_required": true,
+  "after_intentional_close_existing_graphs_use_cpu": true,
+  "public_gpu_tensor_storage": false,
+  "automatic_dispatch": false,
+  "canonical_resources_unchanged": 66,
+  "public_sdk_sources_unchanged": 93,
+  "active_export_identities_unchanged": 183,
+  "package_inputs_unchanged": 206,
+  "ci_triggered": false,
+  "tags_pushed": false,
+  "published": false,
+  "deployed": false,
+  "goal_status": "active",
+  "raw_archive": {
+    "path": "packages/stridetorch/benchmarks/results/resident-session-harness.tar.gz",
+    "sha256": "c423effe0ff2d72f0178ba223aca8948013da3c5be922e7ba85f3324ed09177b",
+    "files": 504,
+    "unique_payloads": 172,
+    "bytes": 874586,
+    "all_payloads_verified": true
+  }
+}
