@@ -80,6 +80,15 @@ autograd-runtime resource bytes and executes seven attention/reference and
 runtime probes, including the new unused-array release assertions. All seven
 pass, with no page errors.
 
+A second frontend-only merge adds shared comment-draft post quotation in nine
+frontend/documentation files. Post-quotation, community-card action,
+reply-quotation and interview-browse regression checks pass. Both build
+profiles, Pages asset/retention checks, exact Worker generation and the actual
+seven-test nested-page Worker run pass again. All current package inputs and
+183 active exports remain byte-identical. The first guarded adoption attempt
+was rejected before any push because remote main advanced to this change;
+its failed audit and log are preserved separately.
+
 The CPU suite precedes these frontend-only merges. Explicit source-equivalence
 records bind its 1,655 inputs to the application qualification and identify the
 separately tested README metadata change. This does not claim that the entire
