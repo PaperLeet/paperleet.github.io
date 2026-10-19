@@ -19,7 +19,14 @@ def runtime_wheels(tmp_path_factory):
     shutil.copy2(ROOT / 'pyproject.toml', source / 'pyproject.toml')
     ignore = shutil.ignore_patterns('__pycache__', '*.pyc', '*.egg-info', 'build', '.pytest_cache')
     shutil.copytree(ROOT / 'paperleet', source / 'paperleet', ignore=ignore)
-    shutil.copytree(ROOT / 'packages/stridetorch', source / 'packages/stridetorch', ignore=ignore)
+    def library_ignore(directory, names):
+        skipped = set(ignore(directory, names))
+        # Raw benchmark archives are not wheel inputs. Keep the benchmark
+        # programs and every distributable source without copying the archives.
+        if Path(directory) == ROOT / 'packages/stridetorch/benchmarks':
+            skipped.add('results')
+        return skipped
+    shutil.copytree(ROOT / 'packages/stridetorch', source / 'packages/stridetorch', ignore=library_ignore)
     output = temporary / 'wheels'
     output.mkdir()
     result = {}
@@ -34,6 +41,12 @@ def runtime_wheels(tmp_path_factory):
         assert not any(name.startswith('stridetorch/') for name in main.namelist())
         application_sources = {str(path.relative_to(ROOT)) for path in (ROOT / 'paperleet').rglob('*.py')}
         assert application_sources <= set(main.namelist()), 'The main wheel must retain all existing application modules'
+        runtime = ROOT / 'packages/stridetorch/src/stridetorch'
+        for path in runtime.iterdir():
+            if path.suffix == '.py' or path.name in ('LICENSE', 'NOTICE'):
+                expected = path.read_bytes()
+                assert library.read('stridetorch/' + path.name) == expected
+                assert main.read('paperleet/_vendor/torch/' + path.name) == expected
     return result
 
 

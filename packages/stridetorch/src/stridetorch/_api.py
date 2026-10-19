@@ -28,7 +28,7 @@ def create_torch(name='torch', *, register=False):
     for name in ('nn', 'nn.functional', 'nn.parameter', 'nn.modules', 'nn.modules.module',
                  'nn.modules.container', 'nn.modules.linear', 'nn.modules.activation',
                  'nn.modules.normalization', 'nn.modules.transformer', 'nn.modules.conv', 'nn.modules.batchnorm', 'nn.modules.instancenorm', 'nn.modules.dropout', 'nn.modules.sparse', 'nn.modules.loss',
-                 'nn.modules.flatten', 'nn.modules.distance', 'nn.modules.pooling',
+                 'nn.modules.flatten', 'nn.modules.distance', 'nn.modules.pooling', 'nn.utils', 'nn.utils.clip_grad',
                  'utils', 'utils.hooks', 'optim', 'optim.optimizer', 'optim.sgd', 'optim.adam',
                  'optim.adamw', 'optim.lr_scheduler', 'autograd', 'autograd.functional', 'linalg', 'testing', 'random', 'func', 'cuda', 'serialization'):
         module = types.ModuleType(root_name + '.' + name)
@@ -66,6 +66,8 @@ def create_torch(name='torch', *, register=False):
         (_nn_modules,('Embedding','Identity','Flatten','Tanh','Sigmoid','MSELoss','SmoothL1Loss','CrossEntropyLoss')),
     ):
         for name in names:setattr(torch.nn,name,getattr(module,name))
+    torch.nn.utils = modules['torch.nn.utils']
+    torch.nn.utils.clip_grad = modules['torch.nn.utils.clip_grad']
     torch.utils = modules['torch.utils']
     torch.utils.hooks = modules['torch.utils.hooks']
     torch.utils.hooks.RemovableHandle = _module_hooks.RemovableHandle
@@ -286,6 +288,11 @@ def create_torch(name='torch', *, register=False):
     registry.add('torch.autograd.functional.jacobian', _autograd.functional_jacobian, reverse='control')
     registry.add('torch.autograd.functional.jvp', _autograd.functional_jvp, reverse='control')
     registry.add('torch.autograd.functional.hvp', _autograd.functional_hvp, reverse='control')
+    registry.group('torch.nn.utils', {'clip_grad_norm_': _gradient_utils.clip_grad_norm_,
+                                    'clip_grad_norm': _gradient_utils.clip_grad_norm,
+                                    'clip_grad_value_': _gradient_utils.clip_grad_value_}, reverse='control')
+    for utility in ('clip_grad_norm_', 'clip_grad_norm', 'clip_grad_value_'):
+        setattr(torch.nn.utils.clip_grad, utility, getattr(torch.nn.utils, utility))
     torch._browser_capabilities = types.MappingProxyType(registry.capabilities)
     def missing_root(key):
         return _errors.missing_attribute(torch, key)
@@ -297,3 +304,5 @@ def create_torch(name='torch', *, register=False):
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
 from . import _defaults
 from . import _determinants, _arithmetic, _activation, _autograd, _average_pooling, _average_pooling3d, _batchnorm, _cholesky, _classification, _construction, _convolution, _conversion, _device, _errors, _groupnorm, _instancenorm, _linalg, _vector_norm, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _pooling, _pooling3d, _promotion, _random, _registry, _schedulers, _serialization, _tensor, _transpose_convolution, _multihead, _transformer
+
+from . import _gradient_utils

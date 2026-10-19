@@ -1,0 +1,419 @@
+{
+  "status": "development_candidate_pending_correct_composite_application_gate",
+  "version": "0.82.0",
+  "source_resources": {
+    "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+    "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+    "_normalization.py": "ee0e0abca72343d13425ba430fda9d8933198ac52297115c55ce621faca2a06c",
+    "_nn.py": "6fac6422569a18167eb0a9d978320aa0483e11be989c0c21f5fcefd73999ae63",
+    "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+    "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+    "_multihead.py": "c5319edfd61a8e12fcf18b0e6059bf3f841a0dd80b8faab573b3773b2d2acacf",
+    "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+    "_convolution.py": "303f7562ae23518ef46bcfbca259d4d6894e490dbe992d8181079b09bf363d5a",
+    "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+    "_errors.py": "d4db8985fff533c02b354e750fde07bbec3996c0c90273a2d48f1629ecc96fb5",
+    "_module.py": "badab7a25f3d66170c5a5fdd1c2b4f36f611bb1628e58f151dae9c4641b13727",
+    "_graph.py": "6aaa666f2a0f44cd52ca3b2af5e9d8b6aa92cf9fa809d40b9c347ddf8341944e",
+    "_distance.py": "a40f4e2749314790a3a9e7626739aaf0b570c6ad254bcb500d07853c87e2ec7f",
+    "_ops.py": "ef501ff790e00cee47e0b62a761cbfa3eaba159f96b01277a2350bab1d81628d",
+    "_transpose_convolution.py": "74edf86685872218f32936633823c760257c727283d77b00f67f95a32bfe14d9",
+    "_attention.py": "e84044bc25147aa9424d06d91c269aa4741c8441e25253976f48e850384c00a3",
+    "_api.py": "9666e22d867fe822e6769cb07dad8bca11e75def9c894cc36e5b2be0667eb111",
+    "_sequences.py": "75964a026e7cbaff8fda6106f3c894f5a22da790c6bedbfd183196289d437afc",
+    "_convolution_padding.py": "4ec1b307faf7d6ca39d7b4e2eeeac8da383b813cc21407dd8825d04b44acf8d3",
+    "_cli.py": "529d1d3ad97baadd04db18e2bf0c2b8b1ad2d5cd7ae93e4005c1568614d64c21",
+    "_cholesky.py": "cd4e7b8d607365719afd3d601df6c1aa45b40d223c816315a6e038eebca60b6c",
+    "_batchnorm.py": "b7de9ab4c6c2738e0de528b4a44e944adc185e0b854c8d8c8837fe0c8463b848",
+    "__init__.py": "0a45095346d46d56b72f18cb77e93db45086e8fe8b9b3029948c855ef1252c48",
+    "_determinants.py": "dc12f1ef1f7b8e7bc8155f92c100bb31843e11fd519a4ca295fea606a31eed42",
+    "_promotion.py": "d53ffa3fcfbd70841f52fcad2007c8dc51414526b68319a45d1878eaaa040b82",
+    "_arithmetic.py": "93dbdc5a799aa3366dcdc64e406a4a6a23b4dc666b4a3acf46598bfe3578f860",
+    "_linalg.py": "8392805de1e95c8f408bc7b0fd7a3574418a24feabded8bc4bf7c8c430304d1d",
+    "_pooling.py": "5cb9ced0bf9ed79c8549e3c7696a5b110e53af43203bae047b6d27efee2888cb",
+    "_tensor.py": "8cbfd3ac8d87500d21e700e07429e0000ca670fafd7fea1cd42cb2963db50879",
+    "runtime.py": "106b9b3af6797ac670e0dcb1896e1b24d2e342e96f76ec8c91e9ba89cd4128d2",
+    "_registry.py": "fed7ca219d645cf317a51091e83440f9f65da5ce4ab1562d5acddec59057abc0",
+    "_defaults.py": "3584396a1ab6c345f4a9f0b94e33f13b050b8a21eeea959b518a3ea8705a5a17",
+    "NOTICE": "d2666f472abfa6ed9f1c01ffa2060a026c80c1028c3cdb46fcb251d74c90bd92",
+    "_random.py": "1beca3230d7fb7a1f92ef1a7e4a64e19c5e39be5ab8401c1e36ef3b08abdc414",
+    "_optim.py": "55412c079ba627054436549a2eee7df84f465b17ceaae37559ad826177b2b489",
+    "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+    "_average_pooling.py": "0ca22fbb892ad41d1bcc95519166ddf542d66676bd61c7ea62ba7866190fb629",
+    "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+    "_fused_matrix.py": "8c9f98fd33ee514db590ac097a78caf122cfe97ec2f3e7ee3fe19878ea554fbe",
+    "_state.py": "730a58a1aba37c75ead580ad69e052ad01c3937698f8fa07f79015ae68d53bdd",
+    "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+    "_average_pooling3d.py": "1d81e78165eae51e762c3213ff4f2eba05ef123d3a8eb26f355f11073aa01ec2",
+    "_nn_modules.py": "5bc5a95df66792f270dc44b65151ac174e5ae8b08dcf452181776243d2bb7664",
+    "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+    "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+    "_reductions.py": "ff21a8e7ec1dd8304e1aed1e899ae4a5c912305efc8bf6073a1a16c46753de87",
+    "_autograd.py": "3e3c1860d97865c727ad4a62c393f6803731b1e4a9beee7c6705bc1005d2bf1a",
+    "_instancenorm.py": "2e365e6cb8e8c7afa1935c6158fb5ed80ece5a47d1e870dc06ea245120a2396d",
+    "_transformer.py": "4be0544e0008cc6917e12053ece7290ecee7f70cc9dedeb6efbf771a177ec0fd",
+    "_layout.py": "1c88dd00b2ab186704a58790695ad1fdfc5b489e79761a878135463e60253c1e",
+    "_higher_order.py": "a2fb116c9ad0ebe452e164397f15a26b059444ace6293a0d4af01e1a05fd849b",
+    "_gradient_utils.py": "6ca0c769446932900014d5799445946ec944f6078b411f4157a7aa7c0d36307c",
+    "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+    "_groupnorm.py": "46826f1f1e5040417ad64d5910c3ecb77025e0a340acdff4d86e760f3c95181d",
+    "_vector_norm.py": "9d1d8114a602589ba705be7f2d16643daffa189a759a1675b5354eed85a8d2b3",
+    "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+    "_legacy.py": "46fc7a2ff0b3ea57454ea1ef4551e2cd455b3ce887733b0d1030b80b425feefb",
+    "_pooling3d.py": "982511ea21dd05d6289c9080a8d6b185a66aac6bce9e7fbbecd59196fb51c320",
+    "_matmul.py": "593f120f3baae128131da5d9a1f9cd226e505c66e3b05b094f8cfc46f9e517f8",
+    "_optimizer.py": "9f6c93a0fdd538a6aa00f3b5770212fe1cbf214bf7cbb525e50b93a160e3b5d9",
+    "__main__.py": "5928d89e95a19e582cd0c09932c983aa85b8d8104b7750ca6dce916f5095fb49",
+    "_indexing.py": "0c6b7cdbe7d882e192a10f3835cfea54a41046cd6dc51b3d31f3e9f81a23de57",
+    "_activation.py": "f5e27e4cbd11677d90bc293719837da22e88f483939d16601b2c824594fc32ea",
+    "_construction.py": "656661a62d89fcdfb2e10dc197e6e3706d6e6f714e6e1a841718ddc421eb48fb"
+  },
+  "native_isolated": {
+    "status": "passed_full_native_sdk_and_gradient_binary_controls",
+    "results": [
+      {
+        "label": "numpy25",
+        "kind": "oracle",
+        "exit_code": 0,
+        "seconds": 0.26624488830566406,
+        "log_sha256": "d08f849fc00cd31b0f7001db9c70052df71feab465d942c8a7d31f33cef14ba5",
+        "cases": 478,
+        "status": "passed",
+        "mismatches": 0,
+        "version_differences": 0
+      },
+      {
+        "label": "numpy25",
+        "kind": "sdk",
+        "exit_code": 0,
+        "seconds": 21.386635065078735,
+        "log_sha256": "352404342dce69a64d590d7cc86d835dd182cd6b19c6e9669543d81c5a130ae1",
+        "totals": {
+          "tests": 12298,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      {
+        "label": "numpy126",
+        "kind": "oracle",
+        "exit_code": 0,
+        "seconds": 0.38286375999450684,
+        "log_sha256": "d08f849fc00cd31b0f7001db9c70052df71feab465d942c8a7d31f33cef14ba5",
+        "cases": 478,
+        "status": "passed",
+        "mismatches": 0,
+        "version_differences": 0
+      },
+      {
+        "label": "numpy126",
+        "kind": "sdk",
+        "exit_code": 0,
+        "seconds": 26.557878971099854,
+        "log_sha256": "4575739ab77a58d7aa3ec45cc63b7aa581fcd7d7c461771336b26420010d5ab3",
+        "totals": {
+          "tests": 12298,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 3
+        }
+      }
+    ],
+    "production_changed": false,
+    "ci_triggered": false,
+    "goal_status": "active"
+  },
+  "wasm_node": {
+    "status": "verified_full_functional_node_wasm_sdk_with_reconciled_dynamic_count",
+    "passed": 12285,
+    "skipped": 0,
+    "failures": [],
+    "gradient_oracle": {
+      "status": "passed",
+      "cases": 478,
+      "mismatches": 0,
+      "version_differences": 0
+    },
+    "initial_fixed_count_guard_status": "failed_preserved",
+    "expected_count_derivation": {
+      "unchanged_wasm_contracts": 12212,
+      "new_explicit_cases": 71,
+      "new_module_feature_detection_cases": 2,
+      "total": 12285
+    },
+    "measurement_repeated": false,
+    "runtime_or_tests_changed": false,
+    "original_result_sha256": "8a92c8992f69eab2dd69e68c0a7825695c04409440f8c5c6b1f9d6cac460de29",
+    "original_failure_sha256": "45a1fa727d1fccec47416eaa81b84641464973fd45af829f6b14e21a47a6931b",
+    "source_plan_sha256": "13101cd705eabf1f7d507eeea7e6ca529abac16dfeaa430c00a54441dcddd7f6",
+    "native_xml_sha256": "47276f66bdd8c2bc8f67f385b4e094e08741da475549faf1d022ca156ebe4b5b"
+  },
+  "wasm_chrome": {
+    "status": "completed",
+    "report": {
+      "exit_code": 0,
+      "passed": 12285,
+      "skipped": 0,
+      "failures": [],
+      "expected_passed": 12285,
+      "source_version": "0.81.0",
+      "numpy": "2.2.5",
+      "status": "passed_full_node_wasm_sdk",
+      "gradient_oracle": {
+        "status": "passed",
+        "cases": 478,
+        "mismatches": 0,
+        "version_differences": 0
+      }
+    },
+    "pyodide": "0.29.4",
+    "browser": "155.0.8059.82",
+    "source_plan_sha256": "32ba483eeb9e5a23e87acae8734179ca443329cadf04fe2f2a4b5a16cf33e2e6"
+  },
+  "packaging": {
+    "status": "passed_current_public_private_package_rebuilds_and_installed_smoke",
+    "version": "0.82.0",
+    "resources": 66,
+    "artifacts": [
+      {
+        "path": "public-dist/stridetorch-0.82.0-py3-none-any.whl",
+        "sha256": "c39939c58b17eaed7b4f993c19291f091bbb565838a40aa1b74c643dd830a6eb",
+        "runtime_resources": 66
+      },
+      {
+        "path": "private-dist/paperleet-0.1.0-py3-none-any.whl",
+        "sha256": "2c9d95197a5f0c1334d5e859980d929fe610f14304aa653d7e24d26f937e8220",
+        "runtime_resources": 66
+      },
+      {
+        "path": "public-dist/stridetorch-0.82.0.tar.gz",
+        "sha256": "c43e1223597ea0d60b777608d4659639f606854dbcc3f545e0f625de416413e1"
+      },
+      {
+        "path": "public-rebuild/stridetorch-0.82.0-py3-none-any.whl",
+        "sha256": "e1eb5f224d255e078b7633dbcb756b86e07bd59719af0fa61a8b913b7210556d",
+        "runtime_resources": 66
+      },
+      {
+        "path": "private-dist/paperleet-0.1.0.tar.gz",
+        "sha256": "5407d356f095e36363cd2a42d5fc8d778b87cc3b94eff113cb43c4ea0df371cb"
+      },
+      {
+        "path": "private-rebuild/paperleet-0.1.0-py3-none-any.whl",
+        "sha256": "4a87aa7ce0a238c0de7dc14309c3cc7becbe3aaee8f26d3f40dd886300c4c3e6",
+        "runtime_resources": 66
+      }
+    ],
+    "receipts": [
+      {
+        "label": "build-public",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+          "-B",
+          "-c",
+          "from setuptools import build_meta;import sys;target=sys.argv[1];build_meta.build_sdist(target);build_meta.build_wheel(target)",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-453/public-dist"
+        ],
+        "cwd": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-453/public",
+        "exit_code": 0,
+        "log_sha256": "1b9c2c493acaed7d9a2956947c29595d4272c660668fcc2cc8fa505791e87c9e"
+      },
+      {
+        "label": "build-private",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+          "-B",
+          "-c",
+          "from setuptools import build_meta;import sys;target=sys.argv[1];build_meta.build_sdist(target);build_meta.build_wheel(target)",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-453/private-dist"
+        ],
+        "cwd": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-453/private",
+        "exit_code": 0,
+        "log_sha256": "fec77a943ac7164ee3871a4be77b8942a74ed9f9fc55969345a1443658eeb68d"
+      },
+      {
+        "label": "public-sdist-rebuild",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+          "-B",
+          "-c",
+          "from setuptools import build_meta;import sys;target=sys.argv[1];build_meta.build_wheel(target)",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-453/public-rebuild"
+        ],
+        "cwd": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-453/public-sdist/stridetorch-0.82.0",
+        "exit_code": 0,
+        "log_sha256": "51fec757f8fc8041c33e7ae7fddf683e956c55d1ec3c6e91683760e2bb98d300"
+      },
+      {
+        "label": "private-sdist-rebuild",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+          "-B",
+          "-c",
+          "from setuptools import build_meta;import sys;target=sys.argv[1];build_meta.build_wheel(target)",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-453/private-rebuild"
+        ],
+        "cwd": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-453/private-sdist/paperleet-0.1.0",
+        "exit_code": 0,
+        "log_sha256": "76d4b1d8875fa5bc704eae1a9bf49c1d7bd808ae33e67ea792153ede1fc2cd61"
+      },
+      {
+        "label": "install-both",
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "install",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+          "--target",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-453/installed",
+          "--no-deps",
+          "--offline",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-453/public-dist/stridetorch-0.82.0-py3-none-any.whl",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-453/private-dist/paperleet-0.1.0-py3-none-any.whl"
+        ],
+        "cwd": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-453",
+        "exit_code": 0,
+        "log_sha256": "9430ae6be596941288e3d20cb3e50b6bf18d4384b3ff6c7ccbb4172eed4a5379"
+      },
+      {
+        "label": "installed-smoke",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+          "-I",
+          "-B",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-453/installed-smoke.py",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-453/installed",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-453/source-plan.json"
+        ],
+        "cwd": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-453",
+        "exit_code": 0,
+        "log_sha256": "47a8a4ab9bd23811b3f9371ffa4eaf7c365001ce8a67269d237b113e5ffc67d1"
+      },
+      {
+        "label": "installed-smoke-numpy126",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-137/native26-env/bin/python",
+          "-I",
+          "-B",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-453/installed-smoke.py",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-453/installed",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-453/source-plan.json"
+        ],
+        "cwd": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-453",
+        "exit_code": 0,
+        "log_sha256": "7bf8021565ecfc626c949d29dbf5ff818c8f59006507f9a49a73a3f857d3b415"
+      }
+    ],
+    "source_plan_sha256": "8d58cd909253c9f8bac9d078b957e18f3e2253c35d7c20fcbe2a741e1ea043eb",
+    "runner_sha256": "d1650cba91d3956874d67fbf4f4c233472e7f7772024dd6abae433d46d0af138",
+    "head": "e8886062bfe5258b0f747a806594adf8b4be153c",
+    "current_private_application_sources_verified": true,
+    "previous_ownership_and_uninstall_proof": "torch-iteration-307/result.json",
+    "full_current_application_gate_pending": true,
+    "main_adopted": false,
+    "ci_triggered": false,
+    "published": false,
+    "goal_status": "active"
+  },
+  "secondary_native214": {
+    "cases": 478,
+    "matching_all_checks": 475,
+    "error_class_differences": [
+      {
+        "case": "427/value/complex64/2.0/None/single/1.5",
+        "native": "NotImplementedError",
+        "candidate": "RuntimeError"
+      },
+      {
+        "case": "429/value/complex64/2.0/False/single/1.5",
+        "native": "NotImplementedError",
+        "candidate": "RuntimeError"
+      },
+      {
+        "case": "431/value/complex64/2.0/True/single/1.5",
+        "native": "NotImplementedError",
+        "candidate": "RuntimeError"
+      }
+    ],
+    "numerical_or_mutation_mismatches": 0
+  },
+  "canonical_sdk25": {
+    "label": "sdk-numpy25",
+    "exit_code": 0,
+    "seconds": 20.629452228546143,
+    "totals": {
+      "tests": 12298,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "imports": {
+      "public": "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/__init__.py",
+      "private": "/Users/david/Developer/PaperLeet-torch-release/packages/stridetorch/src/stridetorch/__init__.py",
+      "version": "0.82.0"
+    },
+    "xml_sha256": "dd6f0092af900492fd1ecff79f73520e91ff12774d56b8fdf24e54258f3e2117",
+    "log_sha256": "19fda51dc3ff552afda7e14e4111f308c59dd616071eaff8c4135ff040894534"
+  },
+  "final_application_gate": "451live;notcapturedascompleted",
+  "wasm_version_note": "IsolatedWASMsourceversionliteral0.81.0;canonical0.82differsonly__init__version;finalapplicationexportandcatalogvalidationpending",
+  "terminal_hvp_optimization_adopted": false,
+  "main_updated": false,
+  "ci_triggered": false,
+  "published": false,
+  "goal_status": "active",
+  "raw_archive": {
+    "path": "packages/stridetorch/benchmarks/results/gradient-utilities-0.82-development-harness.tar.gz",
+    "files": 789,
+    "unique_payloads": 289,
+    "bytes": 3020479,
+    "sha256": "bfbc7dd49416829da415f157f0015b4fb2ec2f75a6b122796124a3d9826f0a3e",
+    "all_payloads_verified": true
+  },
+  "application_individual_tests": {
+    "groups": {
+      "application": {
+        "passed": 33634,
+        "skipped": 1
+      },
+      "problems": {
+        "error": 721
+      }
+    },
+    "problem_error_causes": {
+      "missing_workspace_implementation": 710,
+      "invalid_workspace_test_fixture": 11
+    },
+    "status": "application_tests_passed_direct_problem_invocation_cannot_use_missing_or_fixture_workspace_implementations",
+    "original_command_status": "failed_preserved",
+    "correct_next_command": "pytest tests packages/stridetorch/tests",
+    "problem_references_require_catalog_harness": true
+  },
+  "fixture_qualification": {
+    "tests": 12,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 5.76,
+    "temporary_bytes_scope": "Generatedfixturetree28MiBafterexcludingnon-wheelbenchmarkarchives;previouscombinedtesttmp952MiB;differentfulltempscopesnotawalltimespeedupclaim",
+    "xml_sha256": "c3a91911b8f0fe04abe4f0473854c3c6187023082374e86268f801a0eebc2199",
+    "log_sha256": "7da61cf3e0e46b46d03072e7b80d38a2edd49fe62badc70cd192277ac3785f8c",
+    "runtime_bytes_verified_in_both_wheels": 66
+  },
+  "recoverable_failed_test_tmp_backup": {
+    "status": "verified_recoverable_thin_backup",
+    "original": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-451/application-cpu-tmp",
+    "archive": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-457/retained-451-application-cpu-tmp.thin.tar.zst",
+    "archive_bytes": 3884975,
+    "archive_sha256": "f2c7ecddf99d7b8b9674e20efa35a1ec407a8d48bc8aed0bef159ef70bc99957",
+    "manifest_sha256": "5469fb9f376ea0cc70f0c978aa22c0777ecf10c8815f63f271888afecbc877d6",
+    "entries": 11498,
+    "external_bytes": 691707521,
+    "original_bytes": 978434075,
+    "pre_recovered_files": 1,
+    "scope": "Every original file byte is either stored in the archive or verified identical to a protected immutable Git blob recorded by commit/path/blobid/SHA256. Restore external files from that repository; manifest records original modes/owners/timestamps/links. Not a standalone archive. Failed363partialarchive remains untouched."
+  },
+  "correct_composite_gate": "460:pytest tests packages/stridetorch/tests;not_started_at_record_time"
+}

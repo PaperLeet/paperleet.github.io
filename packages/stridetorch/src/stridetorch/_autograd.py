@@ -99,9 +99,18 @@ def binary_result(data, source, original_other, other, a, b, operation, left, ri
         parents = ((_graph.node_for(other), right_vjp, other.dtype),)
     value._requires_grad = True
     if saves_tensors:
-        counters = {value._storage, source._storage}
-        if other is not None:
-            counters.add(other._storage)
+        if not reverse and operation in (np.multiply, np.divide):
+            # These pullbacks never read the public output. Save only the
+            # input storages actually used by active derivative branches.
+            counters = set()
+            if right_needed:
+                counters.add(source._storage)
+            if other is not None and (left_needed or operation is np.divide and right_needed):
+                counters.add(other._storage)
+        else:
+            counters = {value._storage, source._storage}
+            if other is not None:
+                counters.add(other._storage)
     else:
         counters = ()
     node_type = _graph.ZeroPreservingNode if zero_passthrough else _graph.Node

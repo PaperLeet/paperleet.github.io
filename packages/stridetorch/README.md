@@ -2160,3 +2160,25 @@ baseline's equivalent expression; their cost remains optimization work.
 See the [0.80 qualification record](../../docs/validation/torch-runtime-0.80-qualification.md)
 for exact baselines, numerical boundaries, package isolation, GPU experiment
 scope and current application-adoption status.
+
+### Gradient clipping (0.82, in development)
+
+`torch.nn.utils.clip_grad_norm_`, `clip_grad_value_` and the deprecated
+`clip_grad_norm` alias are available through ordinary `torch` imports, including
+`torch.nn.utils.clip_grad`. They accept a Tensor or a parameter iterable and
+modify existing gradient buffers under `no_grad`, preserving their identities,
+layouts and existing history. Normal saved-value checks still apply when that
+history needs a value changed by clipping. The returned total norm is detached;
+`error_if_nonfinite=True` rejects a nonfinite norm before changing any gradient.
+
+Norm clipping uses the existing floating/complex vector-norm kernels, including
+half storage. Value clipping supports real floating gradients. `foreach=None`,
+`False` and `True` use per-gradient NumPy kernels; accepting the hint does not
+provide a fused or GPU implementation. Empty norm clipping returns zero in the
+default floating dtype. Value clipping without any gradients raises an error,
+matching the pinned Torch 2.6 behavior.
+
+Multiplication and direct division now protect only the input values used by
+their active pullbacks. Their output can be changed when backward does not read
+it; required inputs remain protected and saved-graph retention rules still
+apply. Attention keeps its existing conservative original-input guards.

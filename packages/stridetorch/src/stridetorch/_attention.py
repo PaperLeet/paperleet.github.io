@@ -190,6 +190,9 @@ def _forward(query, key, value, mask, dropout_p, causal, factor, grouped, output
         tangent = _autograd.joint_result(np.zeros(output_shape, dtype=q.dtype), inputs,
             lambda g, needs: [np.zeros_like(x._data) if need else None for x, need in zip(inputs, needs)])
         return _autograd.ForwardTensor(primal, tangent)
+    # Preserve SDPA's existing conservative original-input mutation contract.
+    # Scalar multiplication itself now guards only values its pullback reads.
+    saved_primal = tuple(x for x in (q, k) if x.requires_grad)
     qscale, kscale = _scales(factor)
     q, k, dq, dk = q * qscale, k * kscale, dq * qscale, dk * kscale
     scores = _tensor_head_product(q, k.transpose(-1, -2), grouped)
@@ -209,7 +212,7 @@ def _forward(query, key, value, mask, dropout_p, causal, factor, grouped, output
     # Native math SDPA currently produces NaNs in that mixed-AD corner; the
     # stable extension here is covered by independent finite differences.
     raw = _probabilities(scores._data)
-    probabilities = _autograd.result(raw, (scores, lambda g: raw * (g - (g * raw).sum(axis=-1, keepdims=True))), saved=(m,) if m is not None else ())
+    probabilities = _autograd.result(raw, (scores, lambda g: raw * (g - (g * raw).sum(axis=-1, keepdims=True))), saved=saved_primal + ((m,) if m is not None else ()))
     derivative = probabilities * (direction - (direction * probabilities).sum(-1, True))
     multiplier = _dropout_multiplier(probabilities.shape, probabilities.dtype, dropout_p)
     if multiplier is not None:
