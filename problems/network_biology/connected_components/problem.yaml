@@ -1,0 +1,82 @@
+﻿id: network_biology/connected_components
+number: 106
+title: 连通分量与最大连通分量
+title_en: Connected Components and the Largest Connected Component
+paper_id: network-biology
+paper:
+  title: 'Network biology: understanding the cell''s functional organization'
+  authors: Albert-László Barabási and Zoltán N. Oltvai
+  venue: Nature Reviews Genetics 5(2), 101–113 (2004)
+  url: https://doi.org/10.1038/nrg1272
+  doi: 10.1038/nrg1272
+  anchors:
+  - 'Box 1 (Network measures): general context for describing the global structure of cellular networks; connected components are a teaching adaptation here'
+  literature_record:
+    dataset: docs/research/network_biology_literature.json
+    id: 1
+    category: Classic Foundations & Network Topology
+type: implement
+parent: null
+difficulty: E
+functions:
+- name: connected_components
+  signature: 'connected_components(nodes: list[str], edges: list[tuple[str, str]]) -> list[list[str]]'
+- name: largest_component
+  signature: 'largest_component(nodes: list[str], edges: list[tuple[str, str]]) -> list[str]'
+- name: largest_component_fraction
+  signature: 'largest_component_fraction(nodes: list[str], edges: list[tuple[str, str]]) -> float'
+module:
+  goal: 找出互作网络的连通分量与最大连通分量，正确处理孤立节点，并理解图上不连通不等于生物学上相互独立。
+  goal_en: Find the connected components and the largest component of an interaction network, handle isolated nodes, and understand that graph disconnection is not biological independence.
+  scope: 简单无向图上的连通分量、最大分量及其占比，含确定性的排序与并列规则。
+  scope_en: Connected components, the largest component and its share on a simple undirected graph, with deterministic ordering and tie rules.
+  required_functions:
+  - connected_components
+  - largest_component
+  - largest_component_fraction
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: Python str node names, float fraction
+  device: CPU; pure Python standard library, no network access or dataset download
+  contract: 'Simple undirected graph with the exercise 93 conventions: unique str nodes, self-loops and repeated edges ignored, ValueError for duplicate nodes or unknown endpoints. Each component is a list of node names sorted ascending; components are ordered by size descending, ties by smallest node name. Isolated nodes are size-one components; no nodes gives [] and fraction 0.0. largest_component is the first component; the fraction is its size divided by the number of nodes.'
+estimated_minutes: 15
+tests:
+  T0: 1
+  T1: 2
+  T2: 6
+  T3: 1
+t3_budget_s: 10
+tags:
+- Network Biology
+- Connected Components
+- Graph Traversal
+viz:
+- toy_experiment
+browser:
+  backend: numpy-wasm
+sources_verified: '2026-10-20'
+verified_sources:
+  checked_at: '2026-10-20'
+  links:
+  - https://research.ceu.edu/en/publications/network-biology-understanding-the-cells-functional-organization/
+toy:
+  kind: teaching_adaptation
+  source: https://doi.org/10.1038/nrg1272
+  anchor: Global structure of cellular networks
+  adaptation: Synthetic 9-node toy network and a synthetic chain of six 5-node modules whose bridge edges are removed one at a time; no interactome data and no claim about biological independence.
+mutants:
+- id: m1_drop_isolated
+  bug: 没有伙伴的孤立节点没有作为单点分量返回。
+- id: m2_directed_edges
+  bug: 把边当作有向边，只沿 u 到 v 记录邻居。
+- id: m3_tie_by_last_node
+  bug: 大小并列时按分量中最大的节点名决定先后。
+- id: m4_unsorted_members
+  bug: 分量内部节点保持发现顺序，没有排序。
+- id: m5_fraction_denominator
+  bug: 比例的分母错用分量个数而不是节点数。
+- id: m6_no_endpoint_check
+  bug: 未校验边端点，未知节点引发 KeyError 而不是 ValueError。
+
