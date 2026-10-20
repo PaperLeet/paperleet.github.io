@@ -7,6 +7,12 @@ const names = ['window','document','location','localStorage','IS_REACT_ACT_ENVIR
 const originals = new Map(names.map(name=>[name,Object.getOwnPropertyDescriptor(globalThis,name)]));
 Object.assign(globalThis,{window:dom.window,document:dom.window.document,location:dom.window.location,localStorage:dom.window.localStorage,IS_REACT_ACT_ENVIRONMENT:true});
 localStorage.setItem('paperleet.locale','en');
+// Advance only this chart's owned daily callback; no wall-clock waits or network calls.
+const intervals=new Map();let intervalId=0;
+window.setInterval=(callback,milliseconds)=>{const id=++intervalId;intervals.set(id,{callback,milliseconds});return id;};
+window.clearInterval=id=>intervals.delete(id);
+const daily=()=>{assert.equal(intervals.size,1,'Exactly one owned refresh timer');const timer=[...intervals.values()][0];assert.equal(timer.milliseconds,24*60*60_000);return timer.callback;};
+
 const React=await import('react'),{act}=React,{createRoot}=await import('react-dom/client');
 const server=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom',optimizeDeps:{noDiscovery:true,include:[]},plugins:[{
   name:'growth-http-fixture',enforce:'pre',resolveId(source,importer){if(source==='./apiClient'&&importer?.endsWith('/UserGrowthChart.tsx'))return '\0growth-http';},
@@ -30,6 +36,13 @@ try {
   fail=false;await act(async()=>container.querySelector('button').click());
   assert.equal(container.querySelector('.growth-total strong').textContent,'3');
   assert.equal(requests.at(-1).path,'/api/community/registration-growth');assert.equal(requests.at(-1).options.credentials,'omit');
+  const scheduled=daily(),beforeEvents=requests.length;
+  await act(async()=>{window.dispatchEvent(new window.Event('focus'));window.dispatchEvent(new window.Event('online'));document.dispatchEvent(new window.Event('visibilitychange'));});
+  assert.equal(requests.length,beforeEvents,'Focus/online/visibility do not refresh the daily aggregate');assert(daily()===scheduled);
+  await act(async()=>scheduled());assert.equal(requests.length,beforeEvents+1,'The owned 24-hour callback refreshes once');
+  fail=true;await act(async()=>scheduled());assert.equal(container.querySelector('.growth-total strong').textContent,'3');assert(container.querySelector('.growth-line'));assert.match(container.textContent,/Update unavailable/);
+  fail=false;const beforeRetry=requests.length;await act(async()=>container.querySelector('.growth-recovery button').click());assert.equal(requests.length,beforeRetry+1,'Explicit retry still refreshes immediately');assert(daily()!==scheduled,'Retry replaces and cleans the prior timer');
+  console.log('PASS daily growth refresh: actual 24-hour timer, no focus/online/visibility refresh, retained chart on scheduled failure, immediate explicit retry and timer replacement');
   const slider=container.querySelector('[role=slider]');
   assert.match(slider.getAttribute('aria-valuetext'),/2026-10-20: 3 registered, 2 joined/);
   await act(async()=>slider.dispatchEvent(new window.KeyboardEvent('keydown',{key:'Home',bubbles:true})));
@@ -48,7 +61,8 @@ try {
   assert.equal(container.querySelector('.growth-total strong').textContent,'0');
   assert(!/NaN|Infinity/.test(container.querySelector('.growth-line').getAttribute('points')));
   pending=true;await act(async()=>render('pending'));const signal=requests.at(-1).options.signal;
-  await act(async()=>root.unmount());root=null;assert(signal.aborted);
+  const retiredTimer=daily();
+  await act(async()=>root.unmount());root=null;assert(signal.aborted);assert.equal(intervals.size,0);const beforeRetired=requests.length;await act(async()=>retiredTimer());assert.equal(requests.length,beforeRetired,'A retired daily callback cannot issue another request');
   await act(async()=>resolvePending({ok:true,json:async()=>sample}));
   assert.equal(container.textContent,'');
   console.log('PASS user growth: real chart, cumulative and daily counts, zero-day continuity, keyboard/touch, locale, honest unavailable/zero states, private-cookie-free request, invalid-series rejection and aborted unmount');
