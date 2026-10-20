@@ -149,12 +149,12 @@ json.dumps(run_suite(multi,bundle['reference'],'/judge'))
         assert.equal(smallRuntime.backend,'numpy-wasm');
         const supplemented = [];
         for (const [name, source] of Object.entries(smallRuntime.files)) {
-          if (!name.startsWith('stridetorch/')) continue;
+          if (!name.startsWith('torchwasm/')) continue;
           if (Object.hasOwn(runtime.files,name)) {
             assert.equal(runtime.files[name],source,`Runtime profiles disagree on ${name}`);
             continue;
           }
-          assert(/^stridetorch\/[a-z_][a-z0-9_]*\.py$/.test(name) && typeof source === 'string',
+          assert(/^torchwasm\/[a-z_][a-z0-9_]*\.py$/.test(name) && typeof source === 'string',
             `Unexpected supplementary SDK resource: ${name}`);
           const target = '/judge/' + name;
           py.FS.mkdirTree(path.posix.dirname(target));
@@ -164,7 +164,7 @@ json.dumps(run_suite(multi,bundle['reference'],'/judge'))
         independentRuntimeProfiles.push({backend:smallRuntime.backend,
           runtime_bundle_url:smallManifest.runtime_bundle_url,supplemented_files:supplemented});
         py.runPython("import importlib\nimportlib.invalidate_caches()");
-        const contracts = path.join(web, '../packages/stridetorch/tests');
+        const contracts = path.join(web, '../packages/torchwasm/tests');
         // Installed-package/launcher contracts need host processes and optional
         // WebGPU assets that are intentionally absent from the CPU/WASM bundle.
         // Both host suites run in CI's infrastructure job; all NumPy VM suites
@@ -200,7 +200,7 @@ json.dumps(dict(exit_code=int(_library_contract_exit), passed=_library_contract_
       }
       if (id === 'architecture/attention') py.runPython(`
 import numpy as np, torch
-from stridetorch import as_torch, install_as_torch
+from torchwasm import as_torch, install_as_torch
 previous_torch = torch
 attention_operand=torch.ones(1,3,2,dtype=torch.float32)
 assert torch.nn.functional.scaled_dot_product_attention(attention_operand,attention_operand,attention_operand).dtype==torch.float32

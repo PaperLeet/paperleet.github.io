@@ -188,8 +188,8 @@ comparisons. Raw outliers remain in the tables and archives.
 
 ## Reproduction and adoption
 
-[`iteration-38.json`](../../packages/stridetorch/benchmarks/results/iteration-38.json)
-and [`iteration-38-integration.json`](../../packages/stridetorch/benchmarks/results/iteration-38-integration.json)
+[`iteration-38.json`](../../packages/torchwasm/benchmarks/results/iteration-38.json)
+and [`iteration-38-integration.json`](../../packages/torchwasm/benchmarks/results/iteration-38-integration.json)
 contain exact source/test/artifact hashes, child receipts, full measurements and
 hashed reproduction archives. Native-reference tests are test oracles, not
 runtime dependencies. Later main synchronization/adoption is recorded separately.

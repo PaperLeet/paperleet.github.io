@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "torchwasm"
+version = "0.91.0"
+description = "Lightweight torch-compatible tensors and autograd for the browser via NumPy and Pyodide/WebAssembly."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.26"]
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+
+[project.optional-dependencies]
+test = ["pytest>=8", "torch>=2.2"]
+
+[project.scripts]
+torchwasm = "torchwasm._cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+torchwasm = ["LICENSE", "NOTICE"]
+"torchwasm.experimental.webgpu" = ["*.mjs"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

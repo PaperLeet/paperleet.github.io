@@ -95,7 +95,7 @@ Timing processes run sequentially after compatibility gates on a shared host;
 actual BLAS thread counts remain unverified. No CPU/WASM cross-runtime throughput
 comparison or general native-Torch performance claim is made.
 
-[Core evidence](../../packages/stridetorch/benchmarks/results/iteration-30.json)
+[Core evidence](../../packages/torchwasm/benchmarks/results/iteration-30.json)
 and its receipt archive retain source variants, native fixtures, red/green
 boundary tests, final CPU/WASM/browser/package reports, all20 timing/import
 children and exact recipes. Full application integration and main/remote
@@ -129,7 +129,7 @@ localized accessible labels and deferred pages;no manual visual QA is claimed.
 Public/private wheel ownership, independent uninstall and checkpoint-resume
 proofs remain in the core record. The application wheel/sdist are checked again
 against all46 core/license hashes and current server/catalog bytes after UI
-integration. [Application evidence](../../packages/stridetorch/benchmarks/results/iteration-30-integration.json)
+integration. [Application evidence](../../packages/torchwasm/benchmarks/results/iteration-30-integration.json)
 and its219-file archive retain exports, real VM results, dependencies, initial
 frontend context and targeted latest-main follow-up. Main adoption uses a
 non-force push;remote Quality, actual Pages deployment and live-byte checks remain
@@ -150,7 +150,7 @@ Live requests verify78 decoded starters, current detail/manifest references,
 All46 runtime/resource hashes and161 exports are checked against pinned Gitb1,
 so later0.31 working-copy changes cannot substitute for deployment evidence.
 
-[Remote adoption evidence](../../packages/stridetorch/benchmarks/results/iteration-30-remote-adoption.json)
+[Remote adoption evidence](../../packages/torchwasm/benchmarks/results/iteration-30-remote-adoption.json)
 and its22-file receipt archive retain source jobs, actual deploy steps, artifact
 reports, pinned hashes and live results. The initial artifact commands ran outside
 a Git repository and failed repository discovery;corrected commands in the owned

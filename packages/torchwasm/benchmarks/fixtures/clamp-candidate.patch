@@ -1,0 +1,128 @@
+--- a/packages/torchwasm/src/torchwasm/_tensor.py
++++ b/packages/torchwasm/src/torchwasm/_tensor.py
+@@ -1192,13 +1192,7 @@
+     def nan_to_num(self, nan=0., posinf=None, neginf=None):
+         return _ops.nan_to_num(self, nan=nan, posinf=posinf, neginf=neginf)
+     def clamp(self, min=None, max=None):
+-        self._real_only()
+-        if min is None and max is None: raise ValueError('clamp needs at least one bound')
+-        if isinstance(min, Tensor) or isinstance(max, Tensor): raise _errors.BrowserUnsupported('Tensor clamp bounds require the server')
+-        mask = np.ones(self.shape, dtype=bool)
+-        if min is not None: mask &= self._data >= min
+-        if max is not None: mask &= self._data <= max
+-        return _autograd.result(np.clip(self._data, min, max), (self, lambda g: g * mask))
++        return _clamp.apply(self, min, max)
+     def clamp_min(self, min): return self.clamp(min=min)
+     def clamp_max(self, max): return self.clamp(max=max)
+     def sin(self):
+@@ -1303,4 +1297,4 @@
+
+
+ # Late module references break Tensor/autograd/operator cycles without rebinding functions.
+-from . import _arithmetic, _autograd, _cholesky, _conversion, _defaults, _device, _errors, _linalg, _ops, _random, _state, _tensor_hooks, _indexing, _indexed
++from . import _arithmetic, _autograd, _clamp, _cholesky, _conversion, _defaults, _device, _errors, _linalg, _ops, _random, _state, _tensor_hooks, _indexing, _indexed
+--- a/packages/torchwasm/src/torchwasm/_autograd.py
++++ b/packages/torchwasm/src/torchwasm/_autograd.py
+@@ -389,11 +389,7 @@
+             slope=result(slope,(primal,lambda g,shape=primal.shape,dtype=primal.dtype:np.zeros(shape,dtype=dtype)),saves_tensors=False)
+         return ForwardTensor(primal.abs(), self._tangent * slope)
+     def clamp(self, min=None, max=None):
+-        primal = self._primal.clamp(min=min, max=max)
+-        mask = np.ones(self.shape, dtype=bool)
+-        if min is not None: mask &= self._data >= min
+-        if max is not None: mask &= self._data <= max
+-        return ForwardTensor(primal, _ops.where(_tensor.Tensor(mask), self._tangent, 0.))
++        return _clamp.forward(self, min, max)
+     def var(self, *args, dim=_layout.UNSPECIFIED_DIM, unbiased=_layout.UNSPECIFIED_DIM,
+             keepdim=_layout.UNSPECIFIED_DIM, correction=_layout.UNSPECIFIED_DIM):
+         from . import _statistics
+@@ -929,4 +925,4 @@
+
+
+ # Late module references break Tensor/autograd/operator cycles without rebinding functions.
+-from . import _errors, _ops, _state
++from . import _clamp, _errors, _ops, _state
+--- /dev/null
++++ b/packages/torchwasm/src/torchwasm/_clamp.py
+@@ -0,0 +1,81 @@
++"""Scalar clamp kernels, checked bounds and lazy analytical pullbacks."""
++import math
++import numpy as np
++from . import _autograd, _errors, _layout, _ops, _promotion, _tensor
++
++_HALF = np.dtype('float16')
++
++
++def _bound(info, dtype):
++    if info is None:
++        return None
++    number = info[0]
++    if dtype == _HALF and math.isfinite(number) and abs(number) > 65504:
++        raise RuntimeError('Scalar cannot be converted to float16 without overflow')
++    return _promotion.scalar_array(number, dtype, parsed=True)
++
++
++def _parameters(source, lower, upper):
++    if lower is None and upper is None:
++        raise RuntimeError('clamp needs at least one bound')
++    if isinstance(lower, _tensor.Tensor) or isinstance(upper, _tensor.Tensor):
++        raise _errors.BrowserUnsupported('Tensor clamp bounds require the server')
++    source._real_only()
++    lo = None if lower is None else _promotion.scalar_info(lower)
++    hi = None if upper is None else _promotion.scalar_info(upper)
++    dtype = source.dtype
++    for info in (lo, hi):
++        if info is not None:
++            dtype = _promotion._combine(dtype, info[1], wrapped=True)
++    if dtype.kind == 'c':
++        raise RuntimeError('clamp is not supported for complex types')
++    if dtype.kind == 'b' or dtype.kind == 'u' and dtype.itemsize > 1:
++        raise _errors.BrowserUnsupported('clamp requires a supported real numeric computation dtype')
++    return dtype, _bound(lo, dtype), _bound(hi, dtype)
++
++
++def _predicate(data, lower, upper):
++    if lower is None:
++        return np.less_equal(data, upper)
++    mask = np.asarray(np.greater_equal(data, lower))
++    if upper is not None:
++        # Reuse the lower predicate rather than materializing a second mask.
++        np.less_equal(data, upper, out=mask, where=mask)
++    return mask
++
++
++def _value(data, dtype, lower, upper):
++    # NumPy versions disagree on scalar NaN-bound clipping. Keep propagation
++    # consistent, including on the minimum supported NumPy installation.
++    nan_bound = dtype.kind == 'f' and ((lower is not None and np.isnan(lower)) or
++                                       (upper is not None and np.isnan(upper)))
++    if nan_bound:
++        value = np.full_like(data, np.nan, dtype=dtype)
++    else:
++        # Let the ufunc cast into its result; integer -> floating clamp does
++        # not need a separate input-sized converted array.
++        value = np.clip(data, lower, upper, dtype=dtype)
++    return _layout.contiguous_empty(value) if not value.size else value
++
++
++def _result(source, dtype, lower, upper):
++    data = source._data
++    value = _value(data, dtype, lower, upper)
++    # Save the array used by native-style backward, not its Python Tensor.
++    # No predicate is constructed or retained by an inference/forward call.
++    def pullback(gradient):
++        return np.where(_predicate(data, lower, upper), gradient, 0)
++    return _autograd.result(value, (source, pullback), versioned=(source,))
++
++
++def apply(source, lower=None, upper=None):
++    return _result(source, *_parameters(source, lower, upper))
++
++
++def forward(dual, lower=None, upper=None):
++    source = dual._primal
++    dtype, lower, upper = _parameters(source, lower, upper)
++    primal = _result(source, dtype, lower, upper)
++    condition = _tensor.Tensor(_predicate(source._data, lower, upper), _metadata_owned=True)
++    tangent = _ops.where(condition, dual._tangent, 0.)
++    return _autograd.ForwardTensor(primal, tangent)

@@ -161,4 +161,4 @@ require dependency setup/path adjustment; no virtual environments are bundled.
 
 ## Main adoption
 
-Version 0.72.0 was adopted on main at `3112bcb89850be72c8d951364ece596125b2aff6`. The guarded ordinary push passed with no active release chain. The remote ref and 2320 tested Git blobs were verified, together with generated Worker derivatives and all 14,431 prior immutable asset tree entries. The adopted SHA had zero Actions runs at verification. No workflow dispatch, tag, package publication or deployment was initiated. [Adoption receipt](../../packages/stridetorch/benchmarks/results/iteration-72-main-adoption.json).
+Version 0.72.0 was adopted on main at `3112bcb89850be72c8d951364ece596125b2aff6`. The guarded ordinary push passed with no active release chain. The remote ref and 2320 tested Git blobs were verified, together with generated Worker derivatives and all 14,431 prior immutable asset tree entries. The adopted SHA had zero Actions runs at verification. No workflow dispatch, tag, package publication or deployment was initiated. [Adoption receipt](../../packages/torchwasm/benchmarks/results/iteration-72-main-adoption.json).

@@ -126,8 +126,8 @@ statistical guarantees, browser wire sizes or native-Torch/CPU-WASM comparisons.
 
 ## Integration and release
 
-[`iteration-34.json`](../../packages/stridetorch/benchmarks/results/iteration-34.json)
-and [`iteration-34-integration.json`](../../packages/stridetorch/benchmarks/results/iteration-34-integration.json)
+[`iteration-34.json`](../../packages/torchwasm/benchmarks/results/iteration-34.json)
+and [`iteration-34-integration.json`](../../packages/torchwasm/benchmarks/results/iteration-34-integration.json)
 include source/test hashes, exact receipts and hashed reproduction archives.
 The full frontend check and both builds pass at `27d9e600`. Ten later UI-only
 files from `c8d5baac` are preserved byte for byte, with all 47 computational

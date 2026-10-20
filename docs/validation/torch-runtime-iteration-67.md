@@ -106,7 +106,7 @@ allocation proxy, **not a WASM heap/RSS or browser tape-size measurement**.
 
 ## Reproduction
 
-The [public joint benchmark](../../packages/stridetorch/benchmarks/bench_joint.py)
+The [public joint benchmark](../../packages/torchwasm/benchmarks/bench_joint.py)
 uses the existing official GroupNorm/classification fixtures. Its fixture ASTs
 match the frozen formal benchmark. For an idle-host timing comparison:
 
@@ -121,8 +121,8 @@ Add `--validate-only` for untimed value/derivative checks; all 26 flows pass in
 this checkout. Timed output records runtime/thread environment, every sample,
 source and fixture hashes. Run timing separately from tests and other workloads.
 
-The [machine record](../../packages/stridetorch/benchmarks/results/iteration-67.json)
-and [raw harness](../../packages/stridetorch/benchmarks/results/iteration-67-harness.tar.gz)
+The [machine record](../../packages/torchwasm/benchmarks/results/iteration-67.json)
+and [raw harness](../../packages/torchwasm/benchmarks/results/iteration-67-harness.tar.gz)
 retain original prototypes/failures, source/test snapshots, formal samples,
 A/A controls, allocation diagnostics, frozen native comparisons, package artifacts,
 current export guards and integration receipts. Identical payloads with matching
@@ -159,7 +159,7 @@ mutants are detected and original browser budgets pass. Combined coverage is
 this three-module extension; this is not a fresh full 85 rerun. The current
 export has 175 active asset/index identities.
 
-The [extension record](../../packages/stridetorch/benchmarks/results/iteration-67-curriculum-extension.json)
+The [extension record](../../packages/torchwasm/benchmarks/results/iteration-67-curriculum-extension.json)
 preserves both native and WASM results, unchanged-source identity and current
 export hashes. No runtime modification, tag, workflow dispatch or deployment
 is introduced by this verification.

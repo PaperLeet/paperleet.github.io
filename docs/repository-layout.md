@@ -10,7 +10,7 @@ and operations. Neither repository should contain live user data or credentials.
 | Current | Target | Ownership |
 | --- | --- | --- |
 | Hongyang-Du/PaperLeet | PaperLeet/paperleet after owner transfer | Public local product and consolidated core |
-| StrideTorch 0.85 here; TorchWasm 0.91 candidate pending | PaperLeet/stridetorch (current GitHub identity) | Independent TorchWasm runtime source and releases |
+| TorchWasm 0.91 in packages/torchwasm | PaperLeet/stridetorch (current GitHub identity) | Independent TorchWasm runtime source and releases |
 | PaperLeet/backend | PaperLeet/platform by in-place rename | Private hosted frontend/backend |
 | PaperLeet/paperleet.github.io | Same identity | Historical PRs and eventually static deployment |
 
@@ -27,25 +27,24 @@ workflow continues until the starred product becomes the public authority.
 Standalone operators, autodiff and runtime work belong in
 [PaperLeet/stridetorch](https://github.com/PaperLeet/stridetorch).
 Product integration keeps a vendored reviewed snapshot with an immutable commit
-and source hashes in `packages/stridetorch/upstream.lock.json`. Use
-`python scripts/sync_stridetorch.py --revision FULL_RUNTIME_COMMIT_SHA` to prepare
+and source hashes in `packages/torchwasm/upstream.lock.json`. Use
+`python scripts/sync_torchwasm.py --revision FULL_RUNTIME_COMMIT_SHA` to prepare
 a source update; it refuses unfinished local runtime changes and does not run
 upstream workflows or scripts. Run native and WASM integration checks before
-merging. `python scripts/sync_stridetorch.py` checks the current snapshot offline.
+merging. `python scripts/sync_torchwasm.py` checks the current snapshot offline.
 This preserves existing standalone installs without adding nested submodules.
 
-The runtime is now named **TorchWasm** in the unmerged 0.91 main-integration
-candidate (`codex/torchwasm-main-091`). Its distribution, import and launcher
-become `torchwasm`, and its product path becomes `packages/torchwasm`. The
-current main branch still uses StrideTorch 0.85. The standalone adoption is
-tracked in [TorchWasm candidate PR](https://github.com/PaperLeet/stridetorch/pull/1).
-Keep its existing provenance
-pin until the candidate and product integration are reviewed together.
-`sync_stridetorch.py` deliberately refuses a renamed package: moving the
-package directory, Python imports, browser bundles, Worker and provenance
-manifest must be one coordinated product change. A repository URL rename to
-`PaperLeet/torchwasm` is separate; use the existing working URL until it happens.
-Do not backport this legacy manifest into a renamed runtime tree unchanged.
+The runtime is now named **TorchWasm**. Public main adopted 0.91 at
+`13ae2bf7af07ac4f20a6cefd0425024eede5ac98` while this migration was being
+refreshed. This PR follows that coordinated package/import/Worker migration,
+rather than recreating the removed StrideTorch package. The standalone adoption
+is [PR #1](https://github.com/PaperLeet/stridetorch/pull/1); its immutable commit
+`7f158d09ea65d4cfae00500af0c81faa5f6ddddd` matches every vendored source, test,
+license and metadata file. Its PR remains a draft; the public product does not
+need that branch to merge or run because its verified snapshot is vendored.
+The sync helper refuses the old package name so a later adoption cannot silently
+revert Python imports. A URL rename to `PaperLeet/torchwasm` is separate; use the
+existing working GitHub URL until it happens.
 Hosted UI changes move into the private platform's
 `frontend/`; public contributors need no private access or production data.
 

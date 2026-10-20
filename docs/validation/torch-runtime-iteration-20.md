@@ -136,7 +136,7 @@ are reachable. Autograd runtime is `runtime-84ec068fea120c2d35f6.json`, schedule
 bytes, +10556raw /2590gzip versus0.19 under identical gzip settings. Memory and
 cold-start behavior were not measured.
 
-[Full evidence](../../packages/stridetorch/benchmarks/results/iteration-20.json)
+[Full evidence](../../packages/torchwasm/benchmarks/results/iteration-20.json)
 retains all64 timed fresh-process reports, earlier failures, source/VM/wheel
 identities and final course gates. `iteration-20-harness.tar.gz` archives944
 runner/source/test/log files.161 frozen expected deployment files include158

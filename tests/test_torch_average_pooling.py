@@ -2,12 +2,12 @@
 import numpy as np
 import pytest
 import torch
-from stridetorch import torch as lite
+from torchwasm import torch as lite
 
 
 @pytest.fixture(params=[(a,b) for a in ('scan','packed','auto') for b in ('loop','scatter')]+[('matrix','packed'),('block','block')],autouse=True)
 def algorithms(request,monkeypatch):
-    from stridetorch import _average_pooling
+    from torchwasm import _average_pooling
     monkeypatch.setattr(_average_pooling,'_ALGORITHM',request.param[0]);monkeypatch.setattr(_average_pooling,'_BACKWARD_ALGORITHM',request.param[1])
 
 

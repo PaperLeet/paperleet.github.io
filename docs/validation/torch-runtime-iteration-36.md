@@ -143,8 +143,8 @@ wire sizes. No WebGPU backend or WebGPU speedup is claimed in this version.
 
 ## Reproduction and release boundary
 
-[`iteration-36.json`](../../packages/stridetorch/benchmarks/results/iteration-36.json)
-and [`iteration-36-integration.json`](../../packages/stridetorch/benchmarks/results/iteration-36-integration.json)
+[`iteration-36.json`](../../packages/torchwasm/benchmarks/results/iteration-36.json)
+and [`iteration-36-integration.json`](../../packages/torchwasm/benchmarks/results/iteration-36-integration.json)
 record exact sources/tests, receipts, all three pilots and hashed reproduction
 archives. Application gates use upstream `13d2782a494415ba72bc604a0ef7e4c4f875ba25`; the private wheel
 includes its current application catalog. Latest-main synchronization and

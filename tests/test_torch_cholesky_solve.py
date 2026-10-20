@@ -2,7 +2,7 @@
 import numpy as np
 import pytest
 import torch as native
-from stridetorch import torch as lite, UnsupportedOperation
+from torchwasm import torch as lite, UnsupportedOperation
 
 CONFIGS=[((),(),2,3),((2,1),(1,3),3,2),((2,),(),4,3),((),(2,),5,2),((2,),(2,),2,2),((),(),0,2),((),(),2,0),((0,),(1,),3,2),((),(),1,4),((2,),(2,),1,1)]
 

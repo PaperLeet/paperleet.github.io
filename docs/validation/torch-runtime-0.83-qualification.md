@@ -115,8 +115,8 @@ finds overhead at small matrices and gains at 256/512 sizes; it does not
 establish transparent GPU Tensor storage or autograd support. Existing RPC
 cancellation, ownership and cleanup controls should be reused for further work.
 
-[Machine-readable qualification](../../packages/stridetorch/benchmarks/results/qualification-0.83.json)
-and its [verified raw archive](../../packages/stridetorch/benchmarks/results/qualification-0.83-harness.tar.gz)
+[Machine-readable qualification](../../packages/torchwasm/benchmarks/results/qualification-0.83.json)
+and its [verified raw archive](../../packages/torchwasm/benchmarks/results/qualification-0.83-harness.tar.gz)
 contain the source/export identities, current artifacts, original logs, scoped
 merge/metadata records and replay dependencies. The archive contains 763 files,
 587 unique payloads and SHA-256
@@ -124,7 +124,7 @@ merge/metadata records and replay dependencies. The archive contains 763 files,
 The [development record](torch-runtime-0.83-development.md) remains historical.
 
 Main adopted commit `7e4e8a500f3cb3a875964be08c03254d9c126d57`. The
-[remote adoption receipt](../../packages/stridetorch/benchmarks/results/qualification-0.83-main-adoption.json)
+[remote adoption receipt](../../packages/torchwasm/benchmarks/results/qualification-0.83-main-adoption.json)
 verifies all 66 runtime resources, 183 active export identities and seven
 release-policy files from that same remote commit. It observes zero workflow
 runs for the adopted SHA and confirms Pages still serves `gh-pages` rather

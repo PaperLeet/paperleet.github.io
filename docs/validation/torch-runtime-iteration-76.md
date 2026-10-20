@@ -50,10 +50,10 @@ All local application gates passed on `e57526de68607bba905cda0703a8b9d727d8a3b3`
 
 Baseline numeric/performance sources were frozen at `2f3faf32afffb086b44c20e490ec01dde8221e44`. The unrelated seven-file UI advance to `e57526de68607bba905cda0703a8b9d727d8a3b3` was reviewed and preserved before application validation; all core sources were unchanged by that advance.
 
-[Machine record](../../packages/stridetorch/benchmarks/results/iteration-76.json).
+[Machine record](../../packages/torchwasm/benchmarks/results/iteration-76.json).
 
-[Raw evidence](../../packages/stridetorch/benchmarks/results/iteration-76-raw.tar.gz) — 30,646,649 bytes; SHA-256 `ec28d6bc1359935d2d8e2eaae5f25cd2dd7d357b372b44edbf433e6d5f4de297`.
+[Raw evidence](../../packages/torchwasm/benchmarks/results/iteration-76-raw.tar.gz) — 30,646,649 bytes; SHA-256 `ec28d6bc1359935d2d8e2eaae5f25cd2dd7d357b372b44edbf433e6d5f4de297`.
 
 ## Main adoption
 
-Version 0.74.0 was adopted on main at `76dd285a376cca3586190f457cd554467e6bde8e` through the unchanged guarded ordinary-push wrapper. The remote ref, clean worktree and 2,341 qualified Git blobs were verified, including exact selected source and live export identities. All 14,779 prior immutable asset tree entries retain their Git object identities and modes. The source commit had zero Actions runs at verification. No CI, tag, package publication or deployment was initiated. [Adoption receipt](../../packages/stridetorch/benchmarks/results/iteration-76-main-adoption.json).
+Version 0.74.0 was adopted on main at `76dd285a376cca3586190f457cd554467e6bde8e` through the unchanged guarded ordinary-push wrapper. The remote ref, clean worktree and 2,341 qualified Git blobs were verified, including exact selected source and live export identities. All 14,779 prior immutable asset tree entries retain their Git object identities and modes. The source commit had zero Actions runs at verification. No CI, tag, package publication or deployment was initiated. [Adoption receipt](../../packages/torchwasm/benchmarks/results/iteration-76-main-adoption.json).

@@ -121,11 +121,11 @@ WASM. Shared-machine measurements do not establish a causal application effect.
 The remaining standard-deviation reverse cost is explicit, not counted as a win.
 Maintained CPU and WASM entry points both execute all 13 statistics cases.
 
-[Evidence](../../packages/stridetorch/benchmarks/results/iteration-22.json) and
-[source/harness archive](../../packages/stridetorch/benchmarks/results/iteration-22-harness.tar.gz)
+[Evidence](../../packages/torchwasm/benchmarks/results/iteration-22.json) and
+[source/harness archive](../../packages/torchwasm/benchmarks/results/iteration-22-harness.tar.gz)
 retain all phases, numerical inputs, rejected failures and current source.
-The [final local gates](../../packages/stridetorch/benchmarks/results/iteration-22-local-gates.json)
-and [release snapshot archive](../../packages/stridetorch/benchmarks/results/iteration-22-local-gates-harness.tar.gz)
+The [final local gates](../../packages/torchwasm/benchmarks/results/iteration-22-local-gates.json)
+and [release snapshot archive](../../packages/torchwasm/benchmarks/results/iteration-22-local-gates-harness.tar.gz)
 retain full native/WASM results, packaging receipts, history checks and frozen
 runtime/live-verification inputs. The independent project name **StrideTorch**
 is explicitly confirmed by the human; distribution, import and launcher use
@@ -158,8 +158,8 @@ Live verification decodes compressed starters and checks all 78 starters,
 manifests and module details, then compares all 158 immutable payloads exactly.
 Both runtime profiles carry the expected 0.22 version and Apache-2.0/NOTICE.
 The original skipped Pages observation remains separate from the actual eligible
-deployment. [Main-quality evidence](../../packages/stridetorch/benchmarks/results/iteration-22-main-quality.json),
-[remote adoption](../../packages/stridetorch/benchmarks/results/iteration-22-remote-adoption.json)
-and [remote/live archive](../../packages/stridetorch/benchmarks/results/iteration-22-remote-adoption-harness.tar.gz)
+deployment. [Main-quality evidence](../../packages/torchwasm/benchmarks/results/iteration-22-main-quality.json),
+[remote adoption](../../packages/torchwasm/benchmarks/results/iteration-22-remote-adoption.json)
+and [remote/live archive](../../packages/torchwasm/benchmarks/results/iteration-22-remote-adoption-harness.tar.gz)
 retain both workflow histories and frozen verification inputs. This proves
 repository/site adoption; no public PyPI publication has occurred.

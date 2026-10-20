@@ -2,8 +2,8 @@ name: Public runtime provenance
 on:
   pull_request:
     paths:
-      - 'packages/stridetorch/**'
-      - 'scripts/sync_stridetorch.py'
+      - 'packages/torchwasm/**'
+      - 'scripts/sync_torchwasm.py'
       - 'tests/test_runtime_vendor.py'
       - '.github/workflows/runtime-provenance.yml'
   workflow_dispatch:
@@ -18,5 +18,5 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m pip install pytest
-      - run: python scripts/sync_stridetorch.py
+      - run: python scripts/sync_torchwasm.py
       - run: python -m pytest --noconftest tests/test_runtime_vendor.py -q

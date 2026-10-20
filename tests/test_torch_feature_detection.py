@@ -2,7 +2,7 @@
 import importlib
 import pytest
 import torch as native
-from stridetorch import torch as lite
+from torchwasm import torch as lite
 
 
 PATHS = tuple(lite._compat_modules)

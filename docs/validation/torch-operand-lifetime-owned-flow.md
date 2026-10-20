@@ -101,8 +101,8 @@ autograd backend. Production WebGPU stays disabled.
 
 ## Evidence and continuing work
 
-[Machine-readable results](../../packages/stridetorch/benchmarks/results/operand-lifetime-owned-flow.json)
-and the [verified raw archive](../../packages/stridetorch/benchmarks/results/operand-lifetime-owned-flow-harness.tar.gz)
+[Machine-readable results](../../packages/torchwasm/benchmarks/results/operand-lifetime-owned-flow.json)
+and the [verified raw archive](../../packages/torchwasm/benchmarks/results/operand-lifetime-owned-flow-harness.tar.gz)
 contain all inputs, independent references, 12 complete timing processes,
 allocation measurements, regression results, GPU fixtures and original flags.
 The archive contains 316 files, 183 unique payloads, SHA-256

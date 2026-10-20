@@ -54,6 +54,6 @@ Real exported WASM passed 89/89 catalog modules and 406 mutants, plus the comple
 
 Performance baseline was frozen at `f2d91d09e1559d287f709094774b3d6e95e234d5`. The unrelated 95-path main advance to `7e7b64a5a5cfd6f296b76a7f6e740fd2f0900889` adds BERT, GAN and Dropout exercises and UI changes; core sources and benchmarked PaperLeet function bodies were unchanged. Application validation uses the updated 89-module catalog, preserving all external changes.
 
-[Machine record](../../packages/stridetorch/benchmarks/results/iteration-77.json).
+[Machine record](../../packages/torchwasm/benchmarks/results/iteration-77.json).
 
-[Raw evidence](../../packages/stridetorch/benchmarks/results/iteration-77-raw.tar.gz) — 39,611,534 bytes; SHA-256 `da5b7f549bd1a1a85485780ef1d8d966561f24a721ba40eea9df05f31486ab30`.
+[Raw evidence](../../packages/torchwasm/benchmarks/results/iteration-77-raw.tar.gz) — 39,611,534 bytes; SHA-256 `da5b7f549bd1a1a85485780ef1d8d966561f24a721ba40eea9df05f31486ab30`.

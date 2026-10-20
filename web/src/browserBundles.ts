@@ -4,9 +4,9 @@ import { parseBrowserBudgets } from './browserBudgets';
 type RecordValue = Record<string, unknown>;
 type RuntimeBundle = { version: 1; backend: string; adapter: string; harness: string; files: Record<string, string> };
 const sharedFiles = ['paperleet/__init__.py', 'paperleet/common/__init__.py', 'paperleet/common/asserts.py', 'paperleet/common/comparisons.py'];
-const libraryPath = (name: string) => /^(?:stridetorch|paperleet_torch)\//.test(name);
-const libraryNotice = (name: string) => /^(?:stridetorch|paperleet_torch)\/(?:LICENSE|NOTICE)$/.test(name);
-const libraryFile = (name: string) => /^(?:stridetorch|paperleet_torch)\/[a-zA-Z0-9_]+\.py$/.test(name) || libraryNotice(name);
+const libraryPath = (name: string) => /^(?:torchwasm|stridetorch|paperleet_torch)\//.test(name);
+const libraryNotice = (name: string) => /^(?:torchwasm|stridetorch|paperleet_torch)\/(?:LICENSE|NOTICE)$/.test(name);
+const libraryFile = (name: string) => /^(?:torchwasm|stridetorch|paperleet_torch)\/[a-zA-Z0-9_]+\.py$/.test(name) || libraryNotice(name);
 const object = (value: unknown): value is RecordValue => !!value && typeof value === 'object' && !Array.isArray(value);
 const stringFiles = (value: unknown): value is Record<string, string> => object(value) && Object.entries(value).every(
   ([name, source]) => (/^(?:[a-zA-Z0-9_]+\/)*(?:[a-zA-Z0-9_]+\.py|problem\.yaml)$/.test(name) || libraryNotice(name)) && typeof source === 'string');

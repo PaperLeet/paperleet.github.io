@@ -1,0 +1,3801 @@
+{
+  "record_format": "torchwasm-development-observations-v1",
+  "status": "development_cumprod_api_cpu_wasm",
+  "version": "0.90.0",
+  "source_base": "d7fe79acf9ffe375b19a11ad449c58a7a7577281",
+  "package_version_unchanged": true,
+  "development_source_integrated": true,
+  "release_qualified": false,
+  "public_files": {
+    "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+    "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+    "_normalization.py": "ee0e0abca72343d13425ba430fda9d8933198ac52297115c55ce621faca2a06c",
+    "_nn.py": "6fac6422569a18167eb0a9d978320aa0483e11be989c0c21f5fcefd73999ae63",
+    "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+    "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+    "_multihead.py": "c5319edfd61a8e12fcf18b0e6059bf3f841a0dd80b8faab573b3773b2d2acacf",
+    "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+    "_convolution.py": "303f7562ae23518ef46bcfbca259d4d6894e490dbe992d8181079b09bf363d5a",
+    "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+    "_errors.py": "d4db8985fff533c02b354e750fde07bbec3996c0c90273a2d48f1629ecc96fb5",
+    "_module.py": "badab7a25f3d66170c5a5fdd1c2b4f36f611bb1628e58f151dae9c4641b13727",
+    "_graph.py": "6aaa666f2a0f44cd52ca3b2af5e9d8b6aa92cf9fa809d40b9c347ddf8341944e",
+    "_distance.py": "a40f4e2749314790a3a9e7626739aaf0b570c6ad254bcb500d07853c87e2ec7f",
+    "_ops.py": "ef501ff790e00cee47e0b62a761cbfa3eaba159f96b01277a2350bab1d81628d",
+    "_transpose_convolution.py": "74edf86685872218f32936633823c760257c727283d77b00f67f95a32bfe14d9",
+    "_attention.py": "e84044bc25147aa9424d06d91c269aa4741c8441e25253976f48e850384c00a3",
+    "_api.py": "ae1511434cae24b1df41cc85764ee0585c0d2e2795561dd84fcbbd1011469d15",
+    "_sequences.py": "75964a026e7cbaff8fda6106f3c894f5a22da790c6bedbfd183196289d437afc",
+    "_convolution_padding.py": "4ec1b307faf7d6ca39d7b4e2eeeac8da383b813cc21407dd8825d04b44acf8d3",
+    "_cli.py": "80a02bc86b1f73b2fb0bbfd948c49afe0c269a32dc861631d1824a938bb5c9eb",
+    "_cholesky.py": "cd4e7b8d607365719afd3d601df6c1aa45b40d223c816315a6e038eebca60b6c",
+    "_batchnorm.py": "b7de9ab4c6c2738e0de528b4a44e944adc185e0b854c8d8c8837fe0c8463b848",
+    "__init__.py": "d6e225d02b7d1e363444648fea7f9812d1473566996e9558d89a4383893b1397",
+    "_determinants.py": "dc12f1ef1f7b8e7bc8155f92c100bb31843e11fd519a4ca295fea606a31eed42",
+    "_promotion.py": "d53ffa3fcfbd70841f52fcad2007c8dc51414526b68319a45d1878eaaa040b82",
+    "_arithmetic.py": "6edf441673469c365ece33f9d15d58b5cfaf8a940c443a2bca12f19d9bafd55f",
+    "_linalg.py": "8392805de1e95c8f408bc7b0fd7a3574418a24feabded8bc4bf7c8c430304d1d",
+    "_pooling.py": "5cb9ced0bf9ed79c8549e3c7696a5b110e53af43203bae047b6d27efee2888cb",
+    "_tensor.py": "9b75e948de75dd0dd4fa9429f04537d5d6f273cd6b1fa5c665408ce45c06800f",
+    "runtime.py": "7f72c3c386f41f5d70769ef4012bf7a2eb7f00b7f924d31449391ef29648caa9",
+    "_type_info.py": "e5ff59ffb232823e56eee7ea215e056535525507e11313da77b2df5003dc0a68",
+    "_registry.py": "fed7ca219d645cf317a51091e83440f9f65da5ce4ab1562d5acddec59057abc0",
+    "_defaults.py": "3584396a1ab6c345f4a9f0b94e33f13b050b8a21eeea959b518a3ea8705a5a17",
+    "NOTICE": "59f92a14b0b7754555742d9e19a02ed80725a9cb8fb2133db2e2119c4ed4f6a5",
+    "_random.py": "1beca3230d7fb7a1f92ef1a7e4a64e19c5e39be5ab8401c1e36ef3b08abdc414",
+    "_optim.py": "55412c079ba627054436549a2eee7df84f465b17ceaae37559ad826177b2b489",
+    "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+    "_average_pooling.py": "0ca22fbb892ad41d1bcc95519166ddf542d66676bd61c7ea62ba7866190fb629",
+    "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+    "_fused_matrix.py": "8c9f98fd33ee514db590ac097a78caf122cfe97ec2f3e7ee3fe19878ea554fbe",
+    "_state.py": "730a58a1aba37c75ead580ad69e052ad01c3937698f8fa07f79015ae68d53bdd",
+    "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+    "_average_pooling3d.py": "1d81e78165eae51e762c3213ff4f2eba05ef123d3a8eb26f355f11073aa01ec2",
+    "_nn_modules.py": "5bc5a95df66792f270dc44b65151ac174e5ae8b08dcf452181776243d2bb7664",
+    "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+    "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+    "_reductions.py": "76966bdaa293a0ab9764da7c77c16c3968f59449d59e710053501ee963a9a160",
+    "_autograd.py": "f9959aaf8e1c6d242a3fe8bded02fce903e315e185064f42ba4fba5a60f2b8ef",
+    "_instancenorm.py": "2e365e6cb8e8c7afa1935c6158fb5ed80ece5a47d1e870dc06ea245120a2396d",
+    "_transformer.py": "4be0544e0008cc6917e12053ece7290ecee7f70cc9dedeb6efbf771a177ec0fd",
+    "_layout.py": "1c88dd00b2ab186704a58790695ad1fdfc5b489e79761a878135463e60253c1e",
+    "_higher_order.py": "c1eb8130aef40cf34265f0fab46d74a32e9c332f2f46b54e7d30a841799e71c4",
+    "_gradient_utils.py": "6ca0c769446932900014d5799445946ec944f6078b411f4157a7aa7c0d36307c",
+    "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+    "_groupnorm.py": "46826f1f1e5040417ad64d5910c3ecb77025e0a340acdff4d86e760f3c95181d",
+    "_vector_norm.py": "9d1d8114a602589ba705be7f2d16643daffa189a759a1675b5354eed85a8d2b3",
+    "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+    "_legacy.py": "46fc7a2ff0b3ea57454ea1ef4551e2cd455b3ce887733b0d1030b80b425feefb",
+    "_clamp.py": "a16867341c746bb7c4d1cbd81cada891081e6060388c1477161d203262dbc729",
+    "_indexed.py": "b27aedec3e6bcf2c6718e05fe2591fa98d049d5f4d42d384bc28b0b5b2848319",
+    "_pooling3d.py": "982511ea21dd05d6289c9080a8d6b185a66aac6bce9e7fbbecd59196fb51c320",
+    "_matmul.py": "593f120f3baae128131da5d9a1f9cd226e505c66e3b05b094f8cfc46f9e517f8",
+    "_optimizer.py": "9f6c93a0fdd538a6aa00f3b5770212fe1cbf214bf7cbb525e50b93a160e3b5d9",
+    "__main__.py": "2a0f4e1d24ee4c519ca361a05373dbb842accc5ac610272eabc7a2afd54194d1",
+    "_indexing.py": "4a8faad85e991cdd37ffe6f27c0e238cd5eee2fbaa9deeda3c8afb73d8e7f2e6",
+    "_activation.py": "f5e27e4cbd11677d90bc293719837da22e88f483939d16601b2c824594fc32ea",
+    "_construction.py": "656661a62d89fcdfb2e10dc197e6e3706d6e6f714e6e1a841718ddc421eb48fb",
+    "experimental/__init__.py": "f336f25c81929eac19abaa1e897014db9f16cc639a68aa6167d9acbcc7928a4b",
+    "experimental/webgpu/resident_bridge.py": "e4ed73e2e1bf41b5187d381004383e7276dcb0b5b3df6aa1fb9c367334cb70b7",
+    "experimental/webgpu/rpc-client.mjs": "821155085f2566f8a8376357143dccbf51277da955d0edf51dc22117a631527d",
+    "experimental/webgpu/__init__.py": "d92d4e79d00422256c5a1e379e6963039a4c6165099d7ff7bf0c8563498d245e",
+    "experimental/webgpu/gpu-service.mjs": "c94d08573ba975d071e1065b8a6e91b383708dfe3cb2d211f75109556db5b26b",
+    "experimental/webgpu/torch_bridge.py": "53c905577d4f1e1c7cac1c9fa3b60efcb3781eaa2f2fa2e84cdddaf432cecfba",
+    "experimental/webgpu/plan-program.mjs": "53e91df4357582cec150aa1660a2cdc7144c88c7b2d749f2aee4e13fe059a02d",
+    "experimental/webgpu/resources.py": "0e9d7e5de33575f39ec0da09caa8c3c29ed2b4bc1398dd545b92a25faf77bf5d",
+    "experimental/webgpu/_pyodide.py": "190e8e4691b434ac942d86e7a2c67b908ee9e692c3945a6a4f08b2bb9cfe31d4",
+    "experimental/webgpu/matrix_client.py": "67fdb3d1e403996cb363e08fd67330177612a3dacca51ddad3bf627624c08c52",
+    "experimental/webgpu/rpc-protocol.mjs": "1029deca26c775d64a00c0f1cc5efe9c604712cdc339c2c534379cbbdd0dd7da"
+  },
+  "sdk_files": {
+    "test_hvp_branching.py": "678503cd5c62c983314e856c9d85c2c53058529b02359b8aabaaa1c2b8b83e85",
+    "test_transpose_convolution.py": "e344595b6f2477463f14908296667fc722c608a38c8e7559a47fcd44435e79c1",
+    "test_dispatch.py": "b9754f43891274320d48eb8587773eb009d11def9e840195e777f66553273304",
+    "test_tensor_reverse.py": "9bd3ce9941803ae83f15a82155ccbb8529438680152a3b04c80055ce1e9e7a48",
+    "test_functional_jvp.py": "535d563bb285e610b938617652d8e0fe64aa05c8c603e68225977133fb01e759",
+    "test_convolution_padding.py": "676a59c01f922105d0ff3d1c900512d1fdfba4d37d87244c6b97eab724c16f2f",
+    "test_gradient_clipping.py": "01aacdde8587d0b8c8299cf0568552df491b01f62e59cfee76148328f012b14f",
+    "test_statistics.py": "f0f78908bb9d9805aceabf4d59f70a7fcfa3af6a623e962e77f69537f410a696",
+    "test_groupnorm.py": "4e60a71015ae006f7b3a9c77fe9f1bc0092cd9fc6f48c403fa90224cc201e518",
+    "test_cholesky.py": "25809ecb5ac55842b8e4ed58f124f4e4e608d397faa46e53bb1320b4ad01fc28",
+    "test_module_operator_pickle.py": "d5f7ab70e40b593e9fd445ba06c36f93dea81b53ee5241274576a0c1408ec1d0",
+    "test_det_jvp.py": "3a1ed6a82018979089807ccfbff717672e8dd13113a58bbdc42165ea5e54204f",
+    "test_average_pooling.py": "53d63f72012dba3462840226cd9be11c5c33d1e25ce106a727ed3c067a18f73d",
+    "test_binary_saved_values.py": "4d63b9217f421c02936c0334891dcff9383e69de87abbe7b951a42dcd03e5dd6",
+    "test_cholesky_solve.py": "aa0207084eed6d929874620ffdf490128aa8a3b5bea2a591aeef3b4f43821d27",
+    "test_feature_detection.py": "3aaaa403490fa1a6eaa5aa408a34d97711fda5b9540c6aca86e0eeeb764a01e2",
+    "test_inactive_pullbacks.py": "536e50c6770dff185685cc25f94e55df1f0ca5c3dc6105b5cff07e2b8aa77688",
+    "test_numpy_inputs.py": "2ba80d656b2f6c143a8b132ea9e64a18e1fe08571cc5349c55a9bc065837b544",
+    "test_pooling.py": "3b879fd33997efbbcff16f7c9e5d4d4371607f1d14f037e4939a2d70ee757abf",
+    "test_multihead_attention.py": "15346ce42e4dd23e860ebf8ad4aa79bf8a4f7d1cc45a7f603fef2790e62c59a0",
+    "test_joint_dense_routing.py": "be61b4d1099c43bfd50744faa0f85c67e23a73397338361ba6f1d562be7d27dc",
+    "test_cumsum.py": "06b712ce78ef03aee1b09dd3587549cd9fcb0d7bb85cd9f12b56b72c773a5b93",
+    "test_solve.py": "83ad12af1e8a1330b88f0baa894f50eac5b3f9d9e0b9de0d71d1fb06a3a2bb3e",
+    "test_indexed_accumulation.py": "83193576d97ec20801ffac234dead40d6f8a7ed0c265d1f8f466069908e9ec89",
+    "test_attention_efficiency.py": "cbd42a019acfe3aa19a54d17e0a9ed0d2e787ddeb90132b4f5eac43ba0cbed7b",
+    "test_matmul_wasm.py": "f5c0531b1cac5629f180d82b4b49a7c82f519ecacd7e97780ee5d4449cd13906",
+    "test_inverse_routing.py": "cbce1e9e31591e5cf03296693fa608a1d84f10abac655fbc537d9828f89e3f6a",
+    "test_conversion_modes.py": "07db6c04a6b2b57a744e32eb15388dd377392333657a2e60fb6e44617c53b015",
+    "test_joint_vjp.py": "0fc94038ad7aa6d079578e328b6330b1991b3e2949847ee5fb56eca11a00fac1",
+    "test_tensor_clamp.py": "669134f18f6a2d13e702a3546ef48828aba0ae2c5a8ed6259ae14eab3d9ad694",
+    "test_vector_products.py": "d1acb4cb327b67cf76054d409012022d372ee9f48080ff294031a272c7a13495",
+    "test_graph_lifecycle.py": "550ef4c657ccefbd241e28541dd72e403333663b5e9e6ebf2272f87765019f9d",
+    "test_convolution.py": "7a19ffd72719f7c044e34a1931df45bab7ba90174aa2606a409810abdb7e8bdf",
+    "test_wasm_owned_square.py": "34248b92831b054921c72284e947c63df771d0d7542683085285ed9130f2e690",
+    "test_shape_ops.py": "5a3a32e20c968e3504ca16cb8ad56c32f55fcd19ac2e02e159a46b0d14c4f90a",
+    "test_functional_vjp.py": "f765120d5ca8c613edbc5fb8d2904fc0d01b0b9e767caa8b3ebd7ec81117eb21",
+    "test_matmul_saved_values.py": "85adda6ce9ffcc76d6949cf318863312f68b8ea579338790a4d3645c324ea398",
+    "test_functional_jacobian.py": "ea0061f62377287e959c21a308162084c7cfb6f9d42ef572ef6657890714a8f5",
+    "test_webgpu_package.py": "36c0aa88300a3d9146fe2ca0efa43c7904f44c7dc343646492047babcf5f6189",
+    "test_default_dtype.py": "7261886dd207aa09b10c679e745c468da95fda75a2be1348ed50b7438c9459ed",
+    "test_module_lifecycle.py": "08ada21cf755c499979da8d595c25ee8639d25d2abbdd37cf5282c4117750694",
+    "test_indexing.py": "b39a615899c7d0314f28fb690f4a6fffcd8d60186f7c9099436d26f11e5b3d18",
+    "test_cumsum_execution.py": "4934b1611de1f941cae345e60d525e2557044da777207a9395e42672ca7d0562",
+    "test_batchnorm.py": "ad661c6432d2a3d1be69e5c5df7ac325b5be1d9c0c59253af0b915106f3165dc",
+    "test_distances.py": "69a964c074bfeaafa9c0a6489f12d82a9cc4fb246b3e65fada9cb4773fdb0011",
+    "test_optimizer_lifecycle.py": "746c7ab647d8330dbc24f6cec81df45b9ae704489b6e1c7cd01640cffc4a4037",
+    "test_promotion.py": "450d5bf942b94be30a62124cf319c6bef458b217affe452b8e5eb23c2a39177f",
+    "test_hvp_determinant.py": "1c26a83fb4161e0fc8f07213805f39f50510737a88c8e5ac8fe94ae835d82ad2",
+    "test_functional_jacobian_contracts.py": "d329582ca3f675ff7814f3a9afb01689c8b9194434384c25b34de69854f166be",
+    "test_binary_operand_lifetime.py": "4d25914b265b0bc41091e3473bb5f66c9ab4af9da38e963ad18c1c85d11f6493",
+    "test_hvp_graph_barriers.py": "49d974e3d4f0f3db602fb9ba587a1dd26ffa32c5c4ea0224bb225ba5c89747a6",
+    "test_clamp_contract.py": "467a8c1795f31ea548f62658d746c7fabd67835c75cd1abb4cc437a3b8597c63",
+    "test_type_info.py": "0586347f36d76cc10ddb43e5e704727384626d8de22bde6b80a0d5aad7607ff4",
+    "test_construction.py": "5fb056e5f44cd3ee00128c12b5866c439c5d383566777554afe1fba0c3257e3e",
+    "test_vector_norm.py": "d15a5abeb35b1a4ce53d818ad5bc06e9ecf9dba1f312f108cb738870913f8e3d",
+    "test_cholesky_inverse.py": "ecb189ea7c717ea2ae262eab57f5f82829cbd582aea214fdbe468818f243058c",
+    "test_attention.py": "3af76da9b25fbc85b71bc7c886423eb47931f9e7b8bd49da741b6198a884b842",
+    "test_pooling_1d.py": "493a8ad613efb14a96d45c239bc4eb6b13c8394c1bfa942266080619a19e37bd",
+    "test_piecewise_jvp.py": "f1b83de6527786a8a021e73653a2397d464f45ead0b2be52402c0154cd0c56ce",
+    "test_logical_zero.py": "147fadf85b6b6c5e75916c117a2298c66deb237e559eed91c6ee32ade45b40ca",
+    "test_triangular.py": "9ec27fabe2baffe69995726181205bd490d100a7999805eab0184ce433acb868",
+    "test_functional_jvp_dependencies.py": "f48684e71b253e519008e9be2428f4e33c8957aeb1fd8d6535352eb80ff7a6b1",
+    "test_jvp_preprocessing_subclass.py": "19749d4336527648fd5a84a0dae21370805b425b69fa519d79d672b373991355",
+    "test_hvp_reachable_branches.py": "073aea6c4941bcb9976d94c501ecdb9b5728caecbf5f3dc2a57d0933d247f381",
+    "test_linalg_failures.py": "1204f2f7fb04b45930eaae4845efda52e80983d60aa7a70b65694575e81619b7",
+    "test_nn_workflows.py": "6274835f3012c996a806dc2140a34f1a00d229f64265678b66c07327cc7d2ce7",
+    "test_mean.py": "23247769199a3810b16a239127fe92f3ba885285afdd54d770161bc31e2c2355",
+    "test_sequences.py": "d796a2356b30017c39fd02b841fc8870026a7c5f7b505ed56dc7aedef616efc5",
+    "test_joint_lifetime.py": "d481b515f710263c4a20ed91d8778a68bac596e0cd6a173f36b6319823e2f6f2",
+    "test_pooling_3d.py": "bf1b5d69b1a12905a7e6120baab7e089d4f03dcc28f1219267d548a5fb5a28ed",
+    "test_standalone.py": "506a586a31e6a5f6583f47797bf11ef57dcb728fb03a46e76058703c8b96c5dc",
+    "test_average_pooling_plans.py": "3c26a93f28522cd9e4a7d557960a4aa8b7e7828686f2b594b8c000f160a05421",
+    "test_instancenorm.py": "c9b6f08f8b9f69d7fea9b045e9c048cdf96c1e2c4b965938c27a77fea1ee33be",
+    "test_functional_hvp.py": "898acdf86c068bf7b96e6935bccc7e6e5eab5f2af3fb53eb7caf2dbfb7a0bfb5",
+    "test_logdet.py": "0b80548d2fe117ec5f358e236ecdc350c94db785031dc6b15ff87a6a0fcca72b",
+    "test_ieee.py": "eed41ef71360bad23710ee5dd561d1faf079775d853cd109e31bcf042c376734",
+    "test_hvp_reverse_cleanup.py": "9f3c9f34363e2ff570fca0ef9c326c505d0726c55af947d8052aaec95cf741c9",
+    "test_tensor_hooks.py": "36cc75a3def84eef2302f667c5396954fb5c9ce79a67a9c77c29cf0a30a5010c",
+    "test_cumprod.py": "7621865463b75a759cd7d29727b3ac4f32c7dd7ba55fc8cb925c18e3b5975869",
+    "test_gradient_layout.py": "71854d4d9874c48d0516e804353ef14ff7f3c586b84f0f9e32a1d323e4c840ce",
+    "test_layout.py": "afb8af20f40aee7c9f2070baba986070e5fcb06db11a79452b6155bb4009fd5a",
+    "test_matrix_products.py": "4527ea1802c471263ea7225a05d36d4720c852e775a17ef75340890181436560",
+    "test_scheduler_lifecycle.py": "d32c56476c69fa076376d643218424c0f89fa8b0b7d256760e1c79fb2622a0fb",
+    "test_selective_joint.py": "a77b3d6c68dafaabef5bf67beb4d23fbbbcd799fb2c9a6aa181607ba7264a929",
+    "test_reflected_division.py": "2899502dbc78cf0c4dbcc15bf24fa5cd0faffb6acddf147b463cc61a1388f379",
+    "test_determinant_policy.py": "da313c44f7468eba38f9bf5c74adcc8500626d7de2b30061d588dc670f8272c9",
+    "test_batched_matmul_wasm.py": "409b7fd890db460d0307801631ab3cac3ffd6aada28a88be7f54a895e8ddb4d2",
+    "test_arithmetic.py": "1a60b0911dcd00cfb093c5d9aa9dc37c04fb8f75276a87bcc09c26c4a22ad9a0",
+    "test_serialization.py": "89f0c429546ed32a1de0307a8494809b6f39feed6f77f2b588d84aa09ce1e913",
+    "test_axis_transforms.py": "76ee83ee02101c482a5d590ec5241d4855058a6516e1d8af6dad72cc76b8813a",
+    "test_module_hooks.py": "6941a9e01b7be34c468d8fbd873237495277b33444232db8566b13bbaa4182fb",
+    "test_power_precision.py": "1e52496609f4292f05cd39e161bf0eb851fb537788180ba22ad26f7ea11d5799",
+    "test_transformer.py": "ade633a9a93ac4fa05417344cd063c8e879571282c5c113fc7225a389709f625",
+    "test_average_pooling_1d.py": "70a3213d4448932b1955302000dc38352c2e518df1dad3457f2c5a26fc4f266d",
+    "test_classification.py": "f8eaf436059a40dd2389b3a4e785d589d14e2b0dc07cb3d130ef077e21e3fa85",
+    "test_functional_numpy_escape.py": "aca004d1afab5e43c63c87751bf178ae6389aca1092ba00330ea37a767e2e3b5",
+    "test_joint_gradient_release.py": "04e608aa35af3fdce7193a0f595668d933c21013b219fec45b36e6e20a42c4ac",
+    "test_nan_reductions.py": "1ee40f344867e3e321354fa5e520762cdfca9674e20640d4eaa2740259209575",
+    "test_average_pooling_3d.py": "63cd1a409014ab6827fefce4583f1a6d6ce14ddc26bd2e548594e2ceceb87d88",
+    "test_inverse.py": "016f817213e298c3d3ba75e6cd6276f79792489a4e977bb91e0f2aa66694ef56",
+    "test_fused_matrix.py": "159f1871c02f982a13c364fabb17d293683b7f60b43991a5877db969d182d339",
+    "test_linear_wasm.py": "e773c95aa992e7ef78d3242023f7471cf74dfcf304d54bf5f3574a6916c8a917"
+  },
+  "native_full_sdk_before_final_followup": {
+    "modern": {
+      "tests": 13820,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 13820
+    },
+    "minimum": {
+      "tests": 13820,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 3,
+      "passed": 13817
+    }
+  },
+  "native_final_affected_sdk": {
+    "modern": {
+      "tests": 492,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 492
+    },
+    "minimum": {
+      "tests": 492,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 492
+    }
+  },
+  "application_affected": {
+    "tests": 243,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 243
+  },
+  "reuse": {
+    "previous_full_snapshot": "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-1023/source-plan.json",
+    "changed_runtime": [
+      "_reductions.py"
+    ],
+    "changed_tests": [
+      "test_cumprod.py"
+    ],
+    "changed_helpers": [
+      "_product_forward",
+      "_product_polynomial_jvp",
+      "_product_prefix",
+      "_product_scan"
+    ],
+    "unchanged_helper_sha256": {
+      "_scan_array": "a4a165bf1d582f6db7ca1c46ef8e0a7b7907487a6e70b16264159f4e2bcf25d1",
+      "_scan_result": "bc4eb57d816c02fac4d17f8c74ae09b7cf97ad8f739e24ff00ae17556b846d2f",
+      "cumsum": "01a71f4b61403551246df118c9ff0d08ee372a5067a618139e6d194ab02b69c0",
+      "_product_backward": "5bcad1532083df43ade825f256b0405515cbbf95e5ae24e99c196db6463c4d79",
+      "cumprod": "e3b7387b6b5333c59c85fa4f15da4a207d9be7bd4720246b328e87258c1ae0e5",
+      "arguments": "6cc074e8fdf182dba0ac41d6948978c5a924affab3231d00817b63c2978127c5",
+      "axes": "e008caa8e66cff06f52513f2a062e43e8d308683e749489a44380e5589ecaaba",
+      "expand": "409782102ad08d67bc82bbdb6d4f7e4b8e44ae995e9ceba61922f15d874a162b",
+      "divide": "29d8432f212cd45bf23622676018271cf9ab8b88f726c97644149d4956b71e64",
+      "nan_reduce": "83bd5413d68a7a11f7cd5736fc1974521986db8b1aaa93b4b0cf91b80a0cfb75",
+      "_forward": "e18c466d799811a123a57292594ff766e31496b80fdc51b3f3d9a6e56398992b"
+    },
+    "scope": "All prior public source except the four listed cumprod helpers is byte-identical. Other101 SDK modules unchanged; final492-case module rerun on both native/WASM hosts. This is not a full13845/13829 rerun."
+  },
+  "wasm_full_sdk_before_final_followup": {
+    "node": {
+      "exit_code": 0,
+      "passed": 13804,
+      "skipped": 0,
+      "failures": [],
+      "excluded_host_subprocess_tests": [
+        "test_webgpu_package.py::test_root_import_does_not_activate_experimental_gpu_code",
+        "test_webgpu_package.py::test_all_experimental_exports_import_without_browser_bindings_or_torch_aliases",
+        "test_webgpu_package.py::test_explicit_offline_payload_runs_without_a_source_checkout"
+      ],
+      "excluded_host_cli_test_file": "test_standalone.py",
+      "selected": 13804,
+      "numpy": "2.2.5",
+      "version": "0.90.0",
+      "expected_selected": 13804,
+      "status": "passed_wasm_sdk",
+      "pyodide": "0.29.4",
+      "heap_capacity": 108527616,
+      "isolated_offline_export": {
+        "status": "passed",
+        "indexed_source": "/offline/torchwasm/_indexed.py",
+        "default_sources": 65,
+        "exported_files": 80
+      }
+    },
+    "browser": {
+      "exit_code": 0,
+      "passed": 13804,
+      "skipped": 0,
+      "failures": [],
+      "excluded_host_subprocess_tests": [
+        "test_webgpu_package.py::test_root_import_does_not_activate_experimental_gpu_code",
+        "test_webgpu_package.py::test_all_experimental_exports_import_without_browser_bindings_or_torch_aliases",
+        "test_webgpu_package.py::test_explicit_offline_payload_runs_without_a_source_checkout"
+      ],
+      "excluded_host_cli_test_file": "test_standalone.py",
+      "selected": 13804,
+      "numpy": "2.2.5",
+      "version": "0.90.0",
+      "expected_selected": 13804,
+      "status": "passed_wasm_sdk",
+      "pyodide": "0.29.4",
+      "heap_capacity": 108527616,
+      "isolated_offline_export": {
+        "status": "passed",
+        "indexed_source": "/offline/torchwasm/_indexed.py",
+        "default_sources": 65,
+        "exported_files": 80
+      },
+      "browser": "155.0.8059.82",
+      "worker_terminated": true,
+      "requests": [
+        "/",
+        "/favicon.ico",
+        "/torch-iteration-1023/execute.mjs",
+        "/torch-iteration-76/runtime/pyodide.mjs",
+        "/torch-iteration-76/chrome-sdk/packages.mjs",
+        "/plan.json",
+        "/torch-iteration-76/runtime/pyodide-lock.json",
+        "/torch-iteration-76/runtime/python_stdlib.zip",
+        "/torch-iteration-76/runtime/pyodide.asm.wasm",
+        "/torch-iteration-76/runtime/pyodide.asm.js",
+        "/torch-iteration-76/runtime/numpy-2.2.5-cp313-cp313-pyemscripten_2025_0_wasm32.whl",
+        "/torch-iteration-76/runtime/atomicwrites-1.4.1-py2.py3-none-any.whl",
+        "/torch-iteration-76/runtime/attrs-25.2.0-py3-none-any.whl",
+        "/torch-iteration-76/runtime/six-1.17.0-py2.py3-none-any.whl",
+        "/torch-iteration-76/runtime/more_itertools-10.6.0-py3-none-any.whl",
+        "/torch-iteration-76/runtime/pluggy-1.5.0-py3-none-any.whl",
+        "/torch-iteration-76/runtime/py-1.11.0-py2.py3-none-any.whl",
+        "/torch-iteration-76/runtime/setuptools-76.0.0-py3-none-any.whl",
+        "/torch-iteration-76/runtime/pyparsing-3.2.1-py3-none-any.whl",
+        "/torch-iteration-76/runtime/iniconfig-2.1.0-py3-none-any.whl",
+        "/torch-iteration-76/runtime/exceptiongroup-1.2.2-py3-none-any.whl",
+        "/torch-iteration-76/runtime/pytest-8.3.5-py3-none-any.whl",
+        "/payload/src/torchwasm/_module_conversion.py",
+        "/payload/src/torchwasm/_classification.py",
+        "/payload/src/torchwasm/_normalization.py",
+        "/payload/src/torchwasm/_nn.py",
+        "/payload/src/torchwasm/_serialization.py",
+        "/payload/src/torchwasm/_containers.py",
+        "/payload/src/torchwasm/_multihead.py",
+        "/payload/src/torchwasm/LICENSE",
+        "/payload/src/torchwasm/_backend.py",
+        "/payload/src/torchwasm/_convolution.py",
+        "/payload/src/torchwasm/_conversion.py",
+        "/payload/src/torchwasm/_errors.py",
+        "/payload/src/torchwasm/_module.py",
+        "/payload/src/torchwasm/_graph.py",
+        "/payload/src/torchwasm/_distance.py",
+        "/payload/src/torchwasm/_ops.py",
+        "/payload/src/torchwasm/_transpose_convolution.py",
+        "/payload/src/torchwasm/_attention.py",
+        "/payload/src/torchwasm/_api.py",
+        "/payload/src/torchwasm/_sequences.py",
+        "/payload/src/torchwasm/_convolution_padding.py",
+        "/payload/src/torchwasm/_cli.py",
+        "/payload/src/torchwasm/_cholesky.py",
+        "/payload/src/torchwasm/_batchnorm.py",
+        "/payload/src/torchwasm/__init__.py",
+        "/payload/src/torchwasm/_determinants.py",
+        "/payload/src/torchwasm/_promotion.py",
+        "/payload/src/torchwasm/_arithmetic.py",
+        "/payload/src/torchwasm/_linalg.py",
+        "/payload/src/torchwasm/_pooling.py",
+        "/payload/src/torchwasm/_tensor.py",
+        "/payload/src/torchwasm/runtime.py",
+        "/payload/src/torchwasm/_type_info.py",
+        "/payload/src/torchwasm/_registry.py",
+        "/payload/src/torchwasm/_defaults.py",
+        "/payload/src/torchwasm/NOTICE",
+        "/payload/src/torchwasm/_random.py",
+        "/payload/src/torchwasm/_optim.py",
+        "/payload/src/torchwasm/_module_hooks.py",
+        "/payload/src/torchwasm/_average_pooling.py",
+        "/payload/src/torchwasm/_integration.py",
+        "/payload/src/torchwasm/_fused_matrix.py",
+        "/payload/src/torchwasm/_state.py",
+        "/payload/src/torchwasm/_schedulers.py",
+        "/payload/src/torchwasm/_average_pooling3d.py",
+        "/payload/src/torchwasm/_nn_modules.py",
+        "/payload/src/torchwasm/_tensor_hooks.py",
+        "/payload/src/torchwasm/_statistics.py",
+        "/payload/src/torchwasm/_reductions.py",
+        "/payload/src/torchwasm/_autograd.py",
+        "/payload/src/torchwasm/_instancenorm.py",
+        "/payload/src/torchwasm/_transformer.py",
+        "/payload/src/torchwasm/_layout.py",
+        "/payload/src/torchwasm/_higher_order.py",
+        "/payload/src/torchwasm/_gradient_utils.py",
+        "/payload/src/torchwasm/_device.py",
+        "/payload/src/torchwasm/_groupnorm.py",
+        "/payload/src/torchwasm/_vector_norm.py",
+        "/payload/src/torchwasm/_grad_mode.py",
+        "/payload/src/torchwasm/_legacy.py",
+        "/payload/src/torchwasm/_clamp.py",
+        "/payload/src/torchwasm/_indexed.py",
+        "/payload/src/torchwasm/_pooling3d.py",
+        "/payload/src/torchwasm/_matmul.py",
+        "/payload/src/torchwasm/_optimizer.py",
+        "/payload/src/torchwasm/__main__.py",
+        "/payload/src/torchwasm/_indexing.py",
+        "/payload/src/torchwasm/_activation.py",
+        "/payload/src/torchwasm/_construction.py",
+        "/payload/src/torchwasm/experimental/__init__.py",
+        "/payload/src/torchwasm/experimental/webgpu/resident_bridge.py",
+        "/payload/src/torchwasm/experimental/webgpu/rpc-client.mjs",
+        "/payload/src/torchwasm/experimental/webgpu/__init__.py",
+        "/payload/src/torchwasm/experimental/webgpu/gpu-service.mjs",
+        "/payload/src/torchwasm/experimental/webgpu/torch_bridge.py",
+        "/payload/src/torchwasm/experimental/webgpu/plan-program.mjs",
+        "/payload/src/torchwasm/experimental/webgpu/resources.py",
+        "/payload/src/torchwasm/experimental/webgpu/_pyodide.py",
+        "/payload/src/torchwasm/experimental/webgpu/matrix_client.py",
+        "/payload/src/torchwasm/experimental/webgpu/rpc-protocol.mjs",
+        "/payload/tests/test_hvp_branching.py",
+        "/payload/tests/test_transpose_convolution.py",
+        "/payload/tests/test_dispatch.py",
+        "/payload/tests/test_tensor_reverse.py",
+        "/payload/tests/test_functional_jvp.py",
+        "/payload/tests/test_convolution_padding.py",
+        "/payload/tests/test_gradient_clipping.py",
+        "/payload/tests/test_statistics.py",
+        "/payload/tests/test_groupnorm.py",
+        "/payload/tests/test_cholesky.py",
+        "/payload/tests/test_module_operator_pickle.py",
+        "/payload/tests/test_det_jvp.py",
+        "/payload/tests/test_average_pooling.py",
+        "/payload/tests/test_binary_saved_values.py",
+        "/payload/tests/test_cholesky_solve.py",
+        "/payload/tests/test_feature_detection.py",
+        "/payload/tests/test_inactive_pullbacks.py",
+        "/payload/tests/test_numpy_inputs.py",
+        "/payload/tests/test_pooling.py",
+        "/payload/tests/test_multihead_attention.py",
+        "/payload/tests/test_joint_dense_routing.py",
+        "/payload/tests/test_cumsum.py",
+        "/payload/tests/test_solve.py",
+        "/payload/tests/test_indexed_accumulation.py",
+        "/payload/tests/test_attention_efficiency.py",
+        "/payload/tests/test_matmul_wasm.py",
+        "/payload/tests/test_inverse_routing.py",
+        "/payload/tests/test_conversion_modes.py",
+        "/payload/tests/test_joint_vjp.py",
+        "/payload/tests/test_tensor_clamp.py",
+        "/payload/tests/test_vector_products.py",
+        "/payload/tests/test_graph_lifecycle.py",
+        "/payload/tests/test_convolution.py",
+        "/payload/tests/test_wasm_owned_square.py",
+        "/payload/tests/test_shape_ops.py",
+        "/payload/tests/test_functional_vjp.py",
+        "/payload/tests/test_matmul_saved_values.py",
+        "/payload/tests/test_functional_jacobian.py",
+        "/payload/tests/test_webgpu_package.py",
+        "/payload/tests/test_default_dtype.py",
+        "/payload/tests/test_module_lifecycle.py",
+        "/payload/tests/test_indexing.py",
+        "/payload/tests/test_cumsum_execution.py",
+        "/payload/tests/test_batchnorm.py",
+        "/payload/tests/test_distances.py",
+        "/payload/tests/test_optimizer_lifecycle.py",
+        "/payload/tests/test_promotion.py",
+        "/payload/tests/test_hvp_determinant.py",
+        "/payload/tests/test_functional_jacobian_contracts.py",
+        "/payload/tests/test_binary_operand_lifetime.py",
+        "/payload/tests/test_hvp_graph_barriers.py",
+        "/payload/tests/test_clamp_contract.py",
+        "/payload/tests/test_type_info.py",
+        "/payload/tests/test_construction.py",
+        "/payload/tests/test_vector_norm.py",
+        "/payload/tests/test_cholesky_inverse.py",
+        "/payload/tests/test_attention.py",
+        "/payload/tests/test_pooling_1d.py",
+        "/payload/tests/test_piecewise_jvp.py",
+        "/payload/tests/test_logical_zero.py",
+        "/payload/tests/test_triangular.py",
+        "/payload/tests/test_functional_jvp_dependencies.py",
+        "/payload/tests/test_jvp_preprocessing_subclass.py",
+        "/payload/tests/test_hvp_reachable_branches.py",
+        "/payload/tests/test_linalg_failures.py",
+        "/payload/tests/test_nn_workflows.py",
+        "/payload/tests/test_mean.py",
+        "/payload/tests/test_sequences.py",
+        "/payload/tests/test_joint_lifetime.py",
+        "/payload/tests/test_pooling_3d.py",
+        "/payload/tests/test_standalone.py",
+        "/payload/tests/test_average_pooling_plans.py",
+        "/payload/tests/test_instancenorm.py",
+        "/payload/tests/test_functional_hvp.py",
+        "/payload/tests/test_logdet.py",
+        "/payload/tests/test_ieee.py",
+        "/payload/tests/test_hvp_reverse_cleanup.py",
+        "/payload/tests/test_tensor_hooks.py",
+        "/payload/tests/test_cumprod.py",
+        "/payload/tests/test_gradient_layout.py",
+        "/payload/tests/test_layout.py",
+        "/payload/tests/test_matrix_products.py",
+        "/payload/tests/test_scheduler_lifecycle.py",
+        "/payload/tests/test_selective_joint.py",
+        "/payload/tests/test_reflected_division.py",
+        "/payload/tests/test_determinant_policy.py",
+        "/payload/tests/test_batched_matmul_wasm.py",
+        "/payload/tests/test_arithmetic.py",
+        "/payload/tests/test_serialization.py",
+        "/payload/tests/test_axis_transforms.py",
+        "/payload/tests/test_module_hooks.py",
+        "/payload/tests/test_power_precision.py",
+        "/payload/tests/test_transformer.py",
+        "/payload/tests/test_average_pooling_1d.py",
+        "/payload/tests/test_classification.py",
+        "/payload/tests/test_functional_numpy_escape.py",
+        "/payload/tests/test_joint_gradient_release.py",
+        "/payload/tests/test_nan_reductions.py",
+        "/payload/tests/test_average_pooling_3d.py",
+        "/payload/tests/test_inverse.py",
+        "/payload/tests/test_fused_matrix.py",
+        "/payload/tests/test_linear_wasm.py",
+        "/payload/check-sdk.py",
+        "/torch-iteration-76/runtime/pyodide-lock.json",
+        "/torch-iteration-76/runtime/python_stdlib.zip",
+        "/torch-iteration-76/runtime/pyodide.asm.wasm",
+        "/torch-iteration-76/runtime/numpy-2.2.5-cp313-cp313-pyemscripten_2025_0_wasm32.whl"
+      ]
+    }
+  },
+  "wasm_final_affected_sdk": {
+    "node": {
+      "exit_code": 0,
+      "passed": 492,
+      "skipped": 0,
+      "failures": [],
+      "excluded_host_subprocess_tests": [],
+      "excluded_host_cli_test_file": "test_standalone.py",
+      "selected": 492,
+      "numpy": "2.2.5",
+      "version": "0.90.0",
+      "expected_selected": 492,
+      "status": "passed_wasm_sdk",
+      "pyodide": "0.29.4",
+      "heap_capacity": 43581440,
+      "isolated_offline_export": {
+        "status": "passed",
+        "indexed_source": "/offline/torchwasm/_indexed.py",
+        "default_sources": 65,
+        "exported_files": 80
+      }
+    },
+    "browser": {
+      "exit_code": 0,
+      "passed": 492,
+      "skipped": 0,
+      "failures": [],
+      "excluded_host_subprocess_tests": [],
+      "excluded_host_cli_test_file": "test_standalone.py",
+      "selected": 492,
+      "numpy": "2.2.5",
+      "version": "0.90.0",
+      "expected_selected": 492,
+      "status": "passed_wasm_sdk",
+      "pyodide": "0.29.4",
+      "heap_capacity": 43581440,
+      "isolated_offline_export": {
+        "status": "passed",
+        "indexed_source": "/offline/torchwasm/_indexed.py",
+        "default_sources": 65,
+        "exported_files": 80
+      },
+      "browser": "155.0.8059.82",
+      "worker_terminated": true,
+      "requests": [
+        "/",
+        "/favicon.ico",
+        "/torch-iteration-1026/execute.mjs",
+        "/torch-iteration-76/runtime/pyodide.mjs",
+        "/torch-iteration-76/chrome-sdk/packages.mjs",
+        "/plan.json",
+        "/torch-iteration-76/runtime/pyodide-lock.json",
+        "/torch-iteration-76/runtime/python_stdlib.zip",
+        "/torch-iteration-76/runtime/pyodide.asm.wasm",
+        "/torch-iteration-76/runtime/pyodide.asm.js",
+        "/torch-iteration-76/runtime/numpy-2.2.5-cp313-cp313-pyemscripten_2025_0_wasm32.whl",
+        "/torch-iteration-76/runtime/atomicwrites-1.4.1-py2.py3-none-any.whl",
+        "/torch-iteration-76/runtime/attrs-25.2.0-py3-none-any.whl",
+        "/torch-iteration-76/runtime/six-1.17.0-py2.py3-none-any.whl",
+        "/torch-iteration-76/runtime/more_itertools-10.6.0-py3-none-any.whl",
+        "/torch-iteration-76/runtime/pluggy-1.5.0-py3-none-any.whl",
+        "/torch-iteration-76/runtime/py-1.11.0-py2.py3-none-any.whl",
+        "/torch-iteration-76/runtime/setuptools-76.0.0-py3-none-any.whl",
+        "/torch-iteration-76/runtime/pyparsing-3.2.1-py3-none-any.whl",
+        "/torch-iteration-76/runtime/iniconfig-2.1.0-py3-none-any.whl",
+        "/torch-iteration-76/runtime/exceptiongroup-1.2.2-py3-none-any.whl",
+        "/torch-iteration-76/runtime/pytest-8.3.5-py3-none-any.whl",
+        "/payload/src/torchwasm/_module_conversion.py",
+        "/payload/src/torchwasm/_classification.py",
+        "/payload/src/torchwasm/_normalization.py",
+        "/payload/src/torchwasm/_nn.py",
+        "/payload/src/torchwasm/_serialization.py",
+        "/payload/src/torchwasm/_containers.py",
+        "/payload/src/torchwasm/_multihead.py",
+        "/payload/src/torchwasm/LICENSE",
+        "/payload/src/torchwasm/_backend.py",
+        "/payload/src/torchwasm/_convolution.py",
+        "/payload/src/torchwasm/_conversion.py",
+        "/payload/src/torchwasm/_errors.py",
+        "/payload/src/torchwasm/_module.py",
+        "/payload/src/torchwasm/_graph.py",
+        "/payload/src/torchwasm/_distance.py",
+        "/payload/src/torchwasm/_ops.py",
+        "/payload/src/torchwasm/_transpose_convolution.py",
+        "/payload/src/torchwasm/_attention.py",
+        "/payload/src/torchwasm/_api.py",
+        "/payload/src/torchwasm/_sequences.py",
+        "/payload/src/torchwasm/_convolution_padding.py",
+        "/payload/src/torchwasm/_cli.py",
+        "/payload/src/torchwasm/_cholesky.py",
+        "/payload/src/torchwasm/_batchnorm.py",
+        "/payload/src/torchwasm/__init__.py",
+        "/payload/src/torchwasm/_determinants.py",
+        "/payload/src/torchwasm/_promotion.py",
+        "/payload/src/torchwasm/_arithmetic.py",
+        "/payload/src/torchwasm/_linalg.py",
+        "/payload/src/torchwasm/_pooling.py",
+        "/payload/src/torchwasm/_tensor.py",
+        "/payload/src/torchwasm/runtime.py",
+        "/payload/src/torchwasm/_type_info.py",
+        "/payload/src/torchwasm/_registry.py",
+        "/payload/src/torchwasm/_defaults.py",
+        "/payload/src/torchwasm/NOTICE",
+        "/payload/src/torchwasm/_random.py",
+        "/payload/src/torchwasm/_optim.py",
+        "/payload/src/torchwasm/_module_hooks.py",
+        "/payload/src/torchwasm/_average_pooling.py",
+        "/payload/src/torchwasm/_integration.py",
+        "/payload/src/torchwasm/_fused_matrix.py",
+        "/payload/src/torchwasm/_state.py",
+        "/payload/src/torchwasm/_schedulers.py",
+        "/payload/src/torchwasm/_average_pooling3d.py",
+        "/payload/src/torchwasm/_nn_modules.py",
+        "/payload/src/torchwasm/_tensor_hooks.py",
+        "/payload/src/torchwasm/_statistics.py",
+        "/payload/src/torchwasm/_reductions.py",
+        "/payload/src/torchwasm/_autograd.py",
+        "/payload/src/torchwasm/_instancenorm.py",
+        "/payload/src/torchwasm/_transformer.py",
+        "/payload/src/torchwasm/_layout.py",
+        "/payload/src/torchwasm/_higher_order.py",
+        "/payload/src/torchwasm/_gradient_utils.py",
+        "/payload/src/torchwasm/_device.py",
+        "/payload/src/torchwasm/_groupnorm.py",
+        "/payload/src/torchwasm/_vector_norm.py",
+        "/payload/src/torchwasm/_grad_mode.py",
+        "/payload/src/torchwasm/_legacy.py",
+        "/payload/src/torchwasm/_clamp.py",
+        "/payload/src/torchwasm/_indexed.py",
+        "/payload/src/torchwasm/_pooling3d.py",
+        "/payload/src/torchwasm/_matmul.py",
+        "/payload/src/torchwasm/_optimizer.py",
+        "/payload/src/torchwasm/__main__.py",
+        "/payload/src/torchwasm/_indexing.py",
+        "/payload/src/torchwasm/_activation.py",
+        "/payload/src/torchwasm/_construction.py",
+        "/payload/src/torchwasm/experimental/__init__.py",
+        "/payload/src/torchwasm/experimental/webgpu/resident_bridge.py",
+        "/payload/src/torchwasm/experimental/webgpu/rpc-client.mjs",
+        "/payload/src/torchwasm/experimental/webgpu/__init__.py",
+        "/payload/src/torchwasm/experimental/webgpu/gpu-service.mjs",
+        "/payload/src/torchwasm/experimental/webgpu/torch_bridge.py",
+        "/payload/src/torchwasm/experimental/webgpu/plan-program.mjs",
+        "/payload/src/torchwasm/experimental/webgpu/resources.py",
+        "/payload/src/torchwasm/experimental/webgpu/_pyodide.py",
+        "/payload/src/torchwasm/experimental/webgpu/matrix_client.py",
+        "/payload/src/torchwasm/experimental/webgpu/rpc-protocol.mjs",
+        "/payload/tests/test_hvp_branching.py",
+        "/payload/tests/test_transpose_convolution.py",
+        "/payload/tests/test_dispatch.py",
+        "/payload/tests/test_tensor_reverse.py",
+        "/payload/tests/test_functional_jvp.py",
+        "/payload/tests/test_convolution_padding.py",
+        "/payload/tests/test_gradient_clipping.py",
+        "/payload/tests/test_statistics.py",
+        "/payload/tests/test_groupnorm.py",
+        "/payload/tests/test_cholesky.py",
+        "/payload/tests/test_module_operator_pickle.py",
+        "/payload/tests/test_det_jvp.py",
+        "/payload/tests/test_average_pooling.py",
+        "/payload/tests/test_binary_saved_values.py",
+        "/payload/tests/test_cholesky_solve.py",
+        "/payload/tests/test_feature_detection.py",
+        "/payload/tests/test_inactive_pullbacks.py",
+        "/payload/tests/test_numpy_inputs.py",
+        "/payload/tests/test_pooling.py",
+        "/payload/tests/test_multihead_attention.py",
+        "/payload/tests/test_joint_dense_routing.py",
+        "/payload/tests/test_cumsum.py",
+        "/payload/tests/test_solve.py",
+        "/payload/tests/test_indexed_accumulation.py",
+        "/payload/tests/test_attention_efficiency.py",
+        "/payload/tests/test_matmul_wasm.py",
+        "/payload/tests/test_inverse_routing.py",
+        "/payload/tests/test_conversion_modes.py",
+        "/payload/tests/test_joint_vjp.py",
+        "/payload/tests/test_tensor_clamp.py",
+        "/payload/tests/test_vector_products.py",
+        "/payload/tests/test_graph_lifecycle.py",
+        "/payload/tests/test_convolution.py",
+        "/payload/tests/test_wasm_owned_square.py",
+        "/payload/tests/test_shape_ops.py",
+        "/payload/tests/test_functional_vjp.py",
+        "/payload/tests/test_matmul_saved_values.py",
+        "/payload/tests/test_functional_jacobian.py",
+        "/payload/tests/test_webgpu_package.py",
+        "/payload/tests/test_default_dtype.py",
+        "/payload/tests/test_module_lifecycle.py",
+        "/payload/tests/test_indexing.py",
+        "/payload/tests/test_cumsum_execution.py",
+        "/payload/tests/test_batchnorm.py",
+        "/payload/tests/test_distances.py",
+        "/payload/tests/test_optimizer_lifecycle.py",
+        "/payload/tests/test_promotion.py",
+        "/payload/tests/test_hvp_determinant.py",
+        "/payload/tests/test_functional_jacobian_contracts.py",
+        "/payload/tests/test_binary_operand_lifetime.py",
+        "/payload/tests/test_hvp_graph_barriers.py",
+        "/payload/tests/test_clamp_contract.py",
+        "/payload/tests/test_type_info.py",
+        "/payload/tests/test_construction.py",
+        "/payload/tests/test_vector_norm.py",
+        "/payload/tests/test_cholesky_inverse.py",
+        "/payload/tests/test_attention.py",
+        "/payload/tests/test_pooling_1d.py",
+        "/payload/tests/test_piecewise_jvp.py",
+        "/payload/tests/test_logical_zero.py",
+        "/payload/tests/test_triangular.py",
+        "/payload/tests/test_functional_jvp_dependencies.py",
+        "/payload/tests/test_jvp_preprocessing_subclass.py",
+        "/payload/tests/test_hvp_reachable_branches.py",
+        "/payload/tests/test_linalg_failures.py",
+        "/payload/tests/test_nn_workflows.py",
+        "/payload/tests/test_mean.py",
+        "/payload/tests/test_sequences.py",
+        "/payload/tests/test_joint_lifetime.py",
+        "/payload/tests/test_pooling_3d.py",
+        "/payload/tests/test_standalone.py",
+        "/payload/tests/test_average_pooling_plans.py",
+        "/payload/tests/test_instancenorm.py",
+        "/payload/tests/test_functional_hvp.py",
+        "/payload/tests/test_logdet.py",
+        "/payload/tests/test_ieee.py",
+        "/payload/tests/test_hvp_reverse_cleanup.py",
+        "/payload/tests/test_tensor_hooks.py",
+        "/payload/tests/test_cumprod.py",
+        "/payload/tests/test_gradient_layout.py",
+        "/payload/tests/test_layout.py",
+        "/payload/tests/test_matrix_products.py",
+        "/payload/tests/test_scheduler_lifecycle.py",
+        "/payload/tests/test_selective_joint.py",
+        "/payload/tests/test_reflected_division.py",
+        "/payload/tests/test_determinant_policy.py",
+        "/payload/tests/test_batched_matmul_wasm.py",
+        "/payload/tests/test_arithmetic.py",
+        "/payload/tests/test_serialization.py",
+        "/payload/tests/test_axis_transforms.py",
+        "/payload/tests/test_module_hooks.py",
+        "/payload/tests/test_power_precision.py",
+        "/payload/tests/test_transformer.py",
+        "/payload/tests/test_average_pooling_1d.py",
+        "/payload/tests/test_classification.py",
+        "/payload/tests/test_functional_numpy_escape.py",
+        "/payload/tests/test_joint_gradient_release.py",
+        "/payload/tests/test_nan_reductions.py",
+        "/payload/tests/test_average_pooling_3d.py",
+        "/payload/tests/test_inverse.py",
+        "/payload/tests/test_fused_matrix.py",
+        "/payload/tests/test_linear_wasm.py",
+        "/payload/check-sdk.py",
+        "/torch-iteration-76/runtime/pyodide-lock.json",
+        "/torch-iteration-76/runtime/pyodide.asm.wasm",
+        "/torch-iteration-76/runtime/python_stdlib.zip",
+        "/torch-iteration-76/runtime/numpy-2.2.5-cp313-cp313-pyemscripten_2025_0_wasm32.whl"
+      ]
+    }
+  },
+  "native_reference": {
+    "modern": {
+      "cases": 2298,
+      "mismatches": 0,
+      "exact": 2298,
+      "finite_zero_signs": 2298,
+      "older_native_zero_cast_errors": 0
+    },
+    "minimum": {
+      "cases": 2298,
+      "mismatches": 0,
+      "exact": 2002,
+      "finite_zero_signs": 2002,
+      "older_native_zero_cast_errors": 296
+    }
+  },
+  "wasm_reference": {
+    "node": {
+      "status": "passed_wasm_api_reference",
+      "passed": 2298,
+      "selected": 2298,
+      "digest": "11eb504273de132f39db198d380a4b4b2dafffbfbf184ca22480c9dd1c8326e3",
+      "scope": "Public API2298 native CPU reference cases: nonfinite/zero VJP and complex-imaginary inference. NaN component signs/payloads canonicalized; finite values and finite zero signs exact.",
+      "pyodide": "0.29.4",
+      "heap_capacity": 43581440,
+      "isolated_offline_export": {
+        "status": "passed",
+        "indexed_source": "/offline/torchwasm/_indexed.py",
+        "default_sources": 65,
+        "exported_files": 80
+      }
+    },
+    "browser": {
+      "status": "passed_wasm_api_reference",
+      "passed": 2298,
+      "selected": 2298,
+      "digest": "11eb504273de132f39db198d380a4b4b2dafffbfbf184ca22480c9dd1c8326e3",
+      "scope": "Public API2298 native CPU reference cases: nonfinite/zero VJP and complex-imaginary inference. NaN component signs/payloads canonicalized; finite values and finite zero signs exact.",
+      "pyodide": "0.29.4",
+      "heap_capacity": 43581440,
+      "isolated_offline_export": {
+        "status": "passed",
+        "indexed_source": "/offline/torchwasm/_indexed.py",
+        "default_sources": 65,
+        "exported_files": 80
+      },
+      "browser": "155.0.8059.82",
+      "worker_terminated": true,
+      "requests": [
+        "/",
+        "/favicon.ico",
+        "/torch-iteration-1031/execute.mjs",
+        "/torch-iteration-76/runtime/pyodide.mjs",
+        "/torch-iteration-76/chrome-sdk/packages.mjs",
+        "/plan.json",
+        "/torch-iteration-76/runtime/pyodide-lock.json",
+        "/torch-iteration-76/runtime/python_stdlib.zip",
+        "/torch-iteration-76/runtime/pyodide.asm.wasm",
+        "/torch-iteration-76/runtime/pyodide.asm.js",
+        "/torch-iteration-76/runtime/numpy-2.2.5-cp313-cp313-pyemscripten_2025_0_wasm32.whl",
+        "/torch-iteration-76/runtime/atomicwrites-1.4.1-py2.py3-none-any.whl",
+        "/torch-iteration-76/runtime/attrs-25.2.0-py3-none-any.whl",
+        "/torch-iteration-76/runtime/six-1.17.0-py2.py3-none-any.whl",
+        "/torch-iteration-76/runtime/more_itertools-10.6.0-py3-none-any.whl",
+        "/torch-iteration-76/runtime/pluggy-1.5.0-py3-none-any.whl",
+        "/torch-iteration-76/runtime/py-1.11.0-py2.py3-none-any.whl",
+        "/torch-iteration-76/runtime/setuptools-76.0.0-py3-none-any.whl",
+        "/torch-iteration-76/runtime/pyparsing-3.2.1-py3-none-any.whl",
+        "/torch-iteration-76/runtime/iniconfig-2.1.0-py3-none-any.whl",
+        "/torch-iteration-76/runtime/exceptiongroup-1.2.2-py3-none-any.whl",
+        "/torch-iteration-76/runtime/pytest-8.3.5-py3-none-any.whl",
+        "/payload/src/torchwasm/_module_conversion.py",
+        "/payload/src/torchwasm/_classification.py",
+        "/payload/src/torchwasm/_normalization.py",
+        "/payload/src/torchwasm/_nn.py",
+        "/payload/src/torchwasm/_serialization.py",
+        "/payload/src/torchwasm/_containers.py",
+        "/payload/src/torchwasm/_multihead.py",
+        "/payload/src/torchwasm/LICENSE",
+        "/payload/src/torchwasm/_backend.py",
+        "/payload/src/torchwasm/_convolution.py",
+        "/payload/src/torchwasm/_conversion.py",
+        "/payload/src/torchwasm/_errors.py",
+        "/payload/src/torchwasm/_module.py",
+        "/payload/src/torchwasm/_graph.py",
+        "/payload/src/torchwasm/_distance.py",
+        "/payload/src/torchwasm/_ops.py",
+        "/payload/src/torchwasm/_transpose_convolution.py",
+        "/payload/src/torchwasm/_attention.py",
+        "/payload/src/torchwasm/_api.py",
+        "/payload/src/torchwasm/_sequences.py",
+        "/payload/src/torchwasm/_convolution_padding.py",
+        "/payload/src/torchwasm/_cli.py",
+        "/payload/src/torchwasm/_cholesky.py",
+        "/payload/src/torchwasm/_batchnorm.py",
+        "/payload/src/torchwasm/__init__.py",
+        "/payload/src/torchwasm/_determinants.py",
+        "/payload/src/torchwasm/_promotion.py",
+        "/payload/src/torchwasm/_arithmetic.py",
+        "/payload/src/torchwasm/_linalg.py",
+        "/payload/src/torchwasm/_pooling.py",
+        "/payload/src/torchwasm/_tensor.py",
+        "/payload/src/torchwasm/runtime.py",
+        "/payload/src/torchwasm/_type_info.py",
+        "/payload/src/torchwasm/_registry.py",
+        "/payload/src/torchwasm/_defaults.py",
+        "/payload/src/torchwasm/NOTICE",
+        "/payload/src/torchwasm/_random.py",
+        "/payload/src/torchwasm/_optim.py",
+        "/payload/src/torchwasm/_module_hooks.py",
+        "/payload/src/torchwasm/_average_pooling.py",
+        "/payload/src/torchwasm/_integration.py",
+        "/payload/src/torchwasm/_fused_matrix.py",
+        "/payload/src/torchwasm/_state.py",
+        "/payload/src/torchwasm/_schedulers.py",
+        "/payload/src/torchwasm/_average_pooling3d.py",
+        "/payload/src/torchwasm/_nn_modules.py",
+        "/payload/src/torchwasm/_tensor_hooks.py",
+        "/payload/src/torchwasm/_statistics.py",
+        "/payload/src/torchwasm/_reductions.py",
+        "/payload/src/torchwasm/_autograd.py",
+        "/payload/src/torchwasm/_instancenorm.py",
+        "/payload/src/torchwasm/_transformer.py",
+        "/payload/src/torchwasm/_layout.py",
+        "/payload/src/torchwasm/_higher_order.py",
+        "/payload/src/torchwasm/_gradient_utils.py",
+        "/payload/src/torchwasm/_device.py",
+        "/payload/src/torchwasm/_groupnorm.py",
+        "/payload/src/torchwasm/_vector_norm.py",
+        "/payload/src/torchwasm/_grad_mode.py",
+        "/payload/src/torchwasm/_legacy.py",
+        "/payload/src/torchwasm/_clamp.py",
+        "/payload/src/torchwasm/_indexed.py",
+        "/payload/src/torchwasm/_pooling3d.py",
+        "/payload/src/torchwasm/_matmul.py",
+        "/payload/src/torchwasm/_optimizer.py",
+        "/payload/src/torchwasm/__main__.py",
+        "/payload/src/torchwasm/_indexing.py",
+        "/payload/src/torchwasm/_activation.py",
+        "/payload/src/torchwasm/_construction.py",
+        "/payload/src/torchwasm/experimental/__init__.py",
+        "/payload/src/torchwasm/experimental/webgpu/resident_bridge.py",
+        "/payload/src/torchwasm/experimental/webgpu/rpc-client.mjs",
+        "/payload/src/torchwasm/experimental/webgpu/__init__.py",
+        "/payload/src/torchwasm/experimental/webgpu/gpu-service.mjs",
+        "/payload/src/torchwasm/experimental/webgpu/torch_bridge.py",
+        "/payload/src/torchwasm/experimental/webgpu/plan-program.mjs",
+        "/payload/src/torchwasm/experimental/webgpu/resources.py",
+        "/payload/src/torchwasm/experimental/webgpu/_pyodide.py",
+        "/payload/src/torchwasm/experimental/webgpu/matrix_client.py",
+        "/payload/src/torchwasm/experimental/webgpu/rpc-protocol.mjs",
+        "/payload/check-broad.py",
+        "/payload/reference.json",
+        "/torch-iteration-76/runtime/pyodide-lock.json",
+        "/torch-iteration-76/runtime/python_stdlib.zip",
+        "/torch-iteration-76/runtime/pyodide.asm.wasm",
+        "/torch-iteration-76/runtime/numpy-2.2.5-cp313-cp313-pyemscripten_2025_0_wasm32.whl"
+      ]
+    }
+  },
+  "native_transform_controls": {
+    "modern": {
+      "cases": 48,
+      "value_mismatches": 0,
+      "older_native_zero_cast_errors": []
+    },
+    "minimum": {
+      "cases": 48,
+      "value_mismatches": 0,
+      "older_native_zero_cast_errors": [
+        {
+          "source": "float32",
+          "target": "float64",
+          "input": [
+            0.0,
+            2.0,
+            3.0,
+            4.0
+          ],
+          "mode": "direct"
+        },
+        {
+          "source": "float32",
+          "target": "float64",
+          "input": [
+            2.0,
+            0.0,
+            3.0,
+            0.0
+          ],
+          "mode": "direct"
+        }
+      ]
+    }
+  },
+  "native_boundary_controls": {
+    "modern": {
+      "cases": 31,
+      "acceptance_disagreements": 0
+    },
+    "minimum": {
+      "cases": 31,
+      "acceptance_disagreements": 0
+    }
+  },
+  "performance": {
+    "initial": {
+      "modern": {
+        "points": [
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float32",
+              "zeros": "none",
+              "mode": "inference"
+            },
+            "baseline_seconds": 2.5856480469821325e-06,
+            "candidate_seconds": 7.288271922027599e-06,
+            "ratio": 2.818740907345911
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float32",
+              "zeros": "none",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 4.89036215397491e-05,
+            "candidate_seconds": 3.736997542491225e-05,
+            "ratio": 0.7641555829262614
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float32",
+              "zeros": "one",
+              "mode": "inference"
+            },
+            "baseline_seconds": 2.6370900876315773e-06,
+            "candidate_seconds": 6.837517964438151e-06,
+            "ratio": 2.592826842172488
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float32",
+              "zeros": "one",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 4.7083736401962e-05,
+            "candidate_seconds": 6.161800037987654e-05,
+            "ratio": 1.308689689659143
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float32",
+              "zeros": "two",
+              "mode": "inference"
+            },
+            "baseline_seconds": 2.6506500265810473e-06,
+            "candidate_seconds": 6.8990260404343584e-06,
+            "ratio": 2.602767612189489
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float32",
+              "zeros": "two",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 6.396149443022036e-05,
+            "candidate_seconds": 6.27421366212393e-05,
+            "ratio": 0.980936064426835
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float64",
+              "zeros": "none",
+              "mode": "inference"
+            },
+            "baseline_seconds": 3.3101127649101987e-06,
+            "candidate_seconds": 6.931559831903373e-06,
+            "ratio": 2.0940554972577865
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float64",
+              "zeros": "none",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 4.979535942432539e-05,
+            "candidate_seconds": 3.6823116867962176e-05,
+            "ratio": 0.7394889261502914
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float64",
+              "zeros": "one",
+              "mode": "inference"
+            },
+            "baseline_seconds": 2.643763185261605e-06,
+            "candidate_seconds": 6.953579019552389e-06,
+            "ratio": 2.630182256231214
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float64",
+              "zeros": "one",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 4.7595545336160216e-05,
+            "candidate_seconds": 5.8977207096898354e-05,
+            "ratio": 1.2391329205359696
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float64",
+              "zeros": "two",
+              "mode": "inference"
+            },
+            "baseline_seconds": 2.6660410163970027e-06,
+            "candidate_seconds": 6.9072328090919814e-06,
+            "ratio": 2.590820158658586
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float64",
+              "zeros": "two",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 4.815659697821521e-05,
+            "candidate_seconds": 5.87240636041426e-05,
+            "ratio": 1.2194396466741169
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float32",
+              "zeros": "none",
+              "mode": "inference"
+            },
+            "baseline_seconds": 1.313115307536451e-05,
+            "candidate_seconds": 1.3404683022292109e-05,
+            "ratio": 1.0208306113985353
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float32",
+              "zeros": "none",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.00484328965432637,
+            "candidate_seconds": 6.208826045584613e-05,
+            "ratio": 0.012819439861579308
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float32",
+              "zeros": "one",
+              "mode": "inference"
+            },
+            "baseline_seconds": 1.2388446206345907e-05,
+            "candidate_seconds": 1.298285831482783e-05,
+            "ratio": 1.0479811671763517
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float32",
+              "zeros": "one",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.004846211356510009,
+            "candidate_seconds": 0.0001052100066108939,
+            "ratio": 0.021709743729926942
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float32",
+              "zeros": "two",
+              "mode": "inference"
+            },
+            "baseline_seconds": 1.2359468979307884e-05,
+            "candidate_seconds": 1.2826535356201709e-05,
+            "ratio": 1.0377901653926866
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float32",
+              "zeros": "two",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.004872095214003431,
+            "candidate_seconds": 0.0001047708915826882,
+            "ratio": 0.021504278340364637
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float64",
+              "zeros": "none",
+              "mode": "inference"
+            },
+            "baseline_seconds": 1.1158271035982326e-05,
+            "candidate_seconds": 1.3627377019415989e-05,
+            "ratio": 1.2212803377397343
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float64",
+              "zeros": "none",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.004878464285866357,
+            "candidate_seconds": 6.178100535604046e-05,
+            "ratio": 0.012664027393831559
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float64",
+              "zeros": "one",
+              "mode": "inference"
+            },
+            "baseline_seconds": 1.1584760466250504e-05,
+            "candidate_seconds": 1.3885358690550103e-05,
+            "ratio": 1.1985883291244437
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float64",
+              "zeros": "one",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.004791014928611861,
+            "candidate_seconds": 0.00010736025428701186,
+            "ratio": 0.022408666198441216
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float64",
+              "zeros": "two",
+              "mode": "inference"
+            },
+            "baseline_seconds": 1.1389767344795051e-05,
+            "candidate_seconds": 1.3402313398825481e-05,
+            "ratio": 1.1766977316661462
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float64",
+              "zeros": "two",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.004869869071366597,
+            "candidate_seconds": 0.0001070050470285748,
+            "ratio": 0.02197287965250095
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float32",
+              "zeros": "none",
+              "mode": "inference"
+            },
+            "baseline_seconds": 0.0001538185649207384,
+            "candidate_seconds": 9.03508286576248e-05,
+            "ratio": 0.5873857209900635
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float32",
+              "zeros": "none",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.07546452100359602,
+            "candidate_seconds": 0.0003677585636538233,
+            "ratio": 0.004873264399787271
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float32",
+              "zeros": "one",
+              "mode": "inference"
+            },
+            "baseline_seconds": 0.0001529268466301174,
+            "candidate_seconds": 9.32049875288586e-05,
+            "ratio": 0.6094743309151764
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float32",
+              "zeros": "one",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.07671143750485498,
+            "candidate_seconds": 0.0006621336625394836,
+            "ratio": 0.008631485526491118
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float32",
+              "zeros": "two",
+              "mode": "inference"
+            },
+            "baseline_seconds": 0.00015208321469410203,
+            "candidate_seconds": 0.00010488911631095656,
+            "ratio": 0.6896823986915913
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float32",
+              "zeros": "two",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.07774035449983785,
+            "candidate_seconds": 0.0006744787485793047,
+            "ratio": 0.008676044159030836
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float64",
+              "zeros": "none",
+              "mode": "inference"
+            },
+            "baseline_seconds": 0.00016447252507640446,
+            "candidate_seconds": 0.00011051292224365086,
+            "ratio": 0.6719233026446997
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float64",
+              "zeros": "none",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.07701475000067148,
+            "candidate_seconds": 0.00036563451931039665,
+            "ratio": 0.004747590809646317
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float64",
+              "zeros": "one",
+              "mode": "inference"
+            },
+            "baseline_seconds": 0.00017096803980671543,
+            "candidate_seconds": 0.00011039453133146696,
+            "ratio": 0.6457027375190786
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float64",
+              "zeros": "one",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.07710433350439416,
+            "candidate_seconds": 0.0006787586341776726,
+            "ratio": 0.008803119141662645
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float64",
+              "zeros": "two",
+              "mode": "inference"
+            },
+            "baseline_seconds": 0.00016620210682039523,
+            "candidate_seconds": 0.00010210862073542574,
+            "ratio": 0.6143641779810197
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float64",
+              "zeros": "two",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.07745156199962366,
+            "candidate_seconds": 0.0006954717191834597,
+            "ratio": 0.00897944084312772
+          }
+        ],
+        "summary": [
+          {
+            "size": 16,
+            "mode": "inference",
+            "cases": 6,
+            "median_ratio": 2.5977972271809886,
+            "range": [
+              2.0940554972577865,
+              2.818740907345911
+            ]
+          },
+          {
+            "size": 16,
+            "mode": "reverse",
+            "cases": 6,
+            "median_ratio": 1.1001878555504758,
+            "range": [
+              0.7394889261502914,
+              1.308689689659143
+            ]
+          },
+          {
+            "size": 4096,
+            "mode": "inference",
+            "cases": 6,
+            "median_ratio": 1.112339449421249,
+            "range": [
+              1.0208306113985353,
+              1.2212803377397343
+            ]
+          },
+          {
+            "size": 4096,
+            "mode": "reverse",
+            "cases": 6,
+            "median_ratio": 0.02160701103514579,
+            "range": [
+              0.012664027393831559,
+              0.022408666198441216
+            ]
+          },
+          {
+            "size": 65536,
+            "mode": "inference",
+            "cases": 6,
+            "median_ratio": 0.6300334577500492,
+            "range": [
+              0.5873857209900635,
+              0.6896823986915913
+            ]
+          },
+          {
+            "size": 65536,
+            "mode": "reverse",
+            "cases": 6,
+            "median_ratio": 0.008653764842760977,
+            "range": [
+              0.004747590809646317,
+              0.00897944084312772
+            ]
+          }
+        ]
+      },
+      "minimum": {
+        "points": [
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float32",
+              "zeros": "none",
+              "mode": "inference"
+            },
+            "baseline_seconds": 4.292572043182041e-06,
+            "candidate_seconds": 1.1200786971704045e-05,
+            "ratio": 2.6093416392380484
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float32",
+              "zeros": "none",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 8.642935696710654e-05,
+            "candidate_seconds": 6.114722766380086e-05,
+            "ratio": 0.7074821543225457
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float32",
+              "zeros": "one",
+              "mode": "inference"
+            },
+            "baseline_seconds": 4.110879357917701e-06,
+            "candidate_seconds": 1.0326172342260257e-05,
+            "ratio": 2.5119132533947215
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float32",
+              "zeros": "one",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 8.502311791784591e-05,
+            "candidate_seconds": 8.905019280191034e-05,
+            "ratio": 1.0473644696017337
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float32",
+              "zeros": "two",
+              "mode": "inference"
+            },
+            "baseline_seconds": 4.560355809353242e-06,
+            "candidate_seconds": 1.029532468822332e-05,
+            "ratio": 2.2575704876158382
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float32",
+              "zeros": "two",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 7.43892068245399e-05,
+            "candidate_seconds": 8.504826062639508e-05,
+            "ratio": 1.143287638850572
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float64",
+              "zeros": "none",
+              "mode": "inference"
+            },
+            "baseline_seconds": 4.273389804368252e-06,
+            "candidate_seconds": 1.0399760849581587e-05,
+            "ratio": 2.4336092249181127
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float64",
+              "zeros": "none",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 6.662101601740135e-05,
+            "candidate_seconds": 5.7877739029051255e-05,
+            "ratio": 0.8687609779762836
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float64",
+              "zeros": "one",
+              "mode": "inference"
+            },
+            "baseline_seconds": 4.073784629539053e-06,
+            "candidate_seconds": 1.0230435005304485e-05,
+            "ratio": 2.5112851894828947
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float64",
+              "zeros": "one",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 6.807101365494868e-05,
+            "candidate_seconds": 8.51901692501073e-05,
+            "ratio": 1.2514896528783228
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float64",
+              "zeros": "two",
+              "mode": "inference"
+            },
+            "baseline_seconds": 4.148335565641343e-06,
+            "candidate_seconds": 1.0242325733961786e-05,
+            "ratio": 2.469020543755914
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float64",
+              "zeros": "two",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 6.951071112068742e-05,
+            "candidate_seconds": 8.500944669470343e-05,
+            "ratio": 1.222969026271454
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float32",
+              "zeros": "none",
+              "mode": "inference"
+            },
+            "baseline_seconds": 1.5402048607520813e-05,
+            "candidate_seconds": 2.2034550376843993e-05,
+            "ratio": 1.4306246485993126
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float32",
+              "zeros": "none",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.006588183400162961,
+            "candidate_seconds": 8.830918332326515e-05,
+            "ratio": 0.013404178050216512
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float32",
+              "zeros": "one",
+              "mode": "inference"
+            },
+            "baseline_seconds": 1.4866911292440126e-05,
+            "candidate_seconds": 2.1846529522178574e-05,
+            "ratio": 1.4694733218249314
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float32",
+              "zeros": "one",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.00655953329987824,
+            "candidate_seconds": 0.00014084264046909455,
+            "ratio": 0.021471442255153874
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float32",
+              "zeros": "two",
+              "mode": "inference"
+            },
+            "baseline_seconds": 1.4641703390413398e-05,
+            "candidate_seconds": 2.1768382349543003e-05,
+            "ratio": 1.4867383779810601
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float32",
+              "zeros": "two",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.006457337499887217,
+            "candidate_seconds": 0.0001382957513439275,
+            "ratio": 0.021416838030588144
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float64",
+              "zeros": "none",
+              "mode": "inference"
+            },
+            "baseline_seconds": 1.5233784301286081e-05,
+            "candidate_seconds": 2.2668392758064106e-05,
+            "ratio": 1.488034247416144
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float64",
+              "zeros": "none",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.004921145856704763,
+            "candidate_seconds": 8.671191013743333e-05,
+            "ratio": 0.017620268259127825
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float64",
+              "zeros": "one",
+              "mode": "inference"
+            },
+            "baseline_seconds": 1.4953764057064654e-05,
+            "candidate_seconds": 2.273252616785319e-05,
+            "ratio": 1.5201875648902987
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float64",
+              "zeros": "one",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.004772723213786126,
+            "candidate_seconds": 0.00014060065231560355,
+            "ratio": 0.029459209348129633
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float64",
+              "zeros": "two",
+              "mode": "inference"
+            },
+            "baseline_seconds": 1.529179157494973e-05,
+            "candidate_seconds": 2.2766116545198146e-05,
+            "ratio": 1.4887802016928149
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float64",
+              "zeros": "two",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.0049116130706222194,
+            "candidate_seconds": 0.0001468258629757265,
+            "ratio": 0.029893613536850962
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float32",
+              "zeros": "none",
+              "mode": "inference"
+            },
+            "baseline_seconds": 0.00016796028489050982,
+            "candidate_seconds": 0.00018760486687362092,
+            "ratio": 1.116959684820236
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float32",
+              "zeros": "none",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.10119452100479975,
+            "candidate_seconds": 0.000514034433478791,
+            "ratio": 0.005079666649683631
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float32",
+              "zeros": "one",
+              "mode": "inference"
+            },
+            "baseline_seconds": 0.00016745409942776096,
+            "candidate_seconds": 0.0001918149501806456,
+            "ratio": 1.1454777806941288
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float32",
+              "zeros": "one",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.09892893749929499,
+            "candidate_seconds": 0.0010560566107804853,
+            "ratio": 0.010674900969071978
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float32",
+              "zeros": "two",
+              "mode": "inference"
+            },
+            "baseline_seconds": 0.00017659397028814945,
+            "candidate_seconds": 0.00019276525026805502,
+            "ratio": 1.091573228426309
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float32",
+              "zeros": "two",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.10147529199457495,
+            "candidate_seconds": 0.0009309759112208363,
+            "ratio": 0.009174409779186524
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float64",
+              "zeros": "none",
+              "mode": "inference"
+            },
+            "baseline_seconds": 0.00017580782578379214,
+            "candidate_seconds": 0.00019353441088257336,
+            "ratio": 1.1008293289547948
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float64",
+              "zeros": "none",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.07729725050739944,
+            "candidate_seconds": 0.0005071898559969942,
+            "ratio": 0.006561551059936374
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float64",
+              "zeros": "one",
+              "mode": "inference"
+            },
+            "baseline_seconds": 0.00017583115729239188,
+            "candidate_seconds": 0.00019283483817574714,
+            "ratio": 1.096704595165006
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float64",
+              "zeros": "one",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.07402168799308129,
+            "candidate_seconds": 0.000924440785907098,
+            "ratio": 0.012488782827993658
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float64",
+              "zeros": "two",
+              "mode": "inference"
+            },
+            "baseline_seconds": 0.0001749424270180703,
+            "candidate_seconds": 0.00019288770436764953,
+            "ratio": 1.102578189038875
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float64",
+              "zeros": "two",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.07334854150394676,
+            "candidate_seconds": 0.0009293234738704215,
+            "ratio": 0.01266996527559333
+          }
+        ],
+        "summary": [
+          {
+            "size": 16,
+            "mode": "inference",
+            "cases": 6,
+            "median_ratio": 2.4901528666194044,
+            "range": [
+              2.2575704876158382,
+              2.6093416392380484
+            ]
+          },
+          {
+            "size": 16,
+            "mode": "reverse",
+            "cases": 6,
+            "median_ratio": 1.095326054226153,
+            "range": [
+              0.7074821543225457,
+              1.2514896528783228
+            ]
+          },
+          {
+            "size": 4096,
+            "mode": "inference",
+            "cases": 6,
+            "median_ratio": 1.487386312698602,
+            "range": [
+              1.4306246485993126,
+              1.5201875648902987
+            ]
+          },
+          {
+            "size": 4096,
+            "mode": "reverse",
+            "cases": 6,
+            "median_ratio": 0.021444140142871007,
+            "range": [
+              0.013404178050216512,
+              0.029893613536850962
+            ]
+          },
+          {
+            "size": 65536,
+            "mode": "inference",
+            "cases": 6,
+            "median_ratio": 1.1017037589968348,
+            "range": [
+              1.091573228426309,
+              1.1454777806941288
+            ]
+          },
+          {
+            "size": 65536,
+            "mode": "reverse",
+            "cases": 6,
+            "median_ratio": 0.009924655374129251,
+            "range": [
+              0.005079666649683631,
+              0.01266996527559333
+            ]
+          }
+        ]
+      },
+      "wasm": {
+        "points": [
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float32",
+              "zeros": "none",
+              "mode": "inference"
+            },
+            "baseline_seconds": 9.635613475174523e-06,
+            "candidate_seconds": 2.510383370011754e-05,
+            "ratio": 2.6053176338793365
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float32",
+              "zeros": "none",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.00015778359860283802,
+            "candidate_seconds": 0.00011051854052110963,
+            "ratio": 0.7004437818616324
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float32",
+              "zeros": "one",
+              "mode": "inference"
+            },
+            "baseline_seconds": 8.781846522761186e-06,
+            "candidate_seconds": 2.2174922849760048e-05,
+            "ratio": 2.52508658541072
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float32",
+              "zeros": "one",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.00015164819225415405,
+            "candidate_seconds": 0.00017206619272727355,
+            "ratio": 1.1346405794201626
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float32",
+              "zeros": "two",
+              "mode": "inference"
+            },
+            "baseline_seconds": 8.67029434024377e-06,
+            "candidate_seconds": 2.188082344383441e-05,
+            "ratio": 2.5236540520052544
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float32",
+              "zeros": "two",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.00014720426768346503,
+            "candidate_seconds": 0.00016157281302265096,
+            "ratio": 1.0976095704649187
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float64",
+              "zeros": "none",
+              "mode": "inference"
+            },
+            "baseline_seconds": 8.661262185723043e-06,
+            "candidate_seconds": 2.1282739498089693e-05,
+            "ratio": 2.457233026979775
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float64",
+              "zeros": "none",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.00014926735964912279,
+            "candidate_seconds": 0.00010472200558524835,
+            "ratio": 0.7015733770022761
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float64",
+              "zeros": "one",
+              "mode": "inference"
+            },
+            "baseline_seconds": 8.384720031708098e-06,
+            "candidate_seconds": 2.0178761136356008e-05,
+            "ratio": 2.4066111999025543
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float64",
+              "zeros": "one",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.00014601347591399453,
+            "candidate_seconds": 0.00015761740461624367,
+            "ratio": 1.0794716284206818
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float64",
+              "zeros": "two",
+              "mode": "inference"
+            },
+            "baseline_seconds": 8.363591962693807e-06,
+            "candidate_seconds": 2.040102361296937e-05,
+            "ratio": 2.4392657728843172
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float64",
+              "zeros": "two",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.00014562758827480393,
+            "candidate_seconds": 0.00015608034752155,
+            "ratio": 1.0717773285307821
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float32",
+              "zeros": "none",
+              "mode": "inference"
+            },
+            "baseline_seconds": 1.3623381866531746e-05,
+            "candidate_seconds": 2.9707587154963686e-05,
+            "ratio": 2.180632345625255
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float32",
+              "zeros": "none",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.01568176025000001,
+            "candidate_seconds": 0.0001374916549857556,
+            "ratio": 0.008767616185546232
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float32",
+              "zeros": "one",
+              "mode": "inference"
+            },
+            "baseline_seconds": 1.3509983233233178e-05,
+            "candidate_seconds": 2.8681078811678902e-05,
+            "ratio": 2.1229544342532107
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float32",
+              "zeros": "one",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.015643781249999877,
+            "candidate_seconds": 0.00023099200684931475,
+            "ratio": 0.014765740018853597
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float32",
+              "zeros": "two",
+              "mode": "inference"
+            },
+            "baseline_seconds": 1.3684355742758137e-05,
+            "candidate_seconds": 2.8957117270572404e-05,
+            "ratio": 2.116074575589481
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float32",
+              "zeros": "two",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.016113041500000147,
+            "candidate_seconds": 0.00022146179575576965,
+            "ratio": 0.013744257765100874
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float64",
+              "zeros": "none",
+              "mode": "inference"
+            },
+            "baseline_seconds": 1.479195106603631e-05,
+            "candidate_seconds": 2.8164119365866854e-05,
+            "ratio": 1.9040165317024527
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float64",
+              "zeros": "none",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.01604761474999994,
+            "candidate_seconds": 0.0001367250152302259,
+            "ratio": 0.008519958720359138
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float64",
+              "zeros": "one",
+              "mode": "inference"
+            },
+            "baseline_seconds": 1.493075449980783e-05,
+            "candidate_seconds": 2.810853957590585e-05,
+            "ratio": 1.8825933797429746
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float64",
+              "zeros": "one",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.015909697750000173,
+            "candidate_seconds": 0.00021878314097348013,
+            "ratio": 0.013751558603523926
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float64",
+              "zeros": "two",
+              "mode": "inference"
+            },
+            "baseline_seconds": 1.4796741012187583e-05,
+            "candidate_seconds": 2.8536445681834245e-05,
+            "ratio": 1.928562894919207
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float64",
+              "zeros": "two",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.015825698,
+            "candidate_seconds": 0.00021537865207781084,
+            "ratio": 0.013609425131062836
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float32",
+              "zeros": "none",
+              "mode": "inference"
+            },
+            "baseline_seconds": 0.00010088321263693284,
+            "candidate_seconds": 0.00014582400933723364,
+            "ratio": 1.4454734888552527
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float32",
+              "zeros": "none",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.2510919170000001,
+            "candidate_seconds": 0.0005606951227272788,
+            "ratio": 0.0022330273687275986
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float32",
+              "zeros": "one",
+              "mode": "inference"
+            },
+            "baseline_seconds": 0.00010391823355187634,
+            "candidate_seconds": 0.00014692202215325245,
+            "ratio": 1.4138233217745033
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float32",
+              "zeros": "one",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.25096937499999994,
+            "candidate_seconds": 0.0011732703867276836,
+            "ratio": 0.00467495441118138
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float32",
+              "zeros": "two",
+              "mode": "inference"
+            },
+            "baseline_seconds": 0.00010243034297052151,
+            "candidate_seconds": 0.00014813630157285826,
+            "ratio": 1.4462150303986632
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float32",
+              "zeros": "two",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.24648312500000014,
+            "candidate_seconds": 0.0011352497971014483,
+            "ratio": 0.004605791155485584
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float64",
+              "zeros": "none",
+              "mode": "inference"
+            },
+            "baseline_seconds": 0.00015242131833778614,
+            "candidate_seconds": 0.00012890558881578718,
+            "ratio": 0.8457188943223484
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float64",
+              "zeros": "none",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.24221322949999902,
+            "candidate_seconds": 0.0005656899550586307,
+            "ratio": 0.00233550395338184
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float64",
+              "zeros": "one",
+              "mode": "inference"
+            },
+            "baseline_seconds": 0.0001510531281021932,
+            "candidate_seconds": 0.00012935965691489206,
+            "ratio": 0.8563851575941899
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float64",
+              "zeros": "one",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.25078579150000024,
+            "candidate_seconds": 0.0010947849999999805,
+            "ratio": 0.004365418764164634
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float64",
+              "zeros": "two",
+              "mode": "inference"
+            },
+            "baseline_seconds": 0.00015050374498747434,
+            "candidate_seconds": 0.00012798980156075964,
+            "ratio": 0.8504094138747949
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float64",
+              "zeros": "two",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.2509813334999995,
+            "candidate_seconds": 0.001108287801282015,
+            "ratio": 0.004415817645984486
+          }
+        ],
+        "summary": [
+          {
+            "size": 16,
+            "mode": "inference",
+            "cases": 6,
+            "median_ratio": 2.4904435394925146,
+            "range": [
+              2.4066111999025543,
+              2.6053176338793365
+            ]
+          },
+          {
+            "size": 16,
+            "mode": "reverse",
+            "cases": 6,
+            "median_ratio": 1.0756244784757318,
+            "range": [
+              0.7004437818616324,
+              1.1346405794201626
+            ]
+          },
+          {
+            "size": 4096,
+            "mode": "inference",
+            "cases": 6,
+            "median_ratio": 2.022318735254344,
+            "range": [
+              1.8825933797429746,
+              2.180632345625255
+            ]
+          },
+          {
+            "size": 4096,
+            "mode": "reverse",
+            "cases": 6,
+            "median_ratio": 0.013676841448081855,
+            "range": [
+              0.008519958720359138,
+              0.014765740018853597
+            ]
+          },
+          {
+            "size": 65536,
+            "mode": "inference",
+            "cases": 6,
+            "median_ratio": 1.1351042396843467,
+            "range": [
+              0.8457188943223484,
+              1.4462150303986632
+            ]
+          },
+          {
+            "size": 65536,
+            "mode": "reverse",
+            "cases": 6,
+            "median_ratio": 0.00439061820507456,
+            "range": [
+              0.0022330273687275986,
+              0.00467495441118138
+            ]
+          }
+        ]
+      }
+    },
+    "final": {
+      "modern": {
+        "points": [
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float32",
+              "zeros": "none",
+              "mode": "inference"
+            },
+            "baseline_seconds": 2.5314423784197876e-06,
+            "candidate_seconds": 3.5352258032105666e-06,
+            "ratio": 1.3965262781992986
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float32",
+              "zeros": "none",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 4.78228947853685e-05,
+            "candidate_seconds": 3.1720606583562135e-05,
+            "ratio": 0.6632933185229748
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float32",
+              "zeros": "one",
+              "mode": "inference"
+            },
+            "baseline_seconds": 2.60824585041064e-06,
+            "candidate_seconds": 3.6023763421155763e-06,
+            "ratio": 1.3811490744050916
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float32",
+              "zeros": "one",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 4.7815438433087336e-05,
+            "candidate_seconds": 4.932873895131372e-05,
+            "ratio": 1.0316487847401856
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float32",
+              "zeros": "two",
+              "mode": "inference"
+            },
+            "baseline_seconds": 2.615046142295796e-06,
+            "candidate_seconds": 3.6317392559936934e-06,
+            "ratio": 1.3887859174849297
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float32",
+              "zeros": "two",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 4.696472447681264e-05,
+            "candidate_seconds": 4.9786438772747574e-05,
+            "ratio": 1.0600815681848206
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float64",
+              "zeros": "none",
+              "mode": "inference"
+            },
+            "baseline_seconds": 2.605431456708265e-06,
+            "candidate_seconds": 3.1759948750931244e-06,
+            "ratio": 1.2189899937362836
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float64",
+              "zeros": "none",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 4.770730399704855e-05,
+            "candidate_seconds": 3.063597437042975e-05,
+            "ratio": 0.6421652829580365
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float64",
+              "zeros": "one",
+              "mode": "inference"
+            },
+            "baseline_seconds": 2.5986429452729e-06,
+            "candidate_seconds": 3.150985715905108e-06,
+            "ratio": 1.212550466633731
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float64",
+              "zeros": "one",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 4.69021128047964e-05,
+            "candidate_seconds": 4.748310124913979e-05,
+            "ratio": 1.0123872552769941
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float64",
+              "zeros": "two",
+              "mode": "inference"
+            },
+            "baseline_seconds": 2.6517994395902633e-06,
+            "candidate_seconds": 3.1485036622314055e-06,
+            "ratio": 1.1873083669999904
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float64",
+              "zeros": "two",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 4.799236762641795e-05,
+            "candidate_seconds": 4.6880541676658936e-05,
+            "ratio": 0.9768332756905497
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float32",
+              "zeros": "none",
+              "mode": "inference"
+            },
+            "baseline_seconds": 1.2417924553351778e-05,
+            "candidate_seconds": 1.2513791752410094e-05,
+            "ratio": 1.0077200661548906
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float32",
+              "zeros": "none",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.005835297571528437,
+            "candidate_seconds": 6.0009385206518715e-05,
+            "ratio": 0.010283860329474249
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float32",
+              "zeros": "one",
+              "mode": "inference"
+            },
+            "baseline_seconds": 1.2514641501693624e-05,
+            "candidate_seconds": 1.2898022086584278e-05,
+            "ratio": 1.030634563909703
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float32",
+              "zeros": "one",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.0056701944158703554,
+            "candidate_seconds": 0.00010550240504903597,
+            "ratio": 0.018606488122125828
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float32",
+              "zeros": "two",
+              "mode": "inference"
+            },
+            "baseline_seconds": 1.2520946728635908e-05,
+            "candidate_seconds": 1.290105473930038e-05,
+            "ratio": 1.0303577691769226
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float32",
+              "zeros": "two",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.0051391434041891315,
+            "candidate_seconds": 0.00010269635612101337,
+            "ratio": 0.019983166073416294
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float64",
+              "zeros": "none",
+              "mode": "inference"
+            },
+            "baseline_seconds": 9.108520911415641e-06,
+            "candidate_seconds": 1.323374760675636e-05,
+            "ratio": 1.452897537971352
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float64",
+              "zeros": "none",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.004853273858316243,
+            "candidate_seconds": 6.0725827818924783e-05,
+            "ratio": 0.012512343129961459
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float64",
+              "zeros": "one",
+              "mode": "inference"
+            },
+            "baseline_seconds": 9.300531375001776e-06,
+            "candidate_seconds": 1.3349811061066189e-05,
+            "ratio": 1.4353815414190396
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float64",
+              "zeros": "one",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.004973378499319855,
+            "candidate_seconds": 0.0001053610315663551,
+            "ratio": 0.02118500162027965
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float64",
+              "zeros": "two",
+              "mode": "inference"
+            },
+            "baseline_seconds": 9.727993989817186e-06,
+            "candidate_seconds": 1.333004299732795e-05,
+            "ratio": 1.3702766481230584
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float64",
+              "zeros": "two",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.004925162641267802,
+            "candidate_seconds": 0.00010674594580719216,
+            "ratio": 0.0216735879771301
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float32",
+              "zeros": "none",
+              "mode": "inference"
+            },
+            "baseline_seconds": 0.00016915364818725274,
+            "candidate_seconds": 0.00010994543515509747,
+            "ratio": 0.6499737743367385
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float32",
+              "zeros": "none",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.07870102099695941,
+            "candidate_seconds": 0.0003497679823166913,
+            "ratio": 0.004444262321961547
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float32",
+              "zeros": "one",
+              "mode": "inference"
+            },
+            "baseline_seconds": 0.00017297370794451804,
+            "candidate_seconds": 0.00010149826959459835,
+            "ratio": 0.5867843778151203
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float32",
+              "zeros": "one",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.07780177100357832,
+            "candidate_seconds": 0.0006536144714820004,
+            "ratio": 0.008401023049358849
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float32",
+              "zeros": "two",
+              "mode": "inference"
+            },
+            "baseline_seconds": 0.00016629909041691046,
+            "candidate_seconds": 0.00010326042581602796,
+            "ratio": 0.6209319940184574
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float32",
+              "zeros": "two",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.09564368749852292,
+            "candidate_seconds": 0.0006562809265266217,
+            "ratio": 0.006861727560815312
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float64",
+              "zeros": "none",
+              "mode": "inference"
+            },
+            "baseline_seconds": 0.00016601063912987805,
+            "candidate_seconds": 0.00011478591081850046,
+            "ratio": 0.6914370754798309
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float64",
+              "zeros": "none",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.07769581249158364,
+            "candidate_seconds": 0.00034926406458861235,
+            "ratio": 0.004495275271449748
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float64",
+              "zeros": "one",
+              "mode": "inference"
+            },
+            "baseline_seconds": 0.00016657935100359197,
+            "candidate_seconds": 0.00010880553017287943,
+            "ratio": 0.6531753756834677
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float64",
+              "zeros": "one",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.07712468750105472,
+            "candidate_seconds": 0.0006851615802886486,
+            "ratio": 0.008883816615519883
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float64",
+              "zeros": "two",
+              "mode": "inference"
+            },
+            "baseline_seconds": 0.00017072155685228312,
+            "candidate_seconds": 0.00010628356422742816,
+            "ratio": 0.6225550316378033
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float64",
+              "zeros": "two",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.07610397900134558,
+            "candidate_seconds": 0.0006819438859695635,
+            "ratio": 0.008960686351990954
+          }
+        ],
+        "summary": [
+          {
+            "size": 16,
+            "mode": "inference",
+            "cases": 6,
+            "median_ratio": 1.3000695340706876,
+            "range": [
+              1.1873083669999904,
+              1.3965262781992986
+            ]
+          },
+          {
+            "size": 16,
+            "mode": "reverse",
+            "cases": 6,
+            "median_ratio": 0.9946102654837718,
+            "range": [
+              0.6421652829580365,
+              1.0600815681848206
+            ]
+          },
+          {
+            "size": 4096,
+            "mode": "inference",
+            "cases": 6,
+            "median_ratio": 1.2004556060163807,
+            "range": [
+              1.0077200661548906,
+              1.452897537971352
+            ]
+          },
+          {
+            "size": 4096,
+            "mode": "reverse",
+            "cases": 6,
+            "median_ratio": 0.019294827097771063,
+            "range": [
+              0.010283860329474249,
+              0.0216735879771301
+            ]
+          },
+          {
+            "size": 65536,
+            "mode": "inference",
+            "cases": 6,
+            "median_ratio": 0.6362644029872709,
+            "range": [
+              0.5867843778151203,
+              0.6914370754798309
+            ]
+          },
+          {
+            "size": 65536,
+            "mode": "reverse",
+            "cases": 6,
+            "median_ratio": 0.007631375305087081,
+            "range": [
+              0.004444262321961547,
+              0.008960686351990954
+            ]
+          }
+        ]
+      },
+      "minimum": {
+        "points": [
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float32",
+              "zeros": "none",
+              "mode": "inference"
+            },
+            "baseline_seconds": 3.668884734698243e-06,
+            "candidate_seconds": 6.071584691884943e-06,
+            "ratio": 1.6548856480726468
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float32",
+              "zeros": "none",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 6.700003945679711e-05,
+            "candidate_seconds": 5.0514642279068775e-05,
+            "ratio": 0.7539494407558008
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float32",
+              "zeros": "one",
+              "mode": "inference"
+            },
+            "baseline_seconds": 3.676366212346238e-06,
+            "candidate_seconds": 5.90059718469605e-06,
+            "ratio": 1.6050080008025966
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float32",
+              "zeros": "one",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 6.694543641916202e-05,
+            "candidate_seconds": 6.926388973801473e-05,
+            "ratio": 1.034631984536426
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float32",
+              "zeros": "two",
+              "mode": "inference"
+            },
+            "baseline_seconds": 3.6957447520080677e-06,
+            "candidate_seconds": 5.9764527966030745e-06,
+            "ratio": 1.6171173058842316
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float32",
+              "zeros": "two",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 6.543516755507482e-05,
+            "candidate_seconds": 7.029573455525143e-05,
+            "ratio": 1.074280653382382
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float64",
+              "zeros": "none",
+              "mode": "inference"
+            },
+            "baseline_seconds": 3.6855759051710694e-06,
+            "candidate_seconds": 5.543752030285271e-06,
+            "ratio": 1.5041752423297203
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float64",
+              "zeros": "none",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 5.9354812608288155e-05,
+            "candidate_seconds": 4.757610656825217e-05,
+            "ratio": 0.8015543218412716
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float64",
+              "zeros": "one",
+              "mode": "inference"
+            },
+            "baseline_seconds": 3.667348266844783e-06,
+            "candidate_seconds": 5.493980013640281e-06,
+            "ratio": 1.4980797060670346
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float64",
+              "zeros": "one",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 5.875537111192032e-05,
+            "candidate_seconds": 6.843259791510138e-05,
+            "ratio": 1.1647036963607527
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float64",
+              "zeros": "two",
+              "mode": "inference"
+            },
+            "baseline_seconds": 3.7081146242456953e-06,
+            "candidate_seconds": 5.512006188191752e-06,
+            "ratio": 1.4864713599065198
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float64",
+              "zeros": "two",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 5.903961902918342e-05,
+            "candidate_seconds": 6.746281437329619e-05,
+            "ratio": 1.1426702184502437
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float32",
+              "zeros": "none",
+              "mode": "inference"
+            },
+            "baseline_seconds": 1.3153644821097048e-05,
+            "candidate_seconds": 2.0852523455532625e-05,
+            "ratio": 1.585303825604854
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float32",
+              "zeros": "none",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.005934864665808467,
+            "candidate_seconds": 8.344129403388408e-05,
+            "ratio": 0.014059510828376644
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float32",
+              "zeros": "one",
+              "mode": "inference"
+            },
+            "baseline_seconds": 1.3256171613079107e-05,
+            "candidate_seconds": 2.029959389401427e-05,
+            "ratio": 1.5313315553327491
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float32",
+              "zeros": "one",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.00600375208305195,
+            "candidate_seconds": 0.00013197971831010883,
+            "ratio": 0.021982872790946125
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float32",
+              "zeros": "two",
+              "mode": "inference"
+            },
+            "baseline_seconds": 1.3168575531300203e-05,
+            "candidate_seconds": 2.0386183626333124e-05,
+            "ratio": 1.5480933057548623
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float32",
+              "zeros": "two",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.005904795899793196,
+            "candidate_seconds": 0.00013139715233105158,
+            "ratio": 0.022252615426665893
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float64",
+              "zeros": "none",
+              "mode": "inference"
+            },
+            "baseline_seconds": 1.3384419111934424e-05,
+            "candidate_seconds": 2.0685501865380887e-05,
+            "ratio": 1.5454911933336233
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float64",
+              "zeros": "none",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.00440960414354257,
+            "candidate_seconds": 8.271965031944535e-05,
+            "ratio": 0.01875897419059262
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float64",
+              "zeros": "one",
+              "mode": "inference"
+            },
+            "baseline_seconds": 1.3643621648304181e-05,
+            "candidate_seconds": 2.0802356563718647e-05,
+            "ratio": 1.5246946228756095
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float64",
+              "zeros": "one",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.004422015714746002,
+            "candidate_seconds": 0.000132936093727838,
+            "ratio": 0.030062329558110532
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float64",
+              "zeros": "two",
+              "mode": "inference"
+            },
+            "baseline_seconds": 1.3566731760893815e-05,
+            "candidate_seconds": 2.057239809337421e-05,
+            "ratio": 1.5163857040849196
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float64",
+              "zeros": "two",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.004385113142364259,
+            "candidate_seconds": 0.00013074818142724736,
+            "ratio": 0.029816375811173194
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float32",
+              "zeros": "none",
+              "mode": "inference"
+            },
+            "baseline_seconds": 0.00013897194017622495,
+            "candidate_seconds": 0.00016797708098207137,
+            "ratio": 1.2087122103142989
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float32",
+              "zeros": "none",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.09402547900390346,
+            "candidate_seconds": 0.0004682977958184449,
+            "ratio": 0.004980541453014066
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float32",
+              "zeros": "one",
+              "mode": "inference"
+            },
+            "baseline_seconds": 0.00013873182132602597,
+            "candidate_seconds": 0.00016111430470193522,
+            "ratio": 1.1613363333802806
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float32",
+              "zeros": "one",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.1175613119994523,
+            "candidate_seconds": 0.0008332722198936763,
+            "ratio": 0.007087979929124629
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float32",
+              "zeros": "two",
+              "mode": "inference"
+            },
+            "baseline_seconds": 0.0002112938606511719,
+            "candidate_seconds": 0.00016366060403995108,
+            "ratio": 0.7745639344918817
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float32",
+              "zeros": "two",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.09500645849766443,
+            "candidate_seconds": 0.0008283421447775668,
+            "ratio": 0.008718798257256691
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float64",
+              "zeros": "none",
+              "mode": "inference"
+            },
+            "baseline_seconds": 0.00015287281376493567,
+            "candidate_seconds": 0.00016669431234738185,
+            "ratio": 1.0904117497549222
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float64",
+              "zeros": "none",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.07090293699729955,
+            "candidate_seconds": 0.00046182514724321915,
+            "ratio": 0.00651348402197794
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float64",
+              "zeros": "one",
+              "mode": "inference"
+            },
+            "baseline_seconds": 0.00015606399826123576,
+            "candidate_seconds": 0.00016554979115576164,
+            "ratio": 1.0607814294149225
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float64",
+              "zeros": "one",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.07075727050687419,
+            "candidate_seconds": 0.0008156104640815683,
+            "ratio": 0.011526878555926353
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float64",
+              "zeros": "two",
+              "mode": "inference"
+            },
+            "baseline_seconds": 0.0001557284460616027,
+            "candidate_seconds": 0.00016510107965147185,
+            "ratio": 1.060185751716559
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float64",
+              "zeros": "two",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.07204537500365404,
+            "candidate_seconds": 0.0008175013349274315,
+            "ratio": 0.011347034211231032
+          }
+        ],
+        "summary": [
+          {
+            "size": 16,
+            "mode": "inference",
+            "cases": 6,
+            "median_ratio": 1.5545916215661584,
+            "range": [
+              1.4864713599065198,
+              1.6548856480726468
+            ]
+          },
+          {
+            "size": 16,
+            "mode": "reverse",
+            "cases": 6,
+            "median_ratio": 1.054456318959404,
+            "range": [
+              0.7539494407558008,
+              1.1647036963607527
+            ]
+          },
+          {
+            "size": 4096,
+            "mode": "inference",
+            "cases": 6,
+            "median_ratio": 1.5384113743331862,
+            "range": [
+              1.5163857040849196,
+              1.585303825604854
+            ]
+          },
+          {
+            "size": 4096,
+            "mode": "reverse",
+            "cases": 6,
+            "median_ratio": 0.022117744108806008,
+            "range": [
+              0.014059510828376644,
+              0.030062329558110532
+            ]
+          },
+          {
+            "size": 65536,
+            "mode": "inference",
+            "cases": 6,
+            "median_ratio": 1.0755965895849222,
+            "range": [
+              0.7745639344918817,
+              1.2087122103142989
+            ]
+          },
+          {
+            "size": 65536,
+            "mode": "reverse",
+            "cases": 6,
+            "median_ratio": 0.00790338909319066,
+            "range": [
+              0.004980541453014066,
+              0.011526878555926353
+            ]
+          }
+        ]
+      },
+      "wasm": {
+        "points": [
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float32",
+              "zeros": "none",
+              "mode": "inference"
+            },
+            "baseline_seconds": 9.079033793106475e-06,
+            "candidate_seconds": 1.3754271307046979e-05,
+            "ratio": 1.5149487952661125
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float32",
+              "zeros": "none",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.00015552024935798806,
+            "candidate_seconds": 9.743425496628892e-05,
+            "ratio": 0.6265052645460175
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float32",
+              "zeros": "one",
+              "mode": "inference"
+            },
+            "baseline_seconds": 8.956371613332698e-06,
+            "candidate_seconds": 1.2058195180084045e-05,
+            "ratio": 1.34632591195009
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float32",
+              "zeros": "one",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.00015019570199896194,
+            "candidate_seconds": 0.0001505383284493297,
+            "ratio": 1.0022812000996548
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float32",
+              "zeros": "two",
+              "mode": "inference"
+            },
+            "baseline_seconds": 1.0346770899875762e-05,
+            "candidate_seconds": 1.4778532510627902e-05,
+            "ratio": 1.42832316030167
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float32",
+              "zeros": "two",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.00018271458366541607,
+            "candidate_seconds": 0.00015486860241835615,
+            "ratio": 0.8475984746896229
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float64",
+              "zeros": "none",
+              "mode": "inference"
+            },
+            "baseline_seconds": 9.057793567680635e-06,
+            "candidate_seconds": 1.100637768530129e-05,
+            "ratio": 1.215127900968449
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float64",
+              "zeros": "none",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.0001527436955724511,
+            "candidate_seconds": 9.993929472708907e-05,
+            "ratio": 0.6542940731696828
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float64",
+              "zeros": "one",
+              "mode": "inference"
+            },
+            "baseline_seconds": 8.265191467870907e-06,
+            "candidate_seconds": 9.871539967698552e-06,
+            "ratio": 1.1943510330126008
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float64",
+              "zeros": "one",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.00015001073946629287,
+            "candidate_seconds": 0.00013867188475529132,
+            "ratio": 0.9244130470168813
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float64",
+              "zeros": "two",
+              "mode": "inference"
+            },
+            "baseline_seconds": 8.613393380266472e-06,
+            "candidate_seconds": 1.025116795615959e-05,
+            "ratio": 1.1901427815482464
+          },
+          {
+            "case": {
+              "size": 16,
+              "dtype": "float64",
+              "zeros": "two",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.00015150431467990342,
+            "candidate_seconds": 0.00013627099543626306,
+            "ratio": 0.8994529015505258
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float32",
+              "zeros": "none",
+              "mode": "inference"
+            },
+            "baseline_seconds": 1.3462987778730871e-05,
+            "candidate_seconds": 3.171490782592742e-05,
+            "ratio": 2.3557109571198858
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float32",
+              "zeros": "none",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.015848541749999945,
+            "candidate_seconds": 0.00014615420260988946,
+            "ratio": 0.009221933785162914
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float32",
+              "zeros": "one",
+              "mode": "inference"
+            },
+            "baseline_seconds": 1.4965953707939309e-05,
+            "candidate_seconds": 3.11090918840263e-05,
+            "ratio": 2.0786574976189587
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float32",
+              "zeros": "one",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.016200687500000033,
+            "candidate_seconds": 0.00025175447209039686,
+            "ratio": 0.01553974003204471
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float32",
+              "zeros": "two",
+              "mode": "inference"
+            },
+            "baseline_seconds": 1.3360491331226688e-05,
+            "candidate_seconds": 3.154687194000021e-05,
+            "ratio": 2.3612059734859874
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float32",
+              "zeros": "two",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.016731573000000166,
+            "candidate_seconds": 0.00023849214379698846,
+            "ratio": 0.014254018064947395
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float64",
+              "zeros": "none",
+              "mode": "inference"
+            },
+            "baseline_seconds": 1.5300705817559143e-05,
+            "candidate_seconds": 2.9989434796107105e-05,
+            "ratio": 1.9600033589098305
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float64",
+              "zeros": "none",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.01687461474999985,
+            "candidate_seconds": 0.00016036239506172714,
+            "ratio": 0.00950317369833457
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float64",
+              "zeros": "one",
+              "mode": "inference"
+            },
+            "baseline_seconds": 1.613705991943875e-05,
+            "candidate_seconds": 3.259061463958669e-05,
+            "ratio": 2.01961291600138
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float64",
+              "zeros": "one",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.016334739749999994,
+            "candidate_seconds": 0.0002468726882636053,
+            "ratio": 0.015113353015838861
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float64",
+              "zeros": "two",
+              "mode": "inference"
+            },
+            "baseline_seconds": 1.639334961432403e-05,
+            "candidate_seconds": 2.932868293505021e-05,
+            "ratio": 1.7890598093158254
+          },
+          {
+            "case": {
+              "size": 4096,
+              "dtype": "float64",
+              "zeros": "two",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.016075947999999896,
+            "candidate_seconds": 0.0002408575165214192,
+            "ratio": 0.014982476711259626
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float32",
+              "zeros": "none",
+              "mode": "inference"
+            },
+            "baseline_seconds": 0.00010469814811066134,
+            "candidate_seconds": 0.0001607459199879241,
+            "ratio": 1.5353272516150211
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float32",
+              "zeros": "none",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.2558651045000002,
+            "candidate_seconds": 0.0005999791364468842,
+            "ratio": 0.0023449041150778874
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float32",
+              "zeros": "one",
+              "mode": "inference"
+            },
+            "baseline_seconds": 0.00011215102201873164,
+            "candidate_seconds": 0.00015636418268290855,
+            "ratio": 1.3942287806953053
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float32",
+              "zeros": "one",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.2575625829999999,
+            "candidate_seconds": 0.0012580647302631626,
+            "ratio": 0.0048845011399158205
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float32",
+              "zeros": "two",
+              "mode": "inference"
+            },
+            "baseline_seconds": 0.00010975257608426197,
+            "candidate_seconds": 0.00014750628307212547,
+            "ratio": 1.3439892559686095
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float32",
+              "zeros": "two",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.25921460400000074,
+            "candidate_seconds": 0.0011926809782608597,
+            "ratio": 0.004601133423257496
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float64",
+              "zeros": "none",
+              "mode": "inference"
+            },
+            "baseline_seconds": 0.00015045374563501412,
+            "candidate_seconds": 0.00013784434459643174,
+            "ratio": 0.9161908466594675
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float64",
+              "zeros": "none",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.266112229,
+            "candidate_seconds": 0.0006598103864734337,
+            "ratio": 0.002479444063705294
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float64",
+              "zeros": "one",
+              "mode": "inference"
+            },
+            "baseline_seconds": 0.0001612332935001647,
+            "candidate_seconds": 0.00014110329774305445,
+            "ratio": 0.8751498817637829
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float64",
+              "zeros": "one",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.2752366875000005,
+            "candidate_seconds": 0.0012786808715415103,
+            "ratio": 0.004645750111134832
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float64",
+              "zeros": "two",
+              "mode": "inference"
+            },
+            "baseline_seconds": 0.0001632618607847053,
+            "candidate_seconds": 0.0001435544001650169,
+            "ratio": 0.8792892563825621
+          },
+          {
+            "case": {
+              "size": 65536,
+              "dtype": "float64",
+              "zeros": "two",
+              "mode": "reverse"
+            },
+            "baseline_seconds": 0.2888586670000004,
+            "candidate_seconds": 0.0012583952745098543,
+            "ratio": 0.004356439388089583
+          }
+        ],
+        "summary": [
+          {
+            "size": 16,
+            "mode": "inference",
+            "cases": 6,
+            "median_ratio": 1.2807269064592695,
+            "range": [
+              1.1901427815482464,
+              1.5149487952661125
+            ]
+          },
+          {
+            "size": 16,
+            "mode": "reverse",
+            "cases": 6,
+            "median_ratio": 0.8735256881200744,
+            "range": [
+              0.6265052645460175,
+              1.0022812000996548
+            ]
+          },
+          {
+            "size": 4096,
+            "mode": "inference",
+            "cases": 6,
+            "median_ratio": 2.0491352068101696,
+            "range": [
+              1.7890598093158254,
+              2.3612059734859874
+            ]
+          },
+          {
+            "size": 4096,
+            "mode": "reverse",
+            "cases": 6,
+            "median_ratio": 0.01461824738810351,
+            "range": [
+              0.009221933785162914,
+              0.01553974003204471
+            ]
+          },
+          {
+            "size": 65536,
+            "mode": "inference",
+            "cases": 6,
+            "median_ratio": 1.1300900513140384,
+            "range": [
+              0.8751498817637829,
+              1.5353272516150211
+            ]
+          },
+          {
+            "size": 65536,
+            "mode": "reverse",
+            "cases": 6,
+            "median_ratio": 0.00447878640567354,
+            "range": [
+              0.0023449041150778874,
+              0.0048845011399158205
+            ]
+          }
+        ]
+      }
+    },
+    "scope": "36 finite all-one inference or square/sum/backward complete flows; three sizes, two dtypes and zero patterns. Four ABBA observations per environment; CPU environments measured sequentially, Node uses two independent runtimes. Scoped latency observations, no allocation/RSS/WASM-heap or general speed guarantee."
+  },
+  "support_boundaries": [
+    "Complex autograd and forward outputs other than real float32/float64 remain unsupported.",
+    "Higher-order zero-input path is quadratic in scan length, matching the native differentiable omitted-product strategy.",
+    "No out buffers or general backward create_graph support is added.",
+    "Small and some medium inference calls remain slower; preserve these costs alongside large reverse gains."
+  ],
+  "retained_failures": [
+    "Initial offline HVP smoke expectation30 was corrected to32 using an independent omitted-factor oracle; source unchanged.",
+    "Initial boundary probe found eight singleton strict-HVP gaps and three nonfinite-zero HVP rejections; final31-case probes pass both native versions.",
+    "Initial2298-case WASM captures could not serialize results due to ENOSPC and are not counted;1031 fresh captures pass after verified duplicate-archive hardlink dedup."
+  ],
+  "remaining_qualification": [
+    "Version selection/bump and fresh wheel/sdist/installed-package qualification.",
+    "Full native application and all-module89 WASM qualification with fresh immutable exports.",
+    "Current-main integration, both frontend builds and actual nested Worker checks before any adoption.",
+    "A distinct evidence-supported guarded delivery path; the failed OpenSSL grant remains consumed."
+  ],
+  "main_adopted": false,
+  "exports_refreshed": false,
+  "ci_triggered": false,
+  "tagged": false,
+  "published": false,
+  "deployed": false,
+  "raw_archive": {
+    "path": "packages/torchwasm/benchmarks/results/cumprod-api-development-harness.tar.gz",
+    "sha256": "04953c3e1538840b954b27e8fbbdbff84e8005b958df3ac18781c8ad4c39d4c3",
+    "bytes": 1482733,
+    "manifest_sha256": "9c7e69bf35d772da96171b26f4e8c30fb7a7cf87d773a48e56ce4c911854582d",
+    "logical_files": 1581,
+    "unique_local_blobs": 321,
+    "format": "sha256-deduplicated-v1"
+  }
+}

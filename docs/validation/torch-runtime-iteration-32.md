@@ -93,7 +93,7 @@ namespace-import medians85.97 to86.93ms including NumPy and59.89 to59.84ms
 with NumPy already imported. First-import outliers are retained; zipfile remains
 unloaded.
 
-[Core evidence](../../packages/stridetorch/benchmarks/results/iteration-32.json)
+[Core evidence](../../packages/torchwasm/benchmarks/results/iteration-32.json)
 and its594-file archive retain raw probes, failed/corrected logs, frozen
 source/tests, exact package hashes, all process receipts and all timing blocks.
 The autograd browser JSON contains41 package Python modules plus4 compatibility
@@ -122,7 +122,7 @@ Public/private distribution hashes agree on all47 resources;the application
 wheel/sdist also match current server/catalog bytes and preserve disjoint wheel
 ownership.
 
-[Application integration evidence](../../packages/stridetorch/benchmarks/results/iteration-32-integration.json)
+[Application integration evidence](../../packages/torchwasm/benchmarks/results/iteration-32-integration.json)
 and its206-file archive retain actual full results,all gate receipts,exports,
 dependency identities and source hashes. Core source is5c5ed0f4;non-force main
 adoption revalidates ancestry and exact remote ref. The last positively verified
@@ -141,7 +141,7 @@ used/diagonal-NaN exception assertions:31038 pass,one optional skip,37warnings,
 skips both build and deploy;0.32 is not claimed deployed. The last verified live
 source remains0.31 atb3b56a19. Pinned47 resources/161exports and all artifact/log
 receipts are retained in
-[remote failure evidence](../../packages/stridetorch/benchmarks/results/iteration-32-remote-failure.json)
+[remote failure evidence](../../packages/torchwasm/benchmarks/results/iteration-32-remote-failure.json)
 and its12-file archive.0.33's expanded real WASM tests additionally expose quiet
 finite-factor failures and add explicit status handling under separate validation.
 The user's updated release policy requires local iteration without automatic CI

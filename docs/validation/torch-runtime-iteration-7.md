@@ -136,7 +136,7 @@ maintained tests. That log is retained; it is not counted as a successful full
 run. The correct maintained invocation above then completes with no errors.
 
 Final gate results and source identities are recorded in
-[iteration-7.json](../../packages/stridetorch/benchmarks/results/iteration-7.json).
+[iteration-7.json](../../packages/torchwasm/benchmarks/results/iteration-7.json).
 The native NN suite has 122 parameterized cases; 25 new NumPy-only NN contracts
 run alongside the existing model/optimizer/conversion/scheduler lifecycle suites.
 The maintained real-WASM checker now runs all five lifecycle files against the
@@ -151,7 +151,7 @@ Packaging and launcher tests also build both application/vendor and standalone
 wheels, check disjoint installed paths, and run unchanged torch-importing scripts
 from outside the checkout with argument and exit-code preservation.
 
-Use [bench_nn.py](../../packages/stridetorch/benchmarks/bench_nn.py), or the
+Use [bench_nn.py](../../packages/torchwasm/benchmarks/bench_nn.py), or the
 WASM runner's `--benchmark nn` option. Full logs, source freezes, memory samples
 and browser/Node harnesses remain in local
 `paperleet-wasm-evaluation-20261015/torch-iteration-7` evidence. Tracked published

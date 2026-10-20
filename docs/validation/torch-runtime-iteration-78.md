@@ -38,9 +38,9 @@ All 15,139 prior immutable resources are preserved; 180 new reachable assets and
 
 One early CPU attempt ended with exit 120 while local disk space was nearly exhausted and never produced a pytest summary. It is preserved as incomplete, not counted as passing. Completed task-owned temporary trees were removed, source/evidence preserved, and the selected source received the successful fresh suite above. Other failed harness attempts and the unselected casting implementation remain distinguishable from qualified results.
 
-Release policies are unchanged. No CI, tag, package publication or deployment was initiated. [Machine record](../../packages/stridetorch/benchmarks/results/iteration-78.json).
+Release policies are unchanged. No CI, tag, package publication or deployment was initiated. [Machine record](../../packages/torchwasm/benchmarks/results/iteration-78.json).
 
-[Raw evidence](../../packages/stridetorch/benchmarks/results/iteration-78-raw.tar.gz) — 7,835,131 bytes; SHA-256 `3d4320960c219dace85493cbdbe2d27cbd528d6f1fb3098ae698402c38eb2d28`.
+[Raw evidence](../../packages/torchwasm/benchmarks/results/iteration-78-raw.tar.gz) — 7,835,131 bytes; SHA-256 `3d4320960c219dace85493cbdbe2d27cbd528d6f1fb3098ae698402c38eb2d28`.
 
 ## Rebased UI validation
 
@@ -64,4 +64,4 @@ Complete frontend checks, both default and production path-routing builds, asset
 
 ## Main adoption
 
-Version 0.76.0 was adopted on main at `81048fef16ff1070fa816655e292d964d9d46bff` through the unchanged guarded ordinary-push wrapper. The remote ref, clean worktree and 2,625 qualified Git blobs were verified, including exact selected source and live export identities. This receipt adds adoption evidence; the runtime had already passed the recorded local gates. All 15,139 prior immutable asset tree entries retain their Git object identities and modes. The source commit had zero Actions runs at verification. No CI, tag, package publication or deployment was initiated. [Adoption receipt](../../packages/stridetorch/benchmarks/results/iteration-78-main-adoption.json).
+Version 0.76.0 was adopted on main at `81048fef16ff1070fa816655e292d964d9d46bff` through the unchanged guarded ordinary-push wrapper. The remote ref, clean worktree and 2,625 qualified Git blobs were verified, including exact selected source and live export identities. This receipt adds adoption evidence; the runtime had already passed the recorded local gates. All 15,139 prior immutable asset tree entries retain their Git object identities and modes. The source commit had zero Actions runs at verification. No CI, tag, package publication or deployment was initiated. [Adoption receipt](../../packages/torchwasm/benchmarks/results/iteration-78-main-adoption.json).

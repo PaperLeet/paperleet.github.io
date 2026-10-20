@@ -9,7 +9,7 @@ Inputs may be copied float32 NumPy arrays or same-session resident matrices.
 One command submission contains the compute passes and final packed readback.
 Requested outputs may be read, retained, or both; intermediate buffers are
 released and retained outputs close through an atomic `release_many` request.
-The [portable sources and examples](../../packages/stridetorch/benchmarks/webgpu_rpc/README.md)
+The [portable sources and examples](../../packages/torchwasm/benchmarks/webgpu_rpc/README.md)
 have no PaperLeet imports.
 
 ## Validation and failure handling

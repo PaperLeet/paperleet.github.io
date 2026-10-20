@@ -240,8 +240,8 @@ but this implementation has an observable temporary-lifetime cost; lowering that
 peak remains further work. These proxy numbers do not establish a WASM heap
 increase of the same percentage.
 
-[Machine report](../../packages/stridetorch/benchmarks/results/iteration-66.json)
-and [raw harness](../../packages/stridetorch/benchmarks/results/iteration-66-harness.tar.gz)
+[Machine report](../../packages/torchwasm/benchmarks/results/iteration-66.json)
+and [raw harness](../../packages/torchwasm/benchmarks/results/iteration-66-harness.tar.gz)
 contain source/test snapshots, frozen native inputs/outputs, prototype snapshots,
 profiles, failed development pilots, corrected scope audit, package artifacts,
 qualification programs, receipts and all timing samples. Archive: 24,483,830
@@ -276,7 +276,7 @@ and passes. The seven canonical release-policy files and size budgets remain
 unchanged; no workflow retry or deployment was initiated. Local Node 25 build
 success does not imply that the current Node 22 release gate passes.
 
-The reusable [WebGPU bridge probe](../../packages/stridetorch/benchmarks/webgpu_bridge.mjs)
+The reusable [WebGPU bridge probe](../../packages/torchwasm/benchmarks/webgpu_bridge.mjs)
 and [sandbox feasibility record](torch-webgpu-bridge-feasibility.md) also
 record a successful scalar Python/GPU roundtrip in a secure Worker, unavailable
 WebGPU in the tested opaque-origin Worker, and the asynchronous Python-entry

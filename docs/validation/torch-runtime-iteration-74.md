@@ -11,7 +11,7 @@ operations. An 8×8 tiled WGSL kernel accepts transpose flags; resident results
 can feed subsequent matrix products without a CPU read between them.
 The Python client copies upload/readback data and binds every handle to its
 own session. The portable sources have no PaperLeet imports:
-[`benchmarks/webgpu_rpc`](../../packages/stridetorch/benchmarks/webgpu_rpc/README.md).
+[`benchmarks/webgpu_rpc`](../../packages/torchwasm/benchmarks/webgpu_rpc/README.md).
 
 ## Verification
 

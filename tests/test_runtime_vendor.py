@@ -7,7 +7,7 @@ import subprocess
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-spec = importlib.util.spec_from_file_location("sync_stridetorch", ROOT / "scripts/sync_stridetorch.py")
+spec = importlib.util.spec_from_file_location("sync_torchwasm", ROOT / "scripts/sync_torchwasm.py")
 sync = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(sync)
 
@@ -24,7 +24,7 @@ def repositories(tmp_path):
     source = tmp_path / "runtime"
     source.mkdir()
     subprocess.run(["git", "-C", str(source), "init", "-q"], check=True)
-    for name in ["LICENSE", "NOTICE", "pyproject.toml", "src/stridetorch/__init__.py", "tests/test_sample.py"]:
+    for name in ["LICENSE", "NOTICE", "pyproject.toml", "src/torchwasm/__init__.py", "tests/test_sample.py"]:
         path = source / name
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text("initial runtime content\n")
@@ -47,7 +47,7 @@ def test_standalone_change_updates_runtime_not_product(repositories):
     owned = root / "web/App.tsx"
     owned.parent.mkdir()
     owned.write_text("local product UI")
-    (source / "src/stridetorch/__init__.py").write_text("reviewed runtime fix\n")
+    (source / "src/torchwasm/__init__.py").write_text("reviewed runtime fix\n")
     unrelated = source / ".github/workflows/do-not-run.yml"
     unrelated.parent.mkdir(parents=True)
     unrelated.write_text("not part of a runtime adoption")
@@ -60,7 +60,7 @@ def test_standalone_change_updates_runtime_not_product(repositories):
 
 def test_local_runtime_edits_stop_adoption(repositories):
     source, root, revision = repositories
-    owned = root / sync.PACKAGE / "src/stridetorch/__init__.py"
+    owned = root / sync.PACKAGE / "src/torchwasm/__init__.py"
     owned.write_text("unfinished local fix")
     with pytest.raises(ValueError, match="Local runtime changes"):
         sync.update(root, source, revision)
@@ -69,7 +69,7 @@ def test_local_runtime_edits_stop_adoption(repositories):
 
 def test_symlinks_and_mutable_revisions_are_rejected(repositories):
     source, root, _ = repositories
-    (source / "src/stridetorch/escape.py").symlink_to("../../LICENSE")
+    (source / "src/torchwasm/escape.py").symlink_to("../../LICENSE")
     revision = commit(source)
     with pytest.raises(ValueError, match="regular non-executable"):
         sync.update(root, source, revision)
@@ -81,11 +81,11 @@ def test_symlinks_and_mutable_revisions_are_rejected(repositories):
 
 def test_package_rename_requires_product_integration(repositories):
     source, root, previous = repositories
-    package = source / "src/stridetorch"
-    package.rename(source / "src/torchwasm")
+    package = source / "src/torchwasm"
+    package.rename(source / "src/stridetorch")
     revision = commit(source)
     with pytest.raises(ValueError, match="coordinated product integration"):
         sync.update(root, source, revision)
     assert sync.check(root)["revision"] == previous
-    assert (root / sync.PACKAGE / "src/stridetorch/__init__.py").is_file()
-    assert not (root / sync.PACKAGE / "src/torchwasm").exists()
+    assert (root / sync.PACKAGE / "src/torchwasm/__init__.py").is_file()
+    assert not (root / sync.PACKAGE / "src/stridetorch").exists()

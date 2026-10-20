@@ -119,7 +119,7 @@ and application distributions, non-force adoption and actual remote Quality/
 eligible Pages/live verification remain separate integration gates. Passing the
 independent library corpus alone is not used to claim those broader outcomes.
 
-[Core evidence](../../packages/stridetorch/benchmarks/results/iteration-28.json)
+[Core evidence](../../packages/torchwasm/benchmarks/results/iteration-28.json)
 includes all prototype/adopted sources,88 timing children, native probes,
 schema-fixture corrections, independent tests, minimum distributions and actual
 Node/Chrome receipts. Adopted source hashes refer only to `trial-transpose` and
@@ -157,7 +157,7 @@ profile comes from the repository variable. No manual visual browser review is
 claimed. The React checklist review preserves upstream account-key isolation,
 listener cleanup, lazy loading and keyboard guards without unrelated UI edits.
 
-[Integration evidence](../../packages/stridetorch/benchmarks/results/iteration-28-integration-gates.json)
+[Integration evidence](../../packages/torchwasm/benchmarks/results/iteration-28-integration-gates.json)
 and its205-file archive retain exports, current artifacts and logs. An initial
 nonexistent pytest path, receipt-verifier working-directory/syntax corrections
 and truncated terminal receipts are recorded explicitly. The affected-test log
@@ -182,7 +182,7 @@ references and158 immutable payloads, byte-for-byte, including both runtime
 profiles and Apache-2.0 LICENSE/NOTICE. No equivalent-descendant substitution is
 needed for this release. Version0.28 is positively verified on the site.
 
-[Remote adoption evidence](../../packages/stridetorch/benchmarks/results/iteration-28-remote-adoption.json)
+[Remote adoption evidence](../../packages/torchwasm/benchmarks/results/iteration-28-remote-adoption.json)
 and its13-file archive retain actual job/deploy steps, downloaded reports,
 infrastructure output, frozen hashes and the live checker. A first artifact-name
 typo is recorded; the actual plural browser-wasm-reports artifact was discovered

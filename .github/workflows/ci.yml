@@ -35,7 +35,7 @@ jobs:
         run: |
           python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
           python -m pip install -e .
-          python -m pip install -e ./packages/stridetorch
+          python -m pip install -e ./packages/torchwasm
       - name: Reference, mutation, determinism, and CPU budgets
         # Keep three repetitions and every per-module T3 limit. The aggregate
         # deadline leaves headroom for the growing catalog and runner variance.
@@ -104,9 +104,9 @@ jobs:
         run: |
           python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
           python -m pip install -e .
-          python -m pip install -e ./packages/stridetorch
+          python -m pip install -e ./packages/torchwasm
       - name: Test judge infrastructure
-        run: python -m pytest tests packages/stridetorch/tests -q
+        run: python -m pytest tests packages/torchwasm/tests -q
   browser-wasm:
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -127,7 +127,7 @@ jobs:
         run: |
           python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
           python -m pip install -e .
-          python -m pip install -e ./packages/stridetorch
+          python -m pip install -e ./packages/torchwasm
       - name: Export the current source into immutable browser bundles
         run: python -m paperleet.cli export
       - uses: actions/setup-node@v4

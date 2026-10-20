@@ -3,13 +3,13 @@ import pickle
 import numpy as np
 import pytest
 import torch
-from stridetorch import torch as lite, UnsupportedOperation
+from torchwasm import torch as lite, UnsupportedOperation
 
 
 
 @pytest.fixture(params=['scan', 'window', 'block', 'auto'], autouse=True)
 def algorithm(request, monkeypatch):
-    from stridetorch import _pooling
+    from torchwasm import _pooling
     monkeypatch.setattr(_pooling, '_ALGORITHM', request.param)
 
 

@@ -3,7 +3,7 @@ import copy
 import numpy as np
 import pytest
 import torch
-from stridetorch import torch as light
+from torchwasm import torch as light
 
 
 def close(a,b,dtype):

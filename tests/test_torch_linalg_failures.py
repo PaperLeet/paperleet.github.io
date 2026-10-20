@@ -2,7 +2,7 @@
 import numpy as np
 import pytest
 import torch as native
-from stridetorch import torch as lite
+from torchwasm import torch as lite
 
 
 @pytest.mark.parametrize('dtype',['float32','float64','complex64','complex128'])

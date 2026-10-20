@@ -31,7 +31,7 @@ def test_comparison_explicit_scalar_tensor_precision_and_broadcasting(op):
 @pytest.mark.parametrize('shape,bias', [((3,), False), ((5, 3), True), ((2, 4, 3), False), ((0, 3), True)])
 @pytest.mark.parametrize('wasm_kernel', [False, True])
 def test_linear_identical_parameters_match_native_values_and_all_gradients(dtype, shape, bias, wasm_kernel, monkeypatch):
-    from stridetorch import _nn
+    from torchwasm import _nn
     monkeypatch.setattr(_nn, '_WASM_LINEAR_GRADS', wasm_kernel)
     rng = np.random.RandomState(73)
     data, weight, offset = rng.randn(*shape).astype(dtype), rng.randn(2, 3).astype(dtype), rng.randn(2).astype(dtype)
@@ -63,7 +63,7 @@ def test_silu_forward_and_analytical_vjp_match_native(dtype):
 @pytest.mark.parametrize('shape,outputs', [((8,128),32),((2,4,128),32),((128,),256)])
 @pytest.mark.parametrize('wasm_kernel', [False,True])
 def test_large_linear_native_values_all_vjps_and_reverse_over_forward(dtype,shape,outputs,wasm_kernel,monkeypatch):
-    from stridetorch import _nn
+    from torchwasm import _nn
     monkeypatch.setattr(_nn,'_WASM_LINEAR_GRADS',wasm_kernel)
     rng=np.random.default_rng(1521)
     data=[rng.normal(size=shape).astype(dtype),(.1*rng.normal(size=(outputs,shape[-1]))).astype(dtype),rng.normal(size=outputs).astype(dtype)]

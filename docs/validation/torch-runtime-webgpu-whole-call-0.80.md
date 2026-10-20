@@ -94,8 +94,8 @@ values, additional operators and cross-device evaluation. These explicit VJP
 programs are not a substitute for that work.
 
 Machine-readable samples, source identities and process controls:
-[`webgpu-whole-call-0.80.json`](../../packages/stridetorch/benchmarks/results/webgpu-whole-call-0.80.json).
-The [raw harness archive](../../packages/stridetorch/benchmarks/results/webgpu-whole-call-0.80-harness.tar.gz)
+[`webgpu-whole-call-0.80.json`](../../packages/torchwasm/benchmarks/results/webgpu-whole-call-0.80.json).
+The [raw harness archive](../../packages/torchwasm/benchmarks/results/webgpu-whole-call-0.80-harness.tar.gz)
 contains 167 files, 718,014 bytes, SHA-256
 `42468a14da58ec5b451120eefb87ae545f33591eb15d9a973e10d2a176b66fa3`.
 Every payload was verified against the included SHA-256 manifest. Original

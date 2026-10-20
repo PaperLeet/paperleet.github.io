@@ -117,8 +117,8 @@ estimates are not measured browser transfer sizes.
 
 ## Adoption and release
 
-Reports are [`iteration-33.json`](../../packages/stridetorch/benchmarks/results/iteration-33.json)
-and [`iteration-33-integration.json`](../../packages/stridetorch/benchmarks/results/iteration-33-integration.json),
+Reports are [`iteration-33.json`](../../packages/torchwasm/benchmarks/results/iteration-33.json)
+and [`iteration-33-integration.json`](../../packages/torchwasm/benchmarks/results/iteration-33-integration.json),
 with hashed reproducibility archives. Main adoption is tracked separately from
 these local gates. No CI, tag, workflow dispatch or online publication has been
 triggered by this iteration. Canonical upstream [explicit release policy](../releasing.md)

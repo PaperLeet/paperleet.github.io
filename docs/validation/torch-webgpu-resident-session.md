@@ -5,7 +5,7 @@ matmul helper. Inputs, forward intermediates and a pullback immediately consumed
 by another GPU node can remain resident. Public values and gradients are CPU
 Tensors. Every requested matrix computation still executes; this is buffer
 reuse, not numerical-result memoization. The implementation and setup are in
-[the developer prototype](../../packages/stridetorch/benchmarks/webgpu_rpc/README.md).
+[the developer prototype](../../packages/torchwasm/benchmarks/webgpu_rpc/README.md).
 
 ## Ownership and protocol changes
 
@@ -136,8 +136,8 @@ package APIs, feature negotiation, wider operation/dtype/device coverage,
 task isolation and resident Tensor storage remain future work. No production
 GPU dispatch, CI, tag, publication or deployment is enabled.
 
-[Machine-readable qualification](../../packages/stridetorch/benchmarks/results/resident-session.json)
-and the [verified raw archive](../../packages/stridetorch/benchmarks/results/resident-session-harness.tar.gz)
+[Machine-readable qualification](../../packages/torchwasm/benchmarks/results/resident-session.json)
+and the [verified raw archive](../../packages/torchwasm/benchmarks/results/resident-session-harness.tar.gz)
 contain both candidates, native references, numerical/ownership probes, both
 six-process campaigns, transfer traces and replay dependencies. The archive
 has 504 files, 172 unique payloads and SHA-256
@@ -155,7 +155,7 @@ runtime remains 0.83.0; GPU dispatch remains opt-in developer code.
 
 The guarded ordinary push created no workflow run for this commit. Pages still
 uses the legacy `gh-pages` branch. No tag, publication or deployment was made.
-The [main adoption receipt](../../packages/stridetorch/benchmarks/results/resident-session-main-adoption.json)
-and its [raw evidence](../../packages/stridetorch/benchmarks/results/resident-session-main-adoption-harness.tar.gz)
+The [main adoption receipt](../../packages/torchwasm/benchmarks/results/resident-session-main-adoption.json)
+and its [raw evidence](../../packages/torchwasm/benchmarks/results/resident-session-main-adoption-harness.tar.gz)
 record the remote verification and push checks, including the initial integration
 hold for a separately reviewed frontend package-script addition.

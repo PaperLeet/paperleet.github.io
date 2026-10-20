@@ -2,7 +2,10 @@
 from importlib.resources import files
 from urllib.parse import urlsplit
 import json
-import tomllib
+try:
+    import tomllib
+except ModuleNotFoundError:  # Python 3.10; pytest supplies tomli on this version.
+    import tomli as tomllib
 
 from paperleet.catalog import problems
 
