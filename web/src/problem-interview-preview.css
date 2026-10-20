@@ -27,3 +27,10 @@
 @media(pointer:coarse){.problem-interview-origin>.text-button{min-height:44px}}
 
 .problem-interview-actions :is(a,button),.problem-interview-origin>.text-button{border-radius:8px}
+
+.problem-company-directory-results{min-width:0}
+.problem-company-directory-results>.problem-company-evidence{margin-top:10px;padding-top:0;border-top:0}
+.problem-company-matches{flex:1 1 100%;min-width:0}
+.problem-company-directory-results .library-source-no-match{width:100%;box-sizing:border-box;padding:14px 12px}
+.problem-company-directory-results>.problem-interview-status{margin-top:10px;font-size:var(--type-small)}
+.problem-interview-reference>.source-company-directory{margin-block:12px}
