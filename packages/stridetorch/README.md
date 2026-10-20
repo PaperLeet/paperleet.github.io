@@ -6,6 +6,13 @@ reverse-mode gradients and a validated forward-mode subset come from PaperLeet's
 existing browser adapter. Core API fixes and performance improvements are
 developed here and checked against independent native PyTorch results.
 
+Version **0.84** adds `index_select`, `index_add` and `scatter_add`, including
+analytic gradients, float32/64 forward differentiation and guarded in-place
+updates. Selection reverse allocates its zero accumulator directly; the
+[indexed CPU/WASM record](../../docs/validation/torch-indexed-cpu-wasm.md)
+records about 25%–50% lower traced peak allocation in the measured CPU cases.
+That measurement is an allocation result, not a latency or WASM heap claim.
+
 Version **0.83** releases unused operand arrays from ordinary multiplication
 and direct-division pullbacks. A measured large scalar chain reduces traced
 peak allocation by about 83%; the scoped latency costs are retained in the
@@ -506,6 +513,28 @@ parameter. Sparse/complex gradients and general higher-order graph construction
 remain outside the supported contract.
 
 ## Indexing and value selection
+
+`torch.index_select`, `torch.index_add` and `torch.scatter_add`, and their Tensor
+methods, support dense computation and real analytic gradients. Float32/64 JVP,
+tangent reverse and functional Jacobian/HVP are covered. Repeated half indices
+follow the tested native CPU accumulation routes; int32/int64 indices are
+accepted. Int32 scatter follows PyTorch 2.14 behavior; PyTorch 2.6 rejects it.
+
+```python
+features = torch.tensor([[1., 2.], [3., 4.], [5., 6.]], requires_grad=True)
+destinations = torch.tensor([0, 0, 1])
+grouped = torch.zeros(2, 2).index_add(0, destinations, features)
+assert grouped.tolist() == [[4., 6.], [5., 6.]]
+grouped.square().sum().backward()
+```
+
+`index_add_` and `scatter_add_` preserve destination storage and aliases for
+non-differentiable updates, including valid `no_grad` leaf updates. They check
+overlap and invalid indices before writing. Differentiable mutation, complex
+autograd and output buffers remain explicit unsupported cases. Pullbacks retain
+the index/source version guards needed by their active inputs rather than
+keeping intermediate value arrays alive. Empty/scalar scatter gradients reduce
+to the source shape where native autograd permits it.
 
 `torch.gather` and `Tensor.gather` support dense analytic gradients, float32/64
 JVP and reverse differentiation of the tangent. Repeated half gradients
