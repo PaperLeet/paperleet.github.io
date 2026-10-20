@@ -32,8 +32,9 @@ def test_shared_interview_taxonomy_and_preparation_paths_are_publishable():
                 'engineering.fb.com', 'nvidia.github.io', 'www.anthropic.com', 'www.apple.com',
                 'jobs.bytedance.com', 'talent.alibaba.com', 'careers.tencent.com', 'talent.baidu.com',
                 'zhaopin.meituan.com', 'zhaopin.kuaishou.cn', 'www.deepseek.com', 'x.ai', 'www.tesla.com', 'www.microsoft.com'}
-    # This archived, publisher-owned reference is deliberately pinned; arbitrary GitHub sources are not official resources.
-    official_code = {'https://github.com/meta-llama/llama3/blob/32b7ddc9b638f0fd6b04b80e1845536a95f7a5d5/llama/model.py': 'meta'}
+    # Publisher-owned code references outside the official hosts are exact URL/company pairs.
+    official_code = {'https://github.com/meta-llama/llama3/blob/32b7ddc9b638f0fd6b04b80e1845536a95f7a5d5/llama/model.py': 'meta',
+                     'https://www.tensorflow.org/tutorials/generative/cvae': 'google'}
     assert len({row['id'] for row in catalog['resources']}) == len(catalog['resources'])
     assert len({row['company'] for row in catalog['resources']}) >= 17
     for row in catalog['resources']:

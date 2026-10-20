@@ -574,6 +574,28 @@
       "description_en": "Read normalization, rotary positions, KV head repetition and cache updates in Meta’s 2024 reference implementation. The repository is archived; this source-reading link pins the historical revision.",
       "checked": "2026-10-20",
       "kind": "technical"
+    },
+    {
+      "id": "google-gan-course",
+      "company": "google",
+      "name": "Google GAN 课程：对抗损失与交替训练",
+      "name_en": "Google GAN course: adversarial losses and alternating training",
+      "url": "https://developers.google.com/machine-learning/gan",
+      "description": "通过 Google 官方课程复习生成器与判别器、交替训练、minimax 与非饱和目标，并思考如何判断训练状态。",
+      "description_en": "Review generators, discriminators, alternating training, minimax and non-saturating objectives, and training diagnostics through Google’s official course.",
+      "checked": "2026-10-20",
+      "kind": "technical"
+    },
+    {
+      "id": "tensorflow-vae-tutorial",
+      "company": "google",
+      "name": "TensorFlow 官方 VAE 教程：重参数化与 ELBO",
+      "name_en": "TensorFlow VAE tutorial: reparameterization and ELBO",
+      "url": "https://www.tensorflow.org/tutorials/generative/cvae",
+      "description": "对照 TensorFlow 官方卷积 VAE 教程阅读高斯后验、重参数化、Bernoulli 重建项与蒙特卡洛 ELBO 估计。",
+      "description_en": "Read Gaussian posteriors, reparameterization, Bernoulli reconstruction and Monte Carlo ELBO estimation in TensorFlow’s official convolutional VAE tutorial.",
+      "checked": "2026-10-20",
+      "kind": "technical"
     }
   ],
   "paths": [
