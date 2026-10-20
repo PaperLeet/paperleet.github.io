@@ -1,0 +1,15 @@
+.report-practice-search{flex-basis:100%;min-width:0;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--surface2)}
+.report-practice-search-field{display:flex;align-items:center;gap:9px;min-height:44px;min-width:0;border:1px solid var(--line);border-radius:8px;padding-inline:10px;background:var(--surface);color:var(--muted)}
+.report-practice-search-field:focus-within{border-color:var(--accent);outline:2px solid color-mix(in srgb,var(--accent) 15%,transparent);outline-offset:2px}
+.report-practice-search-field>svg{flex:none}.report-practice-search-field input{width:100%;min-width:0;min-height:44px;padding:8px 0;border:0;outline:none;background:transparent;color:var(--text);font:inherit;font-size:var(--type-body)}
+.report-practice-search-field input::-webkit-search-cancel-button{-webkit-appearance:none}
+.report-practice-search-field button{display:inline-flex;align-items:center;justify-content:center;flex:none;width:44px;height:44px;padding:0;border-radius:6px;color:var(--muted)}
+.report-practice-search-field button:hover{background:var(--surface2);color:var(--text)}
+.report-practice-search-count{display:block;margin-top:9px;color:var(--text-secondary);font-size:var(--type-small);font-variant-numeric:tabular-nums}
+.report-practice-search>p{margin:5px 0 0;font-size:var(--type-meta);line-height:1.7;color:var(--muted);overflow-wrap:anywhere}
+.report-practice-search-empty{display:flex;align-items:center;flex-wrap:wrap;gap:8px 16px;margin-top:12px;font-size:var(--type-small);line-height:1.7;color:var(--text-secondary)}
+.report-practice-search-empty button{min-height:44px}
+.interview-report-practice-item[data-practice-matched]{flex-direction:column;align-items:flex-start;gap:4px}
+.report-practice-match{max-width:100%;padding-inline:6px;font-size:var(--type-meta);line-height:1.7;color:var(--muted);overflow-wrap:anywhere}
+.interview-report-practice :is(.report-practice-match,a) mark{border-radius:2px;background:color-mix(in srgb,var(--accent) 16%,transparent);color:inherit}
+@media(max-width:600px){.report-practice-search{padding:10px}.report-practice-search-field input{font-size:16px}}
