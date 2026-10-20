@@ -8,23 +8,24 @@ import './report-practice-search.css';
 
 /** This field filters linked public practice only; it cannot change a report or practice queue. */
 export function useReportPracticeSearch({ids,topics,scope,expanded,listId,onCollapse}:{ids:readonly string[];topics:ReadonlyMap<string,ProblemTopic>;scope:string;expanded:boolean;listId:string;onCollapse:()=>void}){
- const {t}=useI18n(),root=useRef<HTMLDivElement>(null),input=useRef<HTMLInputElement>(null),composing=useRef(false),compositionScope=useRef<string>(undefined);
+ const {t}=useI18n(),root=useRef<HTMLDivElement>(null),input=useRef<HTMLInputElement>(null),composing=useRef(false),compositionLease=useRef<{scope:string;href:string}>(undefined);
  const [state,setState]=useState({scope,draft:'',query:''});
  const lease=useRef({scope,href:location.href});
+ // A fresh identity retires unfinished input even if the same source returns later.
  if(lease.current.scope!==scope){lease.current={scope,href:location.href};composing.current=false;}
  if(state.scope!==scope)setState({scope,draft:'',query:''});
  const draft=state.scope===scope&&expanded?state.draft:'',query=state.scope===scope&&expanded?state.query.trim():'';
  const matches=reportPracticeMatches(ids,topics,query),missing=ids.filter(id=>!topics.has(id)).length;
  const canAct=()=>expanded&&activeSourcePreview(root.current)&&!root.current?.closest('details:not([open])')&&lease.current.scope===scope&&lease.current.href===location.href;
  function change(value:string,transient=false){
-  if(!canAct()||transient&&compositionScope.current!==scope)return;
+  if(!canAct()||transient&&compositionLease.current!==lease.current)return;
   const next=transient?value:reportPracticeQuery(value);
   setState(previous=>({scope,draft:next,query:transient&&previous.scope===scope?previous.query:transient?'':next}));
  }
- function reset(){composing.current=false;compositionScope.current=undefined;setState({scope,draft:'',query:''});}
+ function reset(){composing.current=false;compositionLease.current=undefined;setState({scope,draft:'',query:''});}
  function clear(trigger:HTMLButtonElement){if(!canAct())return;reset();if(document.activeElement===trigger)input.current?.focus({preventScroll:true});}
  const controls=expanded&&ids.length>4?<div ref={root} className="report-practice-search" role="group" aria-label={t('查找本篇配套练习','Find practice in this experience')}>
-  <div className="report-practice-search-field"><Search size={17} aria-hidden="true"/><input ref={input} type="search" value={draft} maxLength={400} aria-label={t('查找配套练习','Find linked practice')} aria-controls={listId} aria-describedby={listId+'-search-help '+listId+'-search-count'} placeholder={t('题号、中英文名称或模块…','Number, title or module…')} onChange={event=>change(event.target.value,composing.current||(event.nativeEvent as InputEvent).isComposing===true)} onCompositionStart={()=>{if(canAct()){composing.current=true;compositionScope.current=scope;}}} onCompositionEnd={event=>{const expected=compositionScope.current;composing.current=false;compositionScope.current=undefined;if(expected===scope)change(event.currentTarget.value);else if(canAct())event.currentTarget.value=draft;}} onBlur={event=>{if(composing.current){composing.current=false;change(event.currentTarget.value);}}} onKeyDown={event=>{
+  <div className="report-practice-search-field"><Search size={17} aria-hidden="true"/><input ref={input} type="search" value={draft} maxLength={400} aria-label={t('查找配套练习','Find linked practice')} aria-controls={listId} aria-describedby={listId+'-search-help '+listId+'-search-count'} placeholder={t('题号、中英文名称或模块…','Number, title or module…')} onChange={event=>change(event.target.value,composing.current||(event.nativeEvent as InputEvent).isComposing===true)} onCompositionStart={()=>{if(canAct()){composing.current=true;compositionLease.current=lease.current;}}} onCompositionEnd={event=>{const expected=compositionLease.current;composing.current=false;compositionLease.current=undefined;if(expected===lease.current)change(event.currentTarget.value);else if(canAct())event.currentTarget.value=draft;}} onBlur={event=>{if(composing.current){composing.current=false;change(event.currentTarget.value);}}} onKeyDown={event=>{
    if(event.defaultPrevented||event.repeat||event.altKey||event.ctrlKey||event.metaKey||event.shiftKey||event.nativeEvent.isComposing||event.nativeEvent.keyCode===229||composing.current||document.activeElement!==event.currentTarget||!canAct())return;
    if(event.key==='Enter'){event.preventDefault();event.stopPropagation();}
    if(event.key==='Escape'){event.preventDefault();event.stopPropagation();if(draft||query)reset();else{reset();onCollapse();}}
