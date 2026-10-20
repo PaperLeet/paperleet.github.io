@@ -183,7 +183,7 @@ export function ReplyListControls({list,disabled,canAct}:{list:ReturnType<typeof
   <ReplyListCompact list={list} disabled={disabled} canAct={canAct}/>
   <span role="status">{t(`显示 ${list.shown.length} / ${list.total} 条回复`,`${list.shown.length} of ${list.total} replies shown`)}</span>
   {list.query&&list.firstMatch&&<button type="button" className="discussion-reply-first-match" disabled={disabled} onClick={()=>{if(list.firstMatch)list.seekSearchReply(list.firstMatch);}}>{t('跳到首条匹配','Go to first match')}</button>}
-  <div className="discussion-reply-search"><CommunitySearch applied={list.query} readingRevision={list.searchReadingRevision} onApply={list.chooseQuery} disabled={disabled} describedBy={help} label={t('搜索本帖回复','Search replies in this discussion')} placeholder={t('搜索内容、代码、作者或机构…','Search content, code, author or affiliation…')}/></div>
+  <div className="discussion-reply-search"><CommunitySearch applied={list.query} readingRevision={list.searchReadingRevision} onApply={list.chooseQuery} disabled={disabled} canAct={()=>!list.disabled&&canAct?.()!==false&&controlIsActive(list.root.current)} describedBy={help} label={t('搜索本帖回复','Search replies in this discussion')} placeholder={t('搜索内容、代码、作者或机构…','Search content, code, author or affiliation…')}/></div>
   <p id={help} className="discussion-reply-search-help">{list.authorOnly?t('仅搜索楼主的公开回复，多个关键词用空格分隔。支持代码、公式和公开所属机构；不搜索草稿。','Search public author replies only. Separate terms with spaces. Includes code, formulas and public affiliations; excludes drafts.'):t('搜索本帖全部公开回复，多个关键词用空格分隔。支持代码、公式和公开所属机构；不搜索草稿。','Search all public replies in this discussion. Separate terms with spaces. Includes code, formulas and public affiliations; excludes drafts.')}</p>
  </div>;
 }

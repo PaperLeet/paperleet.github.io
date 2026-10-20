@@ -18,7 +18,7 @@
 .library-pagination :is(button,select,input):focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .library-pagination .page-jump{flex-basis:auto;font-size:var(--type-small)}
 .library-pagination .page-jump :is(input,button){min-height:44px;border-radius:8px}
-.library-pagination .page-jump input{width:72px;font-variant-numeric:tabular-nums}
+.library-pagination .page-jump input{width:max(72px,calc(var(--page-jump-digits,2)*1ch + 24px));font-variant-numeric:tabular-nums}
 .library-pagination .library-page-arrow-label{white-space:nowrap;font-size:var(--type-small);font-weight:550}
 .library-pagination .page-jump button{font-weight:550}
 .library-pagination-compact{flex:0 1 auto;flex-wrap:wrap;justify-content:flex-end;gap:10px 16px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;margin:0 0 0 auto}
@@ -26,7 +26,7 @@
 .library-pagination-compact .library-page-arrow{flex:none}
 .library-pagination .library-quick-jump{flex-basis:auto;max-width:240px;gap:6px;justify-content:center;align-items:center}
 .library-quick-jump label>span{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
-.library-pagination .library-quick-jump input{width:58px;padding-inline:6px;background:var(--surface);font-weight:600}
+.library-pagination .library-quick-jump input{width:max(58px,calc(var(--page-jump-digits,2)*1ch + 20px));padding-inline:6px;background:var(--surface);font-weight:600}
 .library-pagination .library-quick-jump>span[aria-hidden]{min-height:44px;display:flex;align-items:center;white-space:nowrap}
 .library-pagination .library-quick-jump button{font-size:var(--type-small);border-color:var(--line);background:var(--surface);padding-inline:10px}
 .library-pagination .page-jump input:hover:not(:focus-visible):not([aria-invalid=true]){border-color:var(--text-secondary)}
@@ -75,3 +75,24 @@
 @container library-pages (max-width:700px){.library-pagination[data-single-page=true] .library-page-range{flex:1 1 auto;text-align:start}.library-pagination[data-single-page=true] .library-page-options{padding-top:0;border-top:0;justify-content:flex-end}}
 @media(forced-colors:active){.library-pagination .library-page-buttons{border-color:ButtonText}.library-pagination button[aria-current=page]{outline:2px solid Highlight;outline-offset:-3px}.library-pagination .library-quick-jump input[aria-invalid=true]{border-color:LinkText}}
 .library-pagination .page-jump input[aria-invalid=true]:focus-visible{box-shadow:0 0 0 3px color-mix(in srgb,var(--red,var(--chart-5)) 20%,transparent)}
+
+/* Size and quick navigation share a baseline; the footer keeps details in a separate band. */
+.library-pagination-compact .library-page-size{min-height:52px}
+.library-pagination:not(.library-pagination-compact){display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px 20px}
+.library-pagination:not(.library-pagination-compact) .library-page-buttons{grid-column:2;grid-row:1;justify-self:end}
+.library-pagination:not(.library-pagination-compact) .library-page-options{grid-column:1/-1;grid-row:2;min-width:0;gap:12px 18px;padding-top:14px;border-top:1px solid var(--line)}
+.library-pagination:not(.library-pagination-compact)[data-single-page=true] .library-page-options{grid-column:2;grid-row:1;padding-top:0;border-top:0}
+@container library-pages (max-width:700px){
+ .library-page-range{grid-column:1/-1}
+ .library-pagination:not(.library-pagination-compact) .library-page-buttons{grid-column:1/-1;grid-row:2;justify-self:center}
+ .library-pagination:not(.library-pagination-compact) .library-page-options{grid-column:1/-1;grid-row:3}
+ .library-pagination[data-single-page=true] .library-page-range{grid-column:1}
+ .library-pagination:not(.library-pagination-compact)[data-single-page=true] .library-page-options{grid-column:2;grid-row:1}
+}
+@media(max-width:700px){
+ .library-pagination:not(.library-pagination-compact) .library-page-range{grid-column:1/-1}
+ .library-pagination:not(.library-pagination-compact) .library-page-buttons{grid-column:1/-1;grid-row:2;justify-self:center}
+ .library-pagination:not(.library-pagination-compact) .library-page-options{grid-column:1/-1;grid-row:3}
+ .library-pagination[data-single-page=true] .library-page-range{grid-column:1}
+ .library-pagination:not(.library-pagination-compact)[data-single-page=true] .library-page-options{grid-column:2;grid-row:1}
+}

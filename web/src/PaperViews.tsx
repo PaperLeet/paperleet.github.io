@@ -31,6 +31,8 @@ const TableHeaders=deferredFeature<import('./LibraryResultControls').LibraryHead
 function LibraryHeadersFallback({moduleView}:import('./LibraryResultControls').LibraryHeaderProps){const {t}=useI18n();return <><span>{t('状态','Status')}</span><span>{moduleView?t('练习','Module'):t('论文','Paper')}</span><span className="paper-year">{moduleView?t('用时','Time'):t('年份','Year')}</span><span>{moduleView?t('难度','Difficulty'):t('已通过 / 模块','Solved / Modules')}</span><span/></>;}
 const LibraryOverview = deferredFeature(() => import('./LibraryOverview'), ['练习概览','practice overview'], {loading:()=>null});
 const LibraryPagination = deferredFeature<import('./LibraryPagination').Props>(()=>import('./LibraryPagination'), ['题库分页','library pages'], {loading:props=><LibraryPageFallback {...props}/>,failure:(props,retry)=><><LibraryPageFallback {...props}/><FeatureRetry retry={retry}/></>});
+const SearchMatch=deferredFeature<import('react').ComponentProps<typeof import('./LibrarySearchMatch').default>>(()=>import('./LibrarySearchMatch'),['搜索高亮','search highlighting'],{loading:props=><>{props.text}</>,failure:props=><>{props.text}</>});
+function LibrarySearchMatch(props:import('react').ComponentProps<typeof import('./LibrarySearchMatch').default>){return props.query.trim()?<SearchMatch {...props}/>:<>{props.text}</>;}
 
 function LibraryPageFallback({page,size,total,compact,onPage}:import('./LibraryPagination').Props){
  const {t}=useI18n(),pages=Math.max(1,Math.ceil(total/size));
@@ -195,7 +197,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
         {!waitingForStatus && (moduleView ? filteredModules.slice(offset,offset+size).map((module,index) => <div className="paper-result-group" key={module.id} role="listitem" aria-posinset={offset+index+1} aria-setsize={rowIds.length}>
           <AppLink className="problem-row paper-table-grid" data-module-id={module.id} href={withLibraryContext(module.number,viewHref)}>
             <StateIcon state={status(module,saved[module.id])} />
-            <div className="problem-info paper-info"><strong><span>{module.number}.</span>{locale === "en" ? module.translations?.en?.title || module.title : module.title}</strong>{directModules&&<span className="library-module-source">{papers.find(paper=>paper.module_ids.includes(module.id))?.short_title}</span>}<small>{t(module.module.goal,module.module.goal_en)}</small></div>
+            <div className="problem-info paper-info"><strong><span>{module.number}.</span><span className="library-row-title"><LibrarySearchMatch text={locale === "en" ? module.translations?.en?.title || module.title : module.title} query={query}/></span></strong>{directModules&&<span className="library-module-source"><LibrarySearchMatch text={papers.find(paper=>paper.module_ids.includes(module.id))?.short_title||''} query={query}/></span>}<small><LibrarySearchMatch text={t(module.module.goal,module.module.goal_en)} query={query}/></small></div>
             <span className="paper-year">{module.estimated_minutes || 25} min</span>
             <span className={`difficulty ${module.difficulty}`}>{({E:t("简单","Easy"),M:t("中等","Medium"),H:t("困难","Hard")} as Record<string,string>)[module.difficulty]}</span>
             <ChevronRight size={16} aria-hidden="true" />
@@ -207,7 +209,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
           const showMatches = !!query.trim() || diff !== "all";
           return <div className="paper-result-group" key={paper.id} role="listitem" aria-posinset={offset+index+1} aria-setsize={rowIds.length}><AppLink className="problem-row paper-table-grid" data-paper-id={paper.id} key={paper.id} href={withLibraryContext(`papers/${paper.id}`,viewHref)}>
             <StateIcon state={progress.state} />
-            <div className="problem-info paper-info"><div className="paper-title-line"><strong><span>{paper.number}.</span>{paper.short_title}</strong><span className="paper-title-tags">{paper.tags.map(tag => <span key={tag}>{tag}</span>)}</span></div><small title={paper.title}>{paper.title}</small></div>
+            <div className="problem-info paper-info"><div className="paper-title-line"><strong><span>{paper.number}.</span><span className="library-row-title"><LibrarySearchMatch text={paper.short_title} query={query}/></span></strong><span className="paper-title-tags">{paper.tags.map(tag => <span key={tag}>{tag}</span>)}</span></div><small title={paper.title}><LibrarySearchMatch text={paper.title} query={query}/></small></div>
             <span className="paper-year">{paper.kind === "course" ? t("专题", "Course") : paper.year || "—"}</span>
             <div className={`paper-row-progress ${progress.state}`}><b>{progress.completed}</b><span> / {progress.total}</span></div>
             <ChevronRight size={16} aria-hidden="true" />

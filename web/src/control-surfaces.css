@@ -88,7 +88,11 @@ button[aria-busy=true],button:disabled[aria-busy=true]{cursor:progress}
 .paper-library .paper-categories button{min-height:44px;transition:background-color .15s,color .15s}
 .paper-library .paper-categories button>span:not(.bilingual-text){padding:1px 7px;border-radius:20px;background:color-mix(in srgb,currentColor 9%,transparent);opacity:1}
 .paper-library .paper-result-group>.problem-row:focus-visible{background:color-mix(in srgb,var(--accent) 7%,var(--surface))}
-.paper-library .paper-info strong{font-weight:550}
+.paper-library .paper-info strong{font-weight:550;align-items:baseline}
+.paper-library .paper-info strong>.library-row-title{flex:1 1 auto;min-width:0;font:inherit;color:inherit;overflow-wrap:anywhere}
+.paper-library .library-search-match{padding:0;border-radius:3px;background:color-mix(in srgb,var(--accent) 22%,var(--surface));color:inherit;box-decoration-break:clone;-webkit-box-decoration-break:clone;text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:3px}
+.paper-library .library-reset-filters{display:inline-flex;align-items:center;justify-content:center;gap:7px;color:var(--text-secondary)}
+.paper-library .library-reset-filters>svg{flex:none}
 @media(prefers-reduced-motion:reduce){.paper-library .paper-categories button{transition:none}}
 
 /* Optional sortable headings retain the same fixed table grid as their text fallback. */
