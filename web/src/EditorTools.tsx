@@ -42,7 +42,7 @@ export default function EditorTools(props:EditorToolsProps){
       onFont(size);try{localStorage.setItem('paperleet.editor.fontSize',String(size));}catch{/* This session keeps the selected size. */}
     }}>{editorFontSizes.map(size=><option key={size} value={size}>{size} px</option>)}</select></label>
     <SourceCopy key={JSON.stringify([props.owner,props.problem.id,source,props.ready])} source={source} ready={props.ready} canUseCode={canUseCode}/>
-    <ResetCodeButton key={`${props.owner}:${props.problem.id}`} {...reset}/>
+    <ResetCodeButton key={`${props.owner}:${props.problem.id}`} {...reset} canReview={canUseCode}/>
   </>;
 }
 function SourceCopy({source,ready,canUseCode}:{source:string;ready:boolean;canUseCode:()=>boolean}){
