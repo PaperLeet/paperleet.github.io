@@ -91,3 +91,23 @@
 .interview-search-context>small{color:var(--muted);font:inherit}
 .interview-search-context>span{color:var(--text);font:inherit}
 @media(forced-colors:active){.interview-search-context{border-color:Highlight}}
+
+/* Keep learning filters, ordering, and result actions in two readable tool rows. */
+.interview-ranking-controls{container:concept-controls / inline-size;margin:16px 0;padding:14px 16px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.interview-ranking-control-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px 20px;min-width:0}
+.interview-ranking-control-row>.interview-ranking-filters{display:flex;flex-wrap:wrap;gap:4px;margin:0;padding:4px;border:1px solid var(--line);border-radius:9px;background:var(--surface2)}
+.interview-ranking-control-row .interview-ranking-filters button{min-height:40px;padding:7px 10px;border-color:transparent;background:transparent;color:var(--text-secondary);font-size:var(--type-small);line-height:1.6}
+.interview-ranking-control-row .interview-ranking-filters button[aria-pressed="true"]{border-color:var(--line);background:var(--surface);color:var(--accent);box-shadow:0 1px 3px color-mix(in srgb,var(--text) 5%,transparent)}
+.interview-ranking-control-row .interview-ranking-filters button:not(:disabled):hover{color:var(--accent);background:var(--surface)}
+.interview-ranking-control-row>.interview-evidence-order{margin:0;gap:8px}
+.interview-ranking-control-row .interview-evidence-order>span{font-weight:500;white-space:nowrap}
+.interview-ranking-control-row .interview-evidence-order select{min-width:150px;max-width:100%;font-size:var(--type-small)}
+.interview-ranking-order-help{margin:12px 0 0;color:var(--muted);font-size:var(--type-small);line-height:1.7;overflow-wrap:anywhere}
+.interview-ranking-result-bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px 16px;margin:16px 0 10px;min-width:0}
+.interview-ranking-result-bar>.interview-ranking-result-count{flex:1 1 210px;justify-content:flex-start;flex-wrap:wrap;margin:0;font-size:var(--type-small);line-height:1.7}
+.interview-ranking-result-bar>.interview-ranking-display{margin:0;justify-content:flex-start}
+.interview-ranking-result-bar .interview-ranking-display>button{font-size:var(--type-small);min-height:40px;padding:7px 10px}
+@container concept-controls (max-width:640px){.interview-ranking-control-row>.interview-ranking-filters{flex:1 1 100%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}.interview-ranking-control-row .interview-ranking-filters button{min-width:0;flex-wrap:wrap;gap:3px 7px;padding-inline:5px}.interview-ranking-control-row>.interview-evidence-order{flex:1 1 100%;justify-content:space-between}.interview-ranking-control-row .interview-evidence-order select{flex:1;min-width:0;max-width:240px}}
+@media(max-width:480px){.interview-ranking-controls{padding:12px}.interview-ranking-result-bar>.interview-ranking-display{flex:1 1 100%}.interview-ranking-result-bar .interview-ranking-display>button{flex:1;white-space:normal;text-align:center}.interview-ranking-control-row .interview-ranking-filters button{min-height:44px}}
+@media(pointer:coarse){.interview-ranking-control-row .interview-ranking-filters button,.interview-ranking-result-bar .interview-ranking-display>button{min-height:44px}}
+@media(forced-colors:active){.interview-ranking-control-row .interview-ranking-filters button[aria-pressed="true"]{border-color:Highlight;color:Highlight;box-shadow:none}}
