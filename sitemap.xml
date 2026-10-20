@@ -69,6 +69,9 @@
   <url><loc>https://paperleet.com/papers/bert/</loc></url>
   <url><loc>https://paperleet.com/papers/gan/</loc></url>
   <url><loc>https://paperleet.com/papers/dropout/</loc></url>
+  <url><loc>https://paperleet.com/papers/es-at-scale/</loc></url>
+  <url><loc>https://paperleet.com/papers/visual-domain-prompt/</loc></url>
+  <url><loc>https://paperleet.com/papers/neural-thickets/</loc></url>
   <url><loc>https://paperleet.com/problems/rl/gae/</loc></url>
   <url><loc>https://paperleet.com/problems/rl/ppo_clip/</loc></url>
   <url><loc>https://paperleet.com/problems/rl/dpo/</loc></url>
@@ -158,6 +161,9 @@
   <url><loc>https://paperleet.com/problems/foundations/bert_mlm/</loc></url>
   <url><loc>https://paperleet.com/problems/representation/gan/</loc></url>
   <url><loc>https://paperleet.com/problems/architecture/dropout/</loc></url>
+  <url><loc>https://paperleet.com/problems/optimization/es_at_scale/</loc></url>
+  <url><loc>https://paperleet.com/problems/finetuning/visual_domain_prompt/</loc></url>
+  <url><loc>https://paperleet.com/problems/finetuning/neural_thickets/</loc></url>
   <url><loc>https://paperleet.com/collections/llm-basics/</loc></url>
   <url><loc>https://paperleet.com/collections/llm-frontier/</loc></url>
   <url><loc>https://paperleet.com/collections/retrieval/</loc></url>
