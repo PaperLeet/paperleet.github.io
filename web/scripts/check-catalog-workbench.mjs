@@ -4,17 +4,17 @@ import React, { act, useState } from 'react';
 import { JSDOM, VirtualConsole } from 'jsdom';
 import { createServer } from 'vite';
 
-const errors = [];
+const errors = [],expectedFilterErrors=[];
 const virtualConsole = new VirtualConsole();
-virtualConsole.on('jsdomError', error => errors.push(error));
+virtualConsole.on('jsdomError', error => error.message.includes('Controlled library filter renderer failure')?expectedFilterErrors.push(error):errors.push(error));
 const dom = new JSDOM('<!doctype html><div id="root"></div>', { url: 'http://paperleet.test/', virtualConsole });
-const globals = { window: dom.window, document: dom.window.document, Element: dom.window.Element, HTMLElement: dom.window.HTMLElement, localStorage: dom.window.localStorage, location: dom.window.location, scrollY: 0, innerHeight: 900, scrollTo() {}, IS_REACT_ACT_ENVIRONMENT: true, ResizeObserver: class { observe() {} disconnect() {} }, requestAnimationFrame: callback => setTimeout(callback, 0), cancelAnimationFrame: clearTimeout };
+const globals = { window: dom.window, document: dom.window.document, Element: dom.window.Element, HTMLElement: dom.window.HTMLElement, localStorage: dom.window.localStorage, location: dom.window.location, scrollY: 0, innerHeight: 900, scrollTo() {}, IS_REACT_ACT_ENVIRONMENT: true, __libraryFieldFixture:{fail:false,renders:0}, ResizeObserver: class { observe() {} disconnect() {} }, requestAnimationFrame: callback => setTimeout(callback, 0), cancelAnimationFrame: clearTimeout };
 const previous = new Map(Object.keys(globals).map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]));
 for (const [key, value] of Object.entries(globals)) Object.defineProperty(globalThis, key, { value, writable: true, configurable: true });
 localStorage.setItem('paperleet.locale','zh');
 dom.window.matchMedia = () => ({ matches: false, addEventListener() {}, removeEventListener() {} });
 dom.window.HTMLElement.prototype.scrollIntoView = function () {};
-const server = await createServer({ server: { middlewareMode: true }, appType: 'custom', optimizeDeps: { noDiscovery: true, include: [] } });
+const server = await createServer({server:{middlewareMode:true,hmr:false,ws:false},appType:'custom',optimizeDeps:{noDiscovery:true,include:[]},plugins:[{name:'controlled-library-fields',enforce:'pre',resolveId(source,importer){if(source==='./LibraryResultControls'&&importer?.endsWith('/PaperViews.tsx'))return '\0controlled-library-fields';},load(id){if(id==='\0controlled-library-fields')return `import React from 'react';import {LibraryFilterFields as Actual} from '/src/LibraryResultControls.tsx';export * from '/src/LibraryResultControls.tsx';export {default} from '/src/LibraryResultControls.tsx';export function LibraryFilterFields(props){globalThis.__libraryFieldFixture.renders++;if(globalThis.__libraryFieldFixture.fail)throw Error('Controlled library filter renderer failure');return React.createElement(Actual,props);}`;}}]});
 let root;
 try {
   const { createRoot } = await import('react-dom/client');
@@ -24,13 +24,17 @@ try {
   const catalog = JSON.parse(fs.readFileSync('public/data/catalog.json', 'utf8'));
   const h = React.createElement;
   let route = '';
+  let editorMounts=0;
+  function Editor(){React.useEffect(()=>{editorMounts++;},[]);return h('textarea',{id:'filter-code-sentinel',defaultValue:'PRIVATE_LIBRARY_FILTER_CODE'});}
   function Library({ initialRoute = '' }) {
     const [view, setView] = useState(initialRoute);
     React.useLayoutEffect(()=>{window.history.replaceState(null,'',view||'/');},[view]);
-    return h(PaperLibrary, { ...catalog, saved: {}, route: view, onFilters: href => { window.history.replaceState(null,'',href); route = href; setView(href); } });
+    return h(React.Fragment,null,h(Editor),h(PaperLibrary, { ...catalog, saved: {}, route: view, onFilters: href => { window.history.replaceState(null,'',href); route = href; setView(href); } }));
   }
   const find = selector => document.querySelector(selector);
   const click = async element => { assert(element); await act(async () => element.click()); };
+  const wait=async predicate=>{for(let n=0;n<180&&!predicate();n++)await act(async()=>new Promise(resolve=>setTimeout(resolve,10)));assert(predicate(),'Catalog controls did not settle');};
+  const openFilters=async()=>{await click(find('.library-filter-toggle'));await wait(()=>find('[aria-label="模块难度筛选"]'));};
   const mount = async () => {
     root = createRoot(find('#root'));
     await act(async () => root.render(h(LocaleProvider, null, h(Library))));
@@ -41,6 +45,7 @@ try {
   await mount();
   const panel = find('.library-filter-panel'), toggle = find('.library-filter-toggle');
   assert(panel.hidden, 'Advanced filters start collapsed on desktop and mobile');
+  assert.equal(panel.querySelectorAll('select').length,0,'Collapsed fields do not mount before the first opening');assert.equal(globalThis.__libraryFieldFixture.renders,0);assert(find('.library-toolbar input')&&find('[data-paper-id]'),'The initial search and real first rows render without opening advanced controls');
   assert.equal(toggle.getAttribute('aria-controls'), panel.id);
   assert.equal(toggle.getAttribute('aria-expanded'), 'false');
   assert(!find('.library-company-controls') || find('.library-company-controls').closest('[hidden]') === panel, 'Any available company filters share the same disclosure');
@@ -60,6 +65,7 @@ try {
   await mount();
   assert.equal(find('.library-main').dataset.density, 'compact', 'Density survives a remount');
   await click(find('.difficulty-summary.E'));
+  assert(!find('[aria-label="模块难度筛选"]'),'A sidebar filter can apply before optional fields mount');await openFilters();
   assert(route.includes('difficulty=E'));
   assert.equal(find('.difficulty-summary.E').getAttribute('aria-pressed'), 'true');
   assert.equal(find('[aria-label="模块难度筛选"]').value, 'E', 'Sidebar and toolbar use the same URL state');
@@ -76,13 +82,13 @@ try {
   dom.window.Storage.prototype.setItem = setItem;
   const legacyTopic = '#/?tag=Top-k&sort=title';
   await act(async () => root.render(h(LocaleProvider, null, h(Library, { key: 'legacy-topic', initialRoute: legacyTopic }))));
+  await openFilters();
   const topic = find('[aria-label="主题筛选"]');
   assert.equal([...topic.options].filter(option => option.value.toLowerCase() === 'top-k').length, 1);
   assert.equal(topic.value.toLowerCase(), 'top-k', 'A differently cased existing URL still selects its visible topic');
   const paperLinks = [...document.querySelectorAll('.library-main a[href^="#/papers/"]')];
   assert.deepEqual(paperLinks.map(link => link.getAttribute('href').split('?')[0]).sort(), ['#/papers/llm-training-generation', '#/papers/sdpo']);
   assert(paperLinks.every(link => decodeURIComponent(link.getAttribute('href')).includes('tag=Top-k')), 'Reading keeps the original link spelling');
-  await click(find('.library-filter-toggle'));
   assert(!find('.library-filter-panel').hidden);
   topic.focus();
   await act(async () => { topic.value = 'Attention'; topic.dispatchEvent(new dom.window.Event('change', { bubbles: true })); });
@@ -96,6 +102,7 @@ try {
   assert(find('.library-filter-panel').hidden);
   assert.equal(document.activeElement, find('.library-filter-toggle'), 'Escape restores focus to the disclosure');
   assert.equal(route, '#/?sort=title', 'Closing filters keeps the active URL unchanged');
+  const closedRoute=route,closedValue=topic.value;await act(async()=>{topic.value=topic.options[1].value;topic.dispatchEvent(new dom.window.Event('change',{bubbles:true}));});assert.equal(route,closedRoute,'Closed native fields cannot change results');topic.value=closedValue;await openFilters();assert(find('[aria-label="主题筛选"]')===topic,'Reopening keeps the same native field');await click(find('.library-filter-toggle'));
   await click(find('.library-category-toggle'));
   const lateCategory = [...document.querySelectorAll('.paper-categories button')].at(-1);
   await click(lateCategory);
@@ -107,7 +114,7 @@ try {
   const companyChip = find('.active-filters [data-filter-id="company"]');
   assert(companyChip && companyChip.textContent.includes('OpenAI') && companyChip.textContent.includes('近 90 天'), 'Company and period stay visible while the detailed controls are collapsed');
   assert(find('.library-filter-panel').hidden);
-  for(let n=0;n<180&&!find('.library-company-controls');n++)await act(async()=>new Promise(resolve=>setTimeout(resolve,10)));
+  assert(!find('.library-filter-panel select'));await openFilters();await wait(()=>find('.library-company-controls'));await click(find('.library-filter-toggle'));
   assert.equal(find('.library-company-controls')?.closest('[hidden]'), find('.library-filter-panel'));
   assert.equal(find('.library-filter-toggle > span:not(.library-filter-icon)').textContent, '2', 'Company selection contributes to the advanced filter count');
   companyChip.focus();
@@ -116,6 +123,13 @@ try {
   assert(route.includes('difficulty=E')&&route.includes('sort=title')&&route.includes('view=modules'), 'Removing a company preserves other filters, view and ordering');
   assert.equal(document.activeElement,find('.active-filters [data-filter-id="difficulty"]'));
   console.log('PASS compact library filters: default collapse, shared company disclosure, category expansion/selected-category retention, Escape focus, URL preservation and visible removable company-period chips');
+
+  globalThis.__libraryFieldFixture.fail=true;await act(async()=>root.render(h(LocaleProvider,null,h(Library,{key:'controlled-filter-recovery',initialRoute:'#/?tag=Attention&sort=title'}))));
+  const recoverySearch=find('.library-toolbar input'),recoveryRow=find('[data-paper-id]'),recoveryEditor=find('#filter-code-sentinel'),recoveryToggle=find('.library-filter-toggle'),recoveryUrl=location.href,recoveryStorage=JSON.stringify({...localStorage}),recoveryMounts=editorMounts;recoveryEditor.value='PRIVATE_FILTER_RECOVERY';recoveryEditor.setSelectionRange(2,12,'backward');recoveryEditor.scrollTop=53;recoveryEditor.scrollLeft=17;recoveryEditor.focus();
+  await click(recoveryToggle);await wait(()=>find('.library-filter-panel [role="alert"] button'));assert(document.activeElement===recoveryEditor,'Loading or rendering optional fields cannot take newer code focus');assert(find('.library-toolbar input')===recoverySearch&&find('[data-paper-id]')===recoveryRow,'An optional filter error preserves the usable list and search');
+  const retry=find('.library-filter-panel [role="alert"] button'),failedRenders=globalThis.__libraryFieldFixture.renders;await click(recoveryToggle);await click(retry);assert.equal(globalThis.__libraryFieldFixture.renders,failedRenders,'Hidden retry cannot start a render');await click(recoveryToggle);window.history.replaceState(null,'','#/favorites');await click(retry);assert.equal(globalThis.__libraryFieldFixture.renders,failedRenders,'Retired retry cannot start a render');assert(document.activeElement===recoveryEditor);window.history.replaceState(null,'',recoveryUrl);
+  globalThis.__libraryFieldFixture.fail=false;retry.focus();await click(retry);await wait(()=>find('[aria-label="主题筛选"]'));assert(document.activeElement===recoveryToggle,'Successful retry keeps focus on the stable disclosure');assert(find('.library-toolbar input')===recoverySearch&&find('[data-paper-id]')===recoveryRow);assert.equal(find('#filter-code-sentinel'),recoveryEditor);assert.equal(editorMounts,recoveryMounts);assert.deepEqual([recoveryEditor.value,recoveryEditor.selectionStart,recoveryEditor.selectionEnd,recoveryEditor.selectionDirection,recoveryEditor.scrollTop,recoveryEditor.scrollLeft],['PRIVATE_FILTER_RECOVERY',2,12,'backward',53,17]);assert.equal(location.href,recoveryUrl);assert.equal(JSON.stringify({...localStorage}),recoveryStorage);
+  console.log('PASS deferred library fields: first rows/search before optional mount, URL filtering before opening, retained native fields across collapse/reopen, closed-field ownership, actual controlled renderer failure with unchanged rows/search/private draft and hidden/retired retry rejection followed by stable focus recovery');
 
   await act(async () => root.render(h(PaperLibrary, { ...catalog, saved: {}, progressReady: false })));
   assert(find('.library-progress-ring b').textContent.startsWith('—'), 'Unresolved progress must not render a fabricated zero');

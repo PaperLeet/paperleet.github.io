@@ -57,3 +57,6 @@
   .paper-library .library-filter-toggle[aria-expanded="true"] { outline:2px solid Highlight; outline-offset:-3px; }
   .paper-library .library-toolbar .search:focus-within { outline:2px solid Highlight; outline-offset:2px; }
 }
+
+.paper-library .library-filter-panel>.feature-loading{min-height:44px;padding:10px 0;font-size:var(--type-small)}
+.paper-library .library-filter-panel>[role="alert"]>.text-button{min-height:44px;white-space:normal;text-align:start;font-size:var(--type-small)}

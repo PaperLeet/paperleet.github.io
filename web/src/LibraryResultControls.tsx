@@ -1,4 +1,7 @@
-import {ArrowDown,ArrowUp,ArrowUpDown,ArrowDownWideNarrow,BookOpen,Bookmark,Building2,Code2,List,Rows3,SlidersHorizontal,X} from 'lucide-react';
+import {useRef} from 'react';
+import {controlIsActive} from './activeControls';
+import {CompanyTools} from './LibraryCompanyTools';
+import {ArrowDown,ChevronDown,ArrowUp,ArrowUpDown,ArrowDownWideNarrow,BookOpen,Bookmark,Building2,Code2,List,Rows3,SlidersHorizontal,X} from 'lucide-react';
 import {useI18n} from './i18n';
 import type {LibraryFilters,LibrarySort} from './libraryNavigation';
 import {interviewLabel} from './interviewModels';
@@ -53,4 +56,20 @@ export function LibraryTableHeaders({moduleView,company,course,sort,listId,onSor
   return <button key={field} type="button" className={'library-column-sort'+(field==='duration'||field==='year'?' paper-year':'')} data-sort-column={field} aria-pressed={active} aria-controls={listId} aria-label={description} title={description} onClick={()=>onSort(next)}><span className="library-column-label">{name}</span>{field==='difficulty'&&<span className="library-column-short" aria-hidden="true">{t('难度','Level')}</span>}<Icon size={13} aria-hidden="true"/></button>;
  }
  return <><span>{t('状态','Status')}</span>{!moduleView||direct?column('title',moduleView?['练习','Module']:['论文','Paper'],['title']):<span>{t('练习','Module')}</span>}{!moduleView?column('year',['年份','Year'],['newest','oldest']):direct?column('duration',['用时','Time'],['duration','duration-desc']):<span className="paper-year">{t('用时','Time')}</span>}{direct?column('difficulty',['难度','Difficulty'],['difficulty','difficulty-desc']):<span>{moduleView?t('难度','Difficulty'):t('已通过 / 模块','Solved / Modules')}</span>}<span className="library-company-column-marker" title={t('题目操作','Exercise actions')}><span className="library-favorite-column-marker"><Bookmark size={16} aria-hidden="true"/></span><span className="library-source-column-marker"><Building2 size={16} aria-hidden="true"/></span><span className="sr-only">{t('题目操作','Exercise actions')}</span></span></>;
+}
+
+export type LibraryFilterFieldsProps={expanded:boolean;listId:string;tags:string[];selectedTag:string;difficulty:string;state:string;moduleView:boolean;progressReady:boolean;company:string;days:string;onChange:(patch:Partial<LibraryFilters>)=>void;canAct:()=>boolean;onRetry:()=>void};
+/** Optional fields mount on first opening and remain mounted for native input continuity. */
+export function LibraryFilterFields({expanded,listId,tags,selectedTag,difficulty,state,moduleView,progressReady,company,days,onChange,canAct}:LibraryFilterFieldsProps){
+ const {t}=useI18n(),root=useRef<HTMLDivElement>(null);
+ const active=()=>controlIsActive(root.current)&&canAct();
+ function choose(patch:Partial<LibraryFilters>,trigger:HTMLSelectElement){if(active()&&!trigger.disabled&&root.current?.contains(trigger))onChange(patch);}
+ return <>
+  <div className="filter-bar" ref={root} data-expanded={expanded}>
+   <div className="select-wrap" data-active={selectedTag!=="all"||undefined}><select aria-controls={listId} aria-label={t('主题筛选','Filter by topic')} value={selectedTag} onChange={event=>choose({tag:event.target.value},event.currentTarget)}><option value="all">{t('主题','Topic')}</option>{tags.map(name=><option key={name}>{name}</option>)}</select><ChevronDown size={12} aria-hidden="true"/></div>
+   <div className="select-wrap" data-active={difficulty!=="all"||undefined}><select aria-controls={listId} aria-label={t('模块难度筛选','Filter module difficulty')} value={difficulty} onChange={event=>choose({difficulty:event.target.value},event.currentTarget)}><option value="all">{t('难度','Difficulty')}</option><option value="E">{t('简单','Easy')}</option><option value="M">{t('中等','Medium')}</option><option value="H">{t('困难','Hard')}</option></select><ChevronDown size={12} aria-hidden="true"/></div>
+   <div className="select-wrap" data-active={state!=="all"||undefined}><select aria-controls={listId} aria-label={moduleView?t('练习状态筛选','Filter module status'):t('论文状态筛选','Filter paper status')} disabled={!progressReady} value={state} onChange={event=>choose({state:event.target.value},event.currentTarget)}><option value="all">{t('状态','Status')}</option><option value="todo">{t('未开始','Not started')}</option><option value="started">{t('进行中','In progress')}</option><option value="done">{t('已完成','Solved')}</option></select><ChevronDown size={12} aria-hidden="true"/></div>
+  </div>
+  <CompanyTools company={company} days={days} onChange={(company,days)=>{if(active())onChange({company:company||undefined,company_days:company?days:undefined});}}/>
+ </>;
 }
