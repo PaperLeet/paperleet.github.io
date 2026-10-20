@@ -1,0 +1,72 @@
+id: self_evolving/visplay_rewards
+number: 111
+title: VisPlay 图像分组奖励
+title_en: VisPlay Image-Grouped Rewards
+paper_id: visplay
+paper:
+  title: 'VisPlay: Self-Evolving Vision-Language Models from Images'
+  authors: Yicheng He, Chengsong Huang, Zongxia Li et al.
+  venue: CVPR 2026
+  arxiv: '2511.15661'
+  url: https://arxiv.org/abs/2511.15661
+  anchors:
+  - 'Section 2.3, Eqs. 5–8: per-image diversity and uncertainty'
+  official_code: https://github.com/Bruno686/VisPlay
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: image_group_rewards
+  signature: 'image_group_rewards(consistency: Tensor, image_ids: Tensor, clusters:
+    Tensor, valid: Tensor, strength: float=1.0) -> Tensor'
+module:
+  goal: VisPlay 图像分组奖励
+  goal_en: VisPlay Image-Grouped Rewards
+  scope: 按图像分组计算重复比例，并组合不确定性与格式奖励。
+  scope_en: Compute per-image repetition and combine uncertainty with format gating.
+  required_functions:
+  - image_group_rewards
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: CPU float32/float64; long IDs; bool masks.
+  contract: Finite inputs; no mutation. Starter docstrings define shapes, endpoints,
+    ties and gradient ownership.
+tests:
+  T0: 1
+  T1: 1
+  T2: 3
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+tags:
+- Self-Evolution
+- Self-Play
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-20'
+verified_sources:
+  checked_at: '2026-10-20'
+  links:
+  - https://arxiv.org/abs/2511.15661
+  - https://github.com/Bruno686/VisPlay
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2511.15661
+  anchor: 'Section 2.3, Eqs. 5–8: per-image diversity and uncertainty'
+  adaptation: A deterministic CPU toy policy trained with the submitted reward or
+    filtering function; not an LLM/VLM reproduction.
+mutants:
+- id: m1_global
+  bug: Use a global rather than image-local denominator.
+- id: m2_cross_image
+  bug: Collide local cluster IDs across images.
+- id: m3_no_floor
+  bug: Allow negative reward.
+- id: m4_format
+  bug: Reward malformed questions.
+- id: m5_scale
+  bug: Use the wrong uncertainty scale.

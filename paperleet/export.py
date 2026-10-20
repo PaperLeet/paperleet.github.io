@@ -4,11 +4,38 @@ import hashlib
 import re
 import base64
 import gzip
+import zopfli.gzip
 from pathlib import Path
 
 from paperleet.catalog import problems, root
 from paperleet.paper_catalog import CATEGORIES, paper_catalog, module_scope
 from paperleet.judge.loader import load_implementation
+
+
+def compact_index(index):
+    """Losslessly share repeated object keys before standard gzip transport.
+
+    Zopfli is build-only: browsers use their native gzip decoder. Old manifests
+    remain available to already-open clients; no starter/docstring is shortened.
+    """
+    shapes, known = [], {}
+
+    def pack(value):
+        if isinstance(value, list):
+            return [pack(item) for item in value]
+        if isinstance(value, dict):
+            keys = tuple(value)
+            if keys not in known:
+                known[keys] = len(shapes)
+                shapes.append(keys)
+            return {str(known[keys]): [pack(item) for item in value.values()]}
+        return value
+
+    tree = pack(index)
+    raw = json.dumps({"tree": tree, "shapes": shapes}, ensure_ascii=False,
+                     separators=(",", ":")).encode("utf-8")
+    return {"schema_version": 4, "payload": {"encoding": "gzip-base64", "bytes": len(raw),
+            "data": base64.b64encode(zopfli.gzip.compress(raw, numiterations=15)).decode("ascii")}}
 
 
 def web_readme(markdown: str, language: str = "zh") -> str:
@@ -137,4 +164,7 @@ def export_catalog():
         "starters": {"encoding": "gzip-base64", "bytes": len(sources),
                      "data": base64.b64encode(gzip.compress(sources, mtime=0)).decode("ascii")},
     })
+    write_json(destination.parent / "index-v4.json", compact_index({
+        "schema_version": 2, "categories": categories, "papers": papers, "problems": index,
+    }))
     return destination

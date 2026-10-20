@@ -1,0 +1,76 @@
+id: self_evolving/gzero_hint
+number: 109
+title: G-Zero 提示概率差
+title_en: G-Zero Hint-Delta
+paper_id: g-zero
+paper:
+  title: 'G-Zero: Self-Play for Open-Ended Generation from Zero Data'
+  authors: Chengsong Huang, Haolin Liu et al.
+  venue: arXiv 2026
+  arxiv: '2605.09959'
+  url: https://arxiv.org/abs/2605.09959
+  anchors:
+  - Section 3.1, Eq. 3; Section 3.2, Eq. 5
+  official_code: https://github.com/Chengsong-Huang/G-Zero
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: hint_delta
+  signature: 'hint_delta(base_logp: Tensor, hinted_logp: Tensor, mask: Tensor) ->
+    Tensor'
+- name: proposer_rewards
+  signature: 'proposer_rewards(delta: Tensor, hint_lengths: Tensor, cluster_share:
+    Tensor, valid: Tensor) -> Tensor'
+module:
+  goal: G-Zero 提示概率差
+  goal_en: G-Zero Hint-Delta
+  scope: 对齐相同答案的 token 概率，计算 Hint-δ 和出题奖励。
+  scope_en: Align same-answer token probabilities to compute Hint-δ and proposer rewards.
+  required_functions:
+  - hint_delta
+  - proposer_rewards
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: CPU float32/float64; long IDs; bool masks.
+  contract: Finite inputs; no mutation. Starter docstrings define shapes, endpoints,
+    ties and gradient ownership.
+tests:
+  T0: 1
+  T1: 1
+  T2: 3
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+tags:
+- Self-Evolution
+- Self-Play
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-20'
+verified_sources:
+  checked_at: '2026-10-20'
+  links:
+  - https://arxiv.org/abs/2605.09959
+  - https://github.com/Chengsong-Huang/G-Zero
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2605.09959
+  anchor: Section 3.1, Eq. 3; Section 3.2, Eq. 5
+  adaptation: A deterministic CPU toy policy trained with the submitted reward or
+    filtering function; not an LLM/VLM reproduction.
+mutants:
+- id: m1_sign
+  bug: Reverse Hint-delta.
+- id: m2_mask
+  bug: Include padding in the numerator.
+- id: m3_sum
+  bug: Sum rather than average token shifts.
+- id: m4_invalid
+  bug: Drop the invalid-format floor.
+- id: m5_length
+  bug: Scale character penalty by the wrong factor.

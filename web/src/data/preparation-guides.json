@@ -6151,6 +6151,475 @@
           }
         }
       ]
+    },
+    {
+      "id": "self_evolving/rzero_rewards",
+      "source": "problems/self_evolving/rzero_rewards/README.md",
+      "functions": [
+        "uncertainty_reward",
+        "challenger_rewards"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "这一步在论文的自演化循环中承担什么作用？",
+            "en": "What role does this step play in the paper’s co-evolution loop?"
+          },
+          "hint": {
+            "zh": "让出题者偏好 Solver 尚未稳定掌握的问题，同时惩罚重复模板。输入已完成答案归一化、题目聚类和格式检查。",
+            "en": "Train a challenger toward uncertain solver responses while penalizing repeated question templates. Answer normalization, clustering and format checks are supplied."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "实现时最容易混淆的归一化、分组或梯度约定是什么？",
+            "en": "Which normalization, grouping or gradient convention is easiest to confuse?"
+          },
+          "hint": {
+            "zh": "先算三角形不确定性奖励，再按整个批次计算聚类占比，最后截断并应用格式门控。例如 p=0.5，四题中两题同类，奖励为 0.5；若格式失败则为 0。",
+            "en": "Compute triangular uncertainty, then the cluster share over the whole batch, then floor at zero and gate by format. With p=0.5 and two duplicates in a batch of four, reward is 0.5; invalid format returns zero."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样构造一个可手算的小例子检查这个机制？",
+            "en": "How would you construct a hand-computable check for this mechanism?"
+          },
+          "hint": {
+            "zh": "一致率不是正确率；所有人给出同一个错误答案也会得到 p=1。格式无效的行仍属于本题规定的聚类分母。观测奖励必须脱离计算图。",
+            "en": "Agreement is not accuracy: unanimous wrong answers still give p=1. Invalid rows remain in this exercise’s clustering denominator. Observed rewards are detached."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "为什么最难的题不一定最有训练价值？",
+            "en": "Why is the hardest question not necessarily the most useful training question?"
+          },
+          "hint": {
+            "zh": "一致率不是正确率；所有人给出同一个错误答案也会得到 p=1。格式无效的行仍属于本题规定的聚类分母。观测奖励必须脱离计算图。",
+            "en": "Agreement is not accuracy: unanimous wrong answers still give p=1. Invalid rows remain in this exercise’s clustering denominator. Observed rewards are detached."
+          }
+        },
+        {
+          "id": "full-loop-evaluation",
+          "question": {
+            "zh": "教学策略的目标概率提高，能否说明完整模型在新任务上变强？",
+            "en": "Does improved target probability in the toy policy establish better full-model generalization?"
+          },
+          "hint": {
+            "zh": "区分固定观测记录上的局部更新和生成新数据的完整循环；需要独立测试集、真实标签检查与多轮实验。",
+            "en": "Distinguish a local update on fixed observations from the full loop that generates fresh data. Use held-out evaluation, independent label checks and multiple training rounds."
+          }
+        }
+      ]
+    },
+    {
+      "id": "self_evolving/rzero_curriculum",
+      "source": "problems/self_evolving/rzero_curriculum/README.md",
+      "functions": [
+        "consensus",
+        "curriculum_mask",
+        "pseudo_rewards"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "这一步在论文的自演化循环中承担什么作用？",
+            "en": "What role does this step play in the paper’s co-evolution loop?"
+          },
+          "hint": {
+            "zh": "将历史回答投票转换为固定伪标签，只保留信息量适中的题，再为新回答构造训练奖励。",
+            "en": "Turn historical answer votes into frozen pseudo-labels, retain an informative consistency band, and reward fresh answers against those labels."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "实现时最容易混淆的归一化、分组或梯度约定是什么？",
+            "en": "Which normalization, grouping or gradient convention is easiest to confuse?"
+          },
+          "hint": {
+            "zh": "对每道题沿回答轴计数。投票 [1,1,0,0] 平票时按本题约定取 0，一致率 0.5。用旧标签 1 评价新回答 [2,2,1] 时奖励为 [0,0,1]。",
+            "en": "Count along each question’s rollout axis. Votes [1,1,0,0] tie, so this exercise chooses 0 with consistency 0.5. Against frozen label 1, fresh answers [2,2,1] earn [0,0,1]."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样构造一个可手算的小例子检查这个机制？",
+            "en": "How would you construct a hand-computable check for this mechanism?"
+          },
+          "hint": {
+            "zh": "平票取最小 ID 是确定性教学约定。边界包含 0.25 和 0.75。新回答不能重新投票替换旧标签，否则训练目标会随当前回答漂移。答案等价判断由上游提供。",
+            "en": "Smallest-ID tie breaking is a deterministic teaching convention. Include both 0.25 and 0.75. Do not refresh the label from fresh answers: that changes the training target. Answer equivalence is provided upstream."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "怎样发现一个一致率很高但答案错误的伪标签？",
+            "en": "How could you detect a highly consistent but incorrect pseudo-label?"
+          },
+          "hint": {
+            "zh": "平票取最小 ID 是确定性教学约定。边界包含 0.25 和 0.75。新回答不能重新投票替换旧标签，否则训练目标会随当前回答漂移。答案等价判断由上游提供。",
+            "en": "Smallest-ID tie breaking is a deterministic teaching convention. Include both 0.25 and 0.75. Do not refresh the label from fresh answers: that changes the training target. Answer equivalence is provided upstream."
+          }
+        },
+        {
+          "id": "full-loop-evaluation",
+          "question": {
+            "zh": "教学策略的目标概率提高，能否说明完整模型在新任务上变强？",
+            "en": "Does improved target probability in the toy policy establish better full-model generalization?"
+          },
+          "hint": {
+            "zh": "区分固定观测记录上的局部更新和生成新数据的完整循环；需要独立测试集、真实标签检查与多轮实验。",
+            "en": "Distinguish a local update on fixed observations from the full loop that generates fresh data. Use held-out evaluation, independent label checks and multiple training rounds."
+          }
+        }
+      ]
+    },
+    {
+      "id": "self_evolving/gzero_hint",
+      "source": "problems/self_evolving/gzero_hint/README.md",
+      "functions": [
+        "hint_delta",
+        "proposer_rewards"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "这一步在论文的自演化循环中承担什么作用？",
+            "en": "What role does this step play in the paper’s co-evolution loop?"
+          },
+          "hint": {
+            "zh": "对同一段无提示回答，比较原问题与问题加提示两种上下文下的 token 概率；再加入提示长度和题目重复惩罚。",
+            "en": "Score the same unassisted answer under the original and hint-augmented contexts, then combine its token probability shift with hint-length and repetition penalties."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "实现时最容易混淆的归一化、分组或梯度约定是什么？",
+            "en": "Which normalization, grouping or gradient convention is easiest to confuse?"
+          },
+          "hint": {
+            "zh": "两次评分必须对齐到同一回答 token；提示本身不进入平均值。有效 token 的概率差为 [2,1] 时 δ=1.5。空行返回 0。无效格式用 -1 代替 δ 与长度项，但仍减去聚类占比。",
+            "en": "Align both scoring passes to the same response tokens; the hint itself is excluded. Token shifts [2,1] yield delta=1.5. Empty rows return zero. Invalid format replaces delta and length terms with -1, while retaining the cluster penalty."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样构造一个可手算的小例子检查这个机制？",
+            "en": "How would you construct a hand-computable check for this mechanism?"
+          },
+          "hint": {
+            "zh": "δ 是提示造成的概率变化代理量，不是真实质量增益，也不是完整 KL 散度。不要比较两段不同回答的概率。长度是字符数；奖励不截断到非负。Hint-δ 可微，最终奖励固定。",
+            "en": "Delta is a probability-shift proxy, not measured quality gain or a full KL divergence. Do not compare different responses. Length is in characters. Keep negative rewards. Hint-delta is differentiable; final rewards are fixed."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "如果提示直接泄露答案，较大 δ 为什么可能误导训练？",
+            "en": "Why might a large delta caused by answer leakage mislead training?"
+          },
+          "hint": {
+            "zh": "δ 是提示造成的概率变化代理量，不是真实质量增益，也不是完整 KL 散度。不要比较两段不同回答的概率。长度是字符数；奖励不截断到非负。Hint-δ 可微，最终奖励固定。",
+            "en": "Delta is a probability-shift proxy, not measured quality gain or a full KL divergence. Do not compare different responses. Length is in characters. Keep negative rewards. Hint-delta is differentiable; final rewards are fixed."
+          }
+        },
+        {
+          "id": "full-loop-evaluation",
+          "question": {
+            "zh": "教学策略的目标概率提高，能否说明完整模型在新任务上变强？",
+            "en": "Does improved target probability in the toy policy establish better full-model generalization?"
+          },
+          "hint": {
+            "zh": "区分固定观测记录上的局部更新和生成新数据的完整循环；需要独立测试集、真实标签检查与多轮实验。",
+            "en": "Distinguish a local update on fixed observations from the full loop that generates fresh data. Use held-out evaluation, independent label checks and multiple training rounds."
+          }
+        }
+      ]
+    },
+    {
+      "id": "self_evolving/gzero_pairs",
+      "source": "problems/self_evolving/gzero_pairs/README.md",
+      "functions": [
+        "preference_mask",
+        "build_preferences"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "这一步在论文的自演化循环中承担什么作用？",
+            "en": "What role does this step play in the paper’s co-evolution loop?"
+          },
+          "hint": {
+            "zh": "从已经评分的候选池中构造问题级偏好对，让 Generator 在没有提示的输入上学习有提示回答。",
+            "en": "Curate question-only preference pairs so the generator learns hint-assisted responses without receiving the hint in its training prompt."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "实现时最容易混淆的归一化、分组或梯度约定是什么？",
+            "en": "Which normalization, grouping or gradient convention is easiest to confuse?"
+          },
+          "hint": {
+            "zh": "先在完整候选池上求线性插值中位数，再应用质量掩码，保持原始顺序。δ=[-3,-2,10,11] 且前两项质量失败时，结果为空；不能重算中位数把后两项补进来。",
+            "en": "Compute the linearly interpolated median over the full pool before applying quality checks, preserving input order. For deltas [-3,-2,10,11], if the first two fail quality, retain nothing; do not refill from the upper half."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样构造一个可手算的小例子检查这个机制？",
+            "en": "How would you construct a hand-computable check for this mechanism?"
+          },
+          "hint": {
+            "zh": "包含中位数平票，所以保留数可能多于一半。允许负 δ。不要把 hint 放进 prompt，不要交换 chosen/rejected。质量评分本身已由上游完成。",
+            "en": "Include median ties, so more than half may survive. Negative deltas are allowed. Do not leak hints into prompts or reverse chosen/rejected. Structural quality evaluation is supplied upstream."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "为什么出题阶段追求高 δ，而训练数据阶段保留较低 δ？",
+            "en": "Why does proposer training favor high delta while preference curation retains lower delta?"
+          },
+          "hint": {
+            "zh": "包含中位数平票，所以保留数可能多于一半。允许负 δ。不要把 hint 放进 prompt，不要交换 chosen/rejected。质量评分本身已由上游完成。",
+            "en": "Include median ties, so more than half may survive. Negative deltas are allowed. Do not leak hints into prompts or reverse chosen/rejected. Structural quality evaluation is supplied upstream."
+          }
+        },
+        {
+          "id": "full-loop-evaluation",
+          "question": {
+            "zh": "教学策略的目标概率提高，能否说明完整模型在新任务上变强？",
+            "en": "Does improved target probability in the toy policy establish better full-model generalization?"
+          },
+          "hint": {
+            "zh": "区分固定观测记录上的局部更新和生成新数据的完整循环；需要独立测试集、真实标签检查与多轮实验。",
+            "en": "Distinguish a local update on fixed observations from the full loop that generates fresh data. Use held-out evaluation, independent label checks and multiple training rounds."
+          }
+        }
+      ]
+    },
+    {
+      "id": "self_evolving/visplay_rewards",
+      "source": "problems/self_evolving/visplay_rewards/README.md",
+      "functions": [
+        "image_group_rewards"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "这一步在论文的自演化循环中承担什么作用？",
+            "en": "What role does this step play in the paper’s co-evolution loop?"
+          },
+          "hint": {
+            "zh": "对每张无标注图片分别生成一组问题，并在图片内部计算重复惩罚。不同图片可以使用相同的局部聚类 ID。",
+            "en": "Generate question groups for unlabeled images and penalize repetition within each image. Different images may reuse local cluster IDs."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "实现时最容易混淆的归一化、分组或梯度约定是什么？",
+            "en": "Which normalization, grouping or gradient convention is easiest to confuse?"
+          },
+          "hint": {
+            "zh": "先用 image_ids 构造组，再在组内比较 clusters。某张图有四题，其中两题重复且 p=0.5，奖励为 0.5。加入另一张图片的题不能改变已有组的奖励。",
+            "en": "Group by image IDs before comparing cluster IDs. Two duplicates among four questions for one image with p=0.5 earn 0.5. Adding questions for another image must not change that group’s rewards."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样构造一个可手算的小例子检查这个机制？",
+            "en": "How would you construct a hand-computable check for this mechanism?"
+          },
+          "hint": {
+            "zh": "分母是当前图片的题目数，不是全局批次大小。局部聚类 ID 跨图片重用不代表重复。VisPlay 仍需要外部无标注图片；这里只实现观测反馈的奖励聚合。",
+            "en": "The denominator is the image-local question count, not the global batch. Reused cluster IDs across images do not imply duplication. VisPlay still requires unlabeled images; this exercise implements reward aggregation over observed feedback."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "为什么跨图片做全局去重会错误地惩罚合法问题？",
+            "en": "Why can global deduplication incorrectly penalize valid image-specific questions?"
+          },
+          "hint": {
+            "zh": "分母是当前图片的题目数，不是全局批次大小。局部聚类 ID 跨图片重用不代表重复。VisPlay 仍需要外部无标注图片；这里只实现观测反馈的奖励聚合。",
+            "en": "The denominator is the image-local question count, not the global batch. Reused cluster IDs across images do not imply duplication. VisPlay still requires unlabeled images; this exercise implements reward aggregation over observed feedback."
+          }
+        },
+        {
+          "id": "full-loop-evaluation",
+          "question": {
+            "zh": "教学策略的目标概率提高，能否说明完整模型在新任务上变强？",
+            "en": "Does improved target probability in the toy policy establish better full-model generalization?"
+          },
+          "hint": {
+            "zh": "区分固定观测记录上的局部更新和生成新数据的完整循环；需要独立测试集、真实标签检查与多轮实验。",
+            "en": "Distinguish a local update on fixed observations from the full loop that generates fresh data. Use held-out evaluation, independent label checks and multiple training rounds."
+          }
+        }
+      ]
+    },
+    {
+      "id": "self_evolving/mmzero_proposer",
+      "source": "problems/self_evolving/mmzero_proposer/README.md",
+      "functions": [
+        "diversity_adjustment",
+        "proposal_rewards"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "这一步在论文的自演化循环中承担什么作用？",
+            "en": "What role does this step play in the paper’s co-evolution loop?"
+          },
+          "hint": {
+            "zh": "为图像生成课程计算 Proposer 奖励：图片必须渲染成功，简单题提供可解性信号，困难题提供一致率信号，多样性调整防止单一模板占满训练池。",
+            "en": "Compute proposer feedback for a generated visual curriculum: rendering gates the score, easy questions provide solvability feedback, hard questions provide consistency, and diversity adjusts the task mixture."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "实现时最容易混淆的归一化、分组或梯度约定是什么？",
+            "en": "Which normalization, grouping or gradient convention is easiest to confuse?"
+          },
+          "hint": {
+            "zh": "对全部渲染尝试取平均，失败样本贡献零并保留在分母。两次尝试只有一次成功，成功项 easy=1、c=0.5，则基础奖励为 0.5。格式失败覆盖全部项，最终返回 -1。",
+            "en": "Average over every render attempt: failures contribute zero and remain in the denominator. With one success in two attempts, easy=1 and c=0.5 yield base reward 0.5. Invalid proposal format overrides everything with -1."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样构造一个可手算的小例子检查这个机制？",
+            "en": "How would you construct a hand-computable check for this mechanism?"
+          },
+          "hint": {
+            "zh": "简单题得分上限为 0.5；困难度项也至多 0.5。聚类多样性按 caption/easy/hard 权重 0.45/0.20/0.35 计算。M 是上游有效提案数，不一定等于当前张量行数。其余两项调整由调用者提供。",
+            "en": "Easy-question contribution caps at 0.5, as does difficulty. Diversity uses caption/easy/hard weights 0.45/0.20/0.35. M is the supplied valid proposal population, not necessarily this tensor’s row count. The other two adjustments are supplied."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "为什么只在成功渲染的样本上取平均会掩盖 Coder 的失败？",
+            "en": "Why would averaging only successful renders conceal coder failures?"
+          },
+          "hint": {
+            "zh": "简单题得分上限为 0.5；困难度项也至多 0.5。聚类多样性按 caption/easy/hard 权重 0.45/0.20/0.35 计算。M 是上游有效提案数，不一定等于当前张量行数。其余两项调整由调用者提供。",
+            "en": "Easy-question contribution caps at 0.5, as does difficulty. Diversity uses caption/easy/hard weights 0.45/0.20/0.35. M is the supplied valid proposal population, not necessarily this tensor’s row count. The other two adjustments are supplied."
+          }
+        },
+        {
+          "id": "full-loop-evaluation",
+          "question": {
+            "zh": "教学策略的目标概率提高，能否说明完整模型在新任务上变强？",
+            "en": "Does improved target probability in the toy policy establish better full-model generalization?"
+          },
+          "hint": {
+            "zh": "区分固定观测记录上的局部更新和生成新数据的完整循环；需要独立测试集、真实标签检查与多轮实验。",
+            "en": "Distinguish a local update on fixed observations from the full loop that generates fresh data. Use held-out evaluation, independent label checks and multiple training rounds."
+          }
+        }
+      ]
+    },
+    {
+      "id": "self_evolving/mmzero_feedback",
+      "source": "problems/self_evolving/mmzero_feedback/README.md",
+      "functions": [
+        "coder_rewards",
+        "solver_rewards"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "这一步在论文的自演化循环中承担什么作用？",
+            "en": "What role does this step play in the paper’s co-evolution loop?"
+          },
+          "hint": {
+            "zh": "分别计算 Coder 的执行与视觉反馈，以及 Solver 对银标签的一致性奖励。两个角色的奖励有不同的分量和端点。",
+            "en": "Compute coder execution/visual feedback and solver agreement with silver labels. These roles have different reward components and boundaries."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "实现时最容易混淆的归一化、分组或梯度约定是什么？",
+            "en": "Which normalization, grouping or gradient convention is easiest to confuse?"
+          },
+          "hint": {
+            "zh": "Coder 成功且 easy=0.8、c=0.5 时得 2.3；渲染与语法均失败得 -0.15。Solver 采用 α=0.9：答案同意但格式不合格仍得 0.9；不同意但格式合格得 0.1。",
+            "en": "Successful coder output with easy=0.8 and c=0.5 earns 2.3; both render and syntax failure earn -0.15. For solver alpha=0.9, agreement with invalid format earns 0.9; disagreement with valid format earns 0.1."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样构造一个可手算的小例子检查这个机制？",
+            "en": "How would you construct a hand-computable check for this mechanism?"
+          },
+          "hint": {
+            "zh": "Coder 不使用 Proposer 的 easy 上限。失败渲染没有视觉分数，两类错误可叠加。论文 Eq.11 附近的 difficulty 二值范围注释与 Eq.7 不一致；本题采用 Eq.7 的连续 min(c,1-c)。Solver 格式项是加法而非门控。",
+            "en": "The coder does not inherit the proposer’s easy-score cap. Failed renders have no visual scores; error penalties can add. The binary difficulty range annotation near Eq.11 conflicts with Eq.7; this exercise uses the continuous min(c,1-c) from Eq.7. Solver format is additive, not a gate."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "三个角色共用一套奖励时，哪种奖励投机会首先出现？",
+            "en": "What reward exploitation might appear if all three roles shared one reward?"
+          },
+          "hint": {
+            "zh": "Coder 不使用 Proposer 的 easy 上限。失败渲染没有视觉分数，两类错误可叠加。论文 Eq.11 附近的 difficulty 二值范围注释与 Eq.7 不一致；本题采用 Eq.7 的连续 min(c,1-c)。Solver 格式项是加法而非门控。",
+            "en": "The coder does not inherit the proposer’s easy-score cap. Failed renders have no visual scores; error penalties can add. The binary difficulty range annotation near Eq.11 conflicts with Eq.7; this exercise uses the continuous min(c,1-c) from Eq.7. Solver format is additive, not a gate."
+          }
+        },
+        {
+          "id": "full-loop-evaluation",
+          "question": {
+            "zh": "教学策略的目标概率提高，能否说明完整模型在新任务上变强？",
+            "en": "Does improved target probability in the toy policy establish better full-model generalization?"
+          },
+          "hint": {
+            "zh": "区分固定观测记录上的局部更新和生成新数据的完整循环；需要独立测试集、真实标签检查与多轮实验。",
+            "en": "Distinguish a local update on fixed observations from the full loop that generates fresh data. Use held-out evaluation, independent label checks and multiple training rounds."
+          }
+        }
+      ]
     }
   ]
 }

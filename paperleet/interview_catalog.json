@@ -1109,6 +1109,27 @@
         "ml",
         "research"
       ]
+    },
+    {
+      "id": "self-evolving",
+      "name": "自演化",
+      "name_en": "Self-Evolving",
+      "description": "沿出题、反馈、课程筛选和视觉渲染理解模型如何自演化。",
+      "description_en": "Follow task generation, feedback, curriculum filtering and visual rendering through self-evolution.",
+      "modules": [
+        "self_evolving/rzero_rewards",
+        "self_evolving/rzero_curriculum",
+        "self_evolving/gzero_hint",
+        "self_evolving/gzero_pairs",
+        "self_evolving/visplay_rewards",
+        "self_evolving/mmzero_proposer",
+        "self_evolving/mmzero_feedback"
+      ],
+      "roles": [
+        "llm",
+        "ml",
+        "research"
+      ]
     }
   ]
 }
