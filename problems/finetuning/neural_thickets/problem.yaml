@@ -1,0 +1,82 @@
+id: finetuning/neural_thickets
+number: 106
+title: 随机专家与多数投票
+title_en: Random Experts and Majority Voting
+paper_id: neural-thickets
+paper:
+  title: 'Neural Thickets: Diverse Task Experts Are Dense Around Pretrained Weights'
+  authors: Yulu Gan, Phillip Isola
+  venue: ICML 2026
+  arxiv: '2603.12228'
+  url: https://arxiv.org/abs/2603.12228
+  anchors:
+  - 'Section 4, Eqs. (3)-(5): weight perturbations, top-K expert selection and prediction ensembling'
+  - 'Algorithm 1: RandOpt random guessing and majority voting'
+  official_code: https://github.com/sunrainyg/RandOpt
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: perturb_candidates
+  signature: 'perturb_candidates(theta: Tensor, noise: Tensor, scales: Tensor) -> Tensor'
+- name: select_experts
+  signature: 'select_experts(scores: Tensor, k: int) -> Tensor'
+- name: majority_vote
+  signature: 'majority_vote(predictions: Tensor, selected: Tensor, num_classes: int) -> Tensor'
+module:
+  goal: 随机搜索专家，集成预测。
+  goal_en: Select random experts and ensemble predictions.
+  scope: 参数扰动、专家筛选与多数投票。
+  scope_en: Parameter perturbation, expert selection and majority voting.
+  required_functions:
+  - perturb_candidates
+  - select_experts
+  - majority_vote
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: CPU float32/float64, matching floating dtype/device; discrete indices/predictions are long.
+  contract: Inputs meet the documented shapes and finite-arithmetic assumptions. No mutation or input-validation
+    code required. See each starter docstring for return, gradient and endpoint conventions.
+tests:
+  T0: 1
+  T1: 1
+  T2: 4
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+tags:
+- Neural Thickets
+- RandOpt
+- Ensemble Learning
+- Post-training
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-20'
+verified_sources:
+  checked_at: '2026-10-20'
+  links:
+  - https://arxiv.org/abs/2603.12228
+  - https://github.com/sunrainyg/RandOpt
+  - https://thickets.mit.edu/
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2603.12228
+  anchor: 'Section 4, Eqs. (3)-(5): weight perturbations, top-K expert selection and prediction ensembling'
+  adaptation: 120 random two-parameter linear classifiers, scales 0.25/0.5/1, 41 selection samples, 9 selected experts
+    and 80 distinct test samples; CPU float64, seed 42. A synthetic search demonstration, not proof of neural thicket
+    density or an LLM benchmark.
+mutants:
+- id: m1_ignore_scales
+  bug: Ignore per-candidate perturbation scales.
+- id: m2_lowest_scores
+  bug: Select the worst-scoring experts.
+- id: m3_reverse_ties
+  bug: Reverse original-index order on score ties.
+- id: m4_vote_all_models
+  bug: Include rejected experts in voting.
+- id: m5_largest_class_tie
+  bug: Break tied vote counts toward the largest class ID.

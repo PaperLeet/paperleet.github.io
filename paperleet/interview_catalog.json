@@ -697,7 +697,8 @@
         "architecture/attention",
         "rl/ppo_clip",
         "finetuning/ewc",
-        "foundations/continual_metrics"
+        "foundations/continual_metrics",
+        "finetuning/visual_domain_prompt"
       ],
       "roles": [
         "llm",
@@ -742,7 +743,9 @@
         "rl/dr_grpo",
         "rl/dapo",
         "rl/gspo",
-        "rl/dpo"
+        "rl/dpo",
+        "optimization/es_at_scale",
+        "finetuning/neural_thickets"
       ],
       "roles": [
         "llm",

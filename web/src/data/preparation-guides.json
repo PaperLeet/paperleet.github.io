@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "reviewed_on": "2026-10-19",
+  "reviewed_on": "2026-10-20",
   "modules": [
     {
       "id": "architecture/attention",
@@ -5945,6 +5945,137 @@
           "hint": {
             "zh": "在 0<p<1、q=1-p 时，展开平方可得 E[(Y-c)^2]=(x-c)^2+Var(Y)=(x-c)^2+x^2*p/q。保持激活均值没有消除损失中的方差项，也不能推出经过任意非线性网络后的输出均值不变。这是固定输入上的解析比较，不是泛化改善的保证。",
             "en": "For 0<p<1 and q=1-p, expanding the square gives E[(Y-c)^2]=(x-c)^2+Var(Y)=(x-c)^2+x^2*p/q. Preserving the activation mean leaves a variance term in the loss and does not preserve the output mean through arbitrary nonlinear networks. This fixed-input identity is not a generalization guarantee."
+          }
+        }
+      ]
+    },
+    {
+      "id": "optimization/es_at_scale",
+      "source": "problems/optimization/es_at_scale/README.md",
+      "functions": [
+        "reward_zscores",
+        "es_step"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "为什么 ES 的探索发生在参数空间？更新需要哪些信息？",
+            "en": "Why does ES explore in parameter space, and which observations determine an update?"
+          },
+          "hint": {
+            "zh": "比较扰动权重后获得的整段奖励与固定权重下的 token 采样；本题只使用奖励和已知方向。",
+            "en": "Compare complete-response rewards under perturbed weights with token sampling under fixed weights; this exercise needs rewards and known directions."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "怎样广播候选权重并处理相同奖励？为什么不再除以 sigma？",
+            "en": "How do candidate weights broadcast, what happens for equal rewards, and why is there no extra division by sigma?"
+          },
+          "hint": {
+            "zh": "总体标准差设置正下界，只归约候选轴；alpha 已包含尺度约定，输出不保留梯度图。",
+            "en": "Floor the population standard deviation and reduce only the population axis. Alpha already includes the scale convention; outputs carry no gradient graph."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "复制所有候选一次，或者对奖励取负，应该分别发生什么？",
+            "en": "What should happen if every candidate is duplicated or every reward is negated?"
+          },
+          "hint": {
+            "zh": "复制不改变均值更新，取负反转方向；单个候选和常数奖励检验退化行为。",
+            "en": "Replication preserves the mean update, while reward negation reverses its direction. Singleton and constant populations check degeneracy."
+          }
+        }
+      ]
+    },
+    {
+      "id": "finetuning/visual_domain_prompt",
+      "source": "problems/finetuning/visual_domain_prompt/README.md",
+      "functions": [
+        "apply_prompts",
+        "homeostatic_factor",
+        "homeostatic_penalty"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "冻结骨干后，视觉提示靠什么改变预测？域专用和域无关提示如何分工？",
+            "en": "How can visual prompts change predictions with a frozen backbone, and how do the two prompt roles differ?"
+          },
+          "hint": {
+            "zh": "输入画布仍可学习；域无关提示通过历史敏感性约束保持信息，本题不实现完整教师流程。",
+            "en": "The input canvas remains trainable. Historical sensitivity constrains the domain-agnostic prompt; the complete teacher pipeline is outside scope."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "稳态因子应在哪个轴累积？哪些张量必须断开梯度？",
+            "en": "Along which axis do homeostatic factors accumulate, and which tensors must be detached?"
+          },
+          "hint": {
+            "zh": "逐域计算重要性除以平方位移加 xi，再对历史域求和；历史记录、锚点和因子冻结。",
+            "en": "Normalize importance by squared displacement plus xi within each domain, then sum history. Freeze historical records, anchors and factors."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样用解析梯度和双像素实验区分平均错误与多余的二分之一？",
+            "en": "How can analytic gradients and the two-pixel experiment expose averaging or an extra one-half?"
+          },
+          "hint": {
+            "zh": "正则梯度是两倍强度乘因子乘位移；独立最优点为第一坐标 1/(1+8*strength)。",
+            "en": "The penalty gradient is twice strength times factor times displacement. The independent first-coordinate optimum is 1/(1+8*strength)."
+          }
+        }
+      ]
+    },
+    {
+      "id": "finetuning/neural_thickets",
+      "source": "problems/finetuning/neural_thickets/README.md",
+      "functions": [
+        "perturb_candidates",
+        "select_experts",
+        "majority_vote"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "RandOpt 为什么保留多个专家？它和 ES 合并方向的区别是什么？",
+            "en": "Why does RandOpt retain several experts, and how does this differ from ES direction averaging?"
+          },
+          "hint": {
+            "zh": "RandOpt 在预测答案上集成，ES 更新一个参数中心；保留专家也带来额外推理成本。",
+            "en": "RandOpt ensembles predicted answers, whereas ES updates one parameter center. Retaining experts also adds inference cost."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "候选尺度、专家索引和逐样本投票分别沿哪个维度处理？",
+            "en": "Which dimensions handle candidate scales, expert indices and per-sample voting?"
+          },
+          "hint": {
+            "zh": "从相同基座独立扰动；按选择集分数筛选索引，对选中专家轴计票，不能平均类别编号。",
+            "en": "Perturb a common base independently, select indices by selection-set scores, and count along the selected-expert axis; do not average class IDs."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何验证未选专家不影响结果，并避免测试标签泄漏到筛选过程？",
+            "en": "How do you verify rejected experts cannot affect results and prevent test-label leakage into selection?"
+          },
+          "hint": {
+            "zh": "改变未选专家预测应保持结果；选择集与测试集分离，另测两种并列值约定和空样本。",
+            "en": "Changing rejected predictions must preserve outputs. Separate selection/test data, then test both tie conventions and an empty sample batch."
           }
         }
       ]

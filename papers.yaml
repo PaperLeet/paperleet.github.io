@@ -843,3 +843,50 @@ papers:
       a generalization claim or image benchmark reproduction.
     module_ids:
     - architecture/dropout
+
+  - id: es-at-scale
+    number: 71
+    category: post-training
+    short_title: ES at Scale
+    year: 2026
+    tags:
+    - Evolution Strategies
+    - Post-training
+    - Black-box Optimization
+    summary: 按奖励组合随机参数扰动。
+    summary_en: Reward-weighted parameter perturbations.
+    scope: 奖励标准化与 ES 更新。
+    scope_en: Reward standardization and ES updates.
+    module_ids:
+    - optimization/es_at_scale
+  - id: visual-domain-prompt
+    number: 72
+    category: post-training
+    short_title: Visual Domain Prompt
+    year: 2023
+    tags:
+    - Continual Learning
+    - Test-Time Adaptation
+    - Visual Prompting
+    summary: 冻结模型，学习视觉提示。
+    summary_en: Adapt visual prompts with a frozen model.
+    scope: 提示叠加、历史因子与稳态正则。
+    scope_en: Prompt addition, historical factors and homeostatic regularization.
+    module_ids:
+    - finetuning/visual_domain_prompt
+  - id: neural-thickets
+    number: 73
+    category: post-training
+    short_title: Neural Thickets · RandOpt
+    year: 2026
+    tags:
+    - Neural Thickets
+    - RandOpt
+    - Ensemble Learning
+    - Post-training
+    summary: 随机搜索专家，集成预测。
+    summary_en: Select random experts and ensemble predictions.
+    scope: 参数扰动、专家筛选与多数投票。
+    scope_en: Parameter perturbation, expert selection and majority voting.
+    module_ids:
+    - finetuning/neural_thickets
