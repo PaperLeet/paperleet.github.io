@@ -3,6 +3,7 @@ import {controlIsActive} from './activeControls';
 import {useCommunityTranslation,TranslationNotice,TranslatedReply} from './CommunityTranslation';
 import JoinPrompt from './CommunityJoinPrompt';
 import CommunityHighlights from './CommunityHighlights';
+import CommunityBoardNavigation from './CommunityBoardNavigation';
 import {appLocation} from './appLocation';
 import AppLink from './AppLink';
 import {useCommunityTaxonomy} from './useCommunityTaxonomy';
@@ -627,7 +628,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
   const returnTo = communityFeedHref(topicId, filters);
   const requestKey = JSON.stringify([topicId, user?.id, solutions, solutionAvailable, category, tag, tag?tagsAvailable:undefined, following, saved, savedGate, search, page, sort, sortingAvailable, days, periodUnavailable]);
   const searchInput=useRef<HTMLInputElement>(null);
-  const boards = useRef<HTMLDivElement>(null),toolbar=useRef<HTMLDivElement>(null),feedList=useRef<HTMLDivElement>(null),resultGeneration=useRef(0);
+  const toolbar=useRef<HTMLDivElement>(null),feedList=useRef<HTMLDivElement>(null),resultGeneration=useRef(0);
   const [data, setData] = useState<Page<Post> & { requestKey?: string;generation?:number }>({ items: [], total: 0 }),
     [loading, setLoading] = useState(true),
     [failure, setFailure] = useState<FeedFailure>(),
@@ -659,20 +660,6 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
     root.focus({preventScroll:true});revealReadingTarget(root);choose({page:next});
   }
   const solutionReading=useSolutionReadingNavigation({enabled:embedded&&solutions&&!!onCode&&solutionAvailable&&!accountLoading,scope:JSON.stringify([user?.id||'guest',topicId,{...filters,page:undefined}]),page,generation:data.generation,ready:!pending&&!error&&feedAccessReady&&!sortingUnavailable&&!solutionUnavailable&&!periodUnavailable&&!tagUnavailable,failed:!!error,total:data.total,items:data.items,root:feedList,toolbar,onPage:page=>choose({page})});
-  useEffect(() => {
-    const board = boards.current;
-    if (!board) return;
-    const reveal = () => {
-      const selected = board.querySelector('button[aria-pressed="true"]');
-      if (!selected || board.scrollWidth <= board.clientWidth) return;
-      const frame = board.getBoundingClientRect(), item = selected.getBoundingClientRect();
-      const delta = item.left < frame.left ? item.left - frame.left : item.right > frame.right ? item.right - frame.right : 0;
-      if (delta) board.scrollBy({ left: delta });
-    };
-    reveal();
-    window.addEventListener('resize', reveal);
-    return () => window.removeEventListener('resize', reveal);
-  }, [category, locale]);
   useEffect(() => {
     let live = true;
     const generation=++resultGeneration.current;
@@ -741,8 +728,8 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
           <div className="social-page-heading community-heading">
             <h1>{solutions?t("社区题解","Community solutions"):topicId ? t("题目讨论", "Module discussions") : category === 'papers' ? t('论文讨论', 'Paper discussions') : t("社区", "Community")}</h1>
           </div>
-          <div ref={boards} className="community-board-scroll">
-            <section className="social-panel board-list">
+          <CommunityBoardNavigation canAct={canChangeFilter}>
+            <section className="social-panel board-list" aria-label={t('社区版位','Community boards')}>
               <span className="sidebar-label">{t("版块", "Boards")}</span>
               <button
                 className={!category&&!solutions ? "selected" : ""}
@@ -765,7 +752,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
                 </button>
               ))}
             </section>
-          </div>
+          </CommunityBoardNavigation>
           {user && (!topicId || topic) ? (
             <button className="button community-compose-button writing-disclosure-trigger" {...writing.triggerProps}>
               <Plus size={16} />

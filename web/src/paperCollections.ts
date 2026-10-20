@@ -21,7 +21,7 @@ export const paperCollections: PaperCollection[] = [
     id: "llm-frontier",
     name: "LLM 前沿",
     name_en: "LLM Frontier",
-    paperIds: ["transformer", "rmsnorm", "roformer", "gqa", "adamw", "flash-attention", "lora", "kimi-k3", "glm-5"],
+    paperIds: ["transformer", "rmsnorm", "roformer", "gqa", "adamw", "flash-attention", "lora", "kimi-k3", "glm-5", "es-at-scale", "neural-thickets"],
   },
   {
     id: "retrieval",
@@ -52,7 +52,7 @@ export const paperCollections: PaperCollection[] = [
     id: "post-training",
     name: "后训练",
     name_en: "Post-training",
-    paperIds: ["lora", "qlora", "dpo", "gkd", "opsd", "sdpo", "distillm-2"],
+    paperIds: ["lora", "qlora", "dpo", "gkd", "opsd", "sdpo", "distillm-2", "es-at-scale", "visual-domain-prompt", "neural-thickets"],
   },
   {
     id: "jepa-world-models",

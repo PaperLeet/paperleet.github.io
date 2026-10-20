@@ -252,10 +252,10 @@ try {
       [position.id]: { code: position.starter + '\n# scoped draft', updated: '2026-10-15T10:00:00Z' } };
     const resumed = detailPage({saved:drafts});
     assert.equal(primary(resumed).getAttribute('href'), positionHref, 'A newer draft outside the filter cannot replace the scoped recommendation');
-    assert(primary(resumed).textContent.includes(en ? 'Continue practice' : '继续实现'));
+    assert(primary(resumed).textContent.includes(en ? 'Continue' : '继续'));
 
     const reviewed = detailPage({saved:{[position.id]:{report:acceptedFor(position)}}});
-    assert(primary(reviewed).textContent.includes(en ? 'Review implementation' : '回顾实现'), 'Review follows the selected module, even when the rest of its paper is unfinished');
+    assert(primary(reviewed).textContent.includes(en ? 'Review' : '回顾'), 'Review follows the selected module, even when the rest of its paper is unfinished');
     assert.equal(reviewed.querySelector('[data-next]'), null, 'A solved filtered module must not be marked as unfinished Up next');
     const mediumView = libraryHref('llm-frontier', {...emptyLibraryFilters(),query:'Vaswani',difficulty:'M'});
     const mediumScope = selectLibraryPractice(catalog.papers,catalog.problems,{},readLibraryRoute(mediumView)).problems;

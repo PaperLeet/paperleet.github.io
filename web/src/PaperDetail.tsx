@@ -29,7 +29,7 @@ export function PaperDetail({ paper, problems, practiceProblems = problems, save
   const primaryStarted = !!primary && status(primary,saved[primary.id]) === "started";
   const primaryLabel = continueWith
     ? primaryStarted ? t("继续练习", "Resume practice") : t("继续学习", "Continue learning")
-    : nextState === "done" ? t("回顾实现", "Review implementation") : primaryStarted ? t("继续实现", "Continue practice") : t("开始实现", "Start implementing");
+    : nextState === "done" ? t("回顾", "Review") : primaryStarted ? t("继续", "Continue") : t("开始", "Start");
   const estimatedMinutes = modules.filter(module=>!module.module.optional).reduce((sum,module)=>sum+(module.estimated_minutes || 25),0);
   const nextTitle = primary && (locale === "en" ? primary.translations?.en?.title || primary.title : primary.title);
   const authors = Array.isArray(paper.authors) ? paper.authors.join(", ") : paper.authors;
@@ -62,7 +62,7 @@ export function PaperDetail({ paper, problems, practiceProblems = problems, save
         </section>
       </div>
       <aside className="home-sidebar">
-        <section className="paper-completion-card"><div className="aside-title"><h3>{paper.kind === "course" ? t("专题进度", "Course progress") : t("论文进度", "Paper progress")}</h3><StateIcon state={progress.state} /></div><div className="paper-completion-count"><b>{progress.completed}</b><span>/ {progress.total}</span></div><p>{t("核心模块已通过", "core modules solved")}</p><ProgressBar {...progress} />{progress.state === "done" && <div className="core-complete"><CheckCircle2 size={16} />{t("本篇核心模块已完成", "Selected core modules complete")}</div>}{next && <AppLink className="button" href={withLibraryContext(next.number,returnTo)}>{nextState === "done" ? t("回顾模块", "Review modules") : nextState === "started" ? t("继续实现", "Continue practice") : t("开始实现", "Start implementing")}<ArrowRight size={15} /></AppLink>}{completedCourse && <AppLink className="course-explore text-button" href="#">{t("探索全部论文", "Explore all papers")}<ArrowRight size={14} aria-hidden="true" /></AppLink>}</section>
+        <section className="paper-completion-card"><div className="aside-title"><h3>{paper.kind === "course" ? t("专题进度", "Course progress") : t("论文进度", "Paper progress")}</h3><StateIcon state={progress.state} /></div><div className="paper-completion-count"><b>{progress.completed}</b><span>/ {progress.total}</span></div><p>{t("核心模块已通过", "core modules solved")}</p><ProgressBar {...progress} />{progress.state === "done" && <div className="core-complete"><CheckCircle2 size={16} />{t("本篇核心模块已完成", "Selected core modules complete")}</div>}{next && <AppLink className="button" href={withLibraryContext(next.number,returnTo)}>{nextState === "done" ? t("回顾", "Review") : nextState === "started" ? t("继续", "Continue") : t("开始", "Start")}<ArrowRight size={15} /></AppLink>}{completedCourse && <AppLink className="course-explore text-button" href="#">{t("探索全部论文", "Explore all papers")}<ArrowRight size={14} aria-hidden="true" /></AppLink>}</section>
         <section className="paper-source-card"><div className="aside-title"><h3>{paper.kind === "course" ? t("参考资料", "References") : t("论文信息", "Paper details")}</h3><BookOpen size={16} /></div><p>{authors}</p><AppLink className="text-button" href={paper.url} target="_blank" rel="noreferrer">{paper.arxiv ? `arXiv:${paper.arxiv}` : paper.kind === "course" ? t("参考资料", "References") : t("原始论文", "Original paper")}<ExternalLink size={13} /></AppLink></section>
       </aside>
     </div>

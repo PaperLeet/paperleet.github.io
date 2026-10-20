@@ -13,7 +13,7 @@
 
 Read papers, implement the methods, and test your understanding through mathematical properties and actual behavior.
 
-The catalog includes **67 papers, one introductory course, and 89 focused core modules**. Start with a paper, read its contribution and selected scope, then implement its core modules in a LeetCode-style split workspace. Supporting code is supplied so each exercise focuses on the paper’s key mechanism. Completing a paper means passing its selected core modules. Paper organization lives in `papers.yaml`; statements, implementations, tests, and visualization data live in `problems/`.
+The catalog includes **70 papers, one introductory course, and 92 focused core modules**. Start with a paper, read its contribution and selected scope, then implement its core modules in a LeetCode-style split workspace. Supporting code is supplied so each exercise focuses on the paper’s key mechanism. Completing a paper means passing its selected core modules. Paper organization lives in `papers.yaml`; statements, implementations, tests, and visualization data live in `problems/`.
 
 Search the library by title, author, venue, year, module goal, or arXiv reference. Abstract/PDF links and versioned arXiv IDs find the same catalog paper; queries such as `Vaswani 2017` combine terms. Search and practice links retain the current collection and filters.
 
@@ -215,6 +215,9 @@ paperleet ci
 | 68 | BERT | 80/10/10 selected-token corruption, original targets and stable masked language-model loss. | 101 |
 | 69 | GAN | Stable discriminator/non-saturating generator objectives and actual alternating Gaussian-location training. | 102 |
 | 70 | Dropout | Explicit keep masks, inverted scaling, endpoint gradients and Monte Carlo moments. | 103 |
+| 71 | [ES at Scale](https://arxiv.org/abs/2509.24372) | Reward standardization and backpropagation-free parameter updates. | 104 |
+| 72 | [Visual Domain Prompt](https://arxiv.org/abs/2212.04145) | Additive visual prompts, historical sensitivity and homeostatic regularization. | 105 |
+| 73 | [Neural Thickets](https://arxiv.org/abs/2603.12228) | Independent random experts, selection-set ranking and majority voting. | 106 |
 
 RMSNorm, GQA and RoPE are part of LLM Frontier. Each includes independent gradient checks, complete CPU/WASM judging and supplied synthetic experiments. See [public-core validation](docs/validation/llm-foundations-public.md).
 
