@@ -51,3 +51,25 @@ legacy fixture and current package/browser verification.
 A fresh qualified-source grant and unchanged release-chain/native-wrapper checks
 remain required before an ordinary fast-forward main push. No CI dispatch,
 tag, publication or deployment is initiated by this qualification.
+
+
+## Current-main catalogue followup
+
+The subsequent main snapshot adds official LoRA/QLoRA reading and component
+self-checks. Numerical source80/SDK102 and active data183 remain identical. The
+1513-input native application plan differs in the rebuilt standalone README
+plus catalogue JSON and its one complete regression module; that module passes
+on both NumPy environments. Private application resources differ only in the
+catalogue JSON. All six distributions are rebuilt and both installs pass.
+
+All251 registered frontend commands have individual successful receipts:177
+unchanged successful receipts survive in the interrupted log, and the remaining
+74 are rerun after disk recovery, including the unreceipted interrupted command.
+Both builds and actual seven-test Chrome Worker pass. Exact frozen verification
+copies are coalesced after full SHA/mode checks to recover space; every path and
+byte remains, with primary checkout, environments and current source untouched.
+
+The [catalogue followup record](../../packages/torchwasm/benchmarks/results/qualification-0.91-main-catalog-followup.json)
+binds this qualification. Its v2 archive inherits only physically present blobs
+from the delivered current core and main-integration archives; no omitted
+development-only provider or Git blob is introduced. Main adoption is separate.
