@@ -383,7 +383,7 @@ export function AccountNav(props: import('./HeaderAccountMenu').HeaderAccountMen
   return <div className="account-nav-actions">
     {!loading && !user && hostedAppAvailable && <AppLink className="header-signin-cta" href={hostedAppHref(signInHref(props.returnTo || ''))}
       title={t('保存解答与成绩，换设备继续练习', 'Save solutions and results, and continue on another device')}>
-      {t('注册 / 登录', 'Join / Sign in')}
+      {t('登录', 'Sign in')}
     </AppLink>}
     <HeaderAccountMenu {...props}/>
   </div>;

@@ -2,7 +2,16 @@
 html { scrollbar-gutter:stable; }
 .app > .topbar { position:relative; z-index:60; }
 .topbar .nav-actions { gap:8px; }
-.topbar .nav-inner > nav { gap:4px; }
+.topbar .nav-inner > nav {
+  flex:1 1 auto; min-width:0; max-width:100%; gap:4px; overflow-x:auto;
+  overscroll-behavior-x:contain; scroll-padding-inline:8px; scroll-behavior:auto;
+  /* Local covers erase each edge shadow when that end is already visible. */
+  background:
+    linear-gradient(to right,var(--surface) 35%,transparent) left / 28px 100% no-repeat local,
+    linear-gradient(to left,var(--surface) 35%,transparent) right / 28px 100% no-repeat local,
+    linear-gradient(to right,color-mix(in srgb,var(--text) 12%,transparent),transparent) left / 10px 100% no-repeat scroll,
+    linear-gradient(to left,color-mix(in srgb,var(--text) 12%,transparent),transparent) right / 10px 100% no-repeat scroll;
+}
 .topbar .nav-inner > nav > :is(a,button) { display:inline-flex; justify-content:center; box-sizing:border-box; flex:none; min-width:0; padding-inline:12px; white-space:nowrap; font-weight:600; }
 /* Center short labels within the space reserved for both translations. */
 .topbar .nav-inner > nav .bilingual-text { text-align:center; }
@@ -48,15 +57,26 @@ a.account-menu-identity:hover { background:var(--surface2); }
 .account-menu-signout:hover:not(:disabled), .account-menu-signout:hover:not(:disabled) > svg { color:var(--red); }
 .account-menu-error { padding:6px 12px; color:var(--red); font-size:var(--type-meta); line-height:1.6; overflow-wrap:anywhere; }
 .account-menu-footnote { padding:8px 12px 2px; margin:0; color:var(--muted); font-size:var(--type-caption); text-align:center; line-height:1.7; }
-@media (max-width:600px) {
-  .header-signin-cta { padding-inline:8px; font-size:var(--type-meta); }
-  .topbar .nav-actions { flex-wrap:wrap; justify-content:flex-end; min-width:0; max-width:calc(100vw - 70px); padding-block:4px; }
+@media (max-width:760px) {
+  /* Keep the identity and essential actions in one row; navigation scrolls below. */
+  .topbar .nav-inner { grid-template-columns:auto minmax(0,1fr); column-gap:8px; padding-inline:12px; }
+  .topbar .brand > span:nth-child(2) { display:none; }
+  .topbar .nav-actions { flex-wrap:nowrap; justify-content:flex-end; gap:4px; min-width:0; padding-block:6px; }
+  .topbar .repository-stars { display:none; }
+  .topbar :is(.repository-link,.group-chat-trigger,.account-menu-trigger) { box-sizing:border-box; width:44px; height:44px; }
+  .topbar :is(.repository-link,.group-chat-trigger) { padding:0; }
+  .header-signin-cta { box-sizing:border-box; min-height:44px; padding-inline:10px; font-size:var(--type-small); }
+  .account-nav-actions { gap:4px; }
+  .topbar .nav-inner > nav { height:44px; }
   .topbar .nav-inner > nav > :is(a,button) { padding-inline:10px; }
+  .topbar .nav-inner > nav > .continue-link { min-width:0; }
+  .topbar .nav-inner > nav .bilingual-text > span[aria-hidden="true"] { display:none; }
   .topbar .nav-inner > nav > .active::after { left:10px; right:10px; }
   .account-menu-panel { top:calc(100% + 8px); }
 }
-@media (max-width:360px) {
-  .topbar .nav-actions { gap:4px; }
+@media (max-width:600px) {
+  /* Passive counters give way to sign-in, notifications and account controls. */
+  .topbar .nav-actions .nav-metric { display:none; }
 }
 @media (prefers-reduced-motion:no-preference) {
   .account-menu-panel { animation:account-menu-enter .16s ease-out both; }

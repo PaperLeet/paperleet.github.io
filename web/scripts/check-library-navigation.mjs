@@ -5,7 +5,7 @@ import { renderToString } from 'react-dom/server';
 import { createServer } from 'vite';
 import { JSDOM } from 'jsdom';
 
-const server = await createServer({ server: { middlewareMode: true }, appType: 'custom' });
+const server = await createServer({ server: { middlewareMode: true, hmr: false, ws: false }, appType: 'custom', optimizeDeps: { noDiscovery: true, include: [] } });
 const storage = globalThis.sessionStorage, localeStorage = globalThis.localStorage;
 try {
   const { emptyLibraryFilters, libraryHref, libraryTags, readLibraryRoute, libraryReturnHref, libraryContinuation, normalizeLibraryFilters, sortLibraryPapers, readPaperRegistryRoute, withLibraryContext, routePath } = await server.ssrLoadModule('/src/libraryNavigation.ts');
@@ -187,7 +187,12 @@ try {
       assert(!results.includes(en ? 'No matching papers' : '没有符合条件的论文'));
     }
     const library = render(PaperLibrary, { ...catalog, saved: {}, collectionId: 'diffusion', route: decodeProblemHash(returnTo) });
-    assert(library.includes('value="DDPM"') && library.includes('value="E" selected=""'));
+    const initialLibrary=JSDOM.fragment(library),initialCohort=selectLibraryPractice(catalog.papers,catalog.problems,{},readLibraryRoute(returnTo));
+    assert.equal(initialLibrary.querySelector('.library-toolbar input').value,'DDPM');
+    assert.equal(initialLibrary.querySelector('.library-filter-toggle').getAttribute('aria-expanded'),'false');
+    assert(initialLibrary.querySelector('.library-filter-panel').hidden&&!initialLibrary.querySelector('.library-filter-panel select'),'Collapsed optional fields stay outside first render');
+    assert(initialCohort.problems.length&&initialCohort.problems.every(problem=>problem.difficulty==='E'),'The known URL cohort is actually limited to easy DDPM practice');
+    assert.deepEqual([...initialLibrary.querySelectorAll('[data-paper-id]')].map(row=>row.dataset.paperId),initialCohort.papers.map(paper=>paper.id),'The real initial rows already honor URL filters before optional controls mount');
     assert(library.includes('collection-page-header') && !library.includes('featured-collections') && !library.includes('practice-start'), 'A collection opens its own page, without homepage sections');
     assert(!library.includes('Filter by judge location') && !library.includes('判题位置筛选') && !library.includes('judge-capability-badge'));
     assert(library.includes(withLibraryContext('papers/ddpm', currentReturn).replaceAll('&', '&amp;')));

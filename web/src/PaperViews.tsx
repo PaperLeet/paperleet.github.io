@@ -1,3 +1,4 @@
+import {controlIsActive} from './activeControls';
 import {appLocation} from './appLocation';
 import AppLink from './AppLink';
 import { matchingPaperModules, paperProgress, selectLibraryPractice } from './libraryPractice';
@@ -25,6 +26,7 @@ export { paperModules, matchingPaperModules, paperProgress } from './libraryPrac
 
 // Collection discovery loads independently of search and the first usable list.
 const LibraryCollections = deferredFeature<import('./LibraryCollections').Props>(()=>import('./LibraryCollections'), ['精选合集','featured collections'], {loading:()=><div className="library-collections-placeholder" aria-hidden="true"/>});
+const FilterFields=deferredFeature<import('./LibraryResultControls').LibraryFilterFieldsProps>(()=>import('./LibraryResultControls').then(module=>({default:module.LibraryFilterFields})),['筛选条件','filter options'],{failure:(props,retry)=><span role="alert"><FeatureRetry retry={()=>{if(props.canAct()){props.onRetry();retry();}}} label={['筛选加载失败，点击重试','Filters unavailable — retry']}/></span>});
 const ResultControls = deferredFeature<import('./LibraryResultControls').Props>(()=>import('./LibraryResultControls'), ['列表显示','list display'], {loading:()=>null});
 const FilterIcon = deferredFeature<Record<string,never>>(()=>import('./LibraryResultControls').then(module=>({default:module.LibraryFilterIcon})),['',''],{loading:()=>null,failure:()=>null});
 const ActiveFilters = deferredFeature<import('react').ComponentProps<typeof import('./LibraryResultControls').LibraryActiveFilters>>(()=>import('./LibraryResultControls').then(module=>({default:module.LibraryActiveFilters})),['当前筛选','active filters'],{loading:()=>null});
@@ -47,6 +49,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
   const libraryMain = useRef<HTMLDivElement>(null);
   const resultsHeading=useRef<HTMLDivElement>(null),listId=useId(),filtersId=listId+'-filters',categoriesId=listId+'-categories';
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [filtersVisited,setFiltersVisited]=useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [density, setDensity] = useState<'comfortable' | 'compact'>(() => {
     try { return localStorage.getItem('paperleet.library.density.v1') === 'compact' ? 'compact' : 'comfortable'; }
@@ -181,22 +184,11 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
     <section className="problem-list" aria-label={course ? t("课程练习", "Course modules") : t("论文列表", "Paper list")}>
       <div className="library-toolbar">
         <div className="search"><Search size={17} aria-hidden="true" /><input ref={searchInput} type="search" maxLength={200} aria-label={t("搜索论文或模块", "Search papers or modules")} aria-controls={listId} aria-keyshortcuts="/" placeholder={directModules?t("题目编号、标题、作者或 arXiv…","Exercise number, title, author or arXiv…"):t("标题、作者、arXiv 或模块…", "Title, author, arXiv or module…")} value={query} onChange={(e) => change({query:e.target.value})} onKeyDown={(e) => { if (e.key === "Escape"&&!e.defaultPrevented&&currentView()&&!e.repeat&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!e.shiftKey&&!e.nativeEvent.isComposing&&e.nativeEvent.keyCode!==229) {e.preventDefault();e.stopPropagation();change({query:''});} }} />{query ? <button type="button" className="search-clear" aria-label={t("清空搜索", "Clear search")} onClick={() => { if(!currentView())return;searchInput.current?.focus({preventScroll:true});change({query:""}); }}><X size={15} /></button> : <kbd aria-hidden="true">/</kbd>}</div>
-        <button type="button" className="library-filter-toggle" aria-controls={filtersId} aria-expanded={filtersOpen} onClick={event => {if(currentView()){if(filtersOpen&&libraryMain.current?.querySelector('.library-filter-panel')?.contains(document.activeElement))event.currentTarget.focus({preventScroll:true});setFiltersOpen(open => !open);}}}><span className="library-filter-icon" aria-hidden="true"><FilterIcon/></span>{t("筛选", "Filters")}{advancedFilterCount > 0 && <span>{advancedFilterCount}</span>}<ChevronDown size={13} aria-hidden="true" /></button>
+        <button type="button" className="library-filter-toggle" aria-controls={filtersId} aria-expanded={filtersOpen} onClick={event => {if(currentView()){if(filtersOpen&&libraryMain.current?.querySelector('.library-filter-panel')?.contains(document.activeElement))event.currentTarget.focus({preventScroll:true});setFiltersVisited(true);setFiltersOpen(open => !open);}}}><span className="library-filter-icon" aria-hidden="true"><FilterIcon/></span>{t("筛选", "Filters")}{advancedFilterCount > 0 && <span>{advancedFilterCount}</span>}<ChevronDown size={13} aria-hidden="true" /></button>
         <button type="button" className="random-problem" aria-label={t('随机一题', 'Random problem')} onClick={randomProblem} disabled={!progressReady || !companyReady || !unattempted.length} title={!companyReady?t("公司练习范围尚未确认","Company practice scope is unconfirmed"):!progressReady ? t("学习进度尚未就绪", "Practice progress is not ready") : unattempted.length ? t(`从当前范围内 ${unattempted.length} 道未开始的题目中随机选择`, `Pick from ${unattempted.length} unattempted problems in this view`) : t("当前范围内没有未开始的题目", "No unattempted problems in this view")}><Shuffle size={17} aria-hidden="true" /><span>{t("随机一题", "Random problem")}</span></button>
       </div>
       <div className="library-filter-panel" id={filtersId} hidden={!filtersOpen} onKeyDown={event=>{if(filtersOpen&&event.key==='Escape'&&!event.defaultPrevented&&!event.repeat&&!event.nativeEvent.isComposing&&event.nativeEvent.keyCode!==229&&!event.ctrlKey&&!event.metaKey&&!event.altKey&&!event.shiftKey&&currentView()){event.preventDefault();event.stopPropagation();libraryMain.current?.querySelector<HTMLButtonElement>('.library-filter-toggle')?.focus({preventScroll:true});setFiltersOpen(false);}}}>
-        <div className="filter-bar" data-expanded={filtersOpen}>
-          <div className="select-wrap" data-active={selectedTag!=="all"||undefined}><select aria-controls={listId} aria-label={t("主题筛选", "Filter by topic")} value={selectedTag} onChange={(e) => change({tag:e.target.value})}>
-            <option value="all">{t("主题", "Topic")}</option>{tags.map((name) => <option key={name}>{name}</option>)}
-          </select><ChevronDown size={12} aria-hidden="true" /></div>
-          <div className="select-wrap" data-active={diff!=="all"||undefined}><select aria-controls={listId} aria-label={t("模块难度筛选", "Filter module difficulty")} value={diff} onChange={(e) => change({difficulty:e.target.value})}>
-            <option value="all">{t("难度", "Difficulty")}</option><option value="E">{t("简单", "Easy")}</option><option value="M">{t("中等", "Medium")}</option><option value="H">{t("困难", "Hard")}</option>
-          </select><ChevronDown size={12} aria-hidden="true" /></div>
-          <div className="select-wrap" data-active={state!=="all"||undefined}><select aria-controls={listId} aria-label={moduleView ? t("练习状态筛选", "Filter module status") : t("论文状态筛选", "Filter paper status")} disabled={!progressReady} value={state} onChange={(e) => change({state:e.target.value})}>
-            <option value="all">{t("状态", "Status")}</option><option value="todo">{t("未开始", "Not started")}</option><option value="started">{t("进行中", "In progress")}</option><option value="done">{t("已完成", "Solved")}</option>
-          </select><ChevronDown size={12} aria-hidden="true" /></div>
-        </div>
-        <CompanyTools company={company} days={companyDays} onChange={(company,days)=>change({company:company||undefined,company_days:company?days:undefined})}/>
+        {filtersVisited&&<FilterFields expanded={filtersOpen} listId={listId} tags={tags} selectedTag={selectedTag} difficulty={diff} state={state} moduleView={moduleView} progressReady={progressReady} company={company} days={companyDays} resultCount={waitingForStatus?undefined:rowIds.length} resultsRef={resultsHeading} onClose={()=>setFiltersOpen(false)} onChange={change} canAct={()=>currentView()&&controlIsActive(libraryMain.current?.querySelector<HTMLElement>('.library-filter-panel'))} onRetry={()=>{const panel=libraryMain.current?.querySelector('.library-filter-panel');if(panel?.contains(document.activeElement))libraryMain.current?.querySelector<HTMLButtonElement>('.library-filter-toggle')?.focus({preventScroll:true});}}/>}
       </div>
       {company&&companyScope&&<CompanyTools company={company} days={companyDays} returnTo={viewHref} {...companyScope}/>}
       <div className="library-results">

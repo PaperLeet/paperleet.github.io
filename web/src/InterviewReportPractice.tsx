@@ -7,6 +7,7 @@ import type {Problem} from './types';
 import {topicFromProblem,type ProblemTopic} from './communityTopics';
 import {usePracticeProgress} from './PracticeProgressContext';
 import {keepReadingTriggerVisible} from './readingViewport';
+import InterviewReportStudyList from './InterviewReportStudyList';
 
 /** An expansion is local reading state; it never fetches or starts a practice session. */
 export default function InterviewReportPractice({questions,problems=[],topics,returnTo,catalogLoading,catalogError,onRetryCatalog,revealPractice,revealRequest=0}:{questions:string[];revealRequest?:number;problems?:Problem[];topics?:ProblemTopic[];returnTo:string;catalogLoading?:boolean;catalogError?:string;onRetryCatalog?:()=>void;revealPractice?:string}){
@@ -73,6 +74,7 @@ export default function InterviewReportPractice({questions,problems=[],topics,re
   </div>
   {ids.length>2&&<button ref={toggle} type="button" className="interview-report-practice-toggle" aria-expanded={expanded} aria-controls={id} onClick={event=>{pending.current={href:location.href,opener:document.activeElement,kind:expanded?'collapse':'expand',keyboard:event.detail===0};setView({expanded:!expanded,revealed:revealKey||view.revealed});}}>{expanded?<ChevronUp size={13} aria-hidden="true"/>:<ChevronDown size={13} aria-hidden="true"/>}{expanded?t('收起配套练习','Collapse practice'):t(`再展开 ${ids.length-2} 个知识点`,`Show ${ids.length-2} more ${ids.length-2===1?'concept':'concepts'}`)}</button>}
   {missing&&catalogError&&<p className="interview-report-practice-retry" role="status">{t('部分练习信息暂未加载，面经和评论仍可阅读。','Some practice details could not load. The experience and comments remain readable.')} {onRetryCatalog&&<button type="button" onClick={event=>{pending.current={href:location.href,opener:event.currentTarget,kind:'retry',keyboard:false,question:shown.find(question=>!byId.has(question)&&!retired.has(question))||shown.find(question=>!byId.has(question))};onRetryCatalog();}}><RefreshCw size={12} aria-hidden="true"/>{t('重试练习信息','Retry practice details')}</button>}</p>}
+  <InterviewReportStudyList questions={ids} topics={sources} returnTo={returnTo}/>
   {workspace&&<div ref={progressRoot} tabIndex={-1} className="interview-report-progress" aria-label={t('本篇面经的练习进度','Practice progress for this experience')}>
    <span className="interview-report-progress-label">{t('我的练习','My practice')}</span>
    {workspace.ready?progress.length>0?<>

@@ -50,3 +50,32 @@
 .study-lists :is(button,a,input,select):focus-visible,.study-list-toolbar:focus-visible,.study-list-popover :is(button,a,input):focus-visible { outline:2px solid var(--accent); outline-offset:3px; border-radius:5px; }
 @media(pointer:coarse) { .study-lists :is(button,a,input,select),.study-list-picker :is(button,a,input),.study-list-row-actions button { min-height:44px; } }
 @media(max-width:600px) { .study-list-filters>.button { width:100%; } .study-lists-compact { padding:16px; } .study-list-create>.button { width:100%; } }
+
+/* Reorder in a bounded preview; only Save order changes the account list. */
+.study-list-reading[hidden],.study-list-order-surface[hidden]{display:none}
+.study-list-order-trigger small{padding:2px 6px;border-radius:5px;background:var(--surface2);color:var(--accent);font-size:var(--type-meta)}
+.study-list-order-editor{margin-top:18px;padding:18px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.study-list-order-editor>header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.study-list-order-editor h3{margin:0;font-size:var(--type-lead);line-height:1.5}
+.study-list-order-editor>header>span,.study-order-feedback{font-size:var(--type-small);color:var(--muted);line-height:1.7}
+.study-order-items{max-height:min(480px,60dvh);overflow:auto;overscroll-behavior:contain;margin:14px 0;padding:0;list-style:none;scrollbar-width:thin}
+.study-order-items>li{display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid var(--line)}
+.study-order-handle{display:inline-flex;align-items:center;justify-content:center;gap:3px;flex:none;min-width:54px;min-height:44px;border:1px solid var(--line);border-radius:7px;background:var(--surface2);font-variant-numeric:tabular-nums}
+.study-order-title{flex:1;min-width:0}
+.study-order-title strong{font-size:var(--type-body);font-weight:500;line-height:1.7;overflow-wrap:anywhere}
+.study-order-title small{display:block;margin-top:3px;font-size:var(--type-small);color:var(--muted);line-height:1.7}
+.study-order-moves{display:flex;flex:none;gap:4px}
+.study-order-moves button{width:40px;min-height:44px;border:1px solid var(--line);border-radius:6px}
+.study-list-order-editor button:disabled{opacity:.45;cursor:not-allowed}
+.study-order-conflict{padding:12px;border:1px solid var(--accent);border-radius:8px;background:var(--surface2)}
+.study-order-conflict p{margin:0 0 6px}
+.study-list-order-editor>footer{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:16px}
+.study-list-order-editor>footer>small{flex-basis:100%;color:var(--muted);font-size:var(--type-small);line-height:1.7}
+.study-list-order-editor>footer button{min-height:44px}
+@media(max-width:600px){.study-list-order-editor{padding:14px}.study-order-items>li{flex-wrap:wrap;gap:10px}.study-order-title{flex-basis:calc(100% - 70px)}.study-order-moves{margin-inline-start:auto}.study-order-moves button{width:44px}.study-list-order-editor>footer>.button{flex:1}.study-list-order-editor>footer>.text-button{flex:1;justify-content:center}}
+
+.study-list-order-editor button.text-button,.study-lists button.study-list-order-trigger{min-height:44px}
+
+.study-list-order-editor h3:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:5px}
+
+.study-lists .study-list-order-saved{display:flex;align-items:center;gap:7px;margin:12px 0;color:var(--green);font-size:var(--type-small);line-height:1.7}

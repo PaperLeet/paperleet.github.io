@@ -76,6 +76,8 @@ const BrowserRunProgressBody=deferredFeature<import('react').ComponentProps<type
 const CommunitySubmissions=deferredFeature(()=>import('./CommunitySubmissions'),['累计提交','total submissions'],{loading:()=>null,failure:()=>null});
 const CompanyBridge=deferredFeature(()=>import('./LibraryCompanyEvidence'),['公司练习','company practice'],{loading:()=>null});
 const GroupChat=deferredFeature(()=>import('./GroupChat'),['群聊','group chat'],{loading:()=>null,failure:()=>null});
+// Native primary links render immediately; this optional enhancement only scrolls their row.
+const MainNavigationVisibility=deferredFeature(()=>import('./MainNavigationVisibility'),['',''],{loading:()=>null,failure:()=>null});
 const panelIconPlaceholder=({size=14}:import('./WorkspacePanelIcon').WorkspacePanelIconProps)=><svg width={size} height={size} aria-hidden="true" focusable="false"/>;
 const WorkspacePanelIcon=deferredFeature(()=>import('./WorkspacePanelIcon'),['',''],{loading:panelIconPlaceholder,failure:panelIconPlaceholder});
 type Theme = "light" | "dark";
@@ -554,6 +556,7 @@ function Workspace() {
               <BilingualText zh="社区" en="Community" />
             </AppLink>}
             <AppLink className={interviewPage ? "active" : ""} aria-current={interviewPage ? "page" : undefined} href="#/interviews"><BilingualText zh="面经" en="Interviews" /></AppLink>
+            <MainNavigationVisibility />
           </nav>
           <div className="nav-actions">
             <RepositoryLink />

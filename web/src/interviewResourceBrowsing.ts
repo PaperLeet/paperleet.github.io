@@ -1,7 +1,8 @@
 import {interviewCatalog} from './interviewModels';
 
 export type InterviewResource=typeof interviewCatalog.resources[number];
-export type ResourceKind='all'|'guide'|'careers';
+export const resourceKinds=['all','guide','careers','technical'] as const;
+export type ResourceKind=typeof resourceKinds[number];
 export const resourceBrowserQuery=(value:string)=>Array.from(value.replace(/[\u0000-\u001f\u007f]/g,' ').trim()).slice(0,100).join('');
 export const resourceBrowserTerms=(value:string)=>resourceBrowserQuery(value).normalize('NFKC').toLowerCase().replace(/[\s/_-]+/gu,' ').trim();
 

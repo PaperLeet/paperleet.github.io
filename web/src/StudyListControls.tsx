@@ -3,9 +3,9 @@ import {Plus} from 'lucide-react';
 import {useI18n} from './i18n';
 import {newStudyListId,type StudyListsState,type createStudyListStore,STUDY_LIST_LIMIT} from './studyListStore';
 type Store=ReturnType<typeof createStudyListStore>;
-export function StudyListFeedback({state,store,focus}:{state:StudyListsState;store?:Store;focus?:()=>void}){
+export function StudyListFeedback({state,store,focus,canAct}:{state:StudyListsState;store?:Store;focus?:()=>void;canAct?:(trigger:HTMLButtonElement)=>boolean}){
  const {t}=useI18n(),pending=state.pending;
- const action=(event:React.MouseEvent<HTMLButtonElement>,run:()=>unknown)=>{if(document.activeElement===event.currentTarget)focus?.();void run();};
+ const action=(event:React.MouseEvent<HTMLButtonElement>,run:()=>unknown)=>{if(event.currentTarget.disabled||canAct?.(event.currentTarget)===false)return;if(document.activeElement===event.currentTarget)focus?.();if(canAct?.(event.currentTarget)!==false)void run();};
  return <>
   {state.error&&<div className="study-list-feedback" role="status"><p>{t('题单暂时无法读取，已保留当前内容。','Study lists could not load. Current content is kept.')} {state.error}</p><button type="button" className="text-button" disabled={state.loading||pending?.busy} onClick={event=>action(event,()=>store?.refresh())}>{t('重试题单加载','Retry study lists')}</button></div>}
   {pending?.busy&&<p role="status">{t('正在同步题单…','Syncing study lists…')}</p>}
