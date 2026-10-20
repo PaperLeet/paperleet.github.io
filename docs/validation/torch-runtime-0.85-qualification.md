@@ -79,3 +79,8 @@ including their readonly variants, both builds and the actual Worker. The
 [follow-up record](../../packages/stridetorch/benchmarks/results/qualification-0.85-current-main-followup.json)
 retains the initial runner argument-splitting failure and its correction.
 Numerical sources, SDK and active exports remain unchanged.
+
+Main then added five identity-choice paths at `3c61d129`. Source base `773be1f2`
+preserves them; five affected identity/interview checks, both build profiles and
+the actual Worker pass. The [next follow-up](../../packages/stridetorch/benchmarks/results/qualification-0.85-current-main-followup-2.json)
+retains this qualification and the cumulative 31 frontend path identities.
