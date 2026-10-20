@@ -81,3 +81,11 @@ asset retention and the actual indexed/alpha Worker pass on that combined tree.
 The [follow-up record](../../packages/stridetorch/benchmarks/results/qualification-0.84-current-main-followup.json)
 retains this later integration and the terminal first-push transport failure;
 the numerical runtime and active export identities remain unchanged.
+
+Main adoption was verified at `bee6008e62f959ee5a261522f8c7e4a15f0a746b`:
+78 public resources, 95 SDK files, all 183 active exports and the latest frontend
+paths match the qualified tree. Own implementation/integration commits have
+zero workflow runs. Pages remains a legacy `gh-pages` branch deployment, and no
+tag, Actions dispatch, package publication or site deployment was performed by
+this iteration. The [adoption proof](../../packages/stridetorch/benchmarks/results/qualification-0.84-main-adoption.json)
+retains the successful ordinary push, failed transport attempt and fresh guards.
