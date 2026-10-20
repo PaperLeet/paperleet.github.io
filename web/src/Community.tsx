@@ -1,3 +1,4 @@
+import WritingFeedback from './WritingFeedback';
 import {controlIsActive} from './activeControls';
 import {useCommunityTranslation,TranslationNotice,TranslatedReply} from './CommunityTranslation';
 import JoinPrompt from './CommunityJoinPrompt';
@@ -326,7 +327,7 @@ function Composer({
   }
   const [busy, setBusy] = useState(false),
     [error, setError] = useState("");
-  const editor=useRef<HTMLTextAreaElement>(null),writingSummary=useRef<HTMLElement>(null),writingHint=useId();
+  const editor=useRef<HTMLTextAreaElement>(null),writingSummary=useRef<HTMLElement>(null),writingHint=useId(),publicationErrorId=useId();
   const [writingOpen,setWritingOpen]=useState(false),[writingError,setWritingError]=useState(''),[writingNotice,setWritingNotice]=useState('');
   const [codeNotice,setCodeNotice]=useState<''|'inserted'|'existing'|'length'|'position'>('');
   const codeEdit=useRef<(SolutionCodeEdit&{selection:ReplyQuoteSelection})>(undefined),latestCode=useRef(practiceCode);latestCode.current=practiceCode;
@@ -460,7 +461,6 @@ function Composer({
           <X size={18} />
         </button>
       </div>
-      {error && <SocialNotice error={error} />}
       {topic && (
         <AppLink className="post-problem-link composer-problem" href={practiceHref(topic.id)}>
           <Code2 size={13} />{topicTitle(topic, locale === "en")}
@@ -482,7 +482,6 @@ function Composer({
         </div>
       )}
       <PublishingAffiliationNotice/>
-      <PublicationRecovery pending={publication} payload={postPublication(draft,topic?.id,solution)} busy={busy} disabled={!canPublish} onRetry={() => void publish(publication?.receipt)} />
       <form
         className="social-form"
         onSubmit={(e) => {
@@ -542,6 +541,7 @@ function Composer({
           placeholder={solution?t('分享解题思路、关键代码、复杂度与边界情况…','Explain your approach, key code, complexity and edge cases…'):board === 'papers' ? t('写下你的问题、观点或复现结果，让大家有话可聊…', 'Share a question, an observation, or a reproduction result to start the discussion…') : t('分享背景、思考或代码片段…','Share context, ideas, or a code snippet…')}/>
         {body.trim()&&!contentReady&&!pendingMatches&&<p id={writingHint} className="community-writing-hint" role="status">{t('提纲已准备好。补充自己的问题、观察或思考后，就可以发布。','Your outline is ready. Add your own question, observations or thoughts to publish.')}</p>}
         <PublishingRules action="post" />
+        <WritingFeedback error={error} errorId={publicationErrorId}>{publication&&!busy&&<PublicationRecovery pending={publication} payload={postPublication(draft,topic?.id,solution)} busy={busy} disabled={!canPublish} onRetry={() => void publish(publication?.receipt)}/>}</WritingFeedback>
         <div className="form-footer">
           <small>
             {t(
@@ -550,7 +550,7 @@ function Composer({
             )}
             {topic && " " + t("仅发布你填写的内容，练习草稿与判题报告不会自动附带。", "Only the text you enter is published; practice drafts and reports are not attached.")}
           </small>
-          <button className="button" disabled={busy || !canPublish || publicationBlocked&&!pendingMatches || solution&&!topic&&!topics.some(row=>row.id===draft.problemId&&!row.retired) || !body.trim() || !contentReady&&!pendingMatches || !!draft.anonymous&&!anonymousAvailable}>
+          <button className="button" aria-describedby={error?publicationErrorId:undefined} disabled={busy || !canPublish || publicationBlocked&&!pendingMatches || solution&&!topic&&!topics.some(row=>row.id===draft.problemId&&!row.retired) || !body.trim() || !contentReady&&!pendingMatches || !!draft.anonymous&&!anonymousAvailable}>
             {busy ? <span className="spinner" /> : <Plus size={15} />}
             {publication ? samePublication(publication.receipt,postPublication(draft,topic?.id,solution)) ? t('重试发布','Retry publication') : t('作为新内容发布','Publish as new content') : t("发布", "Publish")}
           </button>

@@ -1,10 +1,11 @@
+import WritingFeedback from './WritingFeedback';
 import {appLocation} from './appLocation';
 import AppLink from './AppLink';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useId, useRef, useState } from 'react';
 import CommunityMarkdown from './CommunityMarkdown';
 import MarkdownEditor from './MarkdownEditor';
 import { useI18n } from './i18n';
-import { SocialError, SocialNotice, errorMessage, socialApi, useAccount } from './social';
+import { SocialError, errorMessage, socialApi, useAccount } from './social';
 import type { Reply } from './communityDiscussion';
 import { tabDraftStorage } from './communityDrafts';
 import { canEditReply, confirmedReplyEdit, clearSavedReplyEdit, newReplyEdit, readReplyEdit, writeReplyEdit, type ReplyEditDraft,type ReplyEditOrigin,type ReplyEditConfirmation } from './replyEdits';
@@ -17,7 +18,7 @@ import {keepReadingTriggerVisible} from './readingViewport';
 export default function ReplyEditor({reply,owner,disabled,onSaved,onClose,onRefresh,focusOrigin,compact=false}:{
   reply:Reply;owner:string;disabled:boolean;onSaved:(reply:Reply,confirmation?:ReplyEditConfirmation)=>void;onClose:()=>void;onRefresh:()=>Promise<boolean>;focusOrigin?:ReplyEditOrigin;compact?:boolean;
 }) {
-  const {t}=useI18n();
+  const {t}=useI18n(),publicationErrorId=useId();
   const {user,capabilities,loading:accountLoading,refresh:refreshAccount}=useAccount();
   const [accountUnconfirmed,setAccountUnconfirmed]=useState(false);
   const canPublish=canPublishCommunity(user,capabilities)&&!accountLoading&&user?.id===owner&&!accountUnconfirmed;
@@ -72,7 +73,6 @@ export default function ReplyEditor({reply,owner,disabled,onSaved,onClose,onRefr
   }
   return <section className={'social-panel community-composer reply-editor'+(compact?' is-compact':'')} aria-label={compact?t('编辑评论','Edit comment'):t('编辑回复','Edit reply')}>
     <div className="panel-title">{compact?<h3>{t('编辑评论','Edit comment')}</h3>:<h2>{t('编辑回复','Edit reply')}</h2>}<button type="button" disabled={busy} onClick={onClose}>{t('关闭编辑','Close editor')}</button></div>
-    {error&&<SocialNotice error={error}/>}
     {notice&&<p role="status">{notice}</p>}
     {accountUnconfirmed&&<p role="status">{t('账号尚未确认，修改草稿已保留。','Your account is unconfirmed. Your edit draft is kept.')} <button type="button" className="text-button" disabled={busy||accountLoading} onClick={()=>{void refreshAccount().then(()=>{if(mounted.current)setAccountUnconfirmed(false);}).catch(()=>{});}}>{t('刷新账号','Refresh account')}</button><AppLink href={signInHref(typeof location==='undefined'?'community':appLocation.hash)}>{t('重新登录','Sign in again')}</AppLink></p>}
     <PublishingAffiliationNotice/>
@@ -87,7 +87,8 @@ export default function ReplyEditor({reply,owner,disabled,onSaved,onClose,onRefr
     <form className="social-form" onSubmit={e=>{e.preventDefault();void save();}}>
       <MarkdownEditor scopeKey={JSON.stringify(['reply-edit',owner,reply.id])} submitShortcut value={draft.body} onChange={body=>edit({body})} preview={preview} onPreviewChange={setPreview}
         label={compact?t('评论内容','Comment body'):t('正文','Reply body')} modeLabel={t('回复修改模式','Reply edit mode')} rows={compact?4:6} maxLength={10000} busy={busy} disabled={disabled||accountLoading||accountUnconfirmed||user?.id!==owner} textareaRef={field}/>
-      <div className="form-footer"><button type="button" className="text-button" disabled={busy} onClick={()=>setDiscard(true)}>{t('丢弃修改','Discard edits')}</button><button className="button" disabled={busy||disabled||!canPublish||needsReview||!draft.body.trim()}>{busy?t('正在保存…','Saving…'):t('保存修改','Save changes')}</button></div>
+      <WritingFeedback error={error} errorId={publicationErrorId}/>
+      <div className="form-footer"><button type="button" className="text-button" disabled={busy} onClick={()=>setDiscard(true)}>{t('丢弃修改','Discard edits')}</button><button className="button" aria-describedby={error?publicationErrorId:undefined} disabled={busy||disabled||!canPublish||needsReview||!draft.body.trim()}>{busy?t('正在保存…','Saving…'):t('保存修改','Save changes')}</button></div>
     </form>
     {discard&&<div className="draft-discard-confirm" role="alert"><p>{t('丢弃未保存的修改？已发布的回复不会改变。','Discard unsaved edits? The published reply will stay as it is.')}</p><button type="button" disabled={busy} onClick={()=>{clearSavedReplyEdit(tabDraftStorage(),owner,reply.id,current.current);onClose();}}>{t('确认丢弃修改','Discard unsaved edits')}</button><button type="button" onClick={()=>setDiscard(false)}>{t('保留修改','Keep edits')}</button></div>}
   </section>;

@@ -1,3 +1,4 @@
+import WritingFeedback from './WritingFeedback';
 import InterviewDraftStatus,{type InterviewDraftStep} from './InterviewDraftStatus';
 import {controlIsActive} from './activeControls';
 import {revealReadingTarget} from './readingViewport';
@@ -58,7 +59,7 @@ export default function InterviewComposer({owner,company,problems,panelProps,onC
  const [confirmedPost,setConfirmedPost]=useState<InterviewPost>();
  const ownComposer=useRef<HTMLElement>(null),composer=panelProps?.ref||ownComposer,titleField=useRef<HTMLInputElement>(null),identityRegion=useRef<HTMLDivElement>(null);
  const renderedHref=useRef(typeof location==='undefined'?'':location.href).current;
- const draftStatusId=useId(),titleId=useId(),bodyId=useId(),questionId=useId(),identityId=useId();
+ const publicationErrorId=useId(),draftStatusId=useId(),titleId=useId(),bodyId=useId(),questionId=useId(),identityId=useId();
  const editor=useRef<HTMLTextAreaElement>(null),writingSummary=useRef<HTMLElement>(null),questionSummary=useRef<HTMLElement>(null),contentHint=useId(),questionHint=useId();
  const intent=useWorkspaceIntent(owner);
  const [questionOpen,setQuestionOpen]=useState(()=>hasInterviewQuestionText(draft.questionScratch)),[questionError,setQuestionError]=useState('');
@@ -153,10 +154,8 @@ export default function InterviewComposer({owner,company,problems,panelProps,onC
   <div className="interview-compose-heading"><div><h2 id="interview-compose-heading">{t('分享面经','Share an interview experience')}</h2></div><button className="icon-button" type="button" disabled={busy} aria-label={t('关闭，保留草稿','Close and keep draft')} onClick={onClose}><X size={18}/></button></div>
   <p className="interview-composer-caption">{t('公司、岗位与知识点会公开展示；结果和地点可以不透露。可选择昵称或匿名发布，所属机构仍展示。','Company, role and linked concepts are public. Outcome and location are optional. Choose named or anonymous posting; affiliation remains visible.')}</p>
   {!durable&&<p role="alert" className="interview-notice">{t('草稿暂时无法保存到此标签页，请保持页面打开或复制内容。','This tab cannot save the draft. Keep this page open or copy your text.')}</p>}
-  {error&&<p role="alert" className="interview-error">{error}</p>}
   {confirmedPost&&<p role="status" className="interview-notice">{t('面经已发布；当前草稿仍保留。','Your report was published; the current draft is preserved.')} <AppLink href={communityPostHref(confirmedPost.id,interviewHref({...emptyInterviewFilters(),company:confirmedPost.interview.company}))}>{t('查看已发布面经','View published report')}</AppLink></p>}
   <PublishingAffiliationNotice/>
-  {!confirmedPost&&<PublicationRecovery pending={pending} newerDraft={uninserted} payload={interviewPublication(draft)} busy={busy} disabled={!canPublish} onRetry={()=>void publish(pending?.receipt)}/>}
   <form className="social-form" onSubmit={event=>{event.preventDefault();void publish();}}>
    <CommunityTagPicker value={draft.tagIds||[]} onChange={tagIds=>edit({tagIds})} disabled={busy}/><PublishingIdentity id={identityId} containerRef={identityRegion} anonymous={!!draft.anonymous} onChange={anonymous=>edit({anonymous})} disabled={busy}/>
    <InterviewFields value={draft.interview} onChange={interview=>edit({interview})} problems={problems} disabled={busy}/>
@@ -172,7 +171,8 @@ export default function InterviewComposer({owner,company,problems,panelProps,onC
    {draft.body.trim()&&!contentReady&&!pendingMatches&&<p id={contentHint} className="interview-writing-hint" role="status">{t('提纲已经准备好。补充你实际经历的流程、思路或复盘后即可发布。','Your outline is ready. Add your actual process, approach or reflection before publishing.')}</p>}
    <PublishingRules action="post"/>
    <InterviewDraftStatus step={draftStep} id={draftStatusId} controls={draftStep==='title'?titleId:draftStep==='record'?questionId:draftStep==='anonymous'?identityId:bodyId} disabled={busy} onNavigate={navigateDraft}/>
-   <div className="form-footer"><button type="button" className="text-button" disabled={busy} onClick={()=>setDiscard(true)}>{t('丢弃草稿','Discard draft')}</button><small><Check size={12}/>{durable?t('草稿仅保存在本标签页','Draft stays in this tab'):t('草稿暂存在当前页面','Draft is held in this page')}</small><button className="button" disabled={busy||!canPublish||uninserted||!draft.title.trim()||!contentReady&&!pendingMatches||!!draft.anonymous&&capabilities?.community_anonymous_posts!==true} aria-describedby={[draftStatusId,uninserted?questionHint:draft.body.trim()&&!contentReady&&!pendingMatches?contentHint:undefined].filter(Boolean).join(' ')}>{busy?<span className="spinner"/>:<ChevronRight size={15}/>} {pending?pendingMatches?t('重试发布','Retry publication'):t('作为新面经发布','Publish as a new report'):t('发布面经','Publish report')}</button></div>
+   <WritingFeedback error={error} errorId={publicationErrorId} errorClassName="interview-error">{pending&&!busy&&!confirmedPost&&<PublicationRecovery pending={pending} newerDraft={uninserted} payload={interviewPublication(draft)} busy={busy} disabled={!canPublish} onRetry={()=>void publish(pending?.receipt)}/>}</WritingFeedback>
+   <div className="form-footer"><button type="button" className="text-button" disabled={busy} onClick={()=>setDiscard(true)}>{t('丢弃草稿','Discard draft')}</button><small><Check size={12}/>{durable?t('草稿仅保存在本标签页','Draft stays in this tab'):t('草稿暂存在当前页面','Draft is held in this page')}</small><button className="button" disabled={busy||!canPublish||uninserted||!draft.title.trim()||!contentReady&&!pendingMatches||!!draft.anonymous&&capabilities?.community_anonymous_posts!==true} aria-describedby={[error?publicationErrorId:undefined,draftStatusId,uninserted?questionHint:draft.body.trim()&&!contentReady&&!pendingMatches?contentHint:undefined].filter(Boolean).join(' ')}>{busy?<span className="spinner"/>:<ChevronRight size={15}/>} {pending?pendingMatches?t('重试发布','Retry publication'):t('作为新面经发布','Publish as a new report'):t('发布面经','Publish report')}</button></div>
   </form>
   {discard&&<div className="draft-discard-confirm" role="alert"><p>{t('丢弃当前草稿？已发送但待确认的发布记录会保留，避免误发重复内容。','Discard this draft? Unconfirmed publication receipts are retained so they can be retried safely.')}</p><button type="button" disabled={busy} onClick={()=>{if(discardInterviewDraft(tabDraftStorage(),owner))onClose();else setError(t('暂时无法清除草稿，请重试。','The draft could not be cleared. Try again.'));}}>{t('确认丢弃','Discard draft')}</button><button type="button" onClick={()=>setDiscard(false)}>{t('继续编辑','Keep editing')}</button></div>}
  </section>;

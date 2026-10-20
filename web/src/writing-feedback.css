@@ -1,0 +1,10 @@
+.writing-feedback { display:grid; gap:12px; min-width:0; }
+.writing-feedback>.writing-feedback-error { display:flex; align-items:flex-start; gap:10px; margin:0; padding:14px 16px; border:1px solid color-mix(in srgb,var(--red,var(--chart-5)) 35%,var(--line)); border-radius:10px; background:color-mix(in srgb,var(--red,var(--chart-5)) 6%,var(--surface)); color:var(--text); font-size:var(--type-body); line-height:1.75; overflow-wrap:anywhere; }
+.writing-feedback-error>svg { flex:none; margin-top:4px; color:var(--red,var(--chart-5)); }
+.writing-feedback-error>p { min-width:0; margin:0; white-space:pre-wrap; }
+.writing-feedback>.publication-recovery { margin:0; border-radius:10px; background:var(--surface); }
+.writing-feedback .publication-recovery summary { min-height:44px; padding-block:8px; color:var(--text); font-size:var(--type-small); cursor:pointer; }
+.writing-feedback .publication-recovery :is(summary,button):focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+.writing-feedback .publication-recovery button { min-height:44px; }
+@media(max-width:560px) { .writing-feedback>.writing-feedback-error { padding:12px; gap:8px; } }
+@media(forced-colors:active) { .writing-feedback>.writing-feedback-error { border-color:LinkText; } }

@@ -1,10 +1,11 @@
+import WritingFeedback from './WritingFeedback';
 import {useCommunityTaxonomy} from './useCommunityTaxonomy';
 import CommunityTagPicker from './CommunityTagPicker';
 import { useEffect, useId, useRef, useState } from 'react';
 import CommunityMarkdown from './CommunityMarkdown';
 import MarkdownEditor from './MarkdownEditor';
 import { useI18n } from './i18n';
-import { SocialError, SocialNotice, errorMessage, socialApi, useAccount } from './social';
+import { SocialError, errorMessage, socialApi, useAccount } from './social';
 import type { Post } from './communityDiscussion';
 import { tabDraftStorage } from './communityDrafts';
 import { canEditPost, clearSavedPostEdit, newPostEdit, readPostEdit, writePostEdit, type PostEditDraft } from './communityEdits';
@@ -23,7 +24,7 @@ import {communityPostHref} from './communityNavigation';
 export default function PostEditor({post,owner,disabled,onSaved,onClose,onRefresh}:{
   post:Post;owner:string;disabled:boolean;onSaved:(post:Post)=>void;onClose:()=>void;onRefresh:()=>Promise<boolean>;
 }) {
-  const {t}=useI18n();
+  const {t}=useI18n(),publicationErrorId=useId();
   const taxonomy=useCommunityTaxonomy();
   const {user,capabilities,loading:accountLoading,refresh:refreshAccount}=useAccount();
   const canPublish=canPublishCommunity(user,capabilities)&&!accountLoading;
@@ -77,7 +78,6 @@ export default function PostEditor({post,owner,disabled,onSaved,onClose,onRefres
   }
   return <section className="social-panel community-composer" aria-label={t('编辑帖子','Edit post')}>
     <div className="panel-title"><h2>{t('编辑帖子','Edit post')}</h2><button type="button" disabled={busy} onClick={onClose}>{t('关闭编辑','Close editor')}</button></div>
-    {error&&<SocialNotice error={error}/>}
     <PublishingAffiliationNotice/>
     <p className="community-draft-status" role="status">{saved===false
       ?t('此标签页无法保存修改草稿，关闭或离开前请复制内容。','This tab cannot save your edit draft. Copy the text before closing or leaving.')
@@ -99,7 +99,8 @@ export default function PostEditor({post,owner,disabled,onSaved,onClose,onRefres
       <label>{t('标题','Title')}<input autoFocus required maxLength={180} value={draft.title} disabled={busy} onChange={e=>edit({title:e.target.value})}/></label>
       <MarkdownEditor sectionNavigation scopeKey={JSON.stringify(['post-edit',owner,post.id])} submitShortcut value={draft.body} onChange={body=>edit({body})} preview={preview} onPreviewChange={setPreview}
         label={t('正文','Post body')} modeLabel={t('帖子修改模式','Post edit mode')} rows={10} maxLength={20000} busy={busy} disabled={disabled}/>
-      <div className="form-footer"><button type="button" className="text-button" disabled={busy} onClick={()=>setDiscard(true)}>{t('丢弃修改','Discard edits')}</button><button className="button" disabled={busy||disabled||!canPublish||needsReview||tagPersistenceUnavailable||taxonomy.supported&&!taxonomy.ready||!draft.title.trim()||!draft.body.trim()}>{busy?t('正在保存…','Saving…'):t('保存修改','Save changes')}</button></div>
+      <WritingFeedback error={error} errorId={publicationErrorId}/>
+      <div className="form-footer"><button type="button" className="text-button" disabled={busy} onClick={()=>setDiscard(true)}>{t('丢弃修改','Discard edits')}</button><button className="button" aria-describedby={error?publicationErrorId:undefined} disabled={busy||disabled||!canPublish||needsReview||tagPersistenceUnavailable||taxonomy.supported&&!taxonomy.ready||!draft.title.trim()||!draft.body.trim()}>{busy?t('正在保存…','Saving…'):t('保存修改','Save changes')}</button></div>
     </form>
     {discard&&<div className="draft-discard-confirm" role="alert"><p>{t('丢弃未保存的修改？已发布的帖子不会改变。','Discard unsaved edits? The published post will stay as it is.')}</p><button type="button" disabled={busy} onClick={()=>{clearSavedPostEdit(tabDraftStorage(),owner,post.id,current.current);onClose();}}>{t('确认丢弃修改','Discard unsaved edits')}</button><button type="button" onClick={()=>setDiscard(false)}>{t('保留修改','Keep edits')}</button></div>}
   </section>;
