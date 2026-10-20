@@ -1,0 +1,22 @@
+name: Public runtime provenance
+on:
+  pull_request:
+    paths:
+      - 'packages/torchwasm/**'
+      - 'scripts/sync_torchwasm.py'
+      - 'tests/test_runtime_vendor.py'
+      - '.github/workflows/runtime-provenance.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install pytest
+      - run: python scripts/sync_torchwasm.py
+      - run: python -m pytest --noconftest tests/test_runtime_vendor.py -q
