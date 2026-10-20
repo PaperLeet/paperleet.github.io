@@ -33,3 +33,21 @@
 .path-browser-collapse{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;width:100%;margin-top:14px;border:1px solid var(--line);border-radius:8px;color:var(--text-secondary);font-size:var(--type-body)}
 .interview-path-browser :is(button,summary):focus-visible,.interview-path-browser h3:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 @media(max-width:600px){.path-browser-current{align-items:flex-start}.path-browser-current>span{flex-basis:100%}}
+
+.interview-path-browser .interview-path-grid>article{container:preparation-path / inline-size}
+.interview-path-grid .practice-path-workload{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:8px 0 14px;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--surface2)}
+.practice-path-workload>div{min-width:0}
+.practice-path-workload dt{display:flex;align-items:flex-start;gap:5px;font-size:var(--type-small);line-height:1.6;color:var(--text-secondary);overflow-wrap:anywhere}
+.practice-path-workload dt>svg{flex:none;margin-top:4px}
+.practice-path-workload dd{margin:5px 0 3px;font-size:var(--type-body);font-weight:600;line-height:1.6;color:var(--text);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.practice-path-workload small{display:block;margin-top:3px;font-size:var(--type-small);font-weight:400;line-height:1.6;color:var(--text-secondary);overflow-wrap:anywhere}
+.interview-path-browser .interview-path-grid h3{font-size:var(--type-lead);line-height:1.6}
+.interview-path-browser .interview-path-modules a{min-height:44px}
+.interview-path-module-copy{flex:1;min-width:0}
+.interview-path-module-title,.path-browser-match-title{display:block;font-size:var(--type-body);line-height:1.6;overflow-wrap:anywhere}
+.interview-path-browser .interview-path-start small{font-size:var(--type-small);line-height:1.6}
+.interview-path-browser .practice-metadata{margin-top:5px;gap:4px 9px}
+.interview-path-browser .practice-metadata>:is(.practice-metadata-difficulty,.practice-metadata-time){min-height:22px;padding:0;border:0;background:transparent;font-weight:400}
+.interview-path-browser .interview-path-module-disclosure>summary{min-height:44px}
+@container preparation-path (max-width:300px){.interview-path-grid .practice-path-workload{grid-template-columns:minmax(0,1fr)}}
+@media(forced-colors:active){.practice-path-workload{border-color:CanvasText}.interview-path-browser .practice-metadata>[data-difficulty]{color:CanvasText}}
