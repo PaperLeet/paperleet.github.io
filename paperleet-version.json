@@ -1,8 +1,6 @@
 {
-  "source_revision": "31f26cd47e23179bdf486caa33b8f73045a4fe04",
-  "build_method": "qualified-ci-artifact-retention-repair",
-  "quality_run": 39357101769,
-  "original_pages_run": 39358972273,
-  "input_artifact_digest": "sha256:82b28b5166bd54e2675ecaa6847523ea2fd3b8837a1d9aa35168032cc851b5be",
-  "built_at": "2026-10-20T02:33:53.926274+00:00"
+  "source_revision": "87bb9a6ecd7788a45f346c7661f24fa989c292c4",
+  "build_method": "qualified-ci-input-reuse-plus-local-frontend",
+  "qualification_sha256": "05d07e44cfa9757525ff80c074fb4f221bf9af2a12a8b55015a35049cc75dd87",
+  "built_at": "2026-10-20T04:14:23.792919+00:00"
 }
