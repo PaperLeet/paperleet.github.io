@@ -22,3 +22,19 @@
 @media(max-width:560px) { .interview-writing-panel ol { grid-template-columns:minmax(0,1fr); } .interview-writing-panel > label { align-items:stretch; flex-direction:column; } .interview-writing-panel select { width:100%; } }
 @media(pointer:coarse) { .interview-writing-guide > summary,.interview-writing-actions > button,.interview-writing-panel select { min-height:44px; } }
 @media(prefers-reduced-motion:no-preference) { .interview-writing-guide > summary > svg { transition:transform .15s; } }
+
+/* Keep the current writing step next to its explicit publishing action. */
+.interview-draft-status { display:grid; grid-template-columns:40px minmax(0,1fr) auto; align-items:center; gap:12px; padding:16px; border:1px solid var(--line); border-radius:12px; background:var(--surface2); }
+.interview-draft-status-mark { display:grid; place-items:center; width:40px; height:40px; border:1px solid var(--line); border-radius:10px; color:var(--accent); background:var(--surface); }
+.interview-draft-status p { display:grid; gap:4px; min-width:0; margin:0; line-height:1.7; overflow-wrap:anywhere; }
+.interview-draft-status strong { color:var(--text); font-size:var(--type-body); font-weight:600; }
+.interview-draft-status p>span { color:var(--muted); font-size:var(--type-small); }
+.interview-draft-status button { display:inline-flex; align-items:center; justify-content:center; gap:7px; min-height:44px; max-width:100%; padding:8px 12px; border:1px solid var(--line); border-radius:8px; background:var(--surface); color:var(--text); font:inherit; font-size:var(--type-small); line-height:1.5; text-align:start; }
+.interview-draft-status button svg { flex:none; color:var(--accent); }
+.interview-draft-status button:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+.interview-draft-status[data-step=ready] .interview-draft-status-mark { color:var(--green); }
+.interview-draft-status :is(button,.interview-draft-status-mark) { transition:background-color .15s,border-color .15s,color .15s; }
+@media(hover:hover) { .interview-draft-status button:hover:not(:disabled) { border-color:var(--accent); background:color-mix(in srgb,var(--accent) 7%,var(--surface)); color:var(--accent); } }
+@media(max-width:560px) { .interview-draft-status { grid-template-columns:36px minmax(0,1fr); padding:13px; gap:10px; } .interview-draft-status-mark { width:36px; height:36px; border-radius:9px; } .interview-draft-status button { grid-column:2; justify-self:start; } }
+@media(prefers-reduced-motion:reduce) { .interview-draft-status :is(button,.interview-draft-status-mark) { transition:none; } }
+@media(forced-colors:active) { .interview-draft-status[data-step=ready] .interview-draft-status-mark { outline:1px solid Highlight; } }
