@@ -8,4 +8,4 @@ The headline shows the latest total; hover, tap or use the arrow/Home/End keys o
 
 The SVG uses exact observed points, with hand-drawn axes and self-hosted Patrick Hand lettering matching the README Star History chart. Font provenance and the SIL Open Font License are in `web/public/fonts/`.
 
-Validation: `node web/scripts/check-user-growth.mjs` from the web directory (use `node scripts/check-user-growth.mjs` there), the normal production build, and backend `tests/test_registration_growth.py`. Browser checks cover light/dark themes, Chinese/English, keyboard selection and a 390px mobile viewport.
+Validation: `cd web && node scripts/check-user-growth.mjs`, the normal production build, and backend `tests/test_registration_growth.py`. Browser checks cover light/dark themes, Chinese/English, keyboard selection and a 390px mobile viewport.
