@@ -1,0 +1,284 @@
+{
+  "status": "qualified_0.84_current_main_integration",
+  "version": "0.84.0",
+  "qualified_source_base": "7e68e78bb3fe8afbce2f2918fb80a7c528fde0e0",
+  "remote_baseline": "90611ca7746ae737bc28531c5b92d20c2102b469",
+  "core_qualification": {
+    "path": "packages/stridetorch/benchmarks/results/qualification-0.84.json",
+    "sha256": "4a56980c6f9297172a7056da454d7fa27dcd67e8c02c21c8a8cdcc67ca0c286c",
+    "raw_archive": {
+      "path": "packages/stridetorch/benchmarks/results/qualification-0.84-harness.tar.gz",
+      "sha256": "225c0b500ced12851c5a826d0166ddea0e7d558d5813d50af4cb408d1561690d",
+      "bytes": 9971913,
+      "files": 1152,
+      "unique_payloads": 667
+    }
+  },
+  "source_resources": 67,
+  "default_runtime_resources": 63,
+  "public_resources": 78,
+  "changed_frontend_paths": {
+    "docs/library-pagination-and-controls.md": "d56252268859720b214d3ead0b0e0fe3bf4a049ff341538c060b42f23d48df68",
+    "docs/validation/search-input-ownership.md": "7eb1f92850659152fc749fc603322e684858c90a89a932862597038700ebc037",
+    "docs/validation/study-followups.md": "4ad00c10ef1cbae7e667dbba686ba498506e79065e49c8e91081f8d90da164a3",
+    "web/package.json": "4ed392b4218bcc4490dc878c63e6f3f6fbcaaa914bf8b442cc8a5bbbf3fc5275",
+    "web/scripts/check-community-period.mjs": "2000dce61d9d5c0d9da624ac6a0a2fd51c6c07e6de1f2f8721cd43c3077c8e02",
+    "web/scripts/check-interview-search.mjs": "89b7732bf027dbd0e949aea0dc86d0fe1f9e9c4acc23457fa8f84d52ad45ec7d",
+    "web/scripts/check-library-pagination.mjs": "99364190941d509b8660b1338ebb56d7191db52f7dd5d6f0fc042f237fc8a1f2",
+    "web/scripts/check-report-test-search.mjs": "6585ef81c0b85203b7cce13ff8fe8c3f7c55e55ba688d2ab53546e3b0b995b26",
+    "web/scripts/check-search-input-ownership.mjs": "d39816726d16e6bcedc1e862bc8d5c67160cae717816c7c0c25610807ca155c6",
+    "web/scripts/check-study-followups.mjs": "939c25d79b7a5c7dc4b903b99a9c933c22dc2a3f36542d49613feee24a72a3cc",
+    "web/src/Community.tsx": "0a9a8014cc314d374e62070c4997b7c7771eff1c3e5c354d7c721e5ccb03c295",
+    "web/src/CommunitySearch.tsx": "deda8a084c9077aafe62055e3930719beda979325e2b1a76cc15770602b1b6e0",
+    "web/src/DraftCenter.tsx": "6973c3f561865830c9e32208db0408469bfe05ed9710011dbf2b18c20cf5ac72",
+    "web/src/Interviews.tsx": "fa8c97ada7f9798d651efeba3a8d2e28013868a6a0ed2ae81dbde39721bd65bc",
+    "web/src/LibraryResultControls.tsx": "0ee6a12f7f86f7ade03619276d1e8e333cd9a3091e0a4cd22cc627c7e4e8b230",
+    "web/src/LibrarySearchMatch.tsx": "da4ea6f163d62d1a5b14ca1d92c5a535346e251d8ce7a104141673233d6df1cf",
+    "web/src/PageJump.tsx": "cae7bd62e51659994339a525b9a5bd2d5cafb02c3709d24f5fe3225e2e749772",
+    "web/src/PaperViews.tsx": "efa30e28c9b36ea1d1ef4f480861d7b1785a424e924e4bcc8ab15c86e95bae27",
+    "web/src/control-surfaces.css": "34a931eb06a5bcb7ceffb38e33eb6f3fac05d4019df5d2bb280d6c28d3a7d9a2",
+    "web/src/data/preparation-guides.json": "525ef8b62604bbf5fc0eb4a96b7b8ab8e5ea594ff18a38f66fdb00718d141c9f",
+    "web/src/library-pagination.css": "aa9c75cf663a9a715068d28644f83c2193d3609a60d56fd68d470df5badeb51b",
+    "web/src/page-jump.css": "1942ec682272f9d0850a35d0e8157544d1d72ecb390467406c8db5549c09caf5",
+    "web/src/useDiscussionReplies.tsx": "5e28b76cc361def5f64b09ea57a0153f94a277af815104787e12a98d110efc1f"
+  },
+  "unchanged_core_and_catalog_inputs": 2401,
+  "receipts": [
+    {
+      "label": "check-search-input-ownership",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-search-input-ownership.mjs"
+      ],
+      "log_sha256": "5d793fadc3d905e44401e5d5b63bffc8a76af0fc369032f86832c776cc49178e"
+    },
+    {
+      "label": "check-community-search",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-community-search.mjs"
+      ],
+      "log_sha256": "cc32e6ddec5d0fec5185c98c44416c3c8daf1708197a7b370a28a133ee1b0793"
+    },
+    {
+      "label": "check-community-period",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-community-period.mjs"
+      ],
+      "log_sha256": "7f91ef99993e6c97807400ed1d1fd57b29244559812ec084db772994e8a9d408"
+    },
+    {
+      "label": "check-interview-search",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-interview-search.mjs"
+      ],
+      "log_sha256": "de66e730d96dcd93d91ca56641a640d611502a14041016740f2d00bb842681de"
+    },
+    {
+      "label": "check-report-test-search",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-report-test-search.mjs"
+      ],
+      "log_sha256": "575d12fd18e103dfd3672f8119a532c3717057465cc97ec2a7726a7d1d88b747"
+    },
+    {
+      "label": "check-library-pagination",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-library-pagination.mjs"
+      ],
+      "log_sha256": "567e530abe26ab8fd30fec55d1ee22098ecdd0b6c351d7db35dfef57e5d617dc"
+    },
+    {
+      "label": "check-library-filter-continuity",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-library-filter-continuity.mjs"
+      ],
+      "log_sha256": "9acc71d87d42256ba9227c8699834628be46e752ebb0c12cfd4bd170db68449a"
+    },
+    {
+      "label": "check-page-jump-ownership",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-page-jump-ownership.mjs"
+      ],
+      "log_sha256": "efe7a376dafa5e7d8278632a0485f05274c4dd0271d45e11a91a1439a40876db"
+    },
+    {
+      "label": "check-reply-search-context",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-reply-search-context.mjs"
+      ],
+      "log_sha256": "0f51398d1943de21fb34805afc3fec338d8b37f97c7da12696098a0806374c3c"
+    },
+    {
+      "label": "check-discussion-replies",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-discussion-replies.mjs"
+      ],
+      "log_sha256": "9292e9a04323b0de1de4b85692875ddaf49ad5e539f599ca626dcb6b07427702"
+    },
+    {
+      "label": "check-draft-center",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-draft-center.mjs"
+      ],
+      "log_sha256": "6c4b811fb21ad463c6225b2543fe435739ebadf484b128ff2ca302e3c15a96cb"
+    },
+    {
+      "label": "check-proposal-drafts",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-proposal-drafts.mjs"
+      ],
+      "log_sha256": "9f9efa4d2fecdbf6f77ccd97d5ee48263e30f8490e94ff7eee4e1c756f445fd3"
+    },
+    {
+      "label": "check-interview-search-reading",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-interview-search-reading.mjs"
+      ],
+      "log_sha256": "348d8e05e21ae780d07b1880a7625ecc94f8f56d3d12dd6877d5b56e90509630"
+    },
+    {
+      "label": "check-study-followups",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-study-followups.mjs"
+      ],
+      "log_sha256": "ffd227da533f70636d4c119a71a5a51df3c2017fa0fbe0c8bf9295ab1a0c3256"
+    },
+    {
+      "label": "check-preparation-guides",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-preparation-guides.mjs"
+      ],
+      "log_sha256": "04e27da3fcaef51c7e1ca54f3320665b4b882ab063c60403afc583676e268f46"
+    },
+    {
+      "label": "check-comparison-learning",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-comparison-learning.mjs"
+      ],
+      "log_sha256": "e6ee52822d64d48af0eac51979f1fb0d3664fdecee337caa1932f5a9203034ba"
+    },
+    {
+      "label": "check-reading-return",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-reading-return.mjs"
+      ],
+      "log_sha256": "f1e3a6aa42757cf9d49174830dfa89b3c832bff5949d661c46af0711d24c5f44"
+    },
+    {
+      "label": "check-source-post-practice",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-source-post-practice.mjs"
+      ],
+      "log_sha256": "6cbf220a57c735b5b4703b89b50a9ba8616a2e70f850c9b87462e3ff322780be"
+    },
+    {
+      "label": "build",
+      "exit_code": 0,
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "log_sha256": "f5e4f7ca6c8e611ee3b3e4b75aeac60a058b933382104225772b65a7dafca049"
+    },
+    {
+      "label": "pages-profile-build",
+      "exit_code": 0,
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "log_sha256": "b61a9dabcc172c4b8a67bd7cb365a47c3cbeb040445efcc378a499305afbd24e"
+    },
+    {
+      "label": "pages-assets",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+        "-B",
+        "web/scripts/check-pages-assets.py"
+      ],
+      "log_sha256": "418a7e2c28cbb41814e7f35773f5ecbc7d77d39995357507ab3339e48178509d"
+    },
+    {
+      "label": "retain-production-assets-check",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+        "-B",
+        "web/scripts/retain-pages-assets.py",
+        "web/dist",
+        "--check"
+      ],
+      "log_sha256": "18035420fb88118d04478c9a4d7b64a3710271110b01d868e57d95d7f8417d4c"
+    },
+    {
+      "label": "generated-worker",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-656/verify-generated-worker.mjs"
+      ],
+      "log_sha256": "7062cf1b309b171d177ba7851d95b69fc702d940fa95b4a03607f64ecc1faaea"
+    },
+    {
+      "label": "nested-wasm",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-656/check-nested-wasm.mjs"
+      ],
+      "log_sha256": "6b1bd7a5a9cb4e55dd1017c95b68a3aa5e69a263b45b61da0f209443804dbdbc"
+    }
+  ],
+  "nested_worker_sha256": "743b1d404a1ef87fcc47af787b531a9be9e9ce569e066e25401233a2b9251838",
+  "ci_triggered": false,
+  "pushed": false,
+  "main_adopted": false,
+  "published": false,
+  "deployed": false,
+  "goal_status": "active",
+  "raw_archive": {
+    "path": "packages/stridetorch/benchmarks/results/qualification-0.84-current-main-harness.tar.gz",
+    "sha256": "4ab083e52409ba2260e5930ac88bc79d5730a22999a5bde5e390e911522e4347",
+    "bytes": 577570,
+    "files": 66,
+    "unique_payloads": 66
+  }
+}

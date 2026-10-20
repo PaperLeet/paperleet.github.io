@@ -1,5 +1,9 @@
 # Indexed CPU/WASM candidate
 
+This is the historical precursor recorded with 0.83.0 metadata. The
+[0.84 qualification](torch-runtime-0.84-qualification.md) records the final
+package version, scalar-alpha repair and subsequent browser verification.
+
 This local, unreleased candidate adds `torch.index_select`, `torch.index_add`
 and `torch.scatter_add`, their Tensor methods, and guarded `index_add_` /
 `scatter_add_` updates. The package metadata remains 0.83.0 while the next core

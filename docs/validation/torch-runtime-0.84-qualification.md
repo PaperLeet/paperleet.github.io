@@ -66,3 +66,11 @@ exports. Later main changes confined to frontend controls and learning guides
 are integrated and verified separately before adoption. No tag, Actions dispatch
 or publication was performed by this iteration; main adoption requires the
 fresh guarded audit of the final combined tree.
+
+The later `90611ca7` main update changes 23 frontend/control/guide paths. All
+runtime, package, native reference and active export bytes remain unchanged.
+Eighteen affected search, pagination, draft, reply, reading-return and learning
+guide checks pass on the combined tree, followed by both builds, production
+asset retention and the actual nested Worker/indexed-alpha checks. The
+[current-main integration record](../../packages/stridetorch/benchmarks/results/qualification-0.84-current-main.json)
+preserves those results separately from the core qualification.
