@@ -1,7 +1,8 @@
-import {ArrowDown,ArrowUp,ArrowUpDown,ArrowDownWideNarrow,BookOpen,Bookmark,Building2,Code2,List,Rows3,X} from 'lucide-react';
+import {ArrowDown,ArrowUp,ArrowUpDown,ArrowDownWideNarrow,BookOpen,Bookmark,Building2,Code2,List,Rows3,SlidersHorizontal,X} from 'lucide-react';
 import {useI18n} from './i18n';
 import type {LibraryFilters,LibrarySort} from './libraryNavigation';
 import {interviewLabel} from './interviewModels';
+export function LibraryFilterIcon(){return <SlidersHorizontal size={16} aria-hidden="true"/>;}
 export type Props = {listId?:string;hasFilters:boolean; moduleView:boolean; company:string; course?:boolean; sort:LibrarySort; density:'comfortable'|'compact'; onClear:()=>void; onSort:(sort:LibrarySort)=>void; onDensity:(density:'comfortable'|'compact')=>void;onView?:(view:'papers'|'modules')=>void};
 export default function LibraryResultControls({listId,hasFilters,moduleView,company,course,sort,density,onClear,onSort,onDensity,onView}:Props){
  const {t}=useI18n(),directModules=moduleView&&!company&&!course;

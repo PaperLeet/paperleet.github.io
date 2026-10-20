@@ -109,7 +109,7 @@ try {
   assert(find('.library-filter-panel').hidden);
   for(let n=0;n<180&&!find('.library-company-controls');n++)await act(async()=>new Promise(resolve=>setTimeout(resolve,10)));
   assert.equal(find('.library-company-controls')?.closest('[hidden]'), find('.library-filter-panel'));
-  assert.equal(find('.library-filter-toggle > span').textContent, '2', 'Company selection contributes to the advanced filter count');
+  assert.equal(find('.library-filter-toggle > span:not(.library-filter-icon)').textContent, '2', 'Company selection contributes to the advanced filter count');
   companyChip.focus();
   await click(companyChip);
   assert(!route.includes('company=')&&!route.includes('company_days='), 'Removing a company also clears its bound period');
