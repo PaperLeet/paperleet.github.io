@@ -354,6 +354,7 @@ try{
  for(const term of ['.*','missing'])assert.equal(conceptSearch.searchPreparationConcepts([metadataProbe],term).length,0);assert.equal(conceptSearch.searchPreparationConcepts(published,''),published);
  const metadataSnapshot=JSON.stringify(published);assert.deepEqual(conceptSearch.searchPreparationConcepts(published,'４６　svd').map(problem=>problem.id),['finetuning/svdquant']);assert.deepEqual(conceptSearch.searchPreparationConcepts(published,'posterior_score').map(problem=>problem.id),['diffusion/daps']);assert.equal(JSON.stringify(published),metadataSnapshot);
  const finderFilters={...nav.emptyInterviewFilters(),company:'google',stage:'onsite',saved:true,q:'面经 & 筛选 😀',page:2};location.hash=nav.interviewHref(finderFilters);
+ {
  const {default:ConceptSummary}=await server.ssrLoadModule('/src/PreparationConceptSummary.tsx');
  const summarySource=nav.interviewHref({...finderFilters,view:'reports',concept:attention,page:1,q:''}),summaryProblem={...metadataProbe,id:attention,number:published.find(problem=>problem.id===attention).number,estimated_minutes:35},summaryPractice=withLibraryContext(summaryProblem.number,summarySource);
  function SummaryFrame({problem=summaryProblem,experiencesHref=summarySource}){return React.createElement(React.Fragment,null,React.createElement(Draft),React.createElement(ConceptSummary,{problem,practiceHref:summaryPractice,experiencesHref}));}
@@ -373,6 +374,7 @@ try{
   }finally{if(root)await stop();await modeServer.close();await fs.promises.rm(cacheDir,{recursive:true,force:true});}
  }
  console.log('PASS study context editions: actual hosted and public handbook renders, capability-correct related experiences destination, hosted-origin handoff, unchanged company/stage/saved/concept scope, cleared report query/page and deferred prompt body');
+ }
 
 
  function FinderFrame({filters=finderFilters,problems=published}){return React.createElement(React.Fragment,null,React.createElement(Draft),React.createElement(Handbook,{filters,problems}));}
