@@ -1,0 +1,56 @@
+/* Final visual layer: loaded last so it can settle spacing and hierarchy without rewriting the earlier sheets. */
+
+/* Library heading: title and count read as one unit; secondary destinations sit beside it, progress stays right. */
+.paper-library .library-heading { justify-content: flex-start; gap: 6px 4px; flex-wrap: wrap; }
+.paper-library .library-heading > .library-title { margin-right: 14px; }
+.paper-library .library-heading h1 { display: flex; align-items: center; gap: 10px; line-height: 1.25; }
+.paper-library .library-heading h1 > span:not(.bilingual-text) { min-width: 0; margin: 0; padding: 1px 9px; border: 0; border-radius: 999px; background: var(--surface2); color: var(--muted); font-size: var(--type-meta); font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: 0; }
+.paper-library .library-heading > .text-button { color: var(--muted); font-size: var(--type-small); }
+.paper-library .library-heading > .text-button:hover { color: var(--text); }
+.paper-library .library-heading > .library-progress { margin-left: auto; }
+
+/* Paper rows: keep the number beside its title when the title wraps, and keep topic tags legible. */
+.paper-library .paper-info strong { flex-wrap: nowrap; }
+.paper-title-tags > span { padding: 1px 7px; border-radius: 999px; font-size: var(--type-caption); line-height: 1.45; }
+
+/* Daily challenge strip follows the shared type scale instead of 11–13px fixed sizes. */
+.daily-featured-row { gap: 14px; padding: 12px 18px; border-radius: 12px; font-size: var(--type-meta); transition: border-color .15s, background .15s; }
+.daily-featured-row:hover { border-color: color-mix(in srgb, var(--accent) 38%, var(--line)); background: color-mix(in srgb, var(--accent) 9%, var(--surface)); }
+.daily-featured-icon { width: 30px; height: 30px; border-radius: 8px; background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.daily-featured-label { font-size: var(--type-caption); font-weight: 500; letter-spacing: .02em; text-transform: uppercase; color: var(--accent); }
+.daily-featured-row strong { font-size: var(--type-small); }
+.daily-featured-row .daily-level { font-size: var(--type-caption); }
+.daily-featured-row:hover > svg { color: var(--accent); transform: translateX(2px); }
+.daily-featured-row > svg { transition: transform .15s, color .15s; }
+
+@media (max-width: 700px) {
+  .paper-library .library-heading > .library-title { flex: 1 1 100%; margin-right: 0; }
+  .paper-library .library-heading > .text-button { min-height: 40px; padding-inline: 10px; margin-left: -10px; margin-right: 10px; }
+  .daily-featured-row { padding: 10px 12px; }
+  .daily-featured-icon { width: 26px; height: 26px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .daily-featured-row:hover > svg { transform: none; }
+}
+
+/* Disclosures that still showed the browser's ▶ marker get the same chevron language as the rest of the app. */
+:is(.paper-scope-details, .stats-availability, .custom-cases, .custom-cases details, .daily-rules, .external-company-practice, .submission-form details) > summary { display: flex; align-items: center; gap: 8px; list-style: none; cursor: pointer; }
+:is(.paper-scope-details, .stats-availability, .custom-cases, .custom-cases details, .daily-rules, .external-company-practice, .submission-form details) > summary::-webkit-details-marker { display: none; }
+:is(.paper-scope-details, .stats-availability, .custom-cases, .custom-cases details, .daily-rules, .external-company-practice, .submission-form details) > summary::before {
+  content: ""; flex: none; width: 14px; height: 14px; background: currentColor; opacity: .62;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 18 6-6-6-6'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 18 6-6-6-6'/%3E%3C/svg%3E") center / contain no-repeat;
+  transition: transform .15s;
+}
+:is(.paper-scope-details, .stats-availability, .custom-cases, .custom-cases details, .daily-rules, .external-company-practice, .submission-form details)[open] > summary::before { transform: rotate(90deg); }
+@media (prefers-reduced-motion: reduce) {
+  :is(.paper-scope-details, .stats-availability, .custom-cases, .custom-cases details, .daily-rules, .external-company-practice, .submission-form details) > summary::before { transition: none; }
+}
+@media (forced-colors: active) {
+  :is(.paper-scope-details, .stats-availability, .custom-cases, .custom-cases details, .daily-rules, .external-company-practice, .submission-form details) > summary::before { background: CanvasText; }
+}
+
+/* Interview resources: kind filters fill each row evenly in the narrow sidebar; an inert "Show fewer" is not shown. */
+.interview-resource-panel .resource-browser-kinds > button { flex: 1 1 auto; justify-content: space-between; }
+.resource-browser-actions button[aria-disabled=true] { display: none; }

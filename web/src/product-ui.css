@@ -87,7 +87,7 @@ input, select, textarea { accent-color: var(--accent); }
 .library-main { scroll-margin-top: 84px; }
 .library-heading { margin-bottom: 18px; }
 .library-heading h1 { font-size: 24px; letter-spacing: -.04em; }
-.library-heading h1 > span { display: inline-grid; place-items: center; min-width: 30px; padding: 2px 7px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); font-size: var(--type-small); vertical-align: middle; }
+.library-heading h1 > span:not(.bilingual-text) { display: inline-grid; place-items: center; min-width: 30px; padding: 2px 7px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); font-size: var(--type-small); vertical-align: middle; }
 .library-progress { padding: 6px 10px; border-radius: 7px; background: color-mix(in srgb, var(--green) 5%, var(--surface)); font-size: var(--type-small); }
 .library-progress > svg { color: var(--green); }
 .paper-library .paper-categories { gap: 7px; margin-bottom: 18px; }
@@ -261,7 +261,7 @@ input, select, textarea { accent-color: var(--accent); }
   .library-filter-toggle { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; padding: 0 10px; border: 1px solid var(--line); border-radius: 7px; font-size: var(--type-small); }
   .library-filter-toggle[aria-expanded="true"] { color: var(--accent); background: color-mix(in srgb, var(--accent) 6%, var(--surface)); border-color: var(--accent); }
   .library-filter-toggle[aria-expanded="true"] > svg:last-child { transform: rotate(180deg); }
-  .library-filter-toggle > span { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding-inline: 3px; border-radius: 4px; background: var(--accent); color: var(--surface); font-size: var(--type-caption); }
+  .library-filter-toggle > span:not(.library-filter-icon) { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding-inline: 3px; border-radius: 4px; background: var(--accent); color: var(--surface); font-size: var(--type-caption); }
   .library-toolbar .filter-bar { order: 3; flex: 1 1 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); padding-top: 8px; border-top: 1px solid var(--line); gap: 8px; }
   .library-toolbar .filter-bar[data-expanded="false"] { display: none; }
   .library-toolbar .select-wrap { width: 100%; min-height: 42px; }

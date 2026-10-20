@@ -34,7 +34,7 @@
 .favorite-removed-note,.favorite-problem-main>small{display:block;color:var(--muted);font-size:var(--type-small);margin-top:7px;line-height:1.5;overflow-wrap:anywhere}
 .favorites-empty{text-align:center;padding:56px 20px;color:var(--muted)}
 .favorites-empty>svg{color:var(--accent);margin-bottom:8px}
-.favorites-empty h2{font-size:18px;color:var(--text);margin:10px 0}
+.favorites-empty :is(h1,h2){font-size:18px;color:var(--text);margin:10px 0}
 .favorites-empty p{font-size:var(--type-body);line-height:1.7;margin:0 0 20px}
 .favorites-empty .button{display:inline-flex}
 .favorites-error{margin:16px 0}
