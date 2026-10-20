@@ -426,3 +426,49 @@ example distinguishes rejected tokens from padding at different conditional
 positions. PKPO comparisons concern fixed sample groups, not population
 stationarity or bias. No new SDK/numerical judge/native/WASM/GPU execution,
 solver implementation, grading rule, training result or deployment is claimed.
+
+The generative-model expansion adds eighteen original bilingual follow-ups to
+the remaining nine guides: VAR tokenizer and next-scale inputs, JiT, Drifting,
+Block Diffusion, DAPS, DiffusionNFT, FD population moments and FD loss. All 89
+maintained guides now have two follow-ups, for 178 in total. The previous 160
+follow-ups, 267 core prompts, guide identities, source paths and function names
+remain equal as parsed objects. No solver, runtime, judge or public report data
+changes. The deferred-reader fixture checks every new question and hint in both
+languages. It temporarily removes the optional follow-up field from one loaded
+guide to retain legacy absent-content coverage, then restores it before checking
+that guide's newly added content.
+
+Primary background is pinned to [VAR v2 §3.2](https://arxiv.org/html/2404.02905v2#S3.SS2),
+[JiT v1 prediction/loss spaces](https://arxiv.org/html/2511.13720v1#S3.SS2),
+[Drifting v2 frozen targets](https://arxiv.org/html/2602.04770v2#S3),
+[Block Diffusion v2 Appendix B.6](https://arxiv.org/html/2503.09573v2#A2.SS6),
+[DAPS v3 local posterior sampling](https://arxiv.org/html/2407.01521v3#S3),
+[DiffusionNFT v1 Eq.5](https://arxiv.org/html/2509.16117v1#S3.SS2),
+and [FD-loss v1 population moments and Eq.6](https://arxiv.org/html/2604.28190v1#S3.SS2).
+The local bilingual statements define the teaching interfaces. The extra
+coordinate, spectral, covariance and counterexample arguments are editorial
+derivations, not quotations or reported benchmark results.
+
+Manual review keeps premises explicit. VAR's channel equivariance uses ideal
+arithmetic and a common orthogonal basis change; two valid decoder inputs need
+not both be encoder outputs for one feature. Visible-pair counts distinguish
+training dependencies from generation depth, and within-scale mask symmetry
+does not establish arbitrary spatial invariance of interpolation or a model.
+JiT comparisons fix output coordinates or fixed velocity errors; they make no
+shared-network optimization claim. Drifting's scaling uses the local log-domain
+kernel with temperature scaled alongside coordinates, and its shard example
+retains the same positive sample while removing cross-shard negative pairs.
+
+The multilayer Block Diffusion argument assumes the same mask in every layer,
+initial noisy inputs free of clean-target leakage and otherwise tokenwise
+operations. DAPS stability
+concerns a fixed local Gaussian and independent Gaussian innovations; a noise
+reuse example concerns one conditional transition, not a posterior covariance.
+DiffusionNFT's minimum and curvature concern independent free output values in
+a fixed batch. FD population pooling assumes exact historical moments with a
+known sample count; the singleton gradient uses stopped history. The zero-FD
+counterexample has positive variances and different fourth moments. FD scaling
+fixes the feature scale and weights and distinguishes a shared epsilon from a
+hypothetical per-representation choice. No new numerical judge/SDK/native/WASM/
+GPU execution, training result, company attribution, measured interview
+frequency or deployment is introduced.

@@ -25,7 +25,7 @@ export function sourceCompanyRows(companies:readonly SourceCompany[],query:strin
 }
 
 /** Keep the field mounted across publication-period refreshes after it first appears. */
-export function useSourceCompanyDirectory({companies,problemId,listId,ready,canAct,onQuery,onClose}:{companies:readonly SourceCompany[];problemId:string;listId:string;ready:boolean;canAct:()=>boolean;onQuery:()=>void;onClose:()=>void}){
+export function useSourceCompanyDirectory({companies,problemId,listId,ready,canAct,onQuery,onClose}:{companies:readonly SourceCompany[];problemId:string;listId:string;ready:boolean;canAct:()=>boolean;onQuery:()=>void;onClose?:()=>void}){
  const {t,locale}=useI18n(),root=useRef<HTMLDivElement>(null),input=useRef<HTMLInputElement>(null),composing=useRef(false);
  const [query,setQuery]=useState(''),[order,setOrder]=useState<SourceCompanyOrder>('default'),[shown,setShown]=useState(false);
  if(!shown&&companies.length>4)setShown(true);
@@ -45,11 +45,12 @@ export function useSourceCompanyDirectory({companies,problemId,listId,ready,canA
    onCompositionStart={()=>{if(active())composing.current=true;}} onCompositionEnd={event=>{composing.current=false;change(event.currentTarget.value);}} onBlur={()=>{composing.current=false;}}
    onKeyDown={event=>{
     if(event.key!=='Escape'||event.defaultPrevented||event.repeat||event.altKey||event.ctrlKey||event.metaKey||event.shiftKey||event.nativeEvent.isComposing||event.nativeEvent.keyCode===229||composing.current||event.currentTarget.ownerDocument.activeElement!==event.currentTarget||!active())return;
-    event.preventDefault();event.stopPropagation();if(query)change('');else onClose();
+    if(!query&&!onClose)return;
+    event.preventDefault();event.stopPropagation();if(query)change('');else onClose?.();
    }}/>{query&&<button type="button" aria-label={t('清空公司搜索','Clear company search')} title={t('清空公司搜索','Clear company search')} onClick={event=>clear(event.currentTarget)}><X size={16} aria-hidden="true"/></button>}</div>
   <label className="source-company-order"><span>{t('排序','Order')}</span><select aria-label={t('来源公司排序','Source company order')} aria-controls={listId} aria-describedby={listId+'-help'} value={order} onChange={event=>{const value=event.target.value;if(active()&&orders.includes(value as SourceCompanyOrder))setOrder(value as SourceCompanyOrder);}}><option value="default">{t('默认顺序','Default order')}</option><option value="contributors">{t('分享者最多','Most contributors')}</option><option value="recent">{t('最新分享','Latest report')}</option><option value="name">{t('公司名称','Company name')}</option></select></label>
   <span id={listId+'-status'} className="source-company-count" role="status" aria-atomic="true">{ready?t(`显示 ${rows.length} / ${companies.length} 家来源公司`,`${rows.length} of ${companies.length} source companies`):t('公司筛选已保留，待来源确认后显示结果。','Company filters kept until source data is confirmed.')}</span>
-  <span id={listId+'-help'} className="sr-only">{t('输入即时筛选，不改变发布时间。Esc 清空公司搜索，再按一次收起来源。最新分享按公开面经发布时间排序；未知日期排在末尾。','Filters as you type without changing the publication period. Escape clears the company search; press it again to collapse sources. Latest report uses public report publication dates, with unknown dates last.')}</span>
+  <span id={listId+'-help'} className="sr-only">{t(`输入即时筛选，不改变发布时间。Esc 清空公司搜索。${onClose?'再按一次收起来源。':''}最新分享按公开面经发布时间排序；未知日期排在末尾。`,`Filters as you type without changing the publication period. Escape clears the company search. ${onClose?'Press it again to collapse sources. ':''}Latest report uses public report publication dates, with unknown dates last.`)}</span>
  </div>:null;
  return {controls,rows,query,listId,clear};
 }
