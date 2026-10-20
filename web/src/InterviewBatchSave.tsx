@@ -6,12 +6,13 @@ import {useStudyLists} from './useStudyLists';
 import {StudyListFeedback} from './StudyListControls';
 import {newStudyListId,STUDY_LIST_ITEM_LIMIT,STUDY_LIST_LIMIT,type StudyListOperation} from './studyListStore';
 import {favoriteHref} from './libraryNavigation';
-import type {Problem} from './types';
 import './study-lists.css';
 import './interview-batch-save.css';
 
+export type StudyListModule={id:string;number:number;title:string;translations?:{en?:{title:string}}};
+
 type Attempt={request:string;list:string;destination:string;title:string};
-export default function InterviewBatchSave({capture,modules,initialTitle}:{capture:{ids:readonly string[]};modules:Problem[];initialTitle:string}){
+export default function InterviewBatchSave({capture,modules,initialTitle,canAct}:{capture:{ids:readonly string[]};modules:StudyListModule[];initialTitle:string;canAct?:()=>boolean}){
  const {t,locale}=useI18n(),{user,loading,capabilities,state,store}=useStudyLists(),root=useRef<HTMLElement>(null),heading=useRef<HTMLHeadingElement>(null),openedAt=useRef(location.href);
  const [destination,setDestination]=useState('new'),[title,setTitle]=useState(initialTitle),[attempt,setAttempt]=useState<Attempt>(),[confirmed,setConfirmed]=useState<string>();
  const target=state.snapshot?.lists.find(list=>list.id===destination),missing=capture.ids.filter(id=>!target?.items.some(item=>item.problem_id===id));
@@ -21,7 +22,7 @@ export default function InterviewBatchSave({capture,modules,initialTitle}:{captu
  const sameIntent=complete&&matches&&attempt?.destination===destination&&(destination!=='new'||attempt.title===title.trim());
  const capacity=destination==='new'?!!state.snapshot&&state.snapshot.lists.length>=STUDY_LIST_LIMIT:!!target&&target.items.length+missing.length>STUDY_LIST_ITEM_LIMIT;
  const blocked=loading||capabilities?.study_lists!==true||!user||!!state.pending||state.loading||!!state.error||!state.snapshot||capacity||sameIntent||destination!=='new'&&(!target||!missing.length)||destination==='new'&&(!title.trim()||Array.from(title.trim()).length>60);
- function here(){return !!root.current?.isConnected&&location.href===openedAt.current;}
+ function here(){return !!root.current?.isConnected&&!root.current.closest('[hidden],[inert],[aria-hidden="true"]')&&(canAct?canAct():location.href===openedAt.current);}
  function save(){
   if(blocked||!store||!here())return;
   const op:StudyListOperation=destination==='new'?{action:'create',list_id:newStudyListId(),title:title.trim(),problem_ids:[...capture.ids]}:{action:'add',list_id:destination,problem_ids:[...missing]};
@@ -37,7 +38,7 @@ export default function InterviewBatchSave({capture,modules,initialTitle}:{captu
   <h4 ref={heading} tabIndex={-1}><FolderPlus size={16} aria-hidden="true"/>{t(`保存这 ${capture.ids.length} 道练习`,`Save these ${capture.ids.length} exercises`)}</h4>
   <p>{t('仅保存题目与顺序。题单仅自己可见，代码和学习记录不会复制。','Saves problems and their order to your private account list. Code and practice records are not copied.')}</p>
   <ol>{modules.map(module=><li key={module.id}>{module.number}. {locale==='en'?module.translations?.en?.title||module.title:module.title}</li>)}</ol>
-  <StudyListFeedback state={state} store={store} focus={()=>heading.current?.focus({preventScroll:true})}/>
+  <StudyListFeedback state={state} store={store} canAct={()=>here()} focus={()=>heading.current?.focus({preventScroll:true})}/>
   {!state.snapshot?<p role="status">{state.loading?t('正在读取题单…','Loading study lists…'):t('题单尚未读取。','Study lists have not loaded.')}</p>:<form onSubmit={event=>{event.preventDefault();save();}}>
    <label>{t('保存位置','Save to')}<select value={destination} onChange={event=>setDestination(event.target.value)}><option value="new">{t('新建私人题单','Create a private list')}</option>{state.snapshot.lists.map(list=><option key={list.id} value={list.id}>{list.title} · {list.items.length}</option>)}{destination!=='new'&&!target&&<option value={destination} disabled>{t('原题单已不可用，请重新选择','The selected list is unavailable; choose again')}</option>}</select></label>
    <div hidden={destination!=='new'}><label>{t('题单名称','Study-list name')}<input value={title} maxLength={120} onChange={event=>setTitle(event.target.value)} required={destination==='new'}/></label></div>
