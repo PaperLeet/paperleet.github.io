@@ -1,6 +1,7 @@
 import {ArrowDown,ArrowUp,ArrowUpDown,ArrowDownWideNarrow,BookOpen,Bookmark,Building2,Code2,List,Rows3,X} from 'lucide-react';
 import {useI18n} from './i18n';
 import type {LibraryFilters,LibrarySort} from './libraryNavigation';
+import {interviewLabel} from './interviewModels';
 export type Props = {listId?:string;hasFilters:boolean; moduleView:boolean; company:string; course?:boolean; sort:LibrarySort; density:'comfortable'|'compact'; onClear:()=>void; onSort:(sort:LibrarySort)=>void; onDensity:(density:'comfortable'|'compact')=>void;onView?:(view:'papers'|'modules')=>void};
 export default function LibraryResultControls({listId,hasFilters,moduleView,company,course,sort,density,onClear,onSort,onDensity,onView}:Props){
  const {t}=useI18n(),directModules=moduleView&&!company&&!course;
@@ -14,7 +15,7 @@ function libraryFilterRoot(button:HTMLButtonElement,href:string){
 }
 
 export function LibraryActiveFilters({filters,categoryLabel,onChange}:{filters:LibraryFilters;categoryLabel:string;onChange:(patch:Partial<LibraryFilters>)=>void}){
- const {t}=useI18n(),{query,category,tag,difficulty:diff,state}=filters;
+ const {t,locale}=useI18n(),{query,category,tag,difficulty:diff,state}=filters;
  const href=typeof window==='undefined'?'':window.location.href;
  const items=[
   {id:'query',value:!!query,kind:['关键词','Keyword'],label:`“${query}”`,patch:{query:''}},
@@ -22,6 +23,7 @@ export function LibraryActiveFilters({filters,categoryLabel,onChange}:{filters:L
   {id:'tag',value:tag!=='all',kind:['标签','Tag'],label:tag,patch:{tag:'all'}},
   {id:'difficulty',value:diff!=='all',kind:['难度','Difficulty'],label:({E:t('简单','Easy'),M:t('中等','Medium'),H:t('困难','Hard')} as Record<string,string>)[diff],patch:{difficulty:'all'}},
   {id:'state',value:state!=='all',kind:['状态','Status'],label:({todo:t('未开始','Not started'),started:t('进行中','In progress'),done:t('已完成','Solved')} as Record<string,string>)[state],patch:{state:'all'}},
+  {id:'company',value:!!filters.company,kind:['公司','Company'],label:interviewLabel('companies',filters.company||'',locale==='en')+' · '+({30:t('近 30 天','Past 30 days'),90:t('近 90 天','Past 90 days'),365:t('近一年','Past year'),all:t('全部时间','All time')} as Record<string,string>)[filters.company_days||'365'],patch:{company:undefined,company_days:undefined}},
  ].filter(item=>item.value);
  function remove(button:HTMLButtonElement,patch:Partial<LibraryFilters>){
   const root=libraryFilterRoot(button,href);if(!root)return;

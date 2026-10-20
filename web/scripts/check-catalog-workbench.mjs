@@ -39,6 +39,19 @@ try {
     assert(find('.difficulty-summary.E'),'The deferred practice overview must become available');
   };
   await mount();
+  const panel = find('.library-filter-panel'), toggle = find('.library-filter-toggle');
+  assert(panel.hidden, 'Advanced filters start collapsed on desktop and mobile');
+  assert.equal(toggle.getAttribute('aria-controls'), panel.id);
+  assert.equal(toggle.getAttribute('aria-expanded'), 'false');
+  assert(!find('.library-company-controls') || find('.library-company-controls').closest('[hidden]') === panel, 'Any available company filters share the same disclosure');
+  const categoryToggle = find('.library-category-toggle'), categories = [...document.querySelectorAll('.paper-categories button')];
+  assert.equal(categories.length, 4, 'Only All and three categories occupy the initial strip');
+  await click(categoryToggle);
+  assert(document.querySelectorAll('.paper-categories button').length > categories.length);
+  assert.equal(categoryToggle.getAttribute('aria-expanded'), 'true');
+  await click(categoryToggle);
+  assert.equal(document.querySelectorAll('.paper-categories button').length, categories.length);
+  assert.equal(route, '', 'Disclosure state must not change filters or reading links');
   await click(find('[aria-label="紧凑列表"]'));
   assert.equal(find('.library-main').dataset.density, 'compact');
   assert.equal(localStorage.getItem('paperleet.library.density.v1'), 'compact');
@@ -69,12 +82,41 @@ try {
   const paperLinks = [...document.querySelectorAll('.library-main a[href^="#/papers/"]')];
   assert.deepEqual(paperLinks.map(link => link.getAttribute('href').split('?')[0]).sort(), ['#/papers/llm-training-generation', '#/papers/sdpo']);
   assert(paperLinks.every(link => decodeURIComponent(link.getAttribute('href')).includes('tag=Top-k')), 'Reading keeps the original link spelling');
+  await click(find('.library-filter-toggle'));
+  assert(!find('.library-filter-panel').hidden);
   topic.focus();
   await act(async () => { topic.value = 'Attention'; topic.dispatchEvent(new dom.window.Event('change', { bubbles: true })); });
   assert(route.includes('tag=Attention') && route.includes('sort=title'));
   assert.equal(document.activeElement, topic, 'Choosing a new topic keeps the same native control and keyboard focus');
   await act(async () => { topic.value = 'all'; topic.dispatchEvent(new dom.window.Event('change', { bubbles: true })); });
   assert.equal(route, '#/?sort=title', 'Clearing a topic preserves the learner-selected paper order');
+  const escape = new dom.window.KeyboardEvent('keydown', {key:'Escape',bubbles:true,cancelable:true});
+  await act(async()=>topic.dispatchEvent(escape));
+  assert(escape.defaultPrevented);
+  assert(find('.library-filter-panel').hidden);
+  assert.equal(document.activeElement, find('.library-filter-toggle'), 'Escape restores focus to the disclosure');
+  assert.equal(route, '#/?sort=title', 'Closing filters keeps the active URL unchanged');
+  await click(find('.library-category-toggle'));
+  const lateCategory = [...document.querySelectorAll('.paper-categories button')].at(-1);
+  await click(lateCategory);
+  const categoryRoute = route;
+  await click(find('.library-category-toggle'));
+  assert(lateCategory.isConnected && lateCategory.getAttribute('aria-pressed')==='true', 'The selected later category stays in the collapsed strip');
+  assert.equal(route, categoryRoute);
+  await act(async()=>root.render(h(LocaleProvider,null,h(Library,{key:'company-summary',initialRoute:'#/?company=openai&company_days=90&difficulty=E&sort=title&view=modules'}))));
+  const companyChip = find('.active-filters [data-filter-id="company"]');
+  assert(companyChip && companyChip.textContent.includes('OpenAI') && companyChip.textContent.includes('近 90 天'), 'Company and period stay visible while the detailed controls are collapsed');
+  assert(find('.library-filter-panel').hidden);
+  for(let n=0;n<180&&!find('.library-company-controls');n++)await act(async()=>new Promise(resolve=>setTimeout(resolve,10)));
+  assert.equal(find('.library-company-controls')?.closest('[hidden]'), find('.library-filter-panel'));
+  assert.equal(find('.library-filter-toggle > span').textContent, '2', 'Company selection contributes to the advanced filter count');
+  companyChip.focus();
+  await click(companyChip);
+  assert(!route.includes('company=')&&!route.includes('company_days='), 'Removing a company also clears its bound period');
+  assert(route.includes('difficulty=E')&&route.includes('sort=title')&&route.includes('view=modules'), 'Removing a company preserves other filters, view and ordering');
+  assert.equal(document.activeElement,find('.active-filters [data-filter-id="difficulty"]'));
+  console.log('PASS compact library filters: default collapse, shared company disclosure, category expansion/selected-category retention, Escape focus, URL preservation and visible removable company-period chips');
+
   await act(async () => root.render(h(PaperLibrary, { ...catalog, saved: {}, progressReady: false })));
   assert(find('.library-progress-ring b').textContent.startsWith('—'), 'Unresolved progress must not render a fabricated zero');
 
@@ -101,7 +143,7 @@ try {
   assert.deepEqual(errors, [], 'No uncaught DOM errors are allowed');
   console.log('PASS catalog workbench: density persistence/storage failure, shared URL difficulty filters, native case-alias topic selection and focus with exact reading returns and retained sort, removed generic guide, keyboard tab activation/wrapping/Home/End and modifier isolation');
 } finally {
-  if (root) await act(async () => root.unmount());
+  if (root) await act(async () => {await new Promise(resolve=>setTimeout(resolve,80));root.unmount();});
   await server.close(); dom.window.close();
   for (const [key, descriptor] of previous) if (descriptor) Object.defineProperty(globalThis, key, descriptor); else delete globalThis[key];
 }
