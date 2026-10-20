@@ -6,7 +6,7 @@ import {readInterviewRoute} from './interviewNavigation';
 import {controlIsActive} from './activeControls';
 import {useWorkspaceIntent} from './useWorkspaceIntent';
 import {keepReadingTriggerVisible} from './readingViewport';
-import {PATH_PREVIEW_SIZE,matchesPreparationPath,pathSearchDraft} from './preparationPathSearch';
+import {PATH_PREVIEW_SIZE,matchesPreparationPath,matchingPreparationModules,pathSearchDraft} from './preparationPathSearch';
 import './preparation-path-browser.css';
 import {ArrowRight,BookOpen,CheckCircle2,Clock3} from 'lucide-react';
 import {useI18n} from './i18n';
@@ -37,7 +37,7 @@ function PathBrowser({filters,problems,saved,ready:loaded,error,onRetry,canAct}:
   const allowed=request.claim();if(!allowed||!current()||!controlIsActive(target))return;
   target?.focus({preventScroll:true});if(target)keepReadingTriggerVisible(target,100);
  },[open,scope]);
- const renderPath=(path:typeof paths[number])=><PathCard key={path.id} path={path} filters={filters} problems={problems} saved={saved} ready={ready} active={active}/>;
+ const renderPath=(path:typeof paths[number])=><PathCard key={path.id} path={path} filters={filters} problems={problems} saved={saved} ready={ready} active={active} matches={matchingPreparationModules(path,modules,search.applied)}/>;
  return <div ref={root} className="interview-path-browser">
   <p className="interview-progress-context">{t('进度沿用当前学习工作区，通过测试后自动更新。','Progress follows your current learning workspace and updates after passing tests.')}</p>
   {!ready&&<p className="interview-progress-status" role="status">{error?t('学习进度暂不可用，仍可打开题目练习。','Learning progress is unavailable. You can still open practice modules.'):t('正在读取学习进度…','Loading learning progress…')}{error&&onRetry&&<button type="button" className="text-button" onClick={()=>{if(current())onRetry?.();}}>{t('重试学习进度','Retry learning progress')}</button>}</p>}
@@ -63,7 +63,7 @@ function PathBrowser({filters,problems,saved,ready:loaded,error,onRetry,canAct}:
  </div>;
 }
 
-function PathCard({path,filters,problems,saved,ready,active}:{path:ReturnType<typeof rolePreparationPaths>[number];filters:InterviewFilters;problems:Problem[];saved:Record<string,Saved>;ready:boolean;active:(node:HTMLElement)=>boolean}){
+function PathCard({path,filters,problems,saved,ready,active,matches}:{path:ReturnType<typeof rolePreparationPaths>[number];filters:InterviewFilters;problems:Problem[];saved:Record<string,Saved>;ready:boolean;active:(node:HTMLElement)=>boolean;matches:Problem[]}){
  const {t,locale}=useI18n(),en=locale==='en';
  const currentSummary=(node:HTMLElement)=>{const parent=node.closest('details')?.parentElement;return !!parent&&active(parent);};
    const progress=preparationProgress(path.id,problems,saved)!;
@@ -77,6 +77,11 @@ function PathCard({path,filters,problems,saved,ready,active}:{path:ReturnType<ty
  return <article key={path.id} data-selected={selected||undefined} aria-labelledby={`interview-path-${path.id}`}>
     <span className="interview-path-icon"><BookOpen size={19}/></span>{selected&&<span className="interview-path-selected">{t('当前路径','Current path')}</span>}
     <h3 tabIndex={-1} id={`interview-path-${path.id}`}>{en?path.name_en:path.name}</h3><p>{en?path.description_en:path.description}</p>
+    {matches.length>0&&<div className="path-browser-matches">
+     <h4>{t('关键词命中练习','Exercises mentioning your keywords')}<span>{matches.length}</span></h4>
+     <p>{t('标题或编号包含搜索词，可直接打开练习。','Titles or identifiers contain your search terms. Open an exercise directly.')}</p>
+     <ul>{matches.map(problem=><li key={problem.id}><AppLink onClick={event=>{if(!active(event.currentTarget))event.preventDefault();}} href={withLibraryContext(problem.number,returnTo)}><span className="path-browser-match-number">{problem.number}</span><span>{title(problem)}</span><ArrowRight size={14} aria-hidden="true"/></AppLink></li>)}</ul>
+    </div>}
     <div className="interview-path-progress" aria-busy={!ready}>{ready?<><span>{t('已通过','Passed')} <b>{progress.completed} / {progress.total}</b></span><progress aria-label={t(`${path.name}进度`,`${path.name_en} progress`)} value={progress.completed} max={progress.total}/></>:<span>{t('等待学习进度','Waiting for progress')}</span>}</div>
     {ready&&progress.next?<AppLink onClick={event=>{if(!active(event.currentTarget))event.preventDefault();}} className="interview-path-start button subtle" href={withLibraryContext(progress.next.number,returnTo)}><span>{status(progress.next,saved[progress.next.id])==='started'?t('继续准备','Resume preparation'):t('开始下一题','Start next module')}<small>{title(progress.next)}</small></span><ArrowRight size={15}/></AppLink>:ready&&progress.completed===progress.total?<AppLink onClick={event=>{if(!active(event.currentTarget))event.preventDefault();}} className="interview-path-start button subtle" href={interviewHref({...filters,track:path.id,view:'reports',page:1})}><CheckCircle2 size={15}/>{t('路径已完成 · 返回复盘','Path complete · review experiences')}</AppLink>:null}
     <div className="interview-path-modules">{links.slice(0,3)}{links.length>3&&<details className="interview-path-module-disclosure" open={selected}><summary onClick={event=>{if(!currentSummary(event.currentTarget))event.preventDefault();}}><span className="interview-path-module-expand-label">{t(`再看 ${links.length-3} 道练习`,`Show ${links.length-3} more modules`)}</span><span className="interview-path-module-collapse-label">{t('收起练习列表','Show fewer modules')}</span><span className="interview-path-module-chevron" aria-hidden="true"><ArrowRight size={13}/></span></summary><div className="interview-path-module-extra">{links.slice(3)}</div></details>}</div>
