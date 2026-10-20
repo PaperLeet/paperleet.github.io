@@ -94,8 +94,15 @@ def test_built_wheels_work_without_checkout_paths(tmp_path, runtime_wheels, dist
             metadata_name = next(name for name in archive.namelist()
                                  if name.startswith('torchwasm-') and name.endswith('.dist-info/METADATA'))
             metadata = archive.read(metadata_name).decode()
-            requirements = [line for line in metadata.splitlines() if line.startswith('Requires-Dist:')]
-            assert len(requirements) == 1 and requirements[0].startswith('Requires-Dist: numpy')
+            from packaging.requirements import Requirement
+            requirements = [Requirement(line.removeprefix('Requires-Dist:').strip())
+                            for line in metadata.splitlines() if line.startswith('Requires-Dist:')]
+            runtime = [req for req in requirements if req.marker is None or req.marker.evaluate({'extra': ''})]
+            assert len(runtime) == 1 and runtime[0].name == 'numpy'
+            test_only = [req for req in requirements if req not in runtime
+                         and req.marker.evaluate({'extra': 'test'})]
+            assert {req.name for req in test_only} == {'pytest', 'torch'}
+            assert len(runtime) + len(test_only) == len(requirements)
             assert 'License-Expression: Apache-2.0\n' in metadata
             for filename in ('LICENSE', 'NOTICE'):
                 assert 'License-File: ' + filename + '\n' in metadata
