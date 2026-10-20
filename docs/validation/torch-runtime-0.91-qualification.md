@@ -31,9 +31,11 @@ All 89 PaperLeet modules pass fresh Node/Pyodide execution of their tests and
 mutants, with no browser-budget excess. These checks use Pyodide 0.29.4,
 Python 3.13.2 and NumPy 2.2.5. Production WebGPU remains disabled.
 
-The qualification archive uses a self-contained SHA-256 blob manifest. Every
-first-party input/source/test snapshot, harness, raw log/result and installation
-artifact is present. Original cumulative-product development archives are also
+The qualification archive uses a self-contained SHA-256 blob manifest. Captured numerical/SDK/application sources, active exports, harnesses, raw
+logs/results and installation artifacts are present. Historical repository
+assets remain in the checkout; this is not a full repository mirror. The
+[main integration record](torchwasm-main-0.91.md) adds explicit legacy-fixture
+binding and historical main-asset retention checks. Original cumulative-product development archives are also
 included. No ancestor archive, omitted development directory or Git object is
 needed to recover these bytes. Third-party runtimes and dependencies remain
 separately installed; their observed versions and dependency loader are retained.

@@ -23,7 +23,31 @@ evidence verifier has a separately tested missing-legacy-path fallback and
 canonical-root fix; an existing corrupt original still fails its hash. Older
 archive formats outside v1/v2/v3 remain unsupported by that verifier.
 
-Exact delivered package, frontend/build/Worker and retention checks are pending.
+Exact delivered package, frontend/build/Worker and retention checks pass at
+`f8420b27e1accb8e09894004137d4702733d2a23`. Registered frontend coverage is 250 commands:
+the unchanged conditional-shell prefix completes 248 before a Vite ENOSPC
+failure; the remaining two commands pass after removal of generated owned Vite
+cache. The failed invocation remains recorded. Both builds, asset/metadata
+checks and actual Chrome Worker then pass, including all seven attention judge
+tests and explicit cumulative-product/gradient/JVP/HVP assertions.
+
+All six public/private wheel/sdist/rebuilt-wheel artifacts pass. The changed
+standalone README/ROADMAP are rebuilt, and target-only installs pass on modern
+and minimum NumPy. Seven evidence-tool regressions also pass.
+
+The [integration machine record](../../packages/torchwasm/benchmarks/results/qualification-0.91-main-integration.json)
+binds raw results and exact current inputs. Its 13,877,932-byte
+archive SHA-256 is `452b838a215f8469ce0dcfbefbf8f678df964abcc1fc312195db007697d3bfc8`. Current mathematical
+source80, SDK102 and active data183 retain the core qualification hashes.
+Existing main historical assets and evidence are bound by their Git identities,
+and remain in the checkout/main history rather than duplicated in this archive.
+
+The core archive restores its captured7845 files and independent SDK without
+ancestor/Git lookup. It is not a complete historical repository mirror. Full
+frontend/retention replay uses the qualified checkout and separately installed
+third-party runtimes. This integration archive additionally captures the fixed
+legacy fixture and current package/browser verification.
+
 A fresh qualified-source grant and unchanged release-chain/native-wrapper checks
-are required before an ordinary fast-forward main push. No CI dispatch, tag,
-publication or deployment is performed by candidate preparation.
+remain required before an ordinary fast-forward main push. No CI dispatch,
+tag, publication or deployment is initiated by this qualification.
