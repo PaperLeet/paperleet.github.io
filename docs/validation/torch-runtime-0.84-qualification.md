@@ -74,3 +74,10 @@ guide checks pass on the combined tree, followed by both builds, production
 asset retention and the actual nested Worker/indexed-alpha checks. The
 [current-main integration record](../../packages/stridetorch/benchmarks/results/qualification-0.84-current-main.json)
 preserves those results separately from the core qualification.
+
+Main subsequently advanced to `46f2ee11` with ten company-directory and pager
+paths. These changes are also preserved. Eleven related DOM checks, both builds,
+asset retention and the actual indexed/alpha Worker pass on that combined tree.
+The [follow-up record](../../packages/stridetorch/benchmarks/results/qualification-0.84-current-main-followup.json)
+retains this later integration and the terminal first-push transport failure;
+the numerical runtime and active export identities remain unchanged.

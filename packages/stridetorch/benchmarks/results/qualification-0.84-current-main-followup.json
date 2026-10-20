@@ -1,0 +1,238 @@
+{
+  "previous_frontend_qualification": {
+    "path": "packages/stridetorch/benchmarks/results/qualification-0.84-current-main.json",
+    "sha256": "89637e17558456173981a2067a6ac30afb551daf90d7019d3a7ad3c79beeca9b",
+    "raw_archive": {
+      "path": "packages/stridetorch/benchmarks/results/qualification-0.84-current-main-harness.tar.gz",
+      "sha256": "4ab083e52409ba2260e5930ac88bc79d5730a22999a5bde5e390e911522e4347",
+      "bytes": 577570,
+      "files": 66,
+      "unique_payloads": 66
+    }
+  },
+  "status": "qualified_0.84_current_main_integration",
+  "version": "0.84.0",
+  "qualified_source_base": "ba59336684b649d24c9de886997a692004ec86d2",
+  "remote_baseline": "46f2ee118a3063b64312bcb51a272da060d2ae7b",
+  "core_qualification": {
+    "path": "packages/stridetorch/benchmarks/results/qualification-0.84.json",
+    "sha256": "4a56980c6f9297172a7056da454d7fa27dcd67e8c02c21c8a8cdcc67ca0c286c",
+    "raw_archive": {
+      "path": "packages/stridetorch/benchmarks/results/qualification-0.84-harness.tar.gz",
+      "sha256": "225c0b500ced12851c5a826d0166ddea0e7d558d5813d50af4cb408d1561690d",
+      "bytes": 9971913,
+      "files": 1152,
+      "unique_payloads": 667
+    }
+  },
+  "source_resources": 67,
+  "default_runtime_resources": 63,
+  "public_resources": 78,
+  "changed_frontend_paths": {
+    "docs/library-pagination-and-controls.md": "d56252268859720b214d3ead0b0e0fe3bf4a049ff341538c060b42f23d48df68",
+    "docs/validation/search-input-ownership.md": "7eb1f92850659152fc749fc603322e684858c90a89a932862597038700ebc037",
+    "docs/validation/source-company-directory.md": "6d111409dd830129e58e5fafa5fa507bb50fad1f30c702b0a1b078209f16d0dd",
+    "docs/validation/study-followups.md": "4ad00c10ef1cbae7e667dbba686ba498506e79065e49c8e91081f8d90da164a3",
+    "web/package.json": "091cf80387e251622c66660fff022994ad1a3ac2913c1e9cf7c375679dafd44e",
+    "web/scripts/check-community-period.mjs": "2000dce61d9d5c0d9da624ac6a0a2fd51c6c07e6de1f2f8721cd43c3077c8e02",
+    "web/scripts/check-interview-search.mjs": "89b7732bf027dbd0e949aea0dc86d0fe1f9e9c4acc23457fa8f84d52ad45ec7d",
+    "web/scripts/check-library-pagination.mjs": "99364190941d509b8660b1338ebb56d7191db52f7dd5d6f0fc042f237fc8a1f2",
+    "web/scripts/check-report-test-search.mjs": "6585ef81c0b85203b7cce13ff8fe8c3f7c55e55ba688d2ab53546e3b0b995b26",
+    "web/scripts/check-search-input-ownership.mjs": "d39816726d16e6bcedc1e862bc8d5c67160cae717816c7c0c25610807ca155c6",
+    "web/scripts/check-source-company-directory.mjs": "95698e95cd528880ecffb7019f8ad16a36e8a41a593397d2ced32cd335c06307",
+    "web/scripts/check-study-followups.mjs": "939c25d79b7a5c7dc4b903b99a9c933c22dc2a3f36542d49613feee24a72a3cc",
+    "web/src/Community.tsx": "0a9a8014cc314d374e62070c4997b7c7771eff1c3e5c354d7c721e5ccb03c295",
+    "web/src/CommunitySearch.tsx": "deda8a084c9077aafe62055e3930719beda979325e2b1a76cc15770602b1b6e0",
+    "web/src/DraftCenter.tsx": "6973c3f561865830c9e32208db0408469bfe05ed9710011dbf2b18c20cf5ac72",
+    "web/src/Interviews.tsx": "fa8c97ada7f9798d651efeba3a8d2e28013868a6a0ed2ae81dbde39721bd65bc",
+    "web/src/LibraryExerciseCompanies.tsx": "528cf18f920eecfd9c09452a4a8900553d7033b115c845b0afa5bb64ef2e5749",
+    "web/src/LibraryPagination.tsx": "9012c31e883177b56f202d7f6188b1f84dbaea30a579c59c28aa4604cc62b74e",
+    "web/src/LibraryResultControls.tsx": "1eb88a6e4475dcaf7f35f72f60821442e5a9f02870171d5a2b2336d232468951",
+    "web/src/LibrarySearchMatch.tsx": "da4ea6f163d62d1a5b14ca1d92c5a535346e251d8ce7a104141673233d6df1cf",
+    "web/src/PageJump.tsx": "cae7bd62e51659994339a525b9a5bd2d5cafb02c3709d24f5fe3225e2e749772",
+    "web/src/PaperViews.tsx": "efa30e28c9b36ea1d1ef4f480861d7b1785a424e924e4bcc8ab15c86e95bae27",
+    "web/src/SourceCompanyDirectory.tsx": "3f46a3dc045c7f989158f5e3b1c160b3539477d93decd93bca7c8225228d3c37",
+    "web/src/control-surfaces.css": "f6ef3c2bfcba5ac599a6a82dc50a72cc1c1ea805dc00c0b17850602358becb51",
+    "web/src/data/preparation-guides.json": "525ef8b62604bbf5fc0eb4a96b7b8ab8e5ea594ff18a38f66fdb00718d141c9f",
+    "web/src/library-pagination.css": "d8087fc059191176c6a691672663bdff1e53e01f7dbf13759b61b68987856101",
+    "web/src/page-jump.css": "1942ec682272f9d0850a35d0e8157544d1d72ecb390467406c8db5549c09caf5",
+    "web/src/source-company-directory.css": "905ebb5d2499431663185c85989ef6774cf3dae0faded3c899ce03ba5bf51e18",
+    "web/src/useDiscussionReplies.tsx": "5e28b76cc361def5f64b09ea57a0153f94a277af815104787e12a98d110efc1f"
+  },
+  "unchanged_core_and_catalog_inputs": 2415,
+  "receipts": [
+    {
+      "label": "check-source-company-directory",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-source-company-directory.mjs"
+      ],
+      "log_sha256": "cd6952f157f38402364253d9acbabf135d63c0cd805d2227db8a7063432df461"
+    },
+    {
+      "label": "check-library-exercise-companies",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-library-exercise-companies.mjs"
+      ],
+      "log_sha256": "e480a166749450cc628d4727ca16ac453f31a05982a28a5f222e9b34ce7663c1"
+    },
+    {
+      "label": "check-company-directory",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-company-directory.mjs"
+      ],
+      "log_sha256": "a1b57ee4f8f0245454673e2421dbfd2be81837976d6b7f7e927df25a68489b49"
+    },
+    {
+      "label": "check-company-preparation",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-company-preparation.mjs"
+      ],
+      "log_sha256": "eab56836a873a34b019a0b1c8b00cab0eeb32425b5097008d28953c4450bb8fd"
+    },
+    {
+      "label": "check-company-preparation-progress",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-company-preparation-progress.mjs"
+      ],
+      "log_sha256": "67d577291eb7127eff71b1f33c024b370c4823d5bb13d3d999d26026c0f98057"
+    },
+    {
+      "label": "check-library-company",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-library-company.mjs"
+      ],
+      "log_sha256": "caa1581afbf239206551057eb03e16e26d64ffb097a3babb265ca45ee523b7a4"
+    },
+    {
+      "label": "check-library-navigation",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-library-navigation.mjs"
+      ],
+      "log_sha256": "eb66df283c02615c8da26d18ad9d4deecbc65cee0183873ea89ba8c28cbd1c66"
+    },
+    {
+      "label": "check-library-row-actions",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-library-row-actions.mjs"
+      ],
+      "log_sha256": "a00b083ae29e914ec5e9c64f4266d6de17ca7f2e5db3e2be3686b258e219ef9b"
+    },
+    {
+      "label": "check-library-pagination",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-library-pagination.mjs"
+      ],
+      "log_sha256": "567e530abe26ab8fd30fec55d1ee22098ecdd0b6c351d7db35dfef57e5d617dc"
+    },
+    {
+      "label": "check-library-filter-continuity",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-library-filter-continuity.mjs"
+      ],
+      "log_sha256": "9acc71d87d42256ba9227c8699834628be46e752ebb0c12cfd4bd170db68449a"
+    },
+    {
+      "label": "check-page-jump-ownership",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "scripts/check-page-jump-ownership.mjs"
+      ],
+      "log_sha256": "efe7a376dafa5e7d8278632a0485f05274c4dd0271d45e11a91a1439a40876db"
+    },
+    {
+      "label": "build",
+      "exit_code": 0,
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "log_sha256": "8b3b8d3d2b3be5100ac8e9f8aa34f35b0a0d88315447bec02e6a2d03ebdf0a55"
+    },
+    {
+      "label": "pages-profile-build",
+      "exit_code": 0,
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "log_sha256": "64823d897455df16b4e0186046ebfb1b353571541b30bf0b5f10fa846f259236"
+    },
+    {
+      "label": "pages-assets",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+        "-B",
+        "web/scripts/check-pages-assets.py"
+      ],
+      "log_sha256": "418a7e2c28cbb41814e7f35773f5ecbc7d77d39995357507ab3339e48178509d"
+    },
+    {
+      "label": "retain-production-assets-check",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+        "-B",
+        "web/scripts/retain-pages-assets.py",
+        "web/dist",
+        "--check"
+      ],
+      "log_sha256": "19a769266bebf4a3e40767815f6c97320cced03e3dfde794c2318e0303419af5"
+    },
+    {
+      "label": "generated-worker",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-659/verify-generated-worker.mjs"
+      ],
+      "log_sha256": "7062cf1b309b171d177ba7851d95b69fc702d940fa95b4a03607f64ecc1faaea"
+    },
+    {
+      "label": "nested-wasm",
+      "exit_code": 0,
+      "command": [
+        "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+        "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-659/check-nested-wasm.mjs"
+      ],
+      "log_sha256": "6b1bd7a5a9cb4e55dd1017c95b68a3aa5e69a263b45b61da0f209443804dbdbc"
+    }
+  ],
+  "nested_worker_sha256": "4f337d3ed7d8909afd1b960575b36683d8791821a9a9bff719bb88f1ead8b178",
+  "ci_triggered": false,
+  "pushed": false,
+  "main_adopted": false,
+  "published": false,
+  "deployed": false,
+  "goal_status": "active",
+  "raw_archive": {
+    "path": "packages/stridetorch/benchmarks/results/qualification-0.84-current-main-followup-harness.tar.gz",
+    "sha256": "c50f147539407e33b0400bad978414c39c3b3e6e9c32bf93cfcaa72699ba5150",
+    "bytes": 586697,
+    "files": 68,
+    "unique_payloads": 68
+  }
+}
