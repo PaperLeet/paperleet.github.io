@@ -288,7 +288,7 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
       <button type="button" onClick={writeComment} aria-controls={regionId} disabled={!!replyEdit||!!busy||accountLoading||accountRecovery}><PenLine size={15}/>{t('写评论','Write comment')}</button>
       <button type="button" className="card-post-quote" aria-label={t('引用正文到评论草稿','Quote post into comment draft')} title={t('将正文原文摘要加入评论草稿','Add a source-linked excerpt of the original post to your comment draft')} disabled={!!replyEdit||!!busy||accountLoading||accountRecovery} onClick={event=>quotePost(event.currentTarget)}><Quote size={15} aria-hidden="true"/><span>{t('引用正文','Quote post')}</span></button>
       <span className="card-reposts"><Repeat2 size={13}/>{post.counts.reposts} {t('转发','reposts')}</span>
-      <PostReport postId={post.id} returnTo={href} own={post.viewer.can_edit||post.author.id===owner} disabled={accountLoading||!!replyEdit||!!busy}/>
+      <PostReport postId={post.id} postTitle={post.title} canAct={()=>canShare()&&canAct?.()!==false} returnTo={href} own={post.viewer.can_edit||post.author.id===owner} disabled={accountLoading||!!replyEdit||!!busy}/>
       <DiscussionLink key={`post-share:${accountLoading}`} postId={post.id} returnTo={returnTo} compact name={post.title} disabled={accountLoading} canAct={canShare}/>
       {showActivity&&post.last_reply_at&&<span className="post-card-activity">{t('最近回复','Last reply')} <DateLabel value={post.last_reply_at}/></span>}
       {children&&<div className="card-actions-extras">{children}</div>}

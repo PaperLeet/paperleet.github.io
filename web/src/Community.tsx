@@ -1172,7 +1172,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
             {post.interview?<PracticeMentions papers={papers} topics={topics} body={post.body} revealPractice={practiceReading.resumedPractice} revealRequest={practiceReading.notice?.request} returnTo={postHref(post.id)}><DiscussionReading body={post.body} displayBody={translation.body} postId={post.id}/></PracticeMentions>:<DiscussionReading body={post.body} displayBody={translation.body} postId={post.id} />}
             <PaperPreviewCard url={post.paper_url} paper={post.paper} />
             <div className="discussion-actions">
-              <PostReport postId={post.id} returnTo={postHref(id,providedReturnTo,replyTarget)} own={post.viewer.can_edit||post.author.id===owner} disabled={busy||loading||editingPost||!!editingReply}/>
+              <PostReport postId={post.id} postTitle={post.title} canAct={currentQuoteContext} returnTo={postHref(id,providedReturnTo,replyTarget)} own={post.viewer.can_edit||post.author.id===owner} disabled={busy||loading||editingPost||!!editingReply}/>
               <button
                 className={post.viewer.liked ? "active" : ""}
                 disabled={busy || loading}
