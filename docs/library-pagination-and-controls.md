@@ -71,3 +71,13 @@ React/JSDOM regression covers list roles/positions, native link semantics, the
 single-page size controls and all existing paged navigation scenarios. CSS has
 source review and production-build validation; physical browser layout and
 native operating-system interactions remain unverified.
+
+Search results now highlight separate literal query terms in paper titles,
+exercise titles, source names and descriptions. Overlapping terms merge and
+combined emoji or accents remain intact. Highlighting loads only for a nonempty
+query; loading or failed optional code leaves the original text readable.
+
+The footer separates navigation from page sizing and direct entry, preserving
+visual and keyboard order as it stacks in narrower containers. Single-page
+results keep a single band. Page-entry fields grow with the number of digits,
+and result titles retain their normal size and first-line number alignment.
