@@ -14,11 +14,10 @@ export default function UserGrowthChart() {
   const [retry, setRetry] = useState(0);
   const [selected, setSelected] = useState<number>();
   useEffect(() => {
-    let disposed = false, lastRequest = -Infinity;
+    let disposed = false;
     let request: AbortController | undefined;
     async function refresh() {
       if (disposed || request) return;
-      lastRequest = Date.now();
       request = new AbortController();
       const controller = request;
       const timeout = window.setTimeout(() => controller.abort(), 12_000);
@@ -36,19 +35,10 @@ export default function UserGrowthChart() {
         if (!disposed) setLoading(false);
       }
     }
-    function resume() {
-      if (document.visibilityState === 'visible' && Date.now() - lastRequest >= 60_000) void refresh();
-    }
     void refresh();
-    const timer = window.setInterval(resume, 5 * 60_000);
-    window.addEventListener('focus', resume);
-    window.addEventListener('online', resume);
-    document.addEventListener('visibilitychange', resume);
+    const timer = window.setInterval(() => void refresh(), 24 * 60 * 60_000);
     return () => {
       disposed = true; request?.abort(); window.clearInterval(timer);
-      window.removeEventListener('focus', resume);
-      window.removeEventListener('online', resume);
-      document.removeEventListener('visibilitychange', resume);
     };
   }, [retry]);
 
