@@ -1,3 +1,4 @@
+import ResourceSearchMatch from './ResourceSearchMatch';
 import AppLink from './AppLink';
 import {useId,useLayoutEffect,useRef,useState,type MouseEvent} from 'react';
 import {ChevronDown,ExternalLink,Search,X} from 'lucide-react';
@@ -5,7 +6,7 @@ import {useI18n} from './i18n';
 import OrganizationLogo from './OrganizationLogo';
 import {interviewLabel} from './interviewModels';
 import {companyResources,focusInterviewSection} from './interviewPreparation';
-import {matchingInterviewResources,resourceBrowserQuery,resourceBrowserTerms,type ResourceKind} from './interviewResourceBrowsing';
+import {matchingInterviewResources,resourceBrowserQuery,resourceBrowserTerms,resourceSearchContexts,type ResourceKind} from './interviewResourceBrowsing';
 import {useWorkspaceIntent} from './useWorkspaceIntent';
 import {keepReadingTriggerVisible} from './readingViewport';
 import './interview-resource-browser.css';
@@ -47,7 +48,17 @@ function ResourceBrowser({company}:{company:string}){
     </details>
     {active>0&&<button type="button" className="text-button" onClick={event=>{focusSummary(event);composing.current=false;setQuery('');setKind('all');setDisplay({scope:'',limit:PAGE_SIZE});}}>{t('重置资料筛选','Reset resource filters')}</button>}
    </div>
-   <div ref={list} className="interview-resource-list" id={`${id}-list`}>{visible.map(resource=><AppLink key={resource.id} data-resource-id={resource.id} href={resource.url} target="_blank" rel="noreferrer"><span><OrganizationLogo id={resource.company} size={14}/>{interviewLabel('companies',resource.company,en)}<ExternalLink size={12}/></span><b>{en?resource.name_en:resource.name}</b><small className="interview-resource-kind">{resource.kind==='guide'?t('官方指南','Official guide'):t('招聘入口','Careers entry')}</small><p>{en?resource.description_en:resource.description}</p><small className="resource-browser-source">{new URL(resource.url).hostname.replace(/^www\./,'')}<br/>{t('来源核对于','Source checked')} <time dateTime={resource.checked}>{resource.checked}</time></small></AppLink>)}</div>
+   <div ref={list} className="interview-resource-list" id={`${id}-list`}>{visible.map(resource=>{
+    const contexts=resourceSearchContexts(resource,query,en);
+    return <AppLink key={resource.id} data-resource-id={resource.id} href={resource.url} target="_blank" rel="noreferrer">
+     <span><OrganizationLogo id={resource.company} size={14}/><ResourceSearchMatch text={interviewLabel('companies',resource.company,en)} query={query}/><ExternalLink size={12}/></span>
+     <b><ResourceSearchMatch text={en?resource.name_en:resource.name} query={query}/></b>
+     <small className="interview-resource-kind">{resource.kind==='guide'?t('官方指南','Official guide'):t('招聘入口','Careers entry')}</small>
+     <p><ResourceSearchMatch text={en?resource.description_en:resource.description} query={query}/></p>
+     {contexts.map(context=><div key={context.key} className="resource-search-context"><small>{context.kind==='translation'?t('匹配另一种语言','Matched in the other language'):context.kind==='url'?t('匹配来源链接','Matched source address'):t('匹配资料编号','Matched resource ID')}</small><span><ResourceSearchMatch text={context.text} query={query}/></span></div>)}
+     <small className="resource-browser-source"><ResourceSearchMatch text={new URL(resource.url).hostname.replace(/^www\./,'')} query={query}/><br/>{t('来源核对于','Source checked')} <time dateTime={resource.checked}>{resource.checked}</time></small>
+    </AppLink>;
+   })}</div>
    {!matches.length&&<div className="interview-resource-empty"><p>{t('当前资料范围没有匹配结果。可以分别清空搜索或显示全部类型。','No resources match this view. Clear the search or show all resource types.')}</p>{!!resourceBrowserQuery(query)&&<button type="button" className="text-button" onClick={event=>{focusSummary(event);composing.current=false;setQuery('');}}>{t('清空资料关键词','Clear resource keywords')}</button>}{kind!=='all'&&<button type="button" className="text-button" onClick={event=>{focusSummary(event);setKind('all');}}>{t('显示全部资料类型','Show all resource types')}</button>}</div>}
    <div className="resource-browser-actions"><span id={`${id}-count`} role="status" aria-live="polite" aria-atomic="true">{t(`显示 ${visible.length} / ${matches.length} 份资料${active?` · 共收录 ${resources.length} 份`:''}`,`Showing ${visible.length} of ${matches.length} resources${active?` · ${resources.length} maintained in this scope`:''}`)}</span>{matches.length>PAGE_SIZE&&<div role="group" aria-label={t('继续浏览官方资料','Continue browsing official resources')}>{more>0&&<button type="button" className="resource-browser-more" aria-controls={`${id}-list`} aria-describedby={`${id}-count`} onClick={expand}>{t(`再显示 ${more} 份资料`,`Show ${more} more ${more===1?'resource':'resources'}`)}</button>}<button type="button" ref={compactButton} aria-controls={`${id}-list`} aria-describedby={`${id}-count`} aria-disabled={!expanded} onClick={compact}>{t('收起资料列表','Show fewer resources')}</button></div>}</div>
   </>}

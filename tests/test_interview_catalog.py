@@ -27,15 +27,16 @@ def test_shared_interview_taxonomy_and_preparation_paths_are_publishable():
         assert path['roles'] and len(set(path['roles'])) == len(path['roles'])
         assert set(path['roles']) <= roles
     companies = {row['id'] for row in catalog['companies']}
-    official = {'www.amazon.jobs', 'careers.microsoft.com', 'openai.com', 'www.google.com',
+    official = {'www.amazon.jobs', 'careers.microsoft.com', 'openai.com', 'www.google.com', 'www.metacareers.com',
                 'deepmind.google', 'www.nvidia.com', 'www.anthropic.com', 'www.apple.com',
                 'jobs.bytedance.com', 'talent.alibaba.com', 'careers.tencent.com', 'talent.baidu.com',
                 'zhaopin.meituan.com', 'zhaopin.kuaishou.cn', 'www.deepseek.com', 'x.ai', 'www.tesla.com', 'www.microsoft.com'}
     assert len({row['id'] for row in catalog['resources']}) == len(catalog['resources'])
-    assert len({row['company'] for row in catalog['resources']}) >= 16
+    assert len({row['company'] for row in catalog['resources']}) >= 17
     for row in catalog['resources']:
         url = urlsplit(row['url'])
         assert url.scheme == 'https' and url.hostname in official and not url.username and not url.password
+        assert all(isinstance(row.get(field),str) and row[field].strip() for field in ('name','name_en','description','description_en'))
         assert row['kind'] in {'guide', 'careers'}
         assert row['company'] in companies and row['checked']
     assert 'reports' not in catalog and 'frequencies' not in catalog

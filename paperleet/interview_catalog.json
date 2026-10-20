@@ -431,6 +431,50 @@
       "description_en": "Explore research internships, postdoctoral and full-time opportunities, with official links to research labs and open roles.",
       "checked": "2026-10-18",
       "kind": "careers"
+    },
+    {
+      "id": "meta-careers",
+      "company": "meta",
+      "name": "Meta 官方招聘与职业入口",
+      "name_en": "Meta careers and job openings",
+      "url": "https://www.metacareers.com/",
+      "description": "从 Meta 官方招聘入口查看公开职位、工作地点和职业信息。",
+      "description_en": "Browse public job openings, locations and career information on the official Meta careers site.",
+      "checked": "2026-10-20",
+      "kind": "careers"
+    },
+    {
+      "id": "amazon-university-sde-oa",
+      "company": "amazon",
+      "name": "Amazon SDE 校招与实习在线测评准备",
+      "name_en": "Amazon university SDE online assessment preparation",
+      "url": "https://www.amazon.jobs/content/en/how-we-hire/university/sde-oa",
+      "description": "面向在校生与毕业生的官方在线测评说明，介绍全职与实习测评、编程准备建议及练习入口。",
+      "description_en": "Official guidance for student and graduate online assessments, with full-time and internship overviews, coding preparation and practice links.",
+      "checked": "2026-10-20",
+      "kind": "guide"
+    },
+    {
+      "id": "amazon-research-scientist",
+      "company": "amazon",
+      "name": "Amazon 研究科学家面试准备",
+      "name_en": "Amazon Research Scientist interview preparation",
+      "url": "https://www.amazon.jobs/content/en/how-we-hire/research-scientist-interview-prep",
+      "description": "研究岗位的官方准备指南，涵盖技术交流、知识深度、实验设计、研究介绍与行为面试准备。",
+      "description_en": "Official research-role guidance covering technical discussions, depth of knowledge, experimental design, research presentations and behavioral preparation.",
+      "checked": "2026-10-20",
+      "kind": "guide"
+    },
+    {
+      "id": "amazon-sde-topics",
+      "company": "amazon",
+      "name": "Amazon SDE 技术面试主题与示例",
+      "name_en": "Amazon SDE technical interview topics and examples",
+      "url": "https://www.amazon.jobs/content/en/how-we-hire/interview-prep/software-development-topics",
+      "description": "官方技术主题清单与准备示例，涵盖编程、数据结构、算法、数据库、分布式系统及机器学习基础。",
+      "description_en": "Official preparation topics and examples for coding, data structures, algorithms, databases, distributed systems and machine learning fundamentals.",
+      "checked": "2026-10-20",
+      "kind": "guide"
     }
   ],
   "paths": [

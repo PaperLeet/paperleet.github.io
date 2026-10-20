@@ -35,6 +35,13 @@ function highlights(mapped:{spans:Span[];folded:string},terms:string[],first:num
  return ranges;
 }
 
+/** Whole public labels use the same bounded NFKC/grapheme mapping as excerpts. */
+export function publicSourceSearchRanges(text:string,searchTerms:readonly string[]){
+ const terms=[...new Set(searchTerms.map(foldReplySearch).filter(Boolean))].slice(0,100);
+ if(!terms.length||!text||text.length>100_000)return [];
+ const mapped=mapSource(text);return mapped?.spans.length?highlights(mapped,terms,0,mapped.spans.length-1):[];
+}
+
 /** Literal public-source excerpts. Clipping markers never become search evidence. */
 export function replySearchPassages(text:string,query:string):ReplySearchPassage[]{
  const terms=[...new Set(replySearchTerms(replySearchQuery(query)))];
