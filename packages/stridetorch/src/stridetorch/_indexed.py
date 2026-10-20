@@ -50,7 +50,8 @@ def _take(data,index,axis):
 
 def _alpha(value,dtype):
     if isinstance(value,_tensor.Tensor):
-        if value.ndim:raise TypeError('alpha must be a Number or zero-dimensional Tensor')
+        if value.ndim or value.requires_grad:
+            raise TypeError('alpha must be a Number or non-differentiable zero-dimensional Tensor')
         value=value._data.item()
     number,_=_promotion.scalar_info(value)
     original=number

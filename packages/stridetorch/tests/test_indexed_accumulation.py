@@ -160,3 +160,20 @@ def test_complex_alpha_real_gradient_boundary_and_inactive_source():
         args = (x, 0, index) if name == 'index_select' else (x, 0, index, src)
         with pytest.raises(UnsupportedOperation):
             getattr(torch, name)(*args, out=torch.empty(3))
+
+
+@pytest.mark.parametrize('method', ['index_add', 'index_add_'])
+@pytest.mark.parametrize('grad_enabled', [False, True])
+def test_differentiable_alpha_tensor_rejected_before_updating_storage(method, grad_enabled):
+    x = torch.zeros(2)
+    source = torch.ones(2)
+    index = torch.tensor([0, 0])
+    alpha = torch.tensor(.5, requires_grad=True)
+    version = x._version
+    with torch.set_grad_enabled(grad_enabled):
+        with pytest.raises(TypeError):
+            getattr(x, method)(0, index, source, alpha=alpha)
+        np.testing.assert_array_equal(x.numpy(), [0., 0.])
+        assert x._version == version
+        value = getattr(x, method)(0, index, source, alpha=alpha.detach())
+    np.testing.assert_array_equal(value.numpy(), [1., 0.])
