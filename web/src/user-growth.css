@@ -1,9 +1,8 @@
 @font-face{font-family:PaperLeetHand;src:url('/fonts/patrick-hand-latin.woff2') format('woff2');font-style:normal;font-weight:400;font-display:swap}
 .user-growth-card{--growth-ink:var(--text);--growth-color:#ec6449;position:relative;min-width:0;padding:18px 16px 14px;background:var(--surface);border:1.5px solid var(--line);border-radius:16px 13px 17px 11px;box-shadow:2px 3px 0 var(--surface3)}
 .user-growth-card>header{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.user-growth-card h2{font-family:PaperLeetHand,'Chalkboard SE','Comic Sans MS',sans-serif;font-size:23px;line-height:1.25;font-weight:400;letter-spacing:.2px}
-.growth-spark{width:23px;height:23px;flex:none;fill:var(--accent);stroke:var(--growth-ink);stroke-width:1.1;transform:rotate(12deg)}
-.growth-total{display:flex;align-items:baseline;flex-wrap:wrap;gap:9px;margin-top:7px}
+.growth-logo{display:block;width:30px;height:30px;flex:none}
+.growth-total{display:flex;align-items:baseline;flex-wrap:wrap;gap:9px;min-width:0}
 .growth-total>strong{font:400 46px/1.15 PaperLeetHand,'Chalkboard SE',sans-serif;color:var(--growth-ink);font-variant-numeric:tabular-nums}
 .growth-total>span{font-size:12px;color:var(--muted)}
 .growth-plot{margin-top:9px;touch-action:pan-y;cursor:crosshair;border-radius:6px}
@@ -17,7 +16,6 @@
 .growth-dot-halo{fill:var(--growth-color);opacity:.15}.growth-dot{fill:var(--growth-color);stroke:var(--surface);stroke-width:1.5}
 .growth-day{display:flex;justify-content:space-between;gap:8px;margin-top:10px;font-size:12px;line-height:1.5;flex-wrap:wrap;font-variant-numeric:tabular-nums}
 .growth-day>time{color:var(--muted)}.growth-day>span{color:var(--text)}
-.user-growth-card .growth-caption{margin:9px 0 0;text-align:center;font-size:11px;color:var(--muted)}
 .growth-empty{min-height:171px;display:grid;place-items:center;text-align:center;color:var(--muted);font-size:13px}
 .growth-recovery{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px;color:var(--muted);font-size:12px}
 .growth-recovery button{border:0;background:none;color:var(--accent);cursor:pointer;min-height:32px;text-decoration:underline}
