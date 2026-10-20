@@ -7,7 +7,7 @@ import {canSaveStudyListOrder,moveStudyListItem,sameStudyListOrder} from './stud
 import type {createStudyListStore,StudyList,StudyListsState} from './studyListStore';
 import type {Problem} from './types';
 
-type Props={list:StudyList;state:StudyListsState;store?:ReturnType<typeof createStudyListStore>;problems:Problem[];canAct:()=>boolean;onFinish:(focus:boolean)=>void;onDirty:(dirty:boolean)=>void};
+type Props={list:StudyList;state:StudyListsState;store?:ReturnType<typeof createStudyListStore>;problems:Problem[];canAct:()=>boolean;onFinish:(focus:boolean,saved:boolean)=>void;onDirty:(dirty:boolean)=>void};
 type Attempt={request:string;ids:string[];claim:()=>boolean};
 const moves=[{kind:'up',Icon:ArrowUp,zh:'上移',en:'Move up'},{kind:'down',Icon:ArrowDown,zh:'下移',en:'Move down'},{kind:'first',Icon:ArrowUpToLine,zh:'置顶',en:'Move to first'},{kind:'last',Icon:ArrowDownToLine,zh:'移到底部',en:'Move to last'}] as const;
 
@@ -19,7 +19,7 @@ export default function StudyListOrderEditor({list,state,store,problems,canAct,o
  const title=(key:string)=>{const problem=byId.get(key);return problem?(locale==='en'?problem.translations?.en?.title||problem.title:problem.title):key;};
  function here(){return controlIsActive(root.current)&&state.snapshot?.owner_id===owner.current&&canAct();}
  useLayoutEffect(()=>{onDirty(dirty);},[dirty,onDirty]);
- useLayoutEffect(()=>{if(confirmed&&attempt){const focus=here()&&attempt.claim();onFinish(focus);}},[confirmed,attempt]);
+ useLayoutEffect(()=>{if(confirmed&&attempt){const focus=here()&&attempt.claim();onFinish(focus,true);}},[confirmed,attempt]);
  useLayoutEffect(()=>{
   const request=moved.current;moved.current=undefined;
   if(!request||!here()||location.href!==request.href||document.activeElement!==request.handle||!rows.current)return;
@@ -60,11 +60,11 @@ export default function StudyListOrderEditor({list,state,store,problems,canAct,o
     <div className="study-order-title"><strong>{problem?`${problem.number}. ${name}`:name}</strong>{!problem&&<small>{t('题目暂不可用，仍保留在题单中','Unavailable problem; kept in your list')}</small>}</div>
     <div className="study-order-moves">{moves.map(({kind,Icon,zh,en})=>{
      const to=kind==='first'?0:kind==='last'?draft.ids.length-1:index+(kind==='up'?-1:1);
-     return <button type="button" className="icon-button" key={kind} aria-label={t(`${zh}：${name}`,`${en}: ${name}`)} disabled={disabled||to<0||to>=draft.ids.length||to===index} onClick={event=>move(key,to,event.currentTarget)}><Icon size={16} aria-hidden="true"/></button>;
+     return <button type="button" className="icon-button" key={kind} tabIndex={-1} aria-label={t(`${zh}：${name}`,`${en}: ${name}`)} disabled={disabled||to<0||to>=draft.ids.length||to===index} onClick={event=>move(key,to,event.currentTarget)}><Icon size={16} aria-hidden="true"/></button>;
     })}</div>
    </li>;
   })}</ol>
-  <div className="study-order-feedback" role="status" aria-atomic="true">{message?t(`${title(message.id)} 已移至第 ${message.position} 位，尚未保存。`,`${title(message.id)} moved to position ${message.position}. Not saved yet.`):t('移动只改变预览，题单尚未修改。','Moves only change this preview. Your saved list is unchanged.')}</div>
-  <footer><button type="button" className="button" disabled={blocked||sourceChanged||!dirty} aria-busy={ownPending&&!!state.pending?.busy} onClick={save}><Check size={16} aria-hidden="true"/>{ownPending?t('等待保存确认','Awaiting save confirmation'):t('保存顺序','Save order')}</button><button type="button" className="text-button" disabled={ownPending} onClick={()=>{if(here())onFinish(!!root.current?.contains(document.activeElement));}}><X size={16} aria-hidden="true"/>{t('取消调整','Cancel arrangement')}</button><small>{t('只保存题目顺序，不改动代码或学习记录。','Only saves problem order. Code and practice records stay intact.')}</small></footer>
+  <div className="study-order-feedback" role="status" aria-live={ownPending?'off':'polite'} aria-atomic="true">{ownPending?t('本次保存需按上方提示继续处理。','Follow the save status above before making more changes.'):acknowledged?t('这次保存已确认，请核对题单的最新状态。','This save was confirmed. Review the latest list state.'):message?t(`${title(message.id)} 已移至第 ${message.position} 位，尚未保存。`,`${title(message.id)} moved to position ${message.position}. Not saved yet.`):t('移动只改变预览，题单尚未修改。','Moves only change this preview. Your saved list is unchanged.')}</div>
+  <footer><button type="button" className="button" disabled={blocked||sourceChanged||!dirty} aria-busy={ownPending&&!!state.pending?.busy} onClick={save}><Check size={16} aria-hidden="true"/>{ownPending?state.pending?.busy?t('正在保存顺序…','Saving order…'):t('请先处理保存状态','Resolve save status first'):t('保存顺序','Save order')}</button><button type="button" className="text-button" disabled={ownPending} onClick={()=>{if(here())onFinish(!!root.current?.contains(document.activeElement),false);}}><X size={16} aria-hidden="true"/>{t('取消调整','Cancel arrangement')}</button><small>{t('只保存题目顺序，不改动代码或学习记录。','Only saves problem order. Code and practice records stay intact.')}</small></footer>
  </section>;
 }

@@ -77,3 +77,5 @@
 .study-list-order-editor button.text-button,.study-lists button.study-list-order-trigger{min-height:44px}
 
 .study-list-order-editor h3:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:5px}
+
+.study-lists .study-list-order-saved{display:flex;align-items:center;gap:7px;margin:12px 0;color:var(--green);font-size:var(--type-small);line-height:1.7}
