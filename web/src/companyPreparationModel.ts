@@ -18,5 +18,6 @@ export function companyPreparationProgress(filters:InterviewFilters,summary:Inte
  const next=started[0]||candidates.find(problem=>status(problem,saved[problem.id])==='todo')||candidates[0];
  if(!next)return {phase:'unavailable'} as const;
  const practice={...filters,view:'questions' as const,q:'',saved:false,study:'all' as const,queue:'',page:1};
- return {...progress,next,action:status(next,saved[next.id])==='done'?'review':status(next,saved[next.id])==='started'?'continue':'start',href:interviewPracticeHref(next,practice,candidates),viewHref:interviewHref(practice)} as const;
+ const studyHrefs={todo:interviewHref({...practice,study:'todo',difficulty:'',max_minutes:''}),started:interviewHref({...practice,study:'started',difficulty:'',max_minutes:''}),done:interviewHref({...practice,study:'done',difficulty:'',max_minutes:''})};
+ return {...progress,next,action:status(next,saved[next.id])==='done'?'review':status(next,saved[next.id])==='started'?'continue':'start',href:interviewPracticeHref(next,practice,candidates),viewHref:interviewHref(practice),studyHrefs} as const;
 }
