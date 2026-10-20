@@ -1,6 +1,7 @@
 import AppLink from './AppLink';
 import {useId,useRef,type ReactNode} from "react";
 import ReadingAppearance from './ReadingAppearance';
+import {webStatementReadme,type StatementExecution} from './webStatementReadme';
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
@@ -16,14 +17,17 @@ export function Prose({
   content,
   problemId,
   onViz,
+  statementExecution,
 }: {
   content: string;
   problemId?: string;
   onViz?: () => void;
+  statementExecution?: StatementExecution;
 }) {
   const { t } = useI18n();
   const readingRoot=useRef<HTMLDivElement>(null),readingId=useId();
-  const processed = content.replace(
+  const displayed=statementExecution?webStatementReadme(content,statementExecution,t):content;
+  const processed = displayed.replace(
     /<viz\s+id=["']([^"']+)["']\s*\/>/g,
     `[${t("打开交互实验", "Open interactive lab")}](#viz-$1)`,
   );
@@ -86,7 +90,7 @@ export function Prose({
       const menu = event.currentTarget.querySelector<HTMLDetailsElement>('.reading-outline[open]');
       if (menu && event.relatedTarget instanceof Node && !menu.contains(event.relatedTarget)) menu.open = false;
     }}>
-      {content.length>=1200&&<ReadingAppearance target={readingRoot} controlsId={readingId} scope={content}/>}
+      {displayed.length>=1200&&<ReadingAppearance target={readingRoot} controlsId={readingId} scope={displayed}/>}
       <Markdown
         remarkPlugins={[remarkGfm, remarkMath]}
         rehypePlugins={[[readingOutline, {title:t('本文导航', 'On this page'), sectionLabel:t('节', 'sections')}], rehypeKatex]}

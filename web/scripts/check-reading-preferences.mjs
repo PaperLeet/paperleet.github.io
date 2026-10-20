@@ -31,3 +31,16 @@ const malformed=fixture('PRIVATE_INVALID_JSON'),invalid=model.createReadingPrefe
 const inaccessible=fixture();inaccessible.blocked=true;const volatile=model.createReadingPreferencesStore(inaccessible.host);assert.equal(volatile.getSnapshot().saved,false);volatile.set({size:'18'});assert.equal(inaccessible.attributes.get('data-reading-size'),'18');volatile.destroy();
 const server=model.createReadingPreferencesStore();assert.deepEqual(server.getServerSnapshot(),{...defaults,saved:true});assert.equal(server.getServerSnapshot(),server.getServerSnapshot());server.destroy();
 console.log('PASS reading preference recovery: malformed stored data is ignored without destructive repair, inaccessible storage retains working session appearance, and deterministic server snapshots need no browser or account');
+
+const statementCode=await readFile(new URL('../src/webStatementReadme.ts',import.meta.url),'utf8');
+const statementJs=ts.transpileModule(statementCode,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ESNext}}).outputText;
+const {webStatementReadme}=await import('data:text/javascript;base64,'+Buffer.from(statementJs).toString('base64'));
+for(const heading of ['怎么运行','编写与运行','在网页中运行','Write and run','Run your implementation','Running']){
+ const input='# Module\n\n## 5. Contract\nKeep the math.\n\n## 6. '+heading+'\nObsolete instructions.\n\n## 7. Checks\nKeep these checks.\n';
+ const browser=webStatementReadme(input,'browser',(_zh,en)=>en),server=webStatementReadme(input,'server',(_zh,en)=>en),chinese=webStatementReadme(input,'browser',zh=>zh);
+ assert(browser.includes('Run tests to unlock Notes'));assert(!browser.includes('Obsolete instructions'));assert(browser.includes('Guest drafts save in this browser'));assert(browser.includes('## 7. Checks\nKeep these checks.'));assert(server.includes('The server judges your solution'));assert(chinese.includes('点击「运行测试」'));assert(!browser.includes('\\n'));
+}
+for(const id of ['architecture/attention','architecture/flash_attention','optimization/adamw','foundations/next_token_loss']){
+ const readme=await readFile(new URL('../../problems/'+id+'/README.md',import.meta.url),'utf8');assert.equal(webStatementReadme(readme,'browser',(_zh,en)=>en),readme,'Modern lesson contracts and formulas stay exact');
+}
+console.log('PASS deferred statement instructions: browser/server and bilingual legacy run sections,retained checks and real newlines,with four current lesson contracts left byte-for-byte unchanged; no startup or judging work');

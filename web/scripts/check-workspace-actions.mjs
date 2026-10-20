@@ -89,7 +89,7 @@ const mocks = {
     export {default as WorkspaceLayoutMenu} from '/src/WorkspaceLayoutMenu.tsx';
     export {default as ReadingTabControls} from '/src/ReadingTabControls.tsx';
     export function PythonEditor({value,onChange,label,readOnly,focusRequest,onFocusHandled}){useEffect(()=>{globalThis.__paperleetWorkspaceActionTest.calls.editorMounts++;},[]);useEffect(()=>{if(focusRequest){globalThis.__paperleetWorkspaceActionTest.calls.focusRequests.push(focusRequest);const focused=!focusRequest.claimFocus||focusRequest.claimFocus();if(focused)document.querySelector('#problem-editor-panel textarea')?.focus();onFocusHandled?.(focusRequest,focused);}},[focusRequest]);return React.createElement('textarea',{'aria-label':label,value,readOnly,onChange:event=>onChange(event.target.value)});}
-    export const Prose=({content})=>React.createElement('article',null,content);
+    export const Prose=({content,statementExecution})=>React.createElement('article',{'data-statement-execution':statementExecution},content);
     export const ReportView=({report})=>React.createElement('div',{'data-report':true},report ? 'Report available' : 'No report');
     ${['PreparationGuide','InterviewPracticeNextStep','Interviews','ProblemCompanyTags','Community','UserProfile','Account','SolutionHistory','SubmissionResultPage','Submissions','Visuals','QueueAdmissionNotice','ModuleNavigator','ResetCodeButton','BrowserDraftBackups','SettingsPage','AchievementObserver','BrowserResultActions','ReportWorkflow','OnlinePresence','ArtifactCharts'].map(name=>`export const ${name}=()=>null;`).join('\n')}`,
 };
@@ -120,6 +120,7 @@ try {
   assert(find('.workspace-toolbar').contains(action('Run tests')));
   assert(find('.workspace-toolbar').contains(action('Submit')));
   assert.equal(find('#reading-tab-description').getAttribute('aria-selected'),'true');
+  assert(find('article[data-statement-execution="browser"]'),'The actual App passes execution context to the deferred statement renderer');
   assert.equal(find('#reading-tab-result').textContent.trim(),'Result');
   assert.equal(find('#reading-tab-result').getAttribute('aria-controls'),'problem-results-panel');
   assert.equal(find('#problem-results-panel').getAttribute('aria-labelledby'),'reading-tab-result');
