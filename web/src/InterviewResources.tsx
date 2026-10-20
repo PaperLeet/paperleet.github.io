@@ -5,7 +5,7 @@ import {appLocation} from './appLocation';
 import {controlIsActive} from './activeControls';
 import {interviewHref,readInterviewRoute} from './interviewNavigation';
 import AppLink from './AppLink';
-import {useId,useLayoutEffect,useRef,useState,type MouseEvent} from 'react';
+import {useId,useLayoutEffect,useMemo,useRef,useState,type MouseEvent} from 'react';
 import {ChevronDown,ExternalLink,Search,X} from 'lucide-react';
 import {useI18n} from './i18n';
 import OrganizationLogo from './OrganizationLogo';
@@ -14,6 +14,8 @@ import {companyResources,focusInterviewSection} from './interviewPreparation';
 import {matchingInterviewResources,resourceBrowserQuery,resourceBrowserTerms,resourceSearchContexts,resourceKinds,type ResourceKind} from './interviewResourceBrowsing';
 import {useWorkspaceIntent} from './useWorkspaceIntent';
 import {keepReadingTriggerVisible} from './readingViewport';
+import {resourceLearningFields,resourceLearningContexts} from './resourceLearningSearch';
+import {withLibraryContext} from './libraryNavigation';
 import './interview-resource-browser.css';
 
 const PAGE_SIZE=3;
@@ -26,7 +28,10 @@ function ResourceBrowser({company,problems=noProblems,catalogError,onRetryCatalo
  const cardLabels={guide:t('官方指南','Official guide'),careers:t('招聘入口','Careers entry'),technical:t('技术学习','Technical learning')};
  const root=useRef<HTMLElement>(null),finder=useRef<HTMLDetailsElement>(null),summary=useRef<HTMLElement>(null),input=useRef<HTMLInputElement>(null),list=useRef<HTMLDivElement>(null),compactButton=useRef<HTMLButtonElement>(null),composing=useRef(false);
  const [query,setQuery]=useState(''),[kind,setKind]=useState<ResourceKind>('all'),[display,setDisplay]=useState({scope:'',limit:PAGE_SIZE});
- const resources=companyResources(company),searched=matchingInterviewResources(resources,query),matches=searched.filter(resource=>kind==='all'||resource.kind===kind);
+ const resources=useMemo(()=>companyResources(company),[company]);
+ const learning=useMemo(()=>new Map(resources.map(resource=>[resource.id,resourceLearningFields(resource.id,problems,en)])),[resources,problems,en]);
+ const learningText=useMemo(()=>new Map([...learning].map(([key,fields])=>[key,fields.map(field=>field.text)])),[learning]);
+ const searched=matchingInterviewResources(resources,query,learningText),matches=searched.filter(resource=>kind==='all'||resource.kind===kind);
  const scope=JSON.stringify([company,kind,resourceBrowserTerms(query),matches.map(resource=>resource.id)]),limit=display.scope===scope?display.limit:PAGE_SIZE;
  const visible=matches.slice(0,limit),more=Math.min(PAGE_SIZE,matches.length-visible.length),expanded=visible.length>PAGE_SIZE;
  const active=Number(!!resourceBrowserQuery(query))+Number(kind!=='all'),intent=useWorkspaceIntent(scope),href=typeof window==='undefined'?'':window.location.href;
@@ -54,14 +59,14 @@ function ResourceBrowser({company,problems=noProblems,catalogError,onRetryCatalo
      <summary ref={summary}><Search size={16} aria-hidden="true"/><span>{t('查找与分类','Find & filter')}</span>{active>0&&<small>{t(`${active} 项筛选`,`${active} ${active===1?'filter':'filters'}`)}</small>}<ChevronDown size={15} aria-hidden="true"/></summary>
      <div className="resource-browser-filter-panel">
       <div className="resource-browser-search" role="search" aria-label={t('查找官方资料','Find official resources')}><Search size={15} aria-hidden="true"/><input ref={input} type="search" maxLength={200} value={query} aria-label={t('搜索官方资料','Search official resources')} aria-controls={`${id}-list`} aria-describedby={`${id}-help`} placeholder={t('公司、标题或关键词…','Company, title or keyword…')} onChange={event=>{if(currentFinder())setQuery(composing.current||(event.nativeEvent as InputEvent).isComposing?event.target.value:Array.from(event.target.value).slice(0,100).join(''));}} onCompositionStart={()=>{if(currentFinder())composing.current=true;}} onCompositionEnd={event=>{const current=currentFinder();composing.current=false;if(current)setQuery(Array.from(event.currentTarget.value).slice(0,100).join(''));}} onKeyDown={event=>{if(!currentFinder()||event.defaultPrevented)return;const ime=composing.current||event.nativeEvent.isComposing||event.keyCode===229;if(event.key==='Enter'){event.stopPropagation();if(!ime)event.preventDefault();return;}if(event.key==='Escape'&&!ime&&!event.repeat&&!event.ctrlKey&&!event.metaKey&&!event.altKey&&!event.shiftKey&&query){event.preventDefault();event.stopPropagation();clearQuery();}}}/>{!!query&&<button type="button" aria-label={t('清空资料搜索','Clear resource search')} aria-controls={`${id}-list`} onClick={clearQuery}><X size={16} aria-hidden="true"/></button>}</div>
-      <p id={`${id}-help`}>{t('按公司、标题、简介或来源域名筛选已收录资料；不会改变页面的面经与练习范围。最多100个字符。','Search maintained companies, titles, descriptions or source domains without changing the page’s experiences or practice scope. Up to 100 characters.')}</p>
+      <p id={`${id}-help`}>{t('搜索已收录资料、平台整理的阅读自测和已加载的相关练习；不搜索私人草稿，也不改变面经或练习范围。最多100个字符。','Search maintained resources, curated reading prompts and loaded related exercises. Private drafts are excluded and your experience/practice scope stays unchanged. Up to 100 characters.')}</p>
       <div className="resource-browser-kinds" role="group" aria-label={t('资料类型','Resource type')}>{resourceKinds.map(value=><button key={value} type="button" aria-pressed={kind===value} aria-controls={`${id}-list`} onClick={()=>{if(currentFinder())setKind(value);}}>{kindLabels[value]}<small>{value==='all'?searched.length:searched.filter(resource=>resource.kind===value).length}</small></button>)}</div>
      </div>
     </details>
     {active>0&&<button type="button" className="text-button" aria-controls={`${id}-list`} onClick={event=>{if(!currentView())return;focusSummary(event);composing.current=false;setQuery('');setKind('all');setDisplay({scope:'',limit:PAGE_SIZE});}}>{t('重置资料筛选','Reset resource filters')}</button>}
    </div>
    <div ref={list} className="interview-resource-list" id={`${id}-list`}>{visible.map(resource=>{
-    const contexts=resourceSearchContexts(resource,query,en);
+    const contexts=resourceSearchContexts(resource,query,en),learningMatches=resourceLearningContexts(resource,query,learning.get(resource.id)||[]);
     return <article key={resource.id} aria-labelledby={`${id}-${resource.id}`}>
     <AppLink data-resource-id={resource.id} href={resource.url} target="_blank" rel="noreferrer">
      <span><OrganizationLogo id={resource.company} size={14}/><ResourceSearchMatch text={interviewLabel('companies',resource.company,en)} query={query}/><ExternalLink size={12}/></span>
@@ -71,6 +76,12 @@ function ResourceBrowser({company,problems=noProblems,catalogError,onRetryCatalo
      {contexts.map(context=><div key={context.key} className="resource-search-context"><small>{context.kind==='company'?t('匹配公司名称','Matched company name'):context.kind==='translation'?t('匹配另一种语言','Matched in the other language'):context.kind==='url'?t('匹配来源链接','Matched source address'):t('匹配资料编号','Matched resource ID')}</small><span lang={context.kind==='company'||context.kind==='translation'?(en?'zh-CN':'en'):undefined}><ResourceSearchMatch text={context.text} query={query}/></span></div>)}
      <small className="resource-browser-source"><ResourceSearchMatch text={new URL(resource.url).hostname.replace(/^www\./,'')} query={query}/><br/>{t('来源核对于','Source checked')} <time dateTime={resource.checked}>{resource.checked}</time></small>
     </AppLink>
+    {learningMatches.length>0&&<div className="resource-learning-matches" aria-label={t('平台整理的匹配内容','Matching content curated by PaperLeet')}>
+     {learningMatches.map(context=><div key={context.key} className="resource-learning-context" data-learning-kind={context.kind}>
+      <small id={`${id}-${resource.id}-${context.key}`}>{context.kind==='exercise'?t('匹配相关练习 · 平台整理','Matched related exercise · PaperLeet'):context.kind==='question'?t('匹配阅读自测 · 平台整理','Matched reading self-check · PaperLeet'):t('匹配练习说明 · 平台整理','Matched practice note · PaperLeet')}</small>
+      {context.problem&&returnTo?<AppLink data-learning-exercise={context.problem.id} aria-describedby={`${id}-${resource.id}-${context.key}`} href={withLibraryContext(context.problem.number,returnTo)} target="_blank" rel="noopener noreferrer" aria-label={t(`${context.problem.number}. ${context.problem.title}（新标签页打开）`,`${context.problem.number}. ${context.problem.translations?.en?.title||context.problem.title} (opens in a new tab)`)} onClick={event=>{if(!currentView()||!controlIsActive(event.currentTarget)||event.currentTarget.closest('details:not([open]),dialog:not([open])'))event.preventDefault();}}><span><ResourceSearchMatch text={context.text} query={query}/></span><ExternalLink size={13} aria-hidden="true"/></AppLink>:<p lang={context.lang}><ResourceSearchMatch text={context.text} query={query}/></p>}
+     </div>)}
+    </div>}
     <ResourceConceptPractice resource={resource.id} problems={problems} returnTo={returnTo} canAct={currentView} error={catalogError} onRetry={onRetryCatalog}/>
     </article>;
    })}</div>
