@@ -52,6 +52,8 @@ def snapshot(source, revision):
         if length > 8 * 1024 * 1024 or size > 32 * 1024 * 1024:
             raise ValueError("Runtime snapshot exceeds the source budget")
         files[name] = git(source, "cat-file", "blob", oid)
+    if "src/torchwasm/__init__.py" in files:
+        raise ValueError("TorchWasm package rename requires coordinated product integration; preserve the current runtime pin")
     if not {"LICENSE", "NOTICE", "pyproject.toml", "src/stridetorch/__init__.py"} <= files.keys():
         raise ValueError("Incomplete standalone runtime snapshot")
     if not any(name.startswith("tests/") for name in files):

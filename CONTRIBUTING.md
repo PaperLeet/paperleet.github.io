@@ -1,6 +1,6 @@
 # 贡献题目
 
-仓库正在拆分为公共本地产品、独立 StrideTorch 和私有线上平台。当前题库与
+仓库正在拆分为公共本地产品、独立 TorchWasm（原 StrideTorch） 和私有线上平台。当前题库与
 公共核心仍在本仓评审；主仓迁入 organization 并完成整合后，贡献入口将统一到
 `PaperLeet/paperleet`。公共贡献者不需要访问私有仓或生产数据。
 详见[仓库职责与迁移安排](docs/repository-layout.md)。

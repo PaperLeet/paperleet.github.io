@@ -77,3 +77,15 @@ def test_symlinks_and_mutable_revisions_are_rejected(repositories):
         sync.snapshot(source, "main")
     for name in ["../secret", "src/../secret", "src/..\\secret", "src/.git/config", "/src/secret"]:
         assert not sync.managed(name)
+
+
+def test_package_rename_requires_product_integration(repositories):
+    source, root, previous = repositories
+    package = source / "src/stridetorch"
+    package.rename(source / "src/torchwasm")
+    revision = commit(source)
+    with pytest.raises(ValueError, match="coordinated product integration"):
+        sync.update(root, source, revision)
+    assert sync.check(root)["revision"] == previous
+    assert (root / sync.PACKAGE / "src/stridetorch/__init__.py").is_file()
+    assert not (root / sync.PACKAGE / "src/torchwasm").exists()

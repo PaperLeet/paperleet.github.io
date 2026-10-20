@@ -10,7 +10,7 @@ and operations. Neither repository should contain live user data or credentials.
 | Current | Target | Ownership |
 | --- | --- | --- |
 | Hongyang-Du/PaperLeet | PaperLeet/paperleet after owner transfer | Public local product and consolidated core |
-| packages/stridetorch here | PaperLeet/stridetorch | Independent runtime source and releases |
+| StrideTorch 0.85 here; TorchWasm 0.91 candidate pending | PaperLeet/stridetorch (current GitHub identity) | Independent TorchWasm runtime source and releases |
 | PaperLeet/backend | PaperLeet/platform by in-place rename | Private hosted frontend/backend |
 | PaperLeet/paperleet.github.io | Same identity | Historical PRs and eventually static deployment |
 
@@ -33,6 +33,17 @@ a source update; it refuses unfinished local runtime changes and does not run
 upstream workflows or scripts. Run native and WASM integration checks before
 merging. `python scripts/sync_stridetorch.py` checks the current snapshot offline.
 This preserves existing standalone installs without adding nested submodules.
+
+The runtime is now named **TorchWasm** in the unmerged 0.91 main-integration
+candidate (`codex/torchwasm-main-091`). Its distribution, import and launcher
+become `torchwasm`, and its product path becomes `packages/torchwasm`. The
+current main branch still uses StrideTorch 0.85. Keep its existing provenance
+pin until the candidate and product integration are reviewed together.
+`sync_stridetorch.py` deliberately refuses a renamed package: moving the
+package directory, Python imports, browser bundles, Worker and provenance
+manifest must be one coordinated product change. A repository URL rename to
+`PaperLeet/torchwasm` is separate; use the existing working URL until it happens.
+Do not backport this legacy manifest into a renamed runtime tree unchanged.
 Hosted UI changes move into the private platform's
 `frontend/`; public contributors need no private access or production data.
 
