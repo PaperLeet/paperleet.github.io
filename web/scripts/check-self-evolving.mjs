@@ -22,6 +22,20 @@ try {
   const {default:Flow}=await server.ssrLoadModule('/src/SelfEvolvingFlow.tsx');
   const {LocaleProvider,useI18n}=await server.ssrLoadModule('/src/i18n.tsx');
   const {evolutionFlows,consensusExample,hintExample,renderExample}=await server.ssrLoadModule('/src/selfEvolving.ts');
+  const nav=await server.ssrLoadModule('/src/libraryNavigation.ts'),account=await server.ssrLoadModule('/src/accountNavigation.ts');
+  const {decodeProblemHash}=await server.ssrLoadModule('/src/reports.ts'),{parseHandoff}=await server.ssrLoadModule('/src/draftHandoff.ts'),{discussionPracticeTarget}=await server.ssrLoadModule('/src/discussionPracticeReturn.ts');
+  const catalog=JSON.parse(await readFile('public/data/index.json','utf8')).problems.filter(p=>p.id.startsWith('self_evolving/'));
+  assert.equal(catalog.length,7);
+  for(const problem of catalog){
+    for(const origin of ['#/collections/self-evolving','#/interviews?role=llm&track=self-evolving']){
+      const href=nav.withLibraryContext(problem.id,origin);assert.equal(nav.libraryReturnHref(href),origin);
+      assert.equal(account.accountReturnHref(decodeProblemHash(account.signInHref(href))),href);
+    }
+    const post='a'.repeat(32),href=nav.withLibraryContext(problem.id,'#/community/'+post);
+    assert.equal(discussionPracticeTarget(href,post),problem.id);
+    const handoff={version:1,id:'test-handoff',problem:problem.id,code:'private draft',created:1000};
+    assert.deepEqual(parseHandoff(JSON.stringify(handoff),1000),handoff);
+  }
   let paper='r-zero',locale;
   function App(){locale=useI18n();return h(Flow,{paper});}
   const render=()=>act(async()=>{root??=createRoot(document.querySelector('#root'));root.render(h(React.StrictMode,null,h(LocaleProvider,null,h(App))));});
