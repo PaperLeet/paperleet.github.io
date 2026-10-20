@@ -1,0 +1,8 @@
+{
+  "source_revision": "6dff94ffb477cd964b21d24e6dd7b7fe28a244eb",
+  "build_method": "qualified-ci-artifact-retention-repair",
+  "quality_run": 39345418645,
+  "original_pages_run": 39347706410,
+  "input_artifact_digest": "sha256:8015bc795e64df488f17ac49a82cfd8c5ff0d8201508b47833eaab827eb4eaff",
+  "built_at": "2026-10-20T01:10:26.110013+00:00"
+}
