@@ -40,7 +40,8 @@ def test_shared_interview_taxonomy_and_preparation_paths_are_publishable():
                      'https://www.tensorflow.org/tutorials/generative/cvae': 'google',
                      'https://apply.workable.com/huggingface/': 'huggingface',
                      'https://huggingface.co/learn/diffusion-course/en/unit1/3': 'huggingface',
-                     'https://huggingface.co/docs/diffusers/en/api/schedulers/ddim': 'huggingface'}
+                     'https://huggingface.co/docs/diffusers/en/api/schedulers/ddim': 'huggingface',
+                     'https://huggingface.co/blog/4bit-transformers-bitsandbytes': 'huggingface'}
     assert len({row['id'] for row in catalog['resources']}) == len(catalog['resources'])
     assert len({row['company'] for row in catalog['resources']}) >= 17
     for row in catalog['resources']:

@@ -635,6 +635,28 @@
       "description_en": "Read the official DDIMScheduler reference for prediction types, training and inference timesteps, eta, explicit variance noise and the clean-endpoint option.",
       "checked": "2026-10-20",
       "kind": "technical"
+    },
+    {
+      "id": "microsoft-lora-paper",
+      "company": "microsoft",
+      "kind": "technical",
+      "name": "LoRA 原始论文：冻结基座与低秩更新",
+      "name_en": "LoRA original paper: frozen weights and low-rank updates",
+      "description": "微软研究院论文页，介绍冻结预训练权重与可训练低秩分解，结合第 14 题练习缩放更新与独立线性层。",
+      "description_en": "Microsoft Research publication page on frozen pretrained weights and trainable low-rank factors. Use module 14 to study scaled updates and an isolated linear layer.",
+      "url": "https://www.microsoft.com/en-us/research/publication/lora-low-rank-adaptation-of-large-language-models/",
+      "checked": "2026-10-20"
+    },
+    {
+      "id": "huggingface-qlora-foundations",
+      "company": "huggingface",
+      "kind": "technical",
+      "name": "QLoRA 原理（2023）：NF4 与可训练 Adapter",
+      "name_en": "QLoRA foundations (2023): NF4 and trainable adapters",
+      "description": "Hugging Face 的 2023 年原理文章，区分 4-bit 权重存储、计算精度与可训练 Adapter；结合第 15 题理解 NF4 分块与冻结量化基座。",
+      "description_en": "A 2023 Hugging Face introduction distinguishing 4-bit weight storage, compute precision and trainable adapters. Use module 15 for NF4 blocks and a frozen quantized base.",
+      "url": "https://huggingface.co/blog/4bit-transformers-bitsandbytes",
+      "checked": "2026-10-20"
     }
   ],
   "paths": [
