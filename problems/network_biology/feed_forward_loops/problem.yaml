@@ -1,0 +1,77 @@
+﻿id: network_biology/feed_forward_loops
+number: 108
+title: 网络模体：在有向调控网络中检测前馈环
+title_en: 'Network Motifs: Detecting Feed-forward Loops in a Directed Regulatory Network'
+paper_id: network-motifs
+paper:
+  title: 'Network motifs: simple building blocks of complex networks'
+  authors: R. Milo, S. Shen-Orr, S. Itzkovitz, N. Kashtan, D. Chklovskii and U. Alon
+  venue: Science 298(5594), 824–827 (2002)
+  url: https://doi.org/10.1126/science.1078368
+  doi: 10.1126/science.1078368
+  anchors:
+  - 'Network motifs: interconnection patterns that occur in a network at numbers significantly higher than in randomized networks; the feed-forward loop is the motif implemented here'
+  literature_record:
+    dataset: docs/research/network_biology_literature.json
+    id: 21
+    category: Network Motifs, Modules, & Community Detection
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: find_feed_forward_loops
+  signature: 'find_feed_forward_loops(nodes: list[str], edges: list[tuple[str, str]], induced: bool = False) -> list[tuple[str, str, str]]'
+module:
+  goal: 在有向调控网络中检测前馈环，区分有向模体与无向三角形，并理解模体出现不等于已被实验证实的调控功能。
+  goal_en: Detect feed-forward loops in a directed regulatory network, distinguish a directed motif from an undirected triangle, and understand that motif presence is not an experimentally established regulatory function.
+  scope: 实现前馈环的子图匹配（可选择是否要求诱导子图）；随机化对照实验已提供，仅比较计数。
+  scope_en: Implement subgraph matching for the feed-forward loop, with a switch for induced matching; a degree-preserving randomization comparison is supplied and only compares counts.
+  required_functions:
+  - find_feed_forward_loops
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: Python str node names, tuples of three str
+  device: CPU; pure Python standard library, no network access or dataset download
+  contract: 'Directed graph; edge (u, v) means u regulates v. A feed-forward loop is an ordered triple (x, y, z) of three distinct nodes with edges x->y, y->z and x->z. induced=False allows other edges among the three nodes; induced=True requires that none of y->x, z->x, z->y exists. Self-loops and repeated edges are ignored. The result is the list of all triples sorted ascending as tuples of strings, so one node set can yield two role assignments when it also contains a reverse edge and induced=False. ValueError for duplicate nodes or unknown endpoints.'
+estimated_minutes: 20
+tests:
+  T0: 1
+  T1: 2
+  T2: 5
+  T3: 1
+t3_budget_s: 10
+tags:
+- Network Biology
+- Network Motifs
+- Gene Regulatory Networks
+viz:
+- toy_experiment
+browser:
+  backend: numpy-wasm
+sources_verified: '2026-10-20'
+verified_sources:
+  checked_at: '2026-10-20'
+  links:
+  - https://cris.huji.ac.il/en/publications/network-motifs-simple-building-blocks-of-complex-networks-25/
+  - https://repository.cshl.edu/id/eprint/28747/
+toy:
+  kind: teaching_adaptation
+  source: https://doi.org/10.1126/science.1078368
+  anchor: Motifs as patterns occurring more often than in randomized networks
+  adaptation: Synthetic 12-node regulatory network with three loops and a deterministic degree-preserving edge-swap comparison; counts only, with no significance test, no real regulatory data and no claim about function.
+mutants:
+- id: m1_undirected_triangles
+  bug: 把边当作无向边，三角形的任意方向都算前馈环。
+- id: m2_missing_shortcut_edge
+  bug: 不要求 x 直接调控 z，只检查 x->y->z 链。
+- id: m3_ignore_induced
+  bug: induced=True 时没有排除额外的反向边。
+- id: m4_self_loops_kept
+  bug: 自环被当作普通调控边保留，使三个节点不再互异。
+- id: m5_unsorted_output
+  bug: 返回的三元组没有排序。
+- id: m6_partial_induced_check
+  bug: induced 模式只排除 y->x，漏掉 z->x 和 z->y。
+
