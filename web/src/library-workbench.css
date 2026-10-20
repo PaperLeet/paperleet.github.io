@@ -67,7 +67,8 @@
 .paper-library .matching-modules { padding: 8px 16px 12px 60px; background: var(--surface); }
 .library-main[data-density="compact"] .problem-row { min-height: 64px; padding-block: 12px; }
 .library-main[data-density="compact"] .paper-info small { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-.library-overview { position: sticky; top: 86px; display: grid; gap: 16px; }
+.library-overview { position: sticky; top: 86px; display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; gap: 16px; }
+.library-overview > * { min-width: 0; }
 .library-progress-card { padding: 24px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
 .library-progress-card > header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .library-progress-card h2 { font-size: 18px; font-weight: 600; }
