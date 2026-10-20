@@ -11,7 +11,7 @@ export function useWorkspaceShortcuts(actions: Actions) {
   useEffect(() => { latest.current = actions; });
   useEffect(() => {
     // Discussion editors own their publishing chord, even inside a problem page.
-    const blocked = (event: KeyboardEvent) => !latest.current.enabled || (event.target as HTMLElement | null)?.closest('.markdown-editor, .discussion-outline-filter, .module-picker, .community-code-block, .submission-completion-notice, .submission-completion-fallback, [role="dialog"], dialog[open]') || !!document.querySelector('dialog[open]');
+    const blocked = (event: KeyboardEvent) => !latest.current.enabled || (event.target as HTMLElement | null)?.closest('.markdown-editor, .discussion-outline-filter, .module-picker, .interview-path-browser, .community-code-block, .submission-completion-notice, .submission-completion-fallback, [role="dialog"], dialog[open]') || !!document.querySelector('dialog[open]');
     // Capture the run chord before the editor treats Enter as a new line.
     const handleRun = (event: KeyboardEvent) => {
       if (blocked(event) || (event.target as HTMLElement|null)?.closest('.editor-tools,.editor-copy-manual,.cm-panel,.python-editor-palette,.custom-cases') || !isRunShortcut(event)) return;

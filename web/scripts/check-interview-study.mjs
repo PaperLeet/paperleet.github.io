@@ -61,7 +61,7 @@ try{
  console.log('PASS generation targets study: every seven-step progress transition, current-module continuation, complete path and incomplete-catalog completion guard');
 
  const filters={...emptyInterviewFilters(),company:'google',role:'llm',days:'90',q:'数学 & attention 😀',view:'companies',track:'llm'},returnTo=interviewHref(filters);
- const render=async(Component,props)=>act(async()=>{if(!root)root=createRoot(document.querySelector('#root'));root.render(React.createElement(LocaleProvider,null,React.createElement(Component,props)));});
+ const render=async(Component,props)=>act(async()=>{if(Component===Paths)window.history.replaceState(null,'',interviewHref(props.filters));if(!root)root=createRoot(document.querySelector('#root'));root.render(React.createElement(LocaleProvider,null,React.createElement(Component,props)));});
  const click=async element=>{assert(element,'Missing control');await act(async()=>element.click());};
  const destination=anchor=>readInterviewRoute(libraryReturnHref(anchor.getAttribute('href')));
  const selectedCard=()=>document.querySelector('.interview-path-grid article[data-selected]');
