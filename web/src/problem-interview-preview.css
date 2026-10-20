@@ -34,3 +34,6 @@
 .problem-company-directory-results .library-source-no-match{width:100%;box-sizing:border-box;padding:14px 12px}
 .problem-company-directory-results>.problem-interview-status{margin-top:10px;font-size:var(--type-small)}
 .problem-interview-reference>.source-company-directory{margin-block:12px}
+
+.problem-interview-preview-filters>label{display:grid;gap:6px;flex:0 1 360px;min-width:0;max-width:100%}
+.problem-interview-preview-filters>label>select{box-sizing:border-box;width:100%;min-width:0;max-width:100%}

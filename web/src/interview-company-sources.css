@@ -23,3 +23,5 @@
 .problem-company-evidence>a:last-child{font-size:var(--type-small)}
 @media(pointer:coarse),(max-width:600px){.interview-company-tags .interview-company-source,.interview-company-more>summary{min-height:44px}}
 @media(prefers-reduced-motion:reduce){.interview-company-more>summary>svg{transition:none}}
+
+.interview-company-tags .interview-company-source[data-source-selected]{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 7%,var(--surface))}
