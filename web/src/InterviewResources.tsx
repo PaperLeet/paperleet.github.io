@@ -55,7 +55,7 @@ function ResourceBrowser({company}:{company:string}){
      <b><ResourceSearchMatch text={en?resource.name_en:resource.name} query={query}/></b>
      <small className="interview-resource-kind">{resource.kind==='guide'?t('官方指南','Official guide'):t('招聘入口','Careers entry')}</small>
      <p><ResourceSearchMatch text={en?resource.description_en:resource.description} query={query}/></p>
-     {contexts.map(context=><div key={context.key} className="resource-search-context"><small>{context.kind==='translation'?t('匹配另一种语言','Matched in the other language'):context.kind==='url'?t('匹配来源链接','Matched source address'):t('匹配资料编号','Matched resource ID')}</small><span><ResourceSearchMatch text={context.text} query={query}/></span></div>)}
+     {contexts.map(context=><div key={context.key} className="resource-search-context"><small>{context.kind==='company'?t('匹配公司名称','Matched company name'):context.kind==='translation'?t('匹配另一种语言','Matched in the other language'):context.kind==='url'?t('匹配来源链接','Matched source address'):t('匹配资料编号','Matched resource ID')}</small><span lang={context.kind==='company'||context.kind==='translation'?(en?'zh-CN':'en'):undefined}><ResourceSearchMatch text={context.text} query={query}/></span></div>)}
      <small className="resource-browser-source"><ResourceSearchMatch text={new URL(resource.url).hostname.replace(/^www\./,'')} query={query}/><br/>{t('来源核对于','Source checked')} <time dateTime={resource.checked}>{resource.checked}</time></small>
     </AppLink>;
    })}</div>
