@@ -5,7 +5,8 @@ import {consensusExample, evolutionFlows, hintExample, renderExample} from './se
 import './self-evolving.css';
 
 function Range({label, value, min = 0, max = 1, step = .05, change}: {label: string; value: number; min?: number; max?: number; step?: number; change: (n: number) => void}) {
-  return <label className="evolution-range"><span>{label}<output>{Number(value.toFixed(2))}</output></span><input type="range" min={min} max={max} step={step} value={value} onChange={e => change(Number(e.target.value))}/></label>;
+  const id = useId();
+  return <label className="evolution-range" htmlFor={id}><span>{label}<output htmlFor={id}>{Number(value.toFixed(2))}</output></span><input id={id} type="range" min={min} max={max} step={step} value={value} onChange={e => change(Number(e.target.value))}/></label>;
 }
 
 function Feedback({paper}: {paper: string}) {
@@ -21,7 +22,7 @@ function Feedback({paper}: {paper: string}) {
       <Range label={t('提示字符数', 'Hint characters')} value={length} max={500} step={10} change={setLength}/>
       <label className="evolution-checkbox"><input type="checkbox" checked={valid} onChange={e => setValid(e.target.checked)}/>{t('格式与结构检查通过', 'Format and structure checks pass')}</label>
       <div className="evolution-equation"><span>{t('出题奖励', 'Proposer reward')}</span><code data-score="reward">{hint.reward.toFixed(3)}</code><small>{valid ? `${delta.toFixed(2)} − ${hint.lengthPenalty.toFixed(3)} − 0.1` : '−1 − 0.1'}</small></div>
-      <p>{t('固定另三条 δ 为 −0.2、0.1、0.6，全池中位数为', 'With three other δ values fixed at −0.2, 0.1, 0.6, the full-pool median is')} <b data-score="median">{hint.median.toFixed(3)}</b>。</p>
+      <p>{t('固定另三条 δ 为 −0.2、0.1、0.6，全池中位数为', 'With three other δ values fixed at −0.2, 0.1, 0.6, the full-pool median is')} <b data-score="median">{hint.median.toFixed(3)}</b>{t('。', '.')}</p>
       <p>{t('出题奖励偏向较大的 δ；DPO 训练池默认保留下半部分，并包含中位数处的所有并列项。这里重复惩罚固定为 0.1。', 'The proposer reward favors larger δ; the default DPO pool keeps the lower half, including all median ties. The repetition penalty here is fixed at 0.1.')}</p>
     </> : paper === 'mm-zero' ? <>
       <Range label={t('成功渲染 / 4 次尝试', 'Successful renders / 4 attempts')} value={successes} max={4} step={1} change={setSuccesses}/>

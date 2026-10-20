@@ -43,6 +43,7 @@ try {
     assert.equal(document.querySelector('.evolution').dataset.paper,id);
     assert.equal(document.querySelectorAll('.evolution-node').length,4);
     assert.equal(document.querySelector('a').href,flow.source);
+    for(const input of document.querySelectorAll('input[type=range]'))assert.equal(input.labels[0].htmlFor,input.id,'Each slider has an explicit visible label despite the neighboring output control');
     assert.equal(timers.size,0,'No autoplay');
     for(let i=0;i<flow.steps.length;i++){
       await click(document.querySelectorAll('.evolution-steps button')[i]);
