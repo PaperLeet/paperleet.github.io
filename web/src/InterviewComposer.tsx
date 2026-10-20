@@ -56,9 +56,9 @@ export default function InterviewComposer({owner,company,problems,panelProps,onC
  const [pending,setPending]=useState(()=>readPublication(tabDraftStorage(),owner,'interview','general'));
  const [busy,setBusy]=useState(false),[error,setError]=useState(''),[preview,setPreview]=useState(false),[durable,setDurable]=useState(()=>!readInterviewDraft(tabDraftStorage(),owner)||isInterviewDraftDurable(tabDraftStorage(),owner,draft)),[discard,setDiscard]=useState(false);
  const [confirmedPost,setConfirmedPost]=useState<InterviewPost>();
- const ownComposer=useRef<HTMLElement>(null),composer=panelProps?.ref||ownComposer,titleField=useRef<HTMLInputElement>(null);
+ const ownComposer=useRef<HTMLElement>(null),composer=panelProps?.ref||ownComposer,titleField=useRef<HTMLInputElement>(null),identityRegion=useRef<HTMLDivElement>(null);
  const renderedHref=useRef(typeof location==='undefined'?'':location.href).current;
- const draftStatusId=useId(),titleId=useId(),bodyId=useId(),questionId=useId();
+ const draftStatusId=useId(),titleId=useId(),bodyId=useId(),questionId=useId(),identityId=useId();
  const editor=useRef<HTMLTextAreaElement>(null),writingSummary=useRef<HTMLElement>(null),questionSummary=useRef<HTMLElement>(null),contentHint=useId(),questionHint=useId();
  const intent=useWorkspaceIntent(owner);
  const [questionOpen,setQuestionOpen]=useState(()=>hasInterviewQuestionText(draft.questionScratch)),[questionError,setQuestionError]=useState('');
@@ -111,15 +111,15 @@ export default function InterviewComposer({owner,company,problems,panelProps,onC
  const uninserted=hasInterviewQuestionText(draft.questionScratch);
  const contentReady=hasInterviewDraftContent(draft.body);
  const pendingMatches=!!pending&&samePublication(pending.receipt,interviewPublication(draft));
- const draftStep:InterviewDraftStep=busy?'busy':!draft.title.trim()?'title':uninserted?'record':!contentReady&&!pendingMatches?'body':pendingMatches?'retry':'ready';
+ const draftStep:InterviewDraftStep=busy?'busy':!draft.title.trim()?'title':uninserted?'record':!contentReady&&!pendingMatches?'body':!canPublish?accountLoading?'account-loading':'account':draft.anonymous&&capabilities?.community_anonymous_posts!==true?'anonymous':pendingMatches?'retry':'ready';
  function canNavigateDraft(opener:HTMLElement){return !inflight.current&&active.current&&currentOwner.current===owner&&controlIsActive(composer.current)&&controlIsActive(opener)&&composer.current?.contains(opener)&&document.visibilityState!=='hidden'&&location.href===renderedHref;}
  function navigateDraft(opener:HTMLButtonElement){
   if(!canNavigateDraft(opener))return;
   opener.focus({preventScroll:true});
-  const target=draftStep==='title'?titleField.current:draftStep==='record'?questionSummary.current:editor.current;
+  const target=draftStep==='title'?titleField.current:draftStep==='record'?questionSummary.current:draftStep==='anonymous'?identityRegion.current?.querySelector<HTMLInputElement>('input[type=checkbox]'):editor.current;
   if(!target)return;
   if(draftStep==='record')setQuestionOpen(true);
-  if(draftStep==='title'||draftStep==='record'){target.focus({preventScroll:true});revealReadingTarget(target,'nearest');return;}
+  if(draftStep==='title'||draftStep==='record'||draftStep==='anonymous'){target.focus({preventScroll:true});revealReadingTarget(draftStep==='anonymous'?target.closest('label')||target:target,'nearest');return;}
   const field=editor.current!;
   focusRequest.current={opener,start:field.selectionStart,end:field.selectionEnd,direction:field.selectionDirection,scroll:field.scrollTop,left:field.scrollLeft,claim:intent.create(),reveal:true};
   setPreview(false);setFocusTick(value=>value+1);
@@ -158,7 +158,7 @@ export default function InterviewComposer({owner,company,problems,panelProps,onC
   <PublishingAffiliationNotice/>
   {!confirmedPost&&<PublicationRecovery pending={pending} newerDraft={uninserted} payload={interviewPublication(draft)} busy={busy} disabled={!canPublish} onRetry={()=>void publish(pending?.receipt)}/>}
   <form className="social-form" onSubmit={event=>{event.preventDefault();void publish();}}>
-   <CommunityTagPicker value={draft.tagIds||[]} onChange={tagIds=>edit({tagIds})} disabled={busy}/><PublishingIdentity anonymous={!!draft.anonymous} onChange={anonymous=>edit({anonymous})} disabled={busy}/>
+   <CommunityTagPicker value={draft.tagIds||[]} onChange={tagIds=>edit({tagIds})} disabled={busy}/><PublishingIdentity id={identityId} containerRef={identityRegion} anonymous={!!draft.anonymous} onChange={anonymous=>edit({anonymous})} disabled={busy}/>
    <InterviewFields value={draft.interview} onChange={interview=>edit({interview})} problems={problems} disabled={busy}/>
    <label>{t('面经标题','Title')}<input ref={titleField} id={titleId} data-writing-title="" required maxLength={180} disabled={busy} value={draft.title} placeholder={t('例如：机器学习工程师技术面试复盘','e.g. ML engineering technical interview recap')} onChange={event=>edit({title:event.target.value})}/></label>
    <details className="interview-writing-guide" onToggle={event=>setWritingOpen(event.currentTarget.open)}><summary ref={writingSummary}><span><BookOpen size={15}/>{t('用提纲整理面试经历','Organize your experience with prompts')}</span><ChevronDown size={14}/></summary>{writingOpen&&<WritingGuide stage={draft.interview.stage} defaultId={defaultInterviewOutline(draft.interview.stage)} outlines={interviewOutlines} hasBody={!!draft.body.trim()} hasContent={contentReady} busy={busy} canUndo={!!outlineEdit&&draft.body===outlineEdit.after&&outlineEdit.before!==outlineEdit.after} editedAfterInsert={!!outlineEdit&&draft.body!==outlineEdit.after} onInsert={insertOutline} onUndo={undoOutline} onRestoreFocus={()=>writingSummary.current?.focus({preventScroll:true})}/>}</details>
@@ -171,7 +171,7 @@ export default function InterviewComposer({owner,company,problems,panelProps,onC
    {uninserted&&<p id={questionHint} className="interview-writing-hint" role="status">{t('问题记录仅在本标签页草稿中，尚未写入正文。插入或清空后即可发布当前面经；待确认的原发布仍可单独重试。','This question record stays in the tab draft and is not in the report. Insert or clear it before publishing the current draft. An unconfirmed original publication can still be retried separately.')}</p>}
    {draft.body.trim()&&!contentReady&&!pendingMatches&&<p id={contentHint} className="interview-writing-hint" role="status">{t('提纲已经准备好。补充你实际经历的流程、思路或复盘后即可发布。','Your outline is ready. Add your actual process, approach or reflection before publishing.')}</p>}
    <PublishingRules action="post"/>
-   <InterviewDraftStatus step={draftStep} id={draftStatusId} controls={draftStep==='title'?titleId:draftStep==='record'?questionId:bodyId} disabled={busy} onNavigate={navigateDraft}/>
+   <InterviewDraftStatus step={draftStep} id={draftStatusId} controls={draftStep==='title'?titleId:draftStep==='record'?questionId:draftStep==='anonymous'?identityId:bodyId} disabled={busy} onNavigate={navigateDraft}/>
    <div className="form-footer"><button type="button" className="text-button" disabled={busy} onClick={()=>setDiscard(true)}>{t('丢弃草稿','Discard draft')}</button><small><Check size={12}/>{durable?t('草稿仅保存在本标签页','Draft stays in this tab'):t('草稿暂存在当前页面','Draft is held in this page')}</small><button className="button" disabled={busy||!canPublish||uninserted||!draft.title.trim()||!contentReady&&!pendingMatches||!!draft.anonymous&&capabilities?.community_anonymous_posts!==true} aria-describedby={[draftStatusId,uninserted?questionHint:draft.body.trim()&&!contentReady&&!pendingMatches?contentHint:undefined].filter(Boolean).join(' ')}>{busy?<span className="spinner"/>:<ChevronRight size={15}/>} {pending?pendingMatches?t('重试发布','Retry publication'):t('作为新面经发布','Publish as a new report'):t('发布面经','Publish report')}</button></div>
   </form>
   {discard&&<div className="draft-discard-confirm" role="alert"><p>{t('丢弃当前草稿？已发送但待确认的发布记录会保留，避免误发重复内容。','Discard this draft? Unconfirmed publication receipts are retained so they can be retried safely.')}</p><button type="button" disabled={busy} onClick={()=>{if(discardInterviewDraft(tabDraftStorage(),owner))onClose();else setError(t('暂时无法清除草稿，请重试。','The draft could not be cleared. Try again.'));}}>{t('确认丢弃','Discard draft')}</button><button type="button" onClick={()=>setDiscard(false)}>{t('继续编辑','Keep editing')}</button></div>}
