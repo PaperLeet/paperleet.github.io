@@ -475,6 +475,61 @@
       "description_en": "Official preparation topics and examples for coding, data structures, algorithms, databases, distributed systems and machine learning fundamentals.",
       "checked": "2026-10-20",
       "kind": "guide"
+    },
+    {
+      "id": "google-ml-crash-course",
+      "company": "google",
+      "name": "Machine Learning Crash Course：机器学习基础",
+      "name_en": "Machine Learning Crash Course: ML fundamentals",
+      "url": "https://developers.google.com/machine-learning/crash-course",
+      "description": "通过回归、分类、数据处理、泛化、神经网络与大语言模型入门模块复习机器学习基础，配合交互可视化和练习检查理解。",
+      "description_en": "Review regression, classification, data, generalization, neural networks and introductory LLM concepts with interactive visualizations and exercises.",
+      "checked": "2026-10-20",
+      "kind": "technical"
+    },
+    {
+      "id": "nvidia-cuda-programming",
+      "company": "nvidia",
+      "name": "CUDA 编程指南：GPU 编程模型",
+      "name_en": "CUDA Programming Guide: the GPU programming model",
+      "url": "https://docs.nvidia.com/cuda/cuda-programming-guide/",
+      "description": "从 CUDA 编程模型开始，学习 GPU 内核、异步执行、内存与多 GPU 编程，理解深度学习框架背后的执行方式。",
+      "description_en": "Study the CUDA programming model, GPU kernels, asynchronous execution, memory and multi-GPU programming to understand execution beneath deep learning frameworks.",
+      "checked": "2026-10-20",
+      "kind": "technical"
+    },
+    {
+      "id": "meta-fsdp",
+      "company": "meta",
+      "name": "FSDP 原理：分片训练与显存（2021）",
+      "name_en": "FSDP foundations: sharded training and memory (2021)",
+      "url": "https://engineering.fb.com/2021/07/15/open-source/fsdp/",
+      "description": "这篇 2021 年的工程文章介绍参数、梯度和优化器状态分片，以及 all-gather、reduce-scatter 和计算通信重叠，适合复习分布式训练原理。",
+      "description_en": "This 2021 engineering article explains sharding parameters, gradients and optimizer state, all-gather, reduce-scatter and overlapping communication with computation.",
+      "checked": "2026-10-20",
+      "kind": "technical"
+    },
+    {
+      "id": "anthropic-effective-agents",
+      "company": "anthropic",
+      "name": "构建有效的 AI agents：工作流与工具",
+      "name_en": "Building Effective AI Agents: workflows and tools",
+      "url": "https://www.anthropic.com/engineering/building-effective-agents",
+      "description": "理解预设工作流与自主 agent 的区别，学习提示链、路由、并行和工具使用，并思考任务效果、延迟、成本与系统复杂度之间的取舍。",
+      "description_en": "Compare predefined workflows with autonomous agents. Study prompt chaining, routing, parallelization and tool use alongside task quality, latency, cost and complexity tradeoffs.",
+      "checked": "2026-10-20",
+      "kind": "technical"
+    },
+    {
+      "id": "microsoft-zero-deepspeed",
+      "company": "microsoft",
+      "name": "ZeRO 与 DeepSpeed：状态分片原理（2020）",
+      "name_en": "ZeRO and DeepSpeed: state partitioning foundations (2020)",
+      "url": "https://www.microsoft.com/en-us/research/blog/zero-deepspeed-new-system-optimizations-enable-training-models-with-over-100-billion-parameters/",
+      "description": "这篇 2020 年的研究文章通过优化器状态、梯度和参数分片解释 ZeRO 的三个阶段，帮助复习分布式训练中的显存冗余与通信取舍。",
+      "description_en": "This 2020 research article explains the three ZeRO stages through optimizer-state, gradient and parameter partitioning, covering memory redundancy and communication tradeoffs.",
+      "checked": "2026-10-20",
+      "kind": "technical"
     }
   ],
   "paths": [
