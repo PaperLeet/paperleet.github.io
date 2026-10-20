@@ -1,0 +1,11 @@
+.source-company-directory{display:flex;align-items:center;flex-wrap:wrap;gap:10px 14px;margin:14px 0;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.source-company-search{display:flex;align-items:center;gap:8px;flex:1 1 260px;min-width:0;min-height:46px;padding-inline:12px 3px;border:1px solid var(--line);border-radius:8px;background:var(--surface2);color:var(--muted)}
+.source-company-search>svg{flex:none}.source-company-search input{flex:1;min-width:0;width:100%;min-height:44px;padding:8px 0;border:0;background:transparent;color:var(--text);font:inherit;font-size:var(--type-control);outline:none}
+.source-company-search input:focus-visible{outline:none}.source-company-search:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--control-focus)}
+.source-company-search button{display:grid;place-items:center;flex:none;width:44px;min-height:44px;border-radius:6px;color:var(--muted)}.source-company-search button:hover{color:var(--accent);background:var(--surface)}
+.source-company-search input::-webkit-search-cancel-button{-webkit-appearance:none}
+.source-company-order{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:var(--type-small)}.source-company-order select{min-height:46px;max-width:190px;padding:8px 30px 8px 11px;border:1px solid var(--line);border-radius:8px;background-color:var(--surface);color:var(--text);font:inherit;font-size:var(--type-control)}
+.source-company-count{flex:1 1 100%;font-size:var(--type-small);font-variant-numeric:tabular-nums;color:var(--text-secondary);line-height:1.7}
+.library-source-no-match{padding:18px 12px;text-align:center;border:1px dashed var(--line);border-radius:9px}.library-source-no-match button{min-height:44px;margin-top:6px;padding:6px 12px}
+@media(max-width:520px){.source-company-directory{padding:10px;gap:10px}.source-company-search{flex-basis:100%}.source-company-order{width:100%;justify-content:space-between}.source-company-order select{flex:1;max-width:none}}
+@media(forced-colors:active){.source-company-search:focus-within{outline:2px solid Highlight;outline-offset:2px}}
