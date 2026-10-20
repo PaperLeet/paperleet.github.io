@@ -4,14 +4,15 @@ import {JSDOM} from 'jsdom';
 import {createServer} from 'vite';
 
 const dom=new JSDOM('<!doctype html><div id="root"></div><button id="other-task">Other task</button>',{url:'https://paperleet.test/#/22?from=collections%2Fllm-basics',pretendToBeVisual:true});
-const globals={window:dom.window,document:dom.window.document,navigator:dom.window.navigator,HTMLElement:dom.window.HTMLElement,localStorage:dom.window.localStorage,sessionStorage:dom.window.sessionStorage,location:dom.window.location,IS_REACT_ACT_ENVIRONMENT:true};
+let releaseHighlight;const highlightGate=new Promise(resolve=>releaseHighlight=resolve);
+const globals={window:dom.window,document:dom.window.document,navigator:dom.window.navigator,HTMLElement:dom.window.HTMLElement,localStorage:dom.window.localStorage,sessionStorage:dom.window.sessionStorage,location:dom.window.location,IS_REACT_ACT_ENVIRONMENT:true,__communityCodeViewportGate:()=>highlightGate};
 const previous=new Map(Object.keys(globals).map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
 for(const [key,value]of Object.entries(globals))Object.defineProperty(globalThis,key,{value,writable:true,configurable:true});
 localStorage.setItem('paperleet.locale','en');
 const nativeTimeout=window.setTimeout.bind(window),nativeClear=window.clearTimeout.bind(window),deadlines=new Map();let timerId=100000;
 window.setTimeout=(callback,delay,...args)=>{if(delay===8000){const id=timerId++;deadlines.set(id,()=>callback(...args));return id;}return nativeTimeout(callback,delay,...args);};
 window.clearTimeout=id=>{if(deadlines.has(id))deadlines.delete(id);else nativeClear(id);};
-const server=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom',optimizeDeps:{noDiscovery:true,include:[]}});
+const server=await createServer({server:{middlewareMode:true,hmr:false,ws:false,watch:null},appType:'custom',optimizeDeps:{noDiscovery:true,include:[]},plugins:[{name:'held-real-code-highlighter',enforce:'pre',resolveId(source,importer){if(source==='./highlight'&&importer?.endsWith('/SyntaxHighlight.tsx'))return '\0held-real-code-highlighter';},load(id){if(id==='\0held-real-code-highlighter')return `import {highlight as actual} from '/src/highlight.ts';export async function highlight(...args){await globalThis.__communityCodeViewportGate();return actual(...args);}`;}}]});
 let root;
 try{
   const {createRoot}=await import('react-dom/client');
@@ -41,14 +42,17 @@ try{
   assert.equal(wrap().getAttribute('aria-pressed'),'false');assert.equal(block().querySelector('pre code').textContent,code);
   await click(wrap());assert(block().classList.contains('is-wrapped'));assert.equal(document.activeElement,wrap());
   assert.equal(block().querySelector('pre code').textContent,code,'Wrapping only changes presentation');
+  const viewport=block().querySelector('.community-code-content');assert.equal(viewport.tabIndex,0);assert.equal(viewport.getAttribute('role'),'region');assert.equal(viewport.getAttribute('aria-label'),'python code');assert(document.getElementById(viewport.getAttribute('aria-describedby')).textContent.includes('Tab to leave'));viewport.focus();viewport.scrollTop=77;viewport.scrollLeft=23;
   // Wait for the real syntax highlighter to replace its plain fallback.
+  assert(!block().querySelector('pre.shiki'),'The held real highlighter leaves the plain code fallback mounted before the explicit release');await act(async()=>releaseHighlight());
   await waitFor(()=>block().querySelector('pre.shiki'),'The real asynchronous syntax renderer loads');
   assert(block().classList.contains('is-wrapped'));assert.equal(block().querySelector('pre code').textContent,code);
+  assert.equal(block().querySelector('.community-code-content'),viewport);assert.equal(document.activeElement,viewport,'Async syntax markup replacement keeps focus on the retained code viewport');assert.deepEqual([viewport.scrollTop,viewport.scrollLeft],[77,23]);
   const button=copy();let first;
   await act(async()=>{button.focus();button.click();button.click();first=pending.shift();});
   assert.equal(writes.length,1,'Repeated commands during the same request write once');assert.equal(first.value,code);
   assert.equal(button.disabled,false);assert.equal(button.getAttribute('aria-disabled'),'true');assert.equal(document.activeElement,button);assert.equal(deadlines.size,1);
-  await act(async()=>setLocale('zh'));assert.equal(copy(),button);assert.equal(document.activeElement,button);assert(status().textContent.includes('正在复制'));
+  await act(async()=>setLocale('zh'));assert.equal(copy(),button);assert.equal(document.activeElement,button);assert(status().textContent.includes('正在复制'));assert.equal(block().querySelector('.community-code-content'),viewport);assert.equal(viewport.getAttribute('aria-label'),'python 代码');assert.deepEqual([viewport.scrollTop,viewport.scrollLeft],[77,23]);
   await settle(first);assert(status().textContent.includes('代码已复制'));assert.equal(deadlines.size,0);assert.equal(copy().getAttribute('aria-busy'),'false');assert(!manual());
   await act(async()=>setLocale('en'));
   const denied=await begin();const newerFocus=document.querySelector('#other-task');newerFocus.focus();await settle(denied,true);
@@ -88,6 +92,7 @@ try{
   assert(disclosure.open,'Escape in the manual copy field keeps the solution and native selection open');assert.equal(document.activeElement,selected);assert.equal(selected.selectionEnd,selected.value.length);
   await click(document.querySelector('.solution-reading-code'));assert.equal(document.activeElement,editor);assert.equal(editor.selectionStart,3);assert.equal(editor.selectionEnd,14);assert.equal(editor.selectionDirection,'backward');assert.equal(pane.scrollTop,480);
   const unmounted=await begin();await act(async()=>root.unmount());root=undefined;assert.equal(deadlines.size,0);await settle(unmounted,true);assert.equal(document.querySelector('#root').textContent,'');
+  console.log('PASS retained code viewport: labelled keyboard focus target with valid scroll help,stable focus and both scroll axes across actual async syntax replacement and locale updates,without changes to source or full clipboard/manual-copy contracts');
   console.log('PASS community code reading: independent wrapping with real async highlighting, exact Unicode/tab/raw clipboard content, explicit deduplicated copy and focused busy state, bilingual selected-text fallback, timeout/retry and stale code/language/ABA/route/history/unmount isolation, in-place solution/Escape/back-to-code integration, unchanged editor/caret/scroll/drafts and inline Markdown');
 }finally{
   if(root)await act(async()=>root.unmount());await server.close();dom.window.close();
