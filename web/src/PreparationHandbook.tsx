@@ -3,6 +3,8 @@ import {BookOpen} from 'lucide-react';
 import {useI18n} from './i18n';
 import PreparationGuide from './PreparationGuide';
 import PreparationConceptPicker from './PreparationConceptPicker';
+import PreparationConceptSummary from './PreparationConceptSummary';
+import {hostedAppAvailable,hostedAppHref} from './deployment';
 import {hasPreparationGuide} from './preparationGuides';
 import {interviewCatalog} from './interviewModels';
 import {interviewHref,type InterviewFilters} from './interviewNavigation';
@@ -37,6 +39,6 @@ export default function PreparationHandbook({filters,problems,catalogError,onRet
    <button type="button" aria-pressed={scopeExpanded} disabled={!canBroaden&&!scopeExpanded} onClick={()=>{setChoice(selected?.id||filters.concept);setExpandedScope(scopeKey);}}>{t('相关知识点','Related concepts')}</button>
    {scopeExpanded&&<small>{t('面经列表仍按当前知识点筛选。','Experiences stay filtered to this concept.')}</small>}
   </div>}
- {selected?<><PreparationConceptPicker key={JSON.stringify([scopeKey,scopeExpanded])} problems={offered} selected={selected} onSelect={setChoice}/>{catalogError&&<p className="preparation-guide-catalog-notice" role="status">{t('正在显示已加载的练习。','Showing the exercises already loaded.')}<button type="button" className="text-button" onClick={onRetryCatalog}>{t('重试题库','Retry catalog')}</button></p>}<PreparationGuide key={filters.concept||'handbook'} problemId={selected.id} practiceHref={withLibraryContext(selected.number,returnTo)}/></>:<div className="preparation-guide-catalog-notice" role="status"><p>{catalogError?t('练习目录暂时无法读取，自测手册会在目录恢复后显示。','The exercise catalog is unavailable. Study prompts will appear when it recovers.'):problems.length?t('当前范围暂无可用的自测知识点。','No study concepts are available in this view.'):t('正在加载自测知识点…','Loading study concepts…')}</p>{catalogError&&<button type="button" className="text-button" onClick={onRetryCatalog}>{t('重试题库','Retry catalog')}</button>}</div>}
+ {selected?<><PreparationConceptPicker key={JSON.stringify([scopeKey,scopeExpanded])} problems={offered} selected={selected} onSelect={setChoice}/><PreparationConceptSummary problem={selected} practiceHref={withLibraryContext(selected.number,returnTo)} experiencesHref={hostedAppAvailable?hostedAppHref(returnTo):undefined}/>{catalogError&&<p className="preparation-guide-catalog-notice" role="status">{t('正在显示已加载的练习。','Showing the exercises already loaded.')}<button type="button" className="text-button" onClick={onRetryCatalog}>{t('重试题库','Retry catalog')}</button></p>}<PreparationGuide key={filters.concept||'handbook'} problemId={selected.id} practiceHref={withLibraryContext(selected.number,returnTo)}/></>:<div className="preparation-guide-catalog-notice" role="status"><p>{catalogError?t('练习目录暂时无法读取，自测手册会在目录恢复后显示。','The exercise catalog is unavailable. Study prompts will appear when it recovers.'):problems.length?t('当前范围暂无可用的自测知识点。','No study concepts are available in this view.'):t('正在加载自测知识点…','Loading study concepts…')}</p>{catalogError&&<button type="button" className="text-button" onClick={onRetryCatalog}>{t('重试题库','Retry catalog')}</button>}</div>}
  </section>;
 }
