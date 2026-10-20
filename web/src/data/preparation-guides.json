@@ -3915,6 +3915,30 @@
             "en": "Use an all-ones 2×2 feature map, scalar codebook [-1,+1], scales [1,2] and identity projections. The first scale chooses index 1 and reconstructs ones. Zero residual ties choose index 0 at the final scale, leaving cumulative zeros; decoding must also give zeros. Arbitrary frozen codebooks/projections do not guarantee monotonic improvement. Check independent snapshots, detached outputs and unchanged inputs."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "channel-isometry",
+          "question": {
+            "zh": "把所有通道同时换到正交坐标系，怎样变换码本与投影，才能保留各尺度 token？一般可逆变换也成立吗？",
+            "en": "Under a common orthogonal channel change, how should the codebook and projections change to preserve scale tokens? Does any invertible change work?"
+          },
+          "hint": {
+            "zh": "在理想算术下令列特征 f′=Qf、码字 z′=Qz、P′_k=QP_kQᵀ，且 QᵀQ=I。逐通道插值与 Q 可交换，欧氏距离及等距关系不变，因此按最小索引处理的 token 不变，累计重建变为 Qf_hat。一般可逆变换会改变最近邻度量：原点到 (1,0)、(0,2) 的平方距离为 1、4；用 diag(3,1) 变换后为 9、4，最近邻反转。这是冻结教学接口的坐标检查，不要求浮点边界下逐位一致。",
+            "en": "In ideal arithmetic use column features f′=Qf, codes z′=Qz and P′_k=QP_kQᵀ with QᵀQ=I. Channelwise interpolation commutes with Q, so Euclidean distances and ties are preserved: tokens stay fixed under the smallest-index tie rule and cumulative reconstructions become Qf_hat. General invertible maps change the metric. From the origin, codes (1,0) and (0,2) have squared distances 1 and 4; after diag(3,1), these become 9 and 4. This is a coordinate check of the frozen interface, not a bitwise floating-point guarantee."
+          }
+        },
+        {
+          "id": "nonunique-decoding",
+          "question": {
+            "zh": "两个不同的合法多尺度 token 序列能解码成相同结果吗？为什么只比较最终重建不足以检查编码？",
+            "en": "Can two different valid multiscale token sequences decode identically? Why is a final-reconstruction check insufficient for the encoder?"
+          },
+          "hint": {
+            "zh": "取 B=C=1、尺度 [1,2]、标量码本 [0,1]、两个投影分别为 +1、−1。一组 token 图全选 0，另一组在两个尺度都全选 1；常量图的插值仍为常量，两者最终都解码为零，但第一尺度累计快照分别为零和一。这里只构造两个合法解码输入，不断言同一特征的确定性编码会返回二者。最终解码一致性不能替代 token 最近邻、等距规则和独立中间快照检查。",
+            "en": "Take B=C=1, scales [1,2], scalar codes [0,1] and projections +1 and −1. One sequence selects code 0 everywhere; another selects code 1 at both scales. Interpolation preserves constant maps, so both decode to zero, while their first cumulative snapshots are zero and one. These are two valid decoder inputs, not two claimed encoder outputs for the same feature. Final reconstruction agreement cannot replace nearest-code, tie-rule or independent intermediate-snapshot checks."
+          }
+        }
       ]
     },
     {
@@ -3956,6 +3980,30 @@
           "hint": {
             "zh": "完整 mask 是 5×5：行为 query、列为 key，第一行仅首项 True，后四行全部 True。用 [-1,0,1] 码本和恒等投影，首尺度索引 2 产生 [1,4,1] 的全 1 输入；改变 2×2 目标图不应改变这些输入，首尺度改为索引 0 则变成全 −1。输入长度 4 与 mask 长度 5 的差来自另行提供的首尺度起始嵌入。",
             "en": "The full mask is 5×5: query rows, key columns; only the first entry of row 1 is True, while the other four rows are all True. With codebook [-1,0,1] and identity projections, first-scale index 2 yields ones of shape [1,4,1]. Changing the 2×2 target leaves inputs unchanged; first-scale index 0 yields minus ones. The separately supplied start embedding explains input length 4 versus mask length 5."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "visible-pair-count",
+          "question": {
+            "zh": "按尺度并行预测是否意味着训练 mask 的可见配对一定少于逐 token 因果 mask？用尺度 [1,2,4] 计算。",
+            "en": "Does scale-parallel prediction imply fewer visible training-mask pairs than raster causality? Count them for scales [1,2,4]."
+          },
+          "hint": {
+            "zh": "记各尺度 token 数为 m_k=n_k²、总数 L=Σm_k。本题可见配对数是 Σ_k m_kΣ_{j≤k}m_j=(L²+Σm_k²)/2。尺度 [1,2,4] 给出 L=21、配对数 357；普通 raster 三角只有 231。并行生成的依赖步数与训练中的可见配对数是不同量；接口仍返回稠密 L×L mask。这个计数既不是完整训练 FLOPs，也不是带缓存推理的延迟或显存评测。",
+            "en": "Let m_k=n_k² and L=Σm_k. Visible pairs are Σ_k m_kΣ_{j≤k}m_j=(L²+Σm_k²)/2. Scales [1,2,4] give L=21 and 357 pairs, versus 231 in a raster causal triangle. Sequential generation depth and visible training pairs measure different things; this interface still returns a dense L×L mask. The count is neither full training FLOPs nor a benchmark of cached inference latency or memory."
+          }
+        },
+        {
+          "id": "within-scale-permutations",
+          "question": {
+            "zh": "任意交换同尺度 token 后 mask 不变，是否就能证明 next_scale_inputs 或完整 VAR 模型具有同样不变性？",
+            "en": "If arbitrary within-scale swaps preserve the mask, does that establish the same invariance for next_scale_inputs or the full VAR model?"
+          },
+          "hint": {
+            "zh": "块内所有位置有相同的尺度编号，因此对块对角置换矩阵 S，有 SMSᵀ=M。若同时置换已给定的 Q、K、V，固定 mask 的注意力相应地置换输出，这是等变而非输出逐项不变。但 token 图带空间布局，area/bicubic 插值与任意像素置换一般不交换；完整模型还可能带位置编码。mask 的对称性不能推广成 tokenizer 输入构造或图像模型的任意空间置换不变性。",
+            "en": "Every position in a scale shares its scale index, so a block-diagonal permutation S satisfies SMSᵀ=M. Jointly permuting supplied Q, K and V correspondingly permutes masked-attention outputs: equivariance, not elementwise invariance. Token maps have spatial layout, and arbitrary pixel permutations generally do not commute with area/bicubic interpolation; a full model may also use position encodings. Mask symmetry alone does not establish arbitrary spatial-permutation invariance of the input builder or image model."
           }
         }
       ]
@@ -4606,6 +4654,30 @@
             "en": "With clean=2, noise=0, t=1/4 and x_hat=3/2, expect z=1/2, loss 4/9 and prediction gradient −16/9. The same clean-space error has 16 times the loss at t=.8 versus .2. Check multi-axis broadcasting and finite endpoints; verify zero loss for perfect predictions outside clipping, without demanding that equivalence at clipped endpoints. The local t=1 target is zero. A short synthetic experiment does not establish image-generation results."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "output-coordinate-steps",
+          "question": {
+            "zh": "在非截断区间，把单个 x 预测值与速度预测值分别作为独立优化变量，相同步长的梯度下降会得到相同速度更新吗？",
+            "en": "Away from clipping, if a scalar x prediction and a velocity prediction are independent optimization coordinates, do equal-step gradient updates induce the same velocity change?"
+          },
+          "hint": {
+            "zh": "固定 z、t 和速度目标 v*，令 v_hat=(x_hat−z)/(1−t)，损失为 (v_hat−v*)²。直接更新 v_hat 得 Δv=−2η(v_hat−v*)；先更新 x_hat 再换算速度，得到 Δv=−2η(v_hat−v*)/(1−t)²。t=.5 时后者为前者四倍。等价的前向表达并不等于相同的欧氏优化轨迹；这里只讨论自由标量输出坐标，不把倍率直接套到共享神经网络参数或完整训练结论。",
+            "en": "Fix z, t and target v*, with v_hat=(x_hat−z)/(1−t) and loss (v_hat−v*)². Updating v_hat directly gives Δv=−2η(v_hat−v*). Updating x_hat first and converting back gives Δv=−2η(v_hat−v*)/(1−t)²; at t=.5 this is four times larger. Equivalent forward expressions do not imply equal Euclidean optimization trajectories. This concerns free scalar output coordinates, not a universal multiplier for shared network parameters or full-model training."
+          }
+        },
+        {
+          "id": "isometric-loss-normalization",
+          "question": {
+            "zh": "把同一 D 维速度误差等距嵌入 D′>D 维后，按全部坐标取 mean 的损失还相同吗？",
+            "en": "After isometrically embedding the same D-dimensional velocity error into D′>D dimensions, is the all-coordinate mean loss unchanged?"
+          },
+          "hint": {
+            "zh": "固定 batch、时间和速度误差，令 UᵀU=I、e′=Ue。平方和不变，但本题按 B·D 个元素取均值；嵌入后分母变为 B·D′，所以新损失是原来的 D/D′，拉回原误差坐标的梯度也按此缩放。这个人为固定误差的比较揭示归约尺度，不能单凭不同维度的原始 loss 数字推断流形学习难度或训练效果，也不要求修改题目的 mean 约定。",
+            "en": "Hold the batch, times and velocity errors fixed, with UᵀU=I and e′=Ue. The squared sum is unchanged, but this exercise averages B·D elements; the embedded denominator is B·D′. Loss and gradients pulled back to the original error coordinates scale by D/D′. This constructed fixed-error comparison isolates reduction scale. Raw losses at different dimensions alone establish neither manifold-learning difficulty nor training performance, and do not change the required mean reduction."
+          }
+        }
       ]
     },
     {
@@ -4647,6 +4719,30 @@
           "hint": {
             "zh": "用 generated=[0,2]、positive=[1]、temperature=1/ln2 的一维例子，独立重算 field=[−1/3,1/3]、loss=1/9 与生成样本梯度 [1/3,−1/3]。只冻结 field 却不冻结 generated+field，会保留同一数值而让梯度相消。再用标量配对 oracle、置换与平移检查、远距离核和 N=1 的零场检查；不要通过每次重算冻结目标的有限差分来验证训练梯度。",
             "en": "For one-dimensional generated=[0,2], positive=[1], temperature=1/ln2, independently expect field [−1/3,1/3], loss 1/9 and generated gradient [1/3,−1/3]. Freezing only the field lets the two generated paths cancel despite the same loss value. Check a scalar pairwise oracle, permutations, translations, distant kernels and the N=1 zero field. Recomputed-target finite differences test a different derivative."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "field-coordinate-scaling",
+          "question": {
+            "zh": "同时平移、正交旋转并按 c>0 缩放两组样本时，temperature 应怎样变化？场和冻结目标损失如何变化？",
+            "en": "Under a common translation, orthogonal rotation and scale c>0 of both sample groups, how should temperature change, and how do the field and frozen-target loss transform?"
+          },
+          "hint": {
+            "zh": "在理想算术下取 g′=cQg+a、p′=cQp+a、τ′=cτ。距离与温度的比值不变，双向归一化权重及正负组质量不变；交叉加权中心中的平移项相消，故 V′=cQV。同维度 MSE 值变为 c²L，对新生成坐标的冻结目标梯度变为 cQ 倍。固定温度而只缩放坐标通常不成立。本结论使用本题 log 域归一化，不把它推广到绝对乘积下限生效的 notebook 实现。",
+            "en": "In ideal arithmetic set g′=cQg+a, p′=cQp+a and τ′=cτ. Distance-to-temperature ratios, bidirectionally normalized weights and group masses stay fixed. Translation terms cancel between the cross-weighted centers, giving V′=cQV. With the same dimension, MSE values scale by c² and frozen-target gradients in the new generated coordinates by cQ. Keeping temperature fixed generally breaks the result. This uses the exercise’s log-domain normalization, not notebook regimes with an active absolute product floor."
+          }
+        },
+        {
+          "id": "sharded-field-mismatch",
+          "question": {
+            "zh": "把生成 batch 拆成两块，各自计算漂移场再拼回，能得到完整 batch 的场吗？",
+            "en": "Can independently computing drift fields on two generated-batch shards and concatenating them recover the full-batch field?"
+          },
+          "hint": {
+            "zh": "不一定，负样本作用和列归一化依赖完整样本集合。沿用一维 g=[0,2]、positive=[1]、τ=1/ln2，完整场为 [−1/3,+1/3]。若每块只有一个生成点且各自使用同一个 positive，屏蔽自身后该块没有负样本，交叉负组质量为零，两块的场都为零。调整 loss 的平均权重无法补回这些缺失配对；这只是局部场的反例，不新增分布式训练接口。",
+            "en": "Not generally: negative-sample interactions and column normalization depend on the complete sample set. For scalar g=[0,2], positive=[1] and τ=1/ln2, the full field is [−1/3,+1/3]. If each shard contains one generated point and uses the same positive, self-masking removes its entire negative group; the cross-weighted negative mass is zero and both fields vanish. Reweighting shard loss means cannot restore missing pairs. This is a counterexample for the local field, not a new distributed-training interface."
           }
         }
       ]
@@ -4692,6 +4788,30 @@
             "en": "With L=5 and block size 2, noisy query 2 sees keys [2,3,5,6]. Zero Q/K and scalar V equal to key indices give output 4, V derivatives 1/4 on those keys and zero elsewhere. Independently perturb tokens and check one-block stream isolation, block size 1, a partial tail and D≠Dv. Ordinary token causality over the concatenation is a different dependency graph."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "multilayer-mask-closure",
+          "question": {
+            "zh": "一层双流 mask 不泄漏当前 clean 块，堆叠多层后会不会经由中间 token 间接泄漏？需要哪些假设？",
+            "en": "Can stacking layers with this two-stream mask indirectly leak the current clean block through intermediate tokens, despite a leak-free single layer? What assumptions matter?"
+          },
+          "hint": {
+            "zh": "在每层使用同一 mask、初始 noisy 输入不含答案、其他操作逐 token 的前提下检查可见关系的传递闭包。noisy 可到同块 noisy 或更早 clean；前者仍只到同样的集合，后者只到该更早块及之前的 clean。clean 永远到不了 noisy。因此合法路径仍在原 mask 内，不能绕路到当前 clean 块。若外部使用跨 token 池化、归一化或已泄漏的 Q/K/V，仅验证这个数学内核不能保证完整模型无泄漏。",
+            "en": "Assume every layer uses the same mask, initial noisy inputs contain no answers and other operations are tokenwise. Check transitive closure: noisy queries reach same-block noisy tokens or earlier clean tokens. Those noisy intermediates reach the same permitted set; the clean intermediates reach only their own or earlier clean blocks. Clean tokens never reach noisy tokens. Allowed paths stay within the original relation, so they cannot detour into the current clean block. Cross-token pooling, normalization or already-contaminated Q/K/V outside this kernel invalidate a whole-model guarantee."
+          }
+        },
+        {
+          "id": "equal-count-different-context",
+          "question": {
+            "zh": "为什么 noisy 与 clean 查询的合法 key 数可以相同，但只比较计数仍会漏掉答案泄漏？",
+            "en": "Why can noisy and clean queries have equal allowed-key counts, while count-only checks still miss target leakage?"
+          },
+          "hint": {
+            "zh": "某块大小为 m、前面共有 p 个 token 时，noisy 查询可见 m 个本块 noisy 加 p 个更早 clean；clean 查询可见 p+m 个 clean，计数都为 p+m。例 L=4、块宽 2，noisy query 2 应读 [2,3,4,5]，而 clean query 6 读 [4,5,6,7]。把前一集合中的 2 偷换成自己的 clean 位置 6，计数仍为四，却泄漏目标。必须核对 key 身份或独立扰动的影响，不能把相同稀疏度当成相同依赖。",
+            "en": "For a block of m tokens after p earlier tokens, a noisy query sees m current noisy plus p earlier clean keys; a clean query sees p+m clean keys. Both counts are p+m. With L=4 and block size 2, noisy query 2 should read [2,3,4,5], while clean query 6 reads [4,5,6,7]. Replacing key 2 in the first set with its own clean position 6 preserves the count of four but leaks the target. Check key identities or independently perturbed influences; equal sparsity does not establish equal dependencies."
+          }
+        }
       ]
     },
     {
@@ -4734,6 +4854,30 @@
           "hint": {
             "zh": "一维 x=0、x0_hat=2、A=1、y=1、r=beta=1，score=3；eta=1/8、noise=2 时更新为 11/8，再用 sigma_next=1/4、fresh_noise=−2 得 7/8。用独立能量梯度检查 score，并测 eta=0、sigma_next=0 与不同 r/beta。该高斯的真方差为 1/2，但此步长 ULA 的平稳方差为 4/7；有限步长不能声称精确无偏采样。",
             "en": "For scalar x=0, x0_hat=2, A=1, y=1 and r=beta=1, the score is 3. With eta=1/8 and noise=2, get 11/8; re-noising at sigma_next=1/4 with fresh noise −2 gives 7/8. Check an independent energy gradient, zero endpoints and unequal r/beta. The true conditional variance is 1/2, while stable ULA at this step size has stationary variance 4/7, so finite-step sampling is biased."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "langevin-spectral-stability",
+          "question": {
+            "zh": "固定局部高斯近似后，多维 Langevin 步长怎样由观测算子的谱决定？稳定是否等于精确采样？",
+            "en": "For a fixed local Gaussian approximation, how does the observation spectrum constrain the multidimensional Langevin step, and does stability imply exact sampling?"
+          },
+          "hint": {
+            "zh": "令精度 H=r⁻²I+β⁻²AᵀA，均值 m=H⁻¹(x0_hat/r²+Aᵀy/β²)。以独立标准高斯作每步噪声，误差满足 e′=(I−ηH)e+√(2η)ε。η>0 时需要 η<2/λ_max(H) 才收缩；在特征值 λ 的方向，平稳方差为 1/[λ(1−ηλ/2)]，大于目标的 1/λ。这里是固定近似、恒定步长且噪声独立的线性链分析；η=0 不提供混合，稳定本身也不能消除离散偏差。",
+            "en": "The precision is H=r⁻²I+β⁻²AᵀA and mean m=H⁻¹(x0_hat/r²+Aᵀy/β²). With independent standard Gaussian noise each step, e′=(I−ηH)e+√(2η)ε. A positive step contracts only when η<2/λ_max(H). Along eigenvalue λ, stationary variance is 1/[λ(1−ηλ/2)], above the target 1/λ. This analyzes a fixed approximation with constant steps and independent innovations. η=0 gives no mixing, and stability alone does not eliminate discretization bias."
+          }
+        },
+        {
+          "id": "reused-noise-covariance",
+          "question": {
+            "zh": "Langevin 与 renoise 复用同一份标准高斯噪声时，为什么均值检查可能通过而转移协方差错误？",
+            "en": "If Langevin and renoise reuse the same standard Gaussian noise, why can a mean check pass while the transition covariance is wrong?"
+          },
+          "hint": {
+            "zh": "固定一次更新前的 x、score，令 s=sigma_next>0、η>0。独立噪声给出合成创新 √(2η)ε+sε′，条件协方差为 (2η+s²)I；若复用同一 ε，则变成 (√(2η)+s)²I，多出 2s√(2η)I。两者噪声均值都为零。这里仅分析一次组合转移的条件创新，不把它当成完整后验协方差；函数接收噪声，独立性由外层调用方负责。",
+            "en": "Condition on x and score before one update, with s=sigma_next>0 and η>0. Independent noises produce innovation √(2η)ε+sε′ with covariance (2η+s²)I. Reusing ε instead gives (√(2η)+s)²I, adding 2s√(2η)I; both innovations still have zero mean. This is the conditional innovation covariance of one combined transition, not the full posterior covariance. The functions receive noise tensors, so independence is the caller’s responsibility."
           }
         }
       ]
@@ -4914,6 +5058,30 @@
             "en": "For old=1, target=3, current=2, beta=.5 and r=.75, expect branches 1.5 and .5, loss 13/4 and current gradient −1/2. The quadratic optimum is old+(2r−1)(target−old)/beta; neutral reward anchors old. Duplicating features scales the summed loss, while duplicating the batch preserves its mean. Verify frozen-context gradients. Fixed-output optimization does not establish online reward or image-quality gains."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "irreducible-neutral-loss",
+          "question": {
+            "zh": "中性奖励 r=.5 时，current 停在 old 但损失仍可能非零。这与最优性冲突吗？把单样本目标配方说明。",
+            "en": "At neutral reward r=.5, current can remain at old with nonzero loss. Does that contradict optimality? Complete the square for one sample."
+          },
+          "hint": {
+            "zh": "固定 old、target、r，令 δ=target−old、u=β(current−old)。目标等于 ||u−(2r−1)δ||²+4r(1−r)||δ||²。自由输出的最小值是第二项，与 β 无关；r=.5 时 u*=0，但只要 target≠old，最小 loss=||δ||²>0。按样本均值及特征平方和沿用题目约定。共享网络未必能逐样本达到这些自由输出最优点，非零最小值也不是在线奖励表现的结论。",
+            "en": "Fix old, target and r. Set δ=target−old and u=β(current−old). The objective is ||u−(2r−1)δ||²+4r(1−r)||δ||². Its free-output minimum is the second term, independent of β. At r=.5, u*=0, yet the minimum is ||δ||²>0 whenever target differs from old. Keep the exercise’s feature sums and batch mean. A shared network need not attain every sample’s free-output optimum, and the residual minimum establishes no online-reward performance claim."
+          }
+        },
+        {
+          "id": "beta-output-curvature",
+          "question": {
+            "zh": "直接优化固定 batch 的每个 current 数值时，减小 β 同时怎样改变最优点距离和目标曲率？",
+            "en": "When directly optimizing each current value in a fixed batch, how does reducing β affect both optimum distance and objective curvature?"
+          },
+          "hint": {
+            "zh": "对 B 个样本的均值目标，每个自由输出坐标的 Hessian 为 2β²/B；最优位移是 (2r−1)(target−old)/β。β 减半使曲率降为四分之一，但非中性、非零 δ 的最优位移加倍。无约束二次目标的定步长梯度下降在 0<η<B/β² 时收缩；β 乘 c，要保持相同收缩因子可令 η 除以 c²。这只是固定输出坐标分析，不能直接当作共享网络、在线 rollout 或奖励模型的调参定律。",
+            "en": "For the mean over B samples, each free output coordinate has Hessian 2β²/B and optimum displacement (2r−1)(target−old)/β. Halving β quarters curvature but doubles nonzero, nonneutral optimum displacements. Constant-step gradient descent on this unconstrained quadratic contracts for 0<η<B/β². Scaling β by c and η by 1/c² preserves that contraction factor. These are fixed-output-coordinate statements, not tuning laws for shared networks, online rollouts or reward models."
+          }
+        }
       ]
     },
     {
@@ -4957,6 +5125,30 @@
             "en": "With current X=[4], historical mean 2, raw second 5 and beta=1/4, expect mean 3.5, raw second 13.25 and covariance 1; direct covariance mixing gives only .25. The current gradient of mu²+Sigma is 6 and history receives none. Expand multi-step geometric weights and test batch duplication, endpoints and immutability. Longer history need not always help under distribution shift; this statistics toy does not establish generator convergence."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "population-mass-versus-ema",
+          "question": {
+            "zh": "历史是单点 0，当前 batch 是三个 2，β=.5 的 EMA 是否等于四个点的精确合并总体矩？",
+            "en": "With history consisting of one zero and a current batch of three twos, does β=.5 EMA equal the exact pooled population moments of all four points?"
+          },
+          "hint": {
+            "zh": "历史 μ_old=M_old=0，当前 μ_b=2、M_b=4。β=.5 得 μ=1、M=2、Σ=1；把 [0,2,2,2] 等权合并则 μ=1.5、M=3、Σ=.75。EMA 权重作用于批次统计，而不是自动按样本数累计。若历史确实是 n_old 个样本的精确总体矩，调用方选 β=n_old/(n_old+B) 可做一次精确样本合并；这不是固定 β EMA，也不引入 B−1 修正或新的状态接口。",
+            "en": "History has μ_old=M_old=0; the current batch has μ_b=2 and M_b=4. β=.5 gives μ=1, M=2 and Σ=1. Equal-weight pooling of [0,2,2,2] instead gives μ=1.5, M=3 and Σ=.75. EMA weights batch statistics rather than automatically accumulating sample counts. If history truly stores exact population moments of n_old samples, a caller can choose β=n_old/(n_old+B) for one exact pooling update. That is not fixed-β EMA, a B−1 correction or a new state interface."
+          }
+        },
+        {
+          "id": "singleton-population-gradient",
+          "question": {
+            "zh": "当前微批次只有一个点，EMA 协方差对这个点的梯度一定为零吗？",
+            "en": "If the current microbatch has one point, must the EMA covariance gradient with respect to that point vanish?"
+          },
+          "hint": {
+            "zh": "不一定，历史与当前均值之间仍有总体变化。对固定方向 u，当前样本 x_i 的投影方差梯度为 2(1−β)/B·u·[uᵀ(x_i−μ)]，其中 μ 是混合后的均值，历史停止梯度。取 B=D=1、x=3、历史 μ_old=1、M_old=2、β=.5，得到 μ=2、Σ=1.5、dΣ/dx=1。当前 batch 自身协方差为零，不代表混合总体的协方差或其当前梯度为零。",
+            "en": "Not necessarily: historical and current means can differ. For fixed direction u, the projected variance gradient for current sample x_i is 2(1−β)/B·u·[uᵀ(x_i−μ)], where μ is the mixed mean and history is stopped. With B=D=1, x=3, μ_old=1, M_old=2 and β=.5, μ=2, Σ=1.5 and dΣ/dx=1. Zero covariance within the singleton current batch does not imply zero covariance or current gradient for the mixed population."
+          }
+        }
       ]
     },
     {
@@ -4998,6 +5190,30 @@
           "hint": {
             "zh": "一维生成均值 2、方差 9，参考均值 0、方差 4，FD=5，生成均值梯度 4、方差梯度 1/3。再令 d=[5,2]、w=[.5,2]、eps=.5，归一化和为 113/55，d 的梯度是 [1/11,4/5]。有限差分必须固定分母；非交换 2D SPD 用独立 trace/determinant 恒等式验证。跟踪 raw FD，而不是仅凭接近常数的归一化值判断改善；零特征值处不要求有限梯度。",
             "en": "Scalar generated mean 2/variance 9 against reference mean 0/variance 4 gives FD=5, mean gradient 4 and variance gradient 1/3. For d=[5,2], w=[.5,2], eps=.5, the normalized sum is 113/55 with d gradients [1/11,4/5]. Freeze denominators for finite differences; use an independent 2D trace/determinant identity for noncommuting SPD matrices. Track raw FD, not just the normalized value. Zero-eigenvalue derivatives are outside scope."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "moment-indistinguishable-distributions",
+          "question": {
+            "zh": "一维 FD 为零是否足以证明两个特征分布相同？构造均值和方差相同但形状不同的例子。",
+            "en": "Does zero one-dimensional FD prove equality of feature distributions? Construct different distributions with equal mean and variance."
+          },
+          "hint": {
+            "zh": "分布 X 以各 .5 概率取 −1、+1；分布 Y 以 .5 概率取 0，以各 .25 概率取 ±√2。两者均值均为零、方差均为一，所以高斯统计的 FD=0，但四阶矩分别为 1、2，离散分布不同。方差一满足这里正定的条件；问题不是零谱的数值边界，而是只比较前两阶矩。这个反例不证明所有表征都无法区分二者，也不评价完整生成模型质量。",
+            "en": "Let X take −1 and +1 with probability .5 each. Let Y take 0 with probability .5 and ±√2 with probability .25 each. Both have mean zero and variance one, so their Gaussian-statistics FD is zero, while their fourth moments are 1 and 2 and their discrete laws differ. Variance one satisfies positive definiteness: this is a limitation of comparing two moments, not a zero-spectrum numerical issue. It establishes neither indistinguishability under every representation nor full-model generation quality."
+          }
+        },
+        {
+          "id": "feature-scale-and-epsilon",
+          "question": {
+            "zh": "单一表征两侧的特征同时乘常数 c>0，固定 ε 的归一化 FD 是否严格不变？模型参数梯度呢？",
+            "en": "For one representation, if generated and reference features both scale by fixed c>0, is normalized FD with fixed ε exactly invariant? What about model-parameter gradients?"
+          },
+          "hint": {
+            "zh": "原始距离 d 变成 c²d。固定权重 w 时，归一化值变成 w·c²d/(c²d+ε)，一般不同；对同一模型参数 θ 的停止分母梯度为 w·c²/(c²d+ε)·∂d/∂θ。单表征同时令 ε′=c²ε，值与 θ 梯度才恢复一致。多个表征若各有不同缩放，现有共享标量 ε 不能同时按各自倍率调整。这是固定特征缩放和本题归约的代数比较，不新增逐表征 epsilon 接口。",
+            "en": "Raw distance d becomes c²d. At fixed weight w, the normalized value becomes w·c²d/(c²d+ε), generally different. The stopped-denominator gradient for the same model parameter θ is w·c²/(c²d+ε)·∂d/∂θ. For one representation, also choosing ε′=c²ε restores both value and θ gradient. Different scale changes across representations cannot all be compensated by the existing shared scalar ε. This is algebra for fixed feature scaling and the stated reduction, not a new per-representation epsilon interface."
           }
         }
       ]
