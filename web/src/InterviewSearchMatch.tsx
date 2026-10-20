@@ -1,7 +1,6 @@
 import {Fragment,memo} from 'react';
 import {interviewSearchTerms} from './interviewSearch';
 import {publicSourceSearchRanges} from './replySearchPassages';
-import './interview-search-match.css';
 
 /** Preserve the exact public source text while marking literal, normalized words. */
 export default memo(function InterviewSearchMatch({text,query}:{text:string;query:string}){

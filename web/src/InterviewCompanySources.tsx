@@ -7,6 +7,7 @@ import OrganizationLogo from './OrganizationLogo';
 import {interviewLabel,type InterviewSummary} from './interviewModels';
 import {emptyInterviewFilters,interviewHref,type InterviewFilters} from './interviewNavigation';
 import './interview-company-sources.css';
+import './interview-search-match.css';
 import {sourcePublicationTime} from './interviewEvidenceOrder';
 
 type CompanySource=InterviewSummary['questions'][number]['companies'][number];
