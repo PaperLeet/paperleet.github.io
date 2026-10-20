@@ -200,3 +200,13 @@ button[aria-busy=true],button:disabled[aria-busy=true]{cursor:progress}
 :where(.social-page,.profile-page,.settings-page,.community-page,.interview-hub) :is(input,select,textarea):user-invalid:focus-visible{outline-color:var(--red,var(--chart-5))}
 :where(.social-page,.profile-page,.settings-page,.community-page,.interview-hub) :is(input,select,textarea):user-invalid:hover:not(:disabled){border-color:var(--red,var(--chart-5))}
 @media(forced-colors:active){.paper-library .paper-result-group:focus-within{outline:1px solid Highlight;outline-offset:-1px}}
+
+/* Name display options on wider screens and keep their native button targets. */
+.paper-library .library-density button{display:inline-flex;align-items:center;justify-content:center;gap:7px;width:auto;min-width:44px;padding:8px 11px}
+.library-density-label{font-size:var(--type-small);font-weight:500;white-space:nowrap}
+.paper-library .paper-result-group>.problem-row:focus-visible{outline:2px solid var(--accent);outline-offset:-3px;background:color-mix(in srgb,var(--accent) 7%,var(--surface))}
+.paper-library .paper-result-group>.problem-row:focus-visible .library-row-title{color:var(--accent)}
+.paper-library .problem-row>svg:last-child{flex:none;color:var(--muted)}
+@media(hover:hover){.paper-library .paper-result-group>.problem-row:hover>svg:last-child{color:var(--accent)}}
+@media(max-width:700px){.paper-library .library-density-label{display:none}.paper-library .library-density button{width:44px;padding:8px}}
+@media(forced-colors:active){.paper-library .paper-result-group>.problem-row:focus-visible{outline-color:Highlight}}
