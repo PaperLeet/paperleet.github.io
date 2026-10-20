@@ -1,20 +1,18 @@
 import AppLink from './AppLink';
-import InterviewSearchMatch from './InterviewSearchMatch';
-import {useId} from 'react';
+import {useId,type ReactNode} from 'react';
 import {ChevronDown} from 'lucide-react';
 import {useI18n} from './i18n';
 import OrganizationLogo from './OrganizationLogo';
 import {interviewLabel,type InterviewSummary} from './interviewModels';
 import {emptyInterviewFilters,interviewHref,type InterviewFilters} from './interviewNavigation';
 import './interview-company-sources.css';
-import './interview-search-match.css';
 import {sourcePublicationTime} from './interviewEvidenceOrder';
 
 type CompanySource=InterviewSummary['questions'][number]['companies'][number];
 type Preview={panelId:string;company:string;open:boolean;onSelect:(company:string,opener:HTMLButtonElement)=>void};
 
 /** Company counts are source evidence; disclosure changes only local reading state. */
-export default function InterviewCompanySources({companies,problemId,name,filters=emptyInterviewFilters(),preview,query=''}:{companies:CompanySource[];problemId:string;name?:string;filters?:InterviewFilters;preview?:Preview;query?:string}){
+export default function InterviewCompanySources({companies,problemId,name,filters=emptyInterviewFilters(),preview,renderLabel}:{companies:CompanySource[];problemId:string;name?:string;filters?:InterviewFilters;preview?:Preview;renderLabel?:(label:string)=>ReactNode}){
  const {t,locale}=useI18n(),extraId=useId();
  const sources=companies.filter(company=>company.reports>0&&company.contributors>0);
  if(!sources.length)return null;
@@ -22,7 +20,7 @@ export default function InterviewCompanySources({companies,problemId,name,filter
   const label=interviewLabel('companies',company.company,locale==='en');
   const stamp=sourcePublicationTime(company.latest),recency=stamp===undefined?'':t(` · 最新关联分享 ${new Date(stamp).toISOString().slice(0,10)}`,` · Latest linked report ${new Date(stamp).toISOString().slice(0,10)}`);
   const title=t(`${company.reports} 篇公开面经关联此知识点，来自 ${company.contributors} 位分享者`,`${company.reports} public ${company.reports===1?'report links':'reports link'} this concept, from ${company.contributors} ${company.contributors===1?'contributor':'contributors'}`);
-  const content=<><OrganizationLogo id={company.company} size={16}/><span><InterviewSearchMatch text={label} query={query}/></span><small>{company.reports}</small></>;
+  const content=<><OrganizationLogo id={company.company} size={16}/><span>{renderLabel?renderLabel(label):label}</span><small>{company.reports}</small></>;
   return preview?<button key={company.company} type="button" className="interview-company-source" data-company-source={company.company} aria-controls={preview.panelId} aria-expanded={preview.open&&preview.company===company.company} title={title+recency} aria-label={t(`预览${label}关于${name||'此知识点'}的 ${company.reports} 篇来源面经，来自 ${company.contributors} 位分享者`,`Preview ${company.reports} ${label} source ${company.reports===1?'report':'reports'} about ${name||'this concept'}, from ${company.contributors} ${company.contributors===1?'contributor':'contributors'}`)+recency} onClick={event=>preview.onSelect(company.company,event.currentTarget)}>{content}</button>:<AppLink key={company.company} className="interview-company-source" href={interviewHref({...filters,view:'reports',company:company.company,concept:problemId,q:'',page:1,saved:false})} title={title+recency} aria-label={t(`阅读${label}关于${name||'此知识点'}的 ${company.reports} 篇来源面经，来自 ${company.contributors} 位分享者`,`Read ${company.reports} ${label} source ${company.reports===1?'report':'reports'} about ${name||'this concept'}, from ${company.contributors} ${company.contributors===1?'contributor':'contributors'}`)+recency}>{content}</AppLink>;
  });
  return <div className="interview-company-tags company-source-list" role="group" aria-label={name?t(`${name}的公司来源`,`Company sources for ${name}`):t('此知识点的公司来源','Company sources for this concept')}>
