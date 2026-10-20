@@ -16,6 +16,7 @@ export default function ResourceConceptPractice({resource,problems,returnTo,canA
   <summary onClick={event=>{if(!canAct())event.preventDefault();}}><BookOpen size={15} aria-hidden="true"/><span>{t('相关概念练习','Related concept practice')}</span><small>{practice.missing?`${practice.modules.length}/${practice.total}`:practice.total}</small><ChevronDown size={15} aria-hidden="true"/></summary>
   <div className="resource-concept-body">
    <p id={`${id}-note`}>{locale==='en'?practice.en:practice.zh}</p>
+   {!!practice.questions?.length&&<section className="resource-study-prompts" aria-labelledby={`${id}-questions`}><h4 id={`${id}-questions`}>{t('阅读自测','Reading self-check')}</h4><ul>{practice.questions.map((question,index)=><li key={index}>{locale==='en'?question.en:question.zh}</li>)}</ul></section>}
    <small id={`${id}-context`}>{t('平台整理 · 新标签页打开，保留当前资料页','Curated by PaperLeet · opens a new tab, keeping this resource page')}</small>
    {practice.modules.map(problem=>{
     const title=locale==='en'?problem.translations?.en?.title||problem.title:problem.title;

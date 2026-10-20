@@ -552,6 +552,28 @@
       "description_en": "Start with nodes, edges and message passing. Explore neighborhood aggregation, GCN, GraphSAGE sampling and inductive learning, graph recommendations and over-smoothing.",
       "checked": "2026-10-20",
       "kind": "technical"
+    },
+    {
+      "id": "nvidia-tensorrt-attention",
+      "company": "nvidia",
+      "name": "TensorRT-LLM：注意力阶段与 KV cache",
+      "name_en": "TensorRT-LLM: attention phases and KV caches",
+      "url": "https://nvidia.github.io/TensorRT-LLM/advanced/gpt-attention.html",
+      "description": "结合 NVIDIA 官方文档区分上下文与逐 token 生成，阅读 MHA、MQA、GQA、分块注意力、连续与分页 KV cache 的实现思路。",
+      "description_en": "Use NVIDIA’s official documentation to distinguish context and token generation, and study MHA, MQA, GQA, tiled attention, and contiguous versus paged KV caches.",
+      "checked": "2026-10-20",
+      "kind": "technical"
+    },
+    {
+      "id": "meta-llama3-reference",
+      "company": "meta",
+      "name": "Llama 3 历史参考源码：RMSNorm、RoPE 与 KV 头共享",
+      "name_en": "Llama 3 historical reference: RMSNorm, RoPE and KV head sharing",
+      "url": "https://github.com/meta-llama/llama3/blob/32b7ddc9b638f0fd6b04b80e1845536a95f7a5d5/llama/model.py",
+      "description": "对照 Meta 的 2024 年参考实现阅读归一化、旋转位置编码、KV 头重复与缓存写入。仓库已归档，链接固定到历史提交，适合源码学习。",
+      "description_en": "Read normalization, rotary positions, KV head repetition and cache updates in Meta’s 2024 reference implementation. The repository is archived; this source-reading link pins the historical revision.",
+      "checked": "2026-10-20",
+      "kind": "technical"
     }
   ],
   "paths": [

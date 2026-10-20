@@ -52,3 +52,7 @@
 .resource-practice-unavailable>.text-button{min-height:44px}
 
 .resource-concept-body>a .resource-practice-meta{display:block;margin-top:3px;color:var(--muted);font-size:var(--type-meta);font-weight:400;line-height:1.6}
+
+.resource-study-prompts{margin:12px 0;padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:var(--surface2);overflow-wrap:anywhere}
+.resource-study-prompts h4{margin:0 0 8px;font-size:var(--type-body);line-height:1.6;font-weight:600}
+.resource-study-prompts ul{display:grid;gap:8px;margin:0;padding-inline-start:20px;color:var(--text-secondary);font-size:var(--type-small);line-height:1.75}
