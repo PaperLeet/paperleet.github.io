@@ -4,9 +4,11 @@ import { useI18n } from './i18n';
 import { status, type Problem, type Saved } from './types';
 import LibraryInterviewGuide from './LibraryInterviewGuide';
 import type {LibraryCompanyScope} from './libraryCompanyScope';
-import {hostedAppAvailable} from './deployment';
+import {hostedAppAvailable, hostedEdition} from './deployment';
+import UserGrowthChart from './UserGrowthChart';
 
-export default function LibraryOverview({ problems, dailyProblems, practiceProblems=[], scopeReady=true, returnTo='#', saved, ready, difficulty, onDifficulty,companyScope,onCompanyFilter }: {
+export default function LibraryOverview({ problems, dailyProblems, practiceProblems=[], scopeReady=true, returnTo='#', saved, ready, difficulty, onDifficulty,companyScope,onCompanyFilter,showGrowth=false }: {
+  showGrowth?:boolean;
   companyScope?:LibraryCompanyScope;
   onCompanyFilter?:(company:string)=>void;
   problems: Problem[];
@@ -24,7 +26,7 @@ export default function LibraryOverview({ problems, dailyProblems, practiceProbl
   const solved = core.filter(problem => status(problem, saved[problem.id]) === 'done').length;
   const started = core.filter(problem => status(problem, saved[problem.id]) === 'started').length;
   const percent = ready && core.length ? Math.round(solved / core.length * 100) : 0;
-  return <aside className={`library-overview${hostedAppAvailable?' has-interview-guide':''}`} aria-label={t('练习概览', 'Practice overview')}>
+  return <aside className={`library-overview${hostedAppAvailable?' has-interview-guide':''}${hostedEdition&&showGrowth?' has-user-growth':''}`} aria-label={t('练习概览', 'Practice overview')}>
     <DailyChallenges problems={dailyProblems||problems} compact/>
     <section className="library-progress-card">
       <header><h2>{t('我的进度', 'Your progress')}</h2><CheckCircle2 size={16} aria-hidden="true" /></header>
@@ -44,5 +46,6 @@ export default function LibraryOverview({ problems, dailyProblems, practiceProbl
       </div>
     </section>
     <LibraryInterviewGuide external={companyScope} onCompanyFilter={onCompanyFilter} problems={practiceProblems} scopeReady={scopeReady} returnTo={returnTo}/>
+    {hostedEdition&&showGrowth&&<UserGrowthChart/>}
   </aside>;
 }

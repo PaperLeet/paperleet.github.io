@@ -1255,7 +1255,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
                       </button>
                     )}
                   </div>
-                  <ReplySearchContext reply={r} list={replyList}><TranslatedReply reply={r} /></ReplySearchContext>
+                  <ReplySearchContext reply={r} list={replyList} canAct={()=>mounted.current&&post.id===id&&controlIsActive(practiceReading.root.current)&&communityContinuation(appLocation.hash)===postHref(id,providedReturnTo,replyTarget).slice(2)}><TranslatedReply reply={r} /></ReplySearchContext>
                   {replyEdited===r.id&&<p role="status">{t('回复修改已保存。','Reply changes saved.')}</p>}
                   {editingReply===r.id&&canEditReply(r,owner)&&<ReplyEditor reply={r} owner={owner} focusOrigin={replyEditOrigin.current} disabled={busy||loading} onRefresh={refresh} onClose={()=>closeReplyEditing(r.id)} onSaved={(confirmed,confirmation)=>{
                     readVersion.current++;setLoading(false);

@@ -5,3 +5,13 @@
 @media(pointer:coarse){.reply-search-heading button{min-height:44px}}@media(max-width:480px){.reply-search-context{padding:12px}.reply-search-heading>div{margin-inline-start:auto}}
 
 .reply-search-full{display:inline-flex;align-items:center;gap:7px;min-height:38px;padding:6px 10px;margin:0 0 12px;border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--accent);font:inherit;font-size:var(--type-small);cursor:pointer}.reply-search-full[aria-expanded=true] svg{transform:rotate(180deg)}.reply-search-full:focus-visible{outline:2px solid var(--accent);outline-offset:3px}.reply-search-full:disabled{opacity:.45;cursor:default}.reply-search-full-body[hidden]{display:none}@media(pointer:coarse){.reply-search-full{min-height:44px}}
+
+.reply-search-full{min-height:44px;scroll-margin-top:110px}
+.reply-search-collapse{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px;width:100%;min-height:44px;box-sizing:border-box;margin-top:14px;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface2);color:var(--text-secondary);font:inherit;font-size:var(--type-small);line-height:1.6;cursor:pointer;transition:background-color .15s,border-color .15s,color .15s}
+.reply-search-collapse>svg{flex:none}.reply-search-collapse kbd{padding:0 5px;border:1px solid var(--line);border-radius:4px;background:var(--surface);color:var(--muted);font:var(--type-caption) var(--font-mono)}
+.reply-search-collapse:disabled{opacity:.45;cursor:default}
+.reply-search-collapse:focus-visible,.reply-search-full-body:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:8px}
+@media(hover:hover){.reply-search-collapse:hover:not(:disabled){background:var(--surface);border-color:var(--accent);color:var(--accent)}}
+@media(pointer:coarse){.reply-search-collapse kbd{display:none}}
+@media(prefers-reduced-motion:reduce){.reply-search-collapse{transition:none}}
+@media(forced-colors:active){.reply-search-collapse{border-color:ButtonText}.reply-search-full-body:focus-visible,.reply-search-collapse:focus-visible{outline-color:Highlight}}

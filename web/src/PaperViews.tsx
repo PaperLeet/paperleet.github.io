@@ -221,7 +221,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
       {!waitingForStatus && !filtered.length && <div className="no-results"><span className="empty-state-icon"><Search size={25} aria-hidden="true" /></span><h3>{moduleView ? t("没有符合条件的练习", "No matching modules") : t("没有符合条件的论文", "No matching papers")}</h3><p>{t("试试其他关键词，或减少筛选条件。", "Try another keyword or remove a filter to broaden your search.")}</p><button className="button subtle" onClick={clear}>{t("清除筛选", "Clear filters")}<ArrowRight size={14} aria-hidden="true" /></button></div>}
     </section>
     </div>
-    <LibraryOverview dailyProblems={problems} companyScope={company?companyScope:undefined} onCompanyFilter={(company:string)=>change({company,company_days:undefined})} problems={overviewModules} practiceProblems={waitingForStatus?[]:filteredModules} scopeReady={!waitingForStatus} returnTo={viewHref} saved={saved} ready={progressReady&&companyReady} difficulty={diff} onDifficulty={difficulty => change({difficulty})} />
+    <LibraryOverview showGrowth={!selectedCollection} dailyProblems={problems} companyScope={company?companyScope:undefined} onCompanyFilter={(company:string)=>change({company,company_days:undefined})} problems={overviewModules} practiceProblems={waitingForStatus?[]:filteredModules} scopeReady={!waitingForStatus} returnTo={viewHref} saved={saved} ready={progressReady&&companyReady} difficulty={diff} onDifficulty={difficulty => change({difficulty})} />
     </div>
   </main>;
 }
