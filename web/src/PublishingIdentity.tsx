@@ -1,14 +1,14 @@
-import {useId} from 'react';
+import {useId,type RefObject} from 'react';
 import {useAccount} from './social';
 import {useI18n} from './i18n';
 import AffiliationBadge from './AffiliationBadge';
 import './community-identity.css';
 
-export default function PublishingIdentity({anonymous,onChange,disabled}:{anonymous:boolean;onChange:(value:boolean)=>void;disabled:boolean}){
+export default function PublishingIdentity({anonymous,onChange,disabled,id,containerRef}:{anonymous:boolean;onChange:(value:boolean)=>void;disabled:boolean;id?:string;containerRef?:RefObject<HTMLDivElement|null>}){
   const {t}=useI18n(),{user,capabilities}=useAccount(),description=useId();
   if(!user)return null;
   const available=capabilities?.community_anonymous_posts===true;
-  return <div className="publishing-identity">
+  return <div className="publishing-identity" id={id} ref={containerRef}>
     <div className="publishing-identity-preview"><small>{t('发布身份','Posting as')}</small><span className="publishing-identity-name">{anonymous?t('匿名用户','Anonymous'):user.display_name}</span><AffiliationBadge affiliation={user.affiliation} institution={user.institution}/>
       {(available||anonymous)&&<label><input type="checkbox" checked={anonymous} disabled={disabled||!available&&!anonymous} aria-describedby={description} onChange={event=>onChange(event.target.checked)}/>{t('匿名发帖','Post anonymously')}</label>}
     </div>

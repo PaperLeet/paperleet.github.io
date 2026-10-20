@@ -1,3 +1,6 @@
+import InterviewDraftStatus,{type InterviewDraftStep} from './InterviewDraftStatus';
+import {controlIsActive} from './activeControls';
+import {revealReadingTarget} from './readingViewport';
 import {emptyInterviewQuestion,hasInterviewQuestionText,type InterviewQuestionScratch} from './interviewQuestionDraft';
 import {insertInterviewQuestion,type QuestionRecordEdit} from './interviewQuestionInsert';
 import type {InterviewQuestionBuilderProps} from './InterviewQuestionBuilder';
@@ -53,22 +56,27 @@ export default function InterviewComposer({owner,company,problems,panelProps,onC
  const [pending,setPending]=useState(()=>readPublication(tabDraftStorage(),owner,'interview','general'));
  const [busy,setBusy]=useState(false),[error,setError]=useState(''),[preview,setPreview]=useState(false),[durable,setDurable]=useState(()=>!readInterviewDraft(tabDraftStorage(),owner)||isInterviewDraftDurable(tabDraftStorage(),owner,draft)),[discard,setDiscard]=useState(false);
  const [confirmedPost,setConfirmedPost]=useState<InterviewPost>();
+ const ownComposer=useRef<HTMLElement>(null),composer=panelProps?.ref||ownComposer,titleField=useRef<HTMLInputElement>(null),identityRegion=useRef<HTMLDivElement>(null);
+ const renderedHref=useRef(typeof location==='undefined'?'':location.href).current;
+ const draftStatusId=useId(),titleId=useId(),bodyId=useId(),questionId=useId(),identityId=useId();
  const editor=useRef<HTMLTextAreaElement>(null),writingSummary=useRef<HTMLElement>(null),questionSummary=useRef<HTMLElement>(null),contentHint=useId(),questionHint=useId();
  const intent=useWorkspaceIntent(owner);
  const [questionOpen,setQuestionOpen]=useState(()=>hasInterviewQuestionText(draft.questionScratch)),[questionError,setQuestionError]=useState('');
  const [questionEdit,setQuestionEdit]=useState<(QuestionRecordEdit&{selection:{start:number;end:number;scroll:number;left:number;direction:HTMLTextAreaElement['selectionDirection']}})>();
  const [writingOpen,setWritingOpen]=useState(false),[writingError,setWritingError]=useState(''),[focusTick,setFocusTick]=useState(0);
  const [outlineEdit,setOutlineEdit]=useState<(InterviewOutlineEdit&{selection:{start:number;end:number;scroll:number}})>();
- const focusRequest=useRef<{opener:HTMLElement;start:number;end:number;scroll?:number;left?:number;direction?:HTMLTextAreaElement['selectionDirection'];claim?:()=>boolean}>(undefined);
+ const focusRequest=useRef<{opener:HTMLElement;start:number;end:number;scroll?:number;left?:number;direction?:HTMLTextAreaElement['selectionDirection'];claim?:()=>boolean;reveal?:boolean}>(undefined);
  useEffect(()=>{active.current=true;return()=>{active.current=false;};},[]);
  useEffect(()=>{
   const request=focusRequest.current;if(!request)return;focusRequest.current=undefined;
   if(!active.current||currentOwner.current!==owner||request.claim&&!request.claim())return;
+  if(request.reveal&&!canNavigateDraft(request.opener))return;
   if(document.activeElement!==request.opener&&!(document.activeElement===document.body&&!request.opener.isConnected))return;
   const field=editor.current;if(!field||field.closest('[hidden]'))return;
-  field.focus();field.setSelectionRange(request.start,request.end,request.direction);
+  field.focus({preventScroll:!!request.reveal});field.setSelectionRange(request.start,request.end,request.direction);
   if(request.scroll!==undefined)field.scrollTop=request.scroll;
   if(request.left!==undefined)field.scrollLeft=request.left;
+  if(request.reveal)revealReadingTarget(field,'nearest');
  },[draft.body,preview,focusTick]);
  function edit(change:Partial<InterviewDraft>){const next={...latest.current,...change};latest.current=next;setDraft(next);setDurable(writeInterviewDraft(tabDraftStorage(),owner,next));if(change.body!==undefined)setWritingError('');}
  function insertOutline(id:WritingOutlineId,opener:HTMLElement){
@@ -103,6 +111,19 @@ export default function InterviewComposer({owner,company,problems,panelProps,onC
  const uninserted=hasInterviewQuestionText(draft.questionScratch);
  const contentReady=hasInterviewDraftContent(draft.body);
  const pendingMatches=!!pending&&samePublication(pending.receipt,interviewPublication(draft));
+ const draftStep:InterviewDraftStep=busy?'busy':!draft.title.trim()?'title':uninserted?'record':!contentReady&&!pendingMatches?'body':!canPublish?accountLoading?'account-loading':'account':draft.anonymous&&capabilities?.community_anonymous_posts!==true?'anonymous':pendingMatches?'retry':'ready';
+ function canNavigateDraft(opener:HTMLElement){return !inflight.current&&active.current&&currentOwner.current===owner&&controlIsActive(composer.current)&&controlIsActive(opener)&&composer.current?.contains(opener)&&document.visibilityState!=='hidden'&&location.href===renderedHref;}
+ function navigateDraft(opener:HTMLButtonElement){
+  if(!canNavigateDraft(opener))return;
+  opener.focus({preventScroll:true});
+  const target=draftStep==='title'?titleField.current:draftStep==='record'?questionSummary.current:draftStep==='anonymous'?identityRegion.current?.querySelector<HTMLInputElement>('input[type=checkbox]'):editor.current;
+  if(!target)return;
+  if(draftStep==='record')setQuestionOpen(true);
+  if(draftStep==='title'||draftStep==='record'||draftStep==='anonymous'){target.focus({preventScroll:true});revealReadingTarget(draftStep==='anonymous'?target.closest('label')||target:target,'nearest');return;}
+  const field=editor.current!;
+  focusRequest.current={opener,start:field.selectionStart,end:field.selectionEnd,direction:field.selectionDirection,scroll:field.scrollTop,left:field.scrollLeft,claim:intent.create(),reveal:true};
+  setPreview(false);setFocusTick(value=>value+1);
+ }
  async function publish(previous?:PublicationReceipt){
    if(inflight.current||!user||user.id!==owner||!canPublish)return;
    const receipt=previous||(pending&&samePublication(pending.receipt,interviewPublication(latest.current))?pending.receipt:undefined);
@@ -128,7 +149,7 @@ export default function InterviewComposer({owner,company,problems,panelProps,onC
    }catch(error){if(active.current&&currentOwner.current===owner)setError(errorMessage(error));if(affiliationRequired(error))void refreshAccount().catch(()=>{});}
    finally{inflight.current=false;if(active.current){setBusy(false);}}
  }
- return <section {...panelProps} className="interview-composer social-panel" aria-labelledby="interview-compose-heading">
+ return <section {...panelProps} ref={composer} className="interview-composer social-panel" aria-labelledby="interview-compose-heading">
   <div className="interview-compose-heading"><div><h2 id="interview-compose-heading">{t('分享面经','Share an interview experience')}</h2></div><button className="icon-button" type="button" disabled={busy} aria-label={t('关闭，保留草稿','Close and keep draft')} onClick={onClose}><X size={18}/></button></div>
   <p className="interview-composer-caption">{t('公司、岗位与知识点会公开展示；结果和地点可以不透露。可选择昵称或匿名发布，所属机构仍展示。','Company, role and linked concepts are public. Outcome and location are optional. Choose named or anonymous posting; affiliation remains visible.')}</p>
   {!durable&&<p role="alert" className="interview-notice">{t('草稿暂时无法保存到此标签页，请保持页面打开或复制内容。','This tab cannot save the draft. Keep this page open or copy your text.')}</p>}
@@ -137,20 +158,21 @@ export default function InterviewComposer({owner,company,problems,panelProps,onC
   <PublishingAffiliationNotice/>
   {!confirmedPost&&<PublicationRecovery pending={pending} newerDraft={uninserted} payload={interviewPublication(draft)} busy={busy} disabled={!canPublish} onRetry={()=>void publish(pending?.receipt)}/>}
   <form className="social-form" onSubmit={event=>{event.preventDefault();void publish();}}>
-   <CommunityTagPicker value={draft.tagIds||[]} onChange={tagIds=>edit({tagIds})} disabled={busy}/><PublishingIdentity anonymous={!!draft.anonymous} onChange={anonymous=>edit({anonymous})} disabled={busy}/>
+   <CommunityTagPicker value={draft.tagIds||[]} onChange={tagIds=>edit({tagIds})} disabled={busy}/><PublishingIdentity id={identityId} containerRef={identityRegion} anonymous={!!draft.anonymous} onChange={anonymous=>edit({anonymous})} disabled={busy}/>
    <InterviewFields value={draft.interview} onChange={interview=>edit({interview})} problems={problems} disabled={busy}/>
-   <label>{t('面经标题','Title')}<input data-writing-title="" required maxLength={180} disabled={busy} value={draft.title} placeholder={t('例如：机器学习工程师技术面试复盘','e.g. ML engineering technical interview recap')} onChange={event=>edit({title:event.target.value})}/></label>
+   <label>{t('面经标题','Title')}<input ref={titleField} id={titleId} data-writing-title="" required maxLength={180} disabled={busy} value={draft.title} placeholder={t('例如：机器学习工程师技术面试复盘','e.g. ML engineering technical interview recap')} onChange={event=>edit({title:event.target.value})}/></label>
    <details className="interview-writing-guide" onToggle={event=>setWritingOpen(event.currentTarget.open)}><summary ref={writingSummary}><span><BookOpen size={15}/>{t('用提纲整理面试经历','Organize your experience with prompts')}</span><ChevronDown size={14}/></summary>{writingOpen&&<WritingGuide stage={draft.interview.stage} defaultId={defaultInterviewOutline(draft.interview.stage)} outlines={interviewOutlines} hasBody={!!draft.body.trim()} hasContent={contentReady} busy={busy} canUndo={!!outlineEdit&&draft.body===outlineEdit.after&&outlineEdit.before!==outlineEdit.after} editedAfterInsert={!!outlineEdit&&draft.body!==outlineEdit.after} onInsert={insertOutline} onUndo={undoOutline} onRestoreFocus={()=>writingSummary.current?.focus({preventScroll:true})}/>}</details>
    {writingError&&<p className="interview-writing-hint" role="status">{writingError}</p>}
    <MarkdownEditor sectionNavigation scopeKey={JSON.stringify(['interview',owner])} submitShortcut value={draft.body} onChange={body=>edit({body})} preview={preview} onPreviewChange={setPreview}
-     textareaRef={editor} label={t('流程、思路与复盘','Process, approach and reflection')} modeLabel={t('面经编辑模式','Report editing mode')}
+     textareaRef={editor} id={bodyId} label={t('流程、思路与复盘','Process, approach and reflection')} modeLabel={t('面经编辑模式','Report editing mode')}
      rows={12} maxLength={20000} busy={busy} describedBy={draft.body.trim()&&!contentReady&&!pendingMatches?contentHint:undefined}
      placeholder={t('记录轮次、考察方向、你的解题思路和准备建议。只分享可以公开的信息。','Describe the rounds, concepts, your approach and preparation tips. Share information you can make public.')}/>
-   <details className="interview-question-guide" open={questionOpen} onToggle={event=>setQuestionOpen(event.currentTarget.open)}><summary ref={questionSummary}><BookOpen size={15} aria-hidden="true"/><span className="interview-question-summary-copy"><b>{t('整理一条问题与追问','Record a question and follow-ups')}</b><small>{uninserted?t('有内容尚未插入','Uninserted content'):t('选填记录','Optional record')}</small></span><ChevronDown className="interview-question-chevron" size={15} aria-hidden="true"/></summary>{questionOpen&&<QuestionBuilder value={draft.questionScratch||emptyInterviewQuestion()} questions={draft.interview.questions} problems={problems} busy={busy} error={questionError} canUndo={!!questionEdit&&draft.body===questionEdit.after&&draft.questionScratch===undefined} undoBlocked={!!questionEdit&&(draft.body!==questionEdit.after||draft.questionScratch!==undefined)} onChange={changeQuestion} onInsert={insertQuestion} onUndo={undoQuestion} onClear={clearQuestion} onRestoreFocus={()=>questionSummary.current?.focus({preventScroll:true})}/>}</details>
+   <details className="interview-question-guide" id={questionId} open={questionOpen} onToggle={event=>setQuestionOpen(event.currentTarget.open)}><summary ref={questionSummary}><BookOpen size={15} aria-hidden="true"/><span className="interview-question-summary-copy"><b>{t('整理一条问题与追问','Record a question and follow-ups')}</b><small>{uninserted?t('有内容尚未插入','Uninserted content'):t('选填记录','Optional record')}</small></span><ChevronDown className="interview-question-chevron" size={15} aria-hidden="true"/></summary>{questionOpen&&<QuestionBuilder value={draft.questionScratch||emptyInterviewQuestion()} questions={draft.interview.questions} problems={problems} busy={busy} error={questionError} canUndo={!!questionEdit&&draft.body===questionEdit.after&&draft.questionScratch===undefined} undoBlocked={!!questionEdit&&(draft.body!==questionEdit.after||draft.questionScratch!==undefined)} onChange={changeQuestion} onInsert={insertQuestion} onUndo={undoQuestion} onClear={clearQuestion} onRestoreFocus={()=>questionSummary.current?.focus({preventScroll:true})}/>}</details>
    {uninserted&&<p id={questionHint} className="interview-writing-hint" role="status">{t('问题记录仅在本标签页草稿中，尚未写入正文。插入或清空后即可发布当前面经；待确认的原发布仍可单独重试。','This question record stays in the tab draft and is not in the report. Insert or clear it before publishing the current draft. An unconfirmed original publication can still be retried separately.')}</p>}
    {draft.body.trim()&&!contentReady&&!pendingMatches&&<p id={contentHint} className="interview-writing-hint" role="status">{t('提纲已经准备好。补充你实际经历的流程、思路或复盘后即可发布。','Your outline is ready. Add your actual process, approach or reflection before publishing.')}</p>}
    <PublishingRules action="post"/>
-   <div className="form-footer"><button type="button" className="text-button" disabled={busy} onClick={()=>setDiscard(true)}>{t('丢弃草稿','Discard draft')}</button><small><Check size={12}/>{durable?t('草稿仅保存在本标签页','Draft stays in this tab'):t('草稿暂存在当前页面','Draft is held in this page')}</small><button className="button" disabled={busy||!canPublish||uninserted||!draft.title.trim()||!contentReady&&!pendingMatches||!!draft.anonymous&&capabilities?.community_anonymous_posts!==true} aria-describedby={uninserted?questionHint:draft.body.trim()&&!contentReady&&!pendingMatches?contentHint:undefined}>{busy?<span className="spinner"/>:<ChevronRight size={15}/>} {pending?pendingMatches?t('重试发布','Retry publication'):t('作为新面经发布','Publish as a new report'):t('发布面经','Publish report')}</button></div>
+   <InterviewDraftStatus step={draftStep} id={draftStatusId} controls={draftStep==='title'?titleId:draftStep==='record'?questionId:draftStep==='anonymous'?identityId:bodyId} disabled={busy} onNavigate={navigateDraft}/>
+   <div className="form-footer"><button type="button" className="text-button" disabled={busy} onClick={()=>setDiscard(true)}>{t('丢弃草稿','Discard draft')}</button><small><Check size={12}/>{durable?t('草稿仅保存在本标签页','Draft stays in this tab'):t('草稿暂存在当前页面','Draft is held in this page')}</small><button className="button" disabled={busy||!canPublish||uninserted||!draft.title.trim()||!contentReady&&!pendingMatches||!!draft.anonymous&&capabilities?.community_anonymous_posts!==true} aria-describedby={[draftStatusId,uninserted?questionHint:draft.body.trim()&&!contentReady&&!pendingMatches?contentHint:undefined].filter(Boolean).join(' ')}>{busy?<span className="spinner"/>:<ChevronRight size={15}/>} {pending?pendingMatches?t('重试发布','Retry publication'):t('作为新面经发布','Publish as a new report'):t('发布面经','Publish report')}</button></div>
   </form>
   {discard&&<div className="draft-discard-confirm" role="alert"><p>{t('丢弃当前草稿？已发送但待确认的发布记录会保留，避免误发重复内容。','Discard this draft? Unconfirmed publication receipts are retained so they can be retried safely.')}</p><button type="button" disabled={busy} onClick={()=>{if(discardInterviewDraft(tabDraftStorage(),owner))onClose();else setError(t('暂时无法清除草稿，请重试。','The draft could not be cleared. Try again.'));}}>{t('确认丢弃','Discard draft')}</button><button type="button" onClick={()=>setDiscard(false)}>{t('继续编辑','Keep editing')}</button></div>}
  </section>;
