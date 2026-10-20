@@ -6,6 +6,14 @@ reverse-mode gradients and a validated forward-mode subset come from PaperLeet's
 existing browser adapter. Core API fixes and performance improvements are
 developed here and checked against independent native PyTorch results.
 
+Version **0.85** avoids index-sized comparison buffers when checking integer
+indices. In the measured large indexed aggregation forward calls, traced peak
+allocation falls about 95% on native NumPy and 85% in Pyodide. Empty inputs,
+index views, guarded updates and analytical derivatives retain their behavior.
+The [index-bounds record](../../docs/validation/torch-index-bounds.md) retains
+complete-flow timings, unchanged-peak controls and an initial Node timing
+anomaly that did not recur in three independent focused repeats.
+
 Version **0.84** adds `index_select`, `index_add` and `scatter_add`, including
 analytic gradients, float32/64 forward differentiation and guarded in-place
 updates. Selection reverse allocates its zero accumulator directly; the
