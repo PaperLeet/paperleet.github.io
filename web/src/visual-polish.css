@@ -85,3 +85,15 @@
   .submission-pipeline svg { display: none; }
   .submission-pipeline b { font-size: var(--type-small); }
 }
+
+/* Button labels never break mid-phrase: single-line labels stay on one line, and secondary lines inside card-style links truncate. */
+.interview-path-grid a.interview-path-start > span { min-width: 0; }
+.interview-path-start small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.external-company-practice > summary { flex-wrap: wrap; column-gap: 10px; row-gap: 2px; }
+.external-company-practice > summary > small { color: var(--muted); font-size: var(--type-meta); font-weight: 400; white-space: nowrap; }
+.submission-heading .button, .paper-detail-actions .button, .paper-completion-card .button { white-space: nowrap; }
+@media (max-width: 600px) {
+  .external-company-practice > summary > small { flex-basis: 100%; padding-left: 22px; }
+  .interview-resource-panel .resource-browser-kinds { display: flex; }
+  .interview-resource-panel .resource-browser-kinds > button { flex: 1 1 auto; justify-content: space-between; white-space: nowrap; }
+}
