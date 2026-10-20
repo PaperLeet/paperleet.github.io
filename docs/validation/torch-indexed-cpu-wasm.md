@@ -88,8 +88,8 @@ latency claim. Scatter coordinate vectors also avoid full rank-by-size grids.
 
 ## Evidence and release work
 
-[Summary](../../packages/stridetorch/benchmarks/results/indexed-cpu-wasm.json) and
-[raw evidence archive](../../packages/stridetorch/benchmarks/results/indexed-cpu-wasm-harness.tar.gz)
+[Summary](../../packages/torchwasm/benchmarks/results/indexed-cpu-wasm.json) and
+[raw evidence archive](../../packages/torchwasm/benchmarks/results/indexed-cpu-wasm-harness.tar.gz)
 preserve the candidate sources, SDK/native tests, package artifacts, logs,
 allocation probes, failed candidates and corrected harnesses. The archive uses
 content-addressed payloads with a complete virtual-path manifest and replay

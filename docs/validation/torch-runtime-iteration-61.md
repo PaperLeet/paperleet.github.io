@@ -197,8 +197,8 @@ not wheel or network transfer size.
 
 ## Reproduction and limits
 
-[Machine report](../../packages/stridetorch/benchmarks/results/iteration-61.json)
-and [raw harness](../../packages/stridetorch/benchmarks/results/iteration-61-harness.tar.gz).
+[Machine report](../../packages/torchwasm/benchmarks/results/iteration-61.json)
+and [raw harness](../../packages/torchwasm/benchmarks/results/iteration-61-harness.tar.gz).
 Raw archive: 7,438,519 bytes, SHA-256 `18fe6c6a118fa6ff5b4c61bc6aee2164524e56387387ad416b2fe3ded8bd7e4e`. It contains baseline
 and final sources, frozen native arrays/results, programs, runtime plans,
 package artifacts, child receipts, full outputs and preserved development trials.

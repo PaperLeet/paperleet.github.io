@@ -161,8 +161,8 @@ comparisons. No WebGPU backend is enabled by this change.
 
 ## Reproduction, adoption and remaining scope
 
-[`iteration-37.json`](../../packages/stridetorch/benchmarks/results/iteration-37.json)
-and [`iteration-37-integration.json`](../../packages/stridetorch/benchmarks/results/iteration-37-integration.json)
+[`iteration-37.json`](../../packages/torchwasm/benchmarks/results/iteration-37.json)
+and [`iteration-37-integration.json`](../../packages/torchwasm/benchmarks/results/iteration-37-integration.json)
 contain exact hashes, receipts, probes, pilots and hashed reproduction archives.
 Application gates use upstream `7b6e36c023e1ce3ebac940dac1e70e062de11ceb`, including its current catalog
 in the rebuilt private wheel. Later main synchronization/adoption is recorded

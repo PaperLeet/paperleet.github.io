@@ -70,7 +70,7 @@ remain in the evidence archive; corrected tests use resolve_conj and detached
 writes without expanding general in-place AD.
 
 Core CPython, minimum wheel and real Node/Chrome proofs are recorded in the
-[machine-readable candidate evidence](../../packages/stridetorch/benchmarks/results/iteration-29.json).
+[machine-readable candidate evidence](../../packages/torchwasm/benchmarks/results/iteration-29.json).
 Full exported-catalog/frontend/application distribution checks and main adoption
 are separate later gates, not implied by independent-package compatibility.
 
@@ -135,7 +135,7 @@ each remains usable after uninstalling the other. The private wheel/sdist also
 match current application server/catalog bytes. Original proof folders remain
 separate; the adopted refined proof is `proof-refined`, source `trial-vector`.
 
-[Refinement evidence](../../packages/stridetorch/benchmarks/results/iteration-29-refinement.json)
+[Refinement evidence](../../packages/torchwasm/benchmarks/results/iteration-29-refinement.json)
 and its receipt archive preserve all96 additional timing children, five source
 trials, both paired recipes, original anomalies and exact final-source proofs.
 The broader main-branch adoption gates are still pending at this core milestone.
@@ -175,7 +175,7 @@ Application wheel/sdist core/license hashes and current server/catalog bytes mat
 the same refined source after UI merges; installed public/private ownership and
 independent uninstall proofs remain in the core refinement record.
 
-[Integration evidence](../../packages/stridetorch/benchmarks/results/iteration-29-integration-gates.json)
+[Integration evidence](../../packages/torchwasm/benchmarks/results/iteration-29-integration-gates.json)
 and its222-file archive preserve actual reports, exports, dependency hashes,
 all process receipts and the corrected-command history. Adoption uses a non-force
 push after latest-main revalidation. Exact remote Quality, eligible actual Pages
@@ -198,6 +198,6 @@ Live requests verify78 decoded starters/details/manifest references,158 immutabl
 payloads and both runtime licenses/version0.29. This is the latest positively
 verified site version;runner durations are budget gates, not speedup comparisons.
 
-[Remote evidence](../../packages/stridetorch/benchmarks/results/iteration-29-remote-adoption.json)
+[Remote evidence](../../packages/torchwasm/benchmarks/results/iteration-29-remote-adoption.json)
 and its27-file archive retain all three Quality/artifact contexts, the skipped
 publication history, pinned Git/source/export equivalence and actual live receipts.

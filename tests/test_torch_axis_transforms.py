@@ -5,7 +5,7 @@ import weakref
 import numpy as np
 import pytest
 import torch as native
-from stridetorch import torch
+from torchwasm import torch
 
 FORMS=['t','mT','swapaxes','swapdims','movedim','moveaxis','torch.t','torch.swapaxes','torch.swapdims','torch.movedim','torch.moveaxis']
 

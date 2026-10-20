@@ -70,8 +70,8 @@ measured. A prepared predecessor failed compile preflight because module-level
 `await` was incompatible with the fixture's `exec` entry. It was not executed;
 the fresh probe uses explicit `run_sync` and retains that correction record.
 
-[Machine-readable results](../../packages/stridetorch/benchmarks/results/post083-shape-jspi.json)
-and the [verified raw archive](../../packages/stridetorch/benchmarks/results/post083-shape-jspi-harness.tar.gz)
+[Machine-readable results](../../packages/torchwasm/benchmarks/results/post083-shape-jspi.json)
+and the [verified raw archive](../../packages/torchwasm/benchmarks/results/post083-shape-jspi-harness.tar.gz)
 preserve both candidates, all 93 SDK sources, native arithmetic records,
 complete timing samples, the actual browser fixture and the proof-push receipt.
 The archive contains 562 files, 223 unique payloads and SHA-256

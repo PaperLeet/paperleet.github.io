@@ -4,7 +4,7 @@ import warnings
 import numpy as np
 import pytest
 import torch as native
-from stridetorch import torch
+from torchwasm import torch
 
 
 def layouts(dtype):

@@ -133,7 +133,7 @@ the observed repository variable. Logs retain ephemeral Vite startup/shutdown
 messages; every complete command/assertion returns0. No application browser
 visual QA is claimed.
 
-[Integration evidence](../../packages/stridetorch/benchmarks/results/iteration-27-integration-gates.json)
+[Integration evidence](../../packages/torchwasm/benchmarks/results/iteration-27-integration-gates.json)
 and the212-file receipt archive retain the frozen exports, actual reports,
 dependency interruption/recovery and process receipts. Main adoption uses a
 non-force push after latest-ref revalidation. Exact remote Quality and eligible
@@ -160,7 +160,7 @@ pass native78/10218/342/three repeats in416.25s and exported WASM78/342/no budge
 violations in524859ms, with identical per-case source hashes, counts, packages,
 budgets and27/841 standalone contracts.
 
-[Remote adoption evidence](../../packages/stridetorch/benchmarks/results/iteration-27-remote-adoption.json)
+[Remote adoption evidence](../../packages/torchwasm/benchmarks/results/iteration-27-remote-adoption.json)
 and its14-file archive retain both runs, byte equivalence and actual live checks.
 All78 decoded starters/current detail/manifest references and158 immutable payloads
 match the frozen version, including both runtime byte sequences and LICENSE/NOTICE.

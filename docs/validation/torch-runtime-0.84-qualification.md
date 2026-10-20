@@ -48,8 +48,8 @@ excluding only three host subprocess cases. No numerical test was removed.
 The earlier 88/89 export check failed when those host cases entered the CPU VM;
 the upstream harness fix is retained and the full catalog was rerun afterward.
 
-The [summary](../../packages/stridetorch/benchmarks/results/qualification-0.84.json)
-and [raw archive](../../packages/stridetorch/benchmarks/results/qualification-0.84-harness.tar.gz)
+The [summary](../../packages/torchwasm/benchmarks/results/qualification-0.84.json)
+and [raw archive](../../packages/torchwasm/benchmarks/results/qualification-0.84-harness.tar.gz)
 contain final package sources, tests, native results, full catalog records,
 exact export bytes, Worker probes, failed predecessors and replay dependencies.
 The archive contains 1,152 virtual files and 667 unique payloads, with all
@@ -72,13 +72,13 @@ runtime, package, native reference and active export bytes remain unchanged.
 Eighteen affected search, pagination, draft, reply, reading-return and learning
 guide checks pass on the combined tree, followed by both builds, production
 asset retention and the actual nested Worker/indexed-alpha checks. The
-[current-main integration record](../../packages/stridetorch/benchmarks/results/qualification-0.84-current-main.json)
+[current-main integration record](../../packages/torchwasm/benchmarks/results/qualification-0.84-current-main.json)
 preserves those results separately from the core qualification.
 
 Main subsequently advanced to `46f2ee11` with ten company-directory and pager
 paths. These changes are also preserved. Eleven related DOM checks, both builds,
 asset retention and the actual indexed/alpha Worker pass on that combined tree.
-The [follow-up record](../../packages/stridetorch/benchmarks/results/qualification-0.84-current-main-followup.json)
+The [follow-up record](../../packages/torchwasm/benchmarks/results/qualification-0.84-current-main-followup.json)
 retains this later integration and the terminal first-push transport failure;
 the numerical runtime and active export identities remain unchanged.
 
@@ -87,5 +87,5 @@ Main adoption was verified at `bee6008e62f959ee5a261522f8c7e4a15f0a746b`:
 paths match the qualified tree. Own implementation/integration commits have
 zero workflow runs. Pages remains a legacy `gh-pages` branch deployment, and no
 tag, Actions dispatch, package publication or site deployment was performed by
-this iteration. The [adoption proof](../../packages/stridetorch/benchmarks/results/qualification-0.84-main-adoption.json)
+this iteration. The [adoption proof](../../packages/torchwasm/benchmarks/results/qualification-0.84-main-adoption.json)
 retains the successful ordinary push, failed transport attempt and fresh guards.

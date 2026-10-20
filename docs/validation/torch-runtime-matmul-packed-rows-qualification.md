@@ -92,9 +92,9 @@ the existing guarded adoption process only after those checks pass. WebGPU
 remains experimental and disabled as a torch backend; its earlier 0.80 timing
 must not silently become a measurement of a newer CPU baseline.
 
-The [machine report](../../packages/stridetorch/benchmarks/results/matmul-packed-rows-qualification.json)
+The [machine report](../../packages/torchwasm/benchmarks/results/matmul-packed-rows-qualification.json)
 retains every flow ratio, process identity, memory scope and source hash. The
-[raw harness archive](../../packages/stridetorch/benchmarks/results/matmul-packed-rows-qualification-harness.tar.gz)
+[raw harness archive](../../packages/torchwasm/benchmarks/results/matmul-packed-rows-qualification-harness.tar.gz)
 contains **363** verified files, **1,195,489** bytes, SHA-256
 `4c9a24ef5a0cd7645f45b1361700926bf74093885356e50c17ea7926799d0f77`.
 The archive includes the referenced 342 SDK payloads; prior native targeted

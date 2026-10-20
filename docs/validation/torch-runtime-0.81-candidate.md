@@ -52,8 +52,8 @@ browser assets, run the actual WASM catalog/Worker budgets and required frontend
 build checks, reconcile moving main, then perform guarded adoption. No CI,
 tag, package publication or deployment is initiated by this candidate stage.
 
-[Machine-readable package/core result](../../packages/stridetorch/benchmarks/results/candidate-0.81-package-core.json).
-The [raw package/core archive](../../packages/stridetorch/benchmarks/results/candidate-0.81-package-core-harness.tar.gz)
+[Machine-readable package/core result](../../packages/torchwasm/benchmarks/results/candidate-0.81-package-core.json).
+The [raw package/core archive](../../packages/torchwasm/benchmarks/results/candidate-0.81-package-core-harness.tar.gz)
 contains 1153 verified files, 5,016,121 bytes, SHA-256
 `a39733729c36bb4fbf17c28e2159d817242d5b4cb4902f2359bf5207c291f64e`.
 It includes actual distributions, rebuilt wheels, installed sources, scripts,

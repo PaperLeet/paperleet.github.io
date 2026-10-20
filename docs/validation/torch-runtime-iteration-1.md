@@ -150,6 +150,6 @@ GPU compilation and each raw sample are preserved separately in the evidence.
 The Python/JS bridge and a resident multi-operation graph are still unimplemented.
 
 Raw samples, environments, source hashes, dtype and memory measurements are
-preserved in [`iteration-1.json`](../../packages/stridetorch/benchmarks/results/iteration-1.json).
+preserved in [`iteration-1.json`](../../packages/torchwasm/benchmarks/results/iteration-1.json).
 The complete baseline source snapshot and local runtime logs remain in the
 `paperleet-wasm-evaluation-20261015/torch-iteration-1` evidence folder.

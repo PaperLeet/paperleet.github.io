@@ -110,7 +110,7 @@ sensitive to runtime/process variation and are not combined with Chrome samples.
 Chrome 155 uses a fresh entire browser process **and** Worker for each sample,
 with baseline/candidate/prototype/prototype/candidate/baseline order for each
 dtype (12 processes). The prototype is reconstructed from final sources with
-[the reverse patch](../../packages/stridetorch/benchmarks/results/iteration-10-prototype.patch),
+[the reverse patch](../../packages/torchwasm/benchmarks/results/iteration-10-prototype.patch),
 including its original numeric-copy behavior and old resource loader. All 32
 reconstructed Python hashes are verified. Earlier shared-browser samples are
 kept separately and are not pooled into this protocol.
@@ -151,7 +151,7 @@ therefore does not measure callback-holder overhead.
 ## License and source provenance
 
 The user selected Apache-2.0 for the independent library. The subproject has the
-standard [LICENSE](../../packages/stridetorch/LICENSE), [NOTICE](../../packages/stridetorch/NOTICE)
+standard [LICENSE](../../packages/torchwasm/LICENSE), [NOTICE](../../packages/torchwasm/NOTICE)
 and SPDX license expression in package metadata. Both notices accompany the
 standalone wheel/sdist, the application's private copy and both browser profiles.
 This scope applies to `packages/paperleet-torch/`, not the remaining application
@@ -195,7 +195,7 @@ notice paths. Full web checks and production build pass after the fix.
 
 Raw samples, frozen and release source hashes, exact browser harnesses, allocation
 audits, copy-cast observations and gate results are recorded in
-[iteration-10.json](../../packages/stridetorch/benchmarks/results/iteration-10.json).
+[iteration-10.json](../../packages/torchwasm/benchmarks/results/iteration-10.json).
 Full logs, interrupted-run evidence, earlier variants and source snapshots remain
 under `paperleet-wasm-evaluation-20261015/torch-iteration-10`. The previous 0.9
 release has successful exact-commit quality/Pages runs and both live runtime byte

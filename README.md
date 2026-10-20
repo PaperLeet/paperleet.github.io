@@ -27,7 +27,7 @@ Requires Python 3.10+ and Node.js 20.19+. Run these commands from the repository
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -e .
-python -m pip install -e ./packages/stridetorch
+python -m pip install -e ./packages/torchwasm
 paperleet export
 npm --prefix web ci
 make dev
@@ -39,7 +39,7 @@ Open the URL shown in the terminal (default: **http://127.0.0.1:5173**). On subs
 
 This public repository contains the frontend, paper catalog, browser runtime, native local judge, and offline maintainer tools. `make dev` works without an account, email provider, or private repository. Signed-out browser practice automatically saves code and test results in the current browser, so they can be restored after refresh or reopening the site.
 
-The NumPy-based browser tensor/autodiff implementation is also available as the independently buildable [StrideTorch library](packages/stridetorch/README.md). Its standalone package needs NumPy only; existing PaperLeet installations include the same library source and retain their current entry points. Keep ordinary `import torch`, `from torch import nn` and `import torch.nn.functional as F` in your code: run standalone scripts with `stridetorch train.py`. PaperLeet's browser Worker activates those aliases automatically.
+The NumPy-based browser tensor/autodiff implementation is also available as the independently buildable [TorchWasm library](packages/torchwasm/README.md). Its standalone package needs NumPy only; existing PaperLeet installations include the same library source and retain their current entry points. Keep ordinary `import torch`, `from torch import nn` and `import torch.nn.functional as F` in your code: run standalone scripts with `torchwasm train.py`. PaperLeet's browser Worker activates those aliases automatically.
 
 The account/community screens and API contracts are public frontend code. Their server implementations, online storage, hosted judge orchestration, and production deployment tools live in the separate private `PaperLeet/backend` repository. That repository pins this public core as a Git submodule; no private service is installed or fetched by the open edition.
 

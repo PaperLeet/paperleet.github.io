@@ -3,7 +3,7 @@ import copy
 import numpy as np
 import pytest
 import torch
-from stridetorch import torch as lite
+from torchwasm import torch as lite
 
 
 def close(a,b,dtype=np.float64):

@@ -4,7 +4,7 @@ import weakref
 import numpy as np
 import pytest
 import torch as native
-from stridetorch import torch as lite
+from torchwasm import torch as lite
 
 CASES = [
  ((1,1),(1,),True), ((2,1,1),(1,),True), ((1,1),(1,1),False),
@@ -95,7 +95,7 @@ def test_singular_empty_rhs_still_factors_matrix(left):
   with pytest.raises(RuntimeError):lib.linalg.solve(lib.zeros(2,2),lib.empty((2,0) if left else (0,2)),left=left)
 
 def test_single_shared_adjoint_solve_and_graph_release(monkeypatch):
- from stridetorch import _linalg
+ from torchwasm import _linalg
  original=_linalg.np.linalg.solve;calls=[]
  def counted(*args,**kw):calls.append(1);return original(*args,**kw)
  monkeypatch.setattr(_linalg.np.linalg,'solve',counted)

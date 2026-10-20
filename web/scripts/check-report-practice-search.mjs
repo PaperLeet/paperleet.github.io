@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import React,{act} from 'react';
+import {renderToString} from 'react-dom/server';
 import {JSDOM} from 'jsdom';
 import {createServer} from 'vite';
 import {mkdtemp,rm} from 'node:fs/promises';
@@ -17,6 +18,16 @@ try{
  const titles=[['注意力','Scaled Attention'],['低秩微调','Low-rank Adapter'],['优势估计','Generalized Advantage'],['扩散模型','Denoising Diffusion'],['自适应优化','Adam Optimizer'],['视觉变换器','Vision Transformer'],['旋转位置编码','Rotary Position']];
  const all=titles.map(([title,title_en],index)=>({id:ids[index],number:index+20,title,title_en,translations:{en:{title:title_en}},module:{optional:true},starter:'PRIVATE_STARTER_NEVER_INDEXED'})),raw=JSON.stringify(all),originalIds=JSON.stringify(ids),source=location.hash;
  const byId=new Map(all.map(row=>[row.id,row]));assert.deepEqual(model.reportPracticeMatches(ids,byId,'＃２０'),[ids[0]]);assert.deepEqual(model.reportPracticeMatches(ids,byId,'注意力 attention'),[ids[0]]);assert.deepEqual(model.reportPracticeMatches(ids,byId,'foundations/missing'),[ids[7]]);assert.deepEqual(model.reportPracticeMatches(ids,byId,'PRIVATE_STARTER_NEVER_INDEXED'),[]);assert.deepEqual(model.reportPracticeMatches(ids,new Map([...byId,['foreign/module',{id:'foreign/module',title:'FOREIGN_ONLY'}]]),'FOREIGN_ONLY'),[]);assert.deepEqual(model.reportPracticeMatches(ids,byId,'[.*]'),[]);assert.equal(Array.from(model.reportPracticeQuery('🧪'.repeat(105))).length,100);assert.equal(model.reportPracticeQuery('a\nb'),'a b');
+ const {useReportPracticeSearch}=await server.ssrLoadModule('/src/ReportPracticeFinder.tsx');
+ function ServerSearch({expanded}){const {controls,matches}=useReportPracticeSearch({ids,topics:byId,scope:'server-source',expanded,listId:'server-practice',onCollapse:()=>{throw Error('Server rendering cannot act');}});return React.createElement('section',null,controls,React.createElement('ul',null,matches.map(id=>React.createElement('li',{key:id},id))));}
+ const locationProperty=Object.getOwnPropertyDescriptor(globalThis,'location');
+ try{
+  for(const absent of [false,true]){
+   if(absent)delete globalThis.location;else Object.defineProperty(globalThis,'location',{value:undefined,configurable:true});
+   for(const expanded of [false,true]){const html=renderToString(React.createElement(LocaleProvider,null,React.createElement(ServerSearch,{expanded})));assert.equal((html.match(/<li>/g)||[]).length,ids.length);assert.equal(html.includes('type="search"'),expanded);}
+  }
+ }finally{Object.defineProperty(globalThis,'location',locationProperty);}
+ assert.equal(requests,0);console.log('PASS linked practice server rendering: absent or undefined location, collapsed and expanded controls, complete public matches and zero requests');
  let available=all,questions=ids,revealPractice,revealRequest=0,locale,retries=0,runs=0,exits=0,submits=0;
  const saved={[ids[0]]:{code:'PRIVATE_DRAFT',updated:'2026-10-20'},[ids[1]]:{[browserLearningPassed]:true}},savedRaw=JSON.stringify(saved);
  function Harness(){locale=useI18n();useWorkspaceShortcuts({enabled:true,canRun:true,focused:true,onRun:()=>runs++,onExitFocus:()=>exits++});return React.createElement('form',{onSubmit:event=>{event.preventDefault();submits++;}},React.createElement('div',{id:'private-pane'},React.createElement('textarea',{id:'private-code',defaultValue:'PRIVATE_EDITOR_UNCHANGED'})),[0,1].map(index=>React.createElement(Meta,{key:index,details:{company:'amazon',role:'ml',stage:'technical',outcome:'unknown',location:'Remote',interview_month:'2026-10',questions},topics:available,returnTo:source,catalogLoading:false,catalogError:available.length<ids.length?'Catalog unavailable':undefined,onRetryCatalog:()=>retries++,revealPractice:index===0?revealPractice:undefined,revealRequest})));}

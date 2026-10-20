@@ -84,8 +84,8 @@ No test cases or artifact-ownership assertions are removed.
 
 ## Evidence
 
-[Development results](../../packages/stridetorch/benchmarks/results/gradient-utilities-0.82-development.json)
-and [verified raw archive](../../packages/stridetorch/benchmarks/results/gradient-utilities-0.82-development-harness.tar.gz)
+[Development results](../../packages/torchwasm/benchmarks/results/gradient-utilities-0.82-development.json)
+and [verified raw archive](../../packages/torchwasm/benchmarks/results/gradient-utilities-0.82-development-harness.tar.gz)
 retain the independent oracle, frozen candidates, failures, test sources,
 SDK reports and six package artifacts. The archive contains 789 files,
 289 unique payloads, 3,020,479 bytes; SHA-256

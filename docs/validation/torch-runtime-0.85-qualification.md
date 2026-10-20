@@ -49,8 +49,8 @@ default embedding 63 and schedules embedding six. Optional WebGPU imports and
 exports remain covered by the wheel SDK; automatic GPU dispatch stays disabled.
 The package name remains unchanged pending a separate naming decision.
 
-The [summary](../../packages/stridetorch/benchmarks/results/qualification-0.85.json)
-and [raw archive](../../packages/stridetorch/benchmarks/results/qualification-0.85-harness.tar.gz)
+The [summary](../../packages/torchwasm/benchmarks/results/qualification-0.85.json)
+and [raw archive](../../packages/torchwasm/benchmarks/results/qualification-0.85-harness.tar.gz)
 contain exact sources, all six artifact identities, installed/WASM results,
 complete frontend coverage, both failed predecessors and recovery receipts,
 export identities, generated code and actual Worker probes. The archive has
@@ -70,26 +70,26 @@ total. All 78 public resources, 95 SDK files and 183 active exports remain
 identical to core qualification. Twelve affected and related frontend checks,
 both builds, immutable asset copies, generated Worker and actual nested Worker
 pass on combined source base `8c196845`. The
-[current-main integration record](../../packages/stridetorch/benchmarks/results/qualification-0.85-current-main.json)
+[current-main integration record](../../packages/torchwasm/benchmarks/results/qualification-0.85-current-main.json)
 and its raw archive preserve that later qualification separately.
 
 The later `c6132c07` main update adds six interview-authoring paths. Source base
 `650b48d6` preserves them and passes all 31 interview-related check commands,
 including their readonly variants, both builds and the actual Worker. The
-[follow-up record](../../packages/stridetorch/benchmarks/results/qualification-0.85-current-main-followup.json)
+[follow-up record](../../packages/torchwasm/benchmarks/results/qualification-0.85-current-main-followup.json)
 retains the initial runner argument-splitting failure and its correction.
 Numerical sources, SDK and active exports remain unchanged.
 
 Main then added five identity-choice paths at `3c61d129`. Source base `773be1f2`
 preserves them; five affected identity/interview checks, both build profiles and
-the actual Worker pass. The [next follow-up](../../packages/stridetorch/benchmarks/results/qualification-0.85-current-main-followup-2.json)
+the actual Worker pass. The [next follow-up](../../packages/torchwasm/benchmarks/results/qualification-0.85-current-main-followup-2.json)
 retains this qualification and the cumulative 31 frontend path identities.
 
 Main adoption was verified at `5eafe4d638fae2a6759150de05441fd5a0855fc1`.
 The remote matches the qualified tree: 78 public resources, 95 SDK files,
 183 active exports and all 20,637 tracked files. Own implementation/integration
 commits have zero workflow runs. Pages remains a legacy `gh-pages` deployment.
-The [adoption proof](../../packages/stridetorch/benchmarks/results/qualification-0.85-main-adoption.json)
+The [adoption proof](../../packages/torchwasm/benchmarks/results/qualification-0.85-main-adoption.json)
 retains the successful ordinary push, the rejected current-workflow and
 advanced-main audits, and the read-only wait through the existing quality/Pages
 chain. This iteration dispatched no CI, cancelled no workflow, and created no

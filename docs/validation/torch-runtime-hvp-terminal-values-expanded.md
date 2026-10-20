@@ -102,8 +102,8 @@ qualification for this optimization have not been performed.
 The independent-library objective, further core APIs and GPU investigation
 continue; production GPU support stays disabled.
 
-[Machine-readable first campaign](../../packages/stridetorch/benchmarks/results/hvp-terminal-expanded-first-campaign.json)
-and [verified raw archive](../../packages/stridetorch/benchmarks/results/hvp-terminal-expanded-first-campaign-harness.tar.gz):
+[Machine-readable first campaign](../../packages/torchwasm/benchmarks/results/hvp-terminal-expanded-first-campaign.json)
+and [verified raw archive](../../packages/torchwasm/benchmarks/results/hvp-terminal-expanded-first-campaign-harness.tar.gz):
 231 files (160 unique payloads, internal
 tar hard links for identical bytes), 1,294,084 bytes, SHA-256
 `0e95b66a92a207648dd874d423117735ada33dd1b72e136b62bbd1a6beb8e39b`. The replay-dependency manifest links the retained original
@@ -132,4 +132,4 @@ waive that failure. The result remains **inconclusive**, and the canonical
 runtime retains its qualified 0.81 HVP implementation. Numerical and scoped
 memory evidence remain useful, but do not establish a complete latency benefit.
 
-[Machine-readable precision results](../../packages/stridetorch/benchmarks/results/hvp-terminal-precision-followup.json) and [verified raw archive](../../packages/stridetorch/benchmarks/results/hvp-terminal-precision-followup-harness.tar.gz): 48 files, 991,560 bytes, SHA-256 `8aa3b3ac0456db5f5e43f8b2acd95b4c53bb0bb589c62eeba4b9a0441ff132d1`. The replay manifest links the earlier archive for frozen implementations, workload and independent oracle inputs.
+[Machine-readable precision results](../../packages/torchwasm/benchmarks/results/hvp-terminal-precision-followup.json) and [verified raw archive](../../packages/torchwasm/benchmarks/results/hvp-terminal-precision-followup-harness.tar.gz): 48 files, 991,560 bytes, SHA-256 `8aa3b3ac0456db5f5e43f8b2acd95b4c53bb0bb589c62eeba4b9a0441ff132d1`. The replay manifest links the earlier archive for frozen implementations, workload and independent oracle inputs.

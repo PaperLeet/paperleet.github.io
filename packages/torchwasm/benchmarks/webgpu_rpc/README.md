@@ -1,0 +1,316 @@
+# Experimental WebGPU matrix service
+
+This developer prototype keeps the Python execution Worker inside an opaque-origin
+`sandbox="allow-scripts"` iframe. A separate secure host Worker owns the GPU device.
+The sandbox receives a MessagePort capability for a fixed matrix protocol. These
+files do not enable a torch GPU device or change the supported CPU/WASM runtime.
+
+The canonical implementation now ships in the installed
+`torchwasm.experimental.webgpu` package. This directory keeps tests and
+compatibility imports. Python aliases share the canonical module and reentry
+gate; JS files re-export the canonical package modules. Repository-based hosts
+may retain these URLs while serving the package source tree. Independent hosts
+should export the adjacent assets with `service_sources()` instead of copying
+these thin JS entry points. See the
+[installed-package setup](../../README.md#experimental-browser-gpu-integration).
+
+## Protocol compatibility
+
+Await `client.ready` before loading the Python wrappers. A current service
+advertises protocol `stridetorch-matrix-rpc` version 1.0, with the optional
+`program-matmul-f32` and `program-retain-inputs` features. Inspect the immutable
+`client.protocol` snapshot, or use `client.supports(feature)` and
+`client.requireFeatures(...features)`. Discovery uses the existing ready event
+and sends no additional RPC. The wire identifier retains its earlier name
+across the TorchWasm package rename so existing v1 clients and services remain
+compatible.
+
+An older, unadvertised service remains usable for the original matrix operations
+and computed-output programs. It does not grant input retention. Retained-input
+programs and the default resident session reject missing capabilities before
+array conversion, upload or GPU ownership. They do not silently retry on CPU.
+Older clients still work with a current service for their original operations.
+
+An explicitly incompatible or malformed protocol rejects `ready` with
+`IncompatibleProtocol` and sends a close request. Startup timeout and closing
+during startup also abandon the session. Public operation wrappers wait for
+startup; raw `send()` remains a low-level protocol/testing API. The host's
+original lease and resource quotas still apply. Future minor versions may
+advertise unknown features; the client enables only its known intersection.
+
+Run the cross-version tests with:
+
+```sh
+node packages/torchwasm/benchmarks/webgpu_rpc/check-negotiation.mjs
+```
+
+`fixtures/protocol-v0` preserves a historical client, service and planner for
+these tests. See [the compatibility qualification](../../../../docs/validation/torch-webgpu-protocol-negotiation.md)
+for real-browser checks and the measured steady-state overhead.
+
+The packaged implementation has no PaperLeet imports. `gpu-service.mjs` runs
+as a module Worker, or exports `createGpuEngine` and `servePort` for a trusted host.
+`rpc-client.mjs` implements the MessagePort client. `matrix_client.py` provides
+explicit resident float32 2D matrices in Pyodide, with upload, multiplication,
+transpose flags, owned readback and context-manager release.
+
+The trusted application creates the host Worker and MessageChannel, transfers one
+port to the service with `{type: 'connect'}`, and transfers the other port to its
+Python Worker. In the Python Worker, construct `new MatrixRpc(port)`, await its
+`ready` promise and set `self.matrix_rpc = client` before loading the Python
+module. Python must be entered with `runPythonAsync` or another JSPI-compatible
+entrypoint. Host code must own Worker shutdown and an independent deadline.
+Channel delivery and origin/source/nonce checks belong to the trusted application.
+The archived fixture demonstrates one such handshake; it is not a production
+judge integration.
+
+```python
+from torchwasm.experimental.webgpu import Matrix
+
+with Matrix.upload(a) as left, Matrix.upload(b) as right:
+    with left.matmul(right) as output:
+        result = output.numpy()
+```
+
+Default limits are 32 MiB of tracked GPU buffers, 4 MiB per matrix, dimensions up
+to 1024, 268,435,456 multiply-accumulate steps per multiplication, 24 resident
+handles, eight pending operations, 4096 requests and a 120-second session lease.
+Readback staging and uniform buffers count toward the same allocation limit.
+Clients cannot upload WGSL, change these limits or obtain the device object.
+Cancellation drops queued work or discards a completed result; it does not
+preempt an already submitted GPU kernel. Closing destroys owned buffers/device
+and invalidates the session. Zero counters do not measure physical VRAM reclaim.
+MessagePort queues and browser/driver resources do not have a hard memory or
+denial-of-service isolation guarantee from these API limits.
+
+Run the portable deterministic protocol checks with a recent Node.js:
+
+```sh
+node packages/torchwasm/benchmarks/webgpu_rpc/check-protocol.mjs
+```
+
+These checks inject a fake engine. Real GPU/Pyodide numerical, lifecycle and
+latency evidence is in [iteration 74](../../../../docs/validation/torch-runtime-iteration-74.md).
+The raw harness includes the browser fixture, native Torch oracle generator,
+36 fresh-process measurements and an earlier MIME configuration failure. It
+retains historical absolute paths and requires Playwright, Chrome, native Torch
+and local Pyodide assets to reproduce. The 2D primitives and explicit VJPs do not
+constitute automatic torch autograd, batched/broadcast matmul, attention,
+float64/complex/special-value coverage or a GPU training backend.
+
+## Bounded multi-operation programs
+
+`MatrixProgram` groups up to eight input descriptors, eight fixed matmul nodes
+and eight distinct result descriptors into one request. Results cover computed
+outputs and explicitly retained fresh uploads. Add all inputs before
+nodes. Inputs can be float32 NumPy arrays (copied when `run` submits them) or
+live `Matrix` objects owned by the same client/session. References returned by
+`input`/`matmul` identify values inside this program; forward/cyclic references
+and arbitrary shader operations are rejected.
+
+```python
+program = MatrixProgram()
+ar, br, gr = [program.input(value) for value in (a, b, gradient)]
+y = program.matmul(ar, br)
+da = program.matmul(gr, br, transpose_b=True)
+db = program.matmul(ar, gr, transpose_a=True)
+with program.run([y, da, db]) as result:
+    output, a_gradient, b_gradient = result.arrays
+```
+
+These are explicit analytical matrix derivatives, rather than automatic torch
+autograd. `run(..., read=False, retain=True)` returns resident outputs in
+`result.matrices`; use them as inputs to later programs. Request both flags to
+obtain independent CPU snapshots and resident matrices. The context manager
+closes all still-live retained outputs in one validated `release_many` call;
+individual Matrix objects also retain their ordinary `close` method.
+
+`run(..., retain_inputs=(ar, br))` retains selected newly uploaded inputs in the
+same transaction as computation. They are returned in `result.input_matrices`,
+keyed by their input references, and are released by the same context manager.
+These input exports are unread and retained; existing `Matrix` handles cannot
+be exported as additional owners. `retain_outputs=(True, False, ...)` selects
+retention per computed output while keeping the original `read` behavior.
+All result descriptors share the existing eight-output and 24-handle limits.
+The host planner and Python client must both include this extension.
+
+A [matched whole-call comparison against TorchWasm 0.80](../../../../docs/validation/torch-runtime-webgpu-whole-call-0.80.md)
+measures actual CPU autograd against these explicit GPU VJPs, including uploads,
+RPC, both gradients and three owned CPU snapshots. Three fresh Chrome processes
+show a benefit for the tested 256/512 float32 matrix workloads and a loss for
+small matrices. The raw batches, A/A controls and short-batch limitations are
+retained; the results do not establish a general dispatch threshold or enable
+a torch GPU backend.
+
+The host validates the entire DAG, shapes and peak byte/work/handle requirements
+before allocating. The 268,435,456 multiply-accumulate limit applies to the
+**sum** of all nodes. The 32 MiB allocation limit includes new uploads, computed
+values, uniforms and the packed readback buffer, plus existing resident buffers.
+Large programs may need partitioning even when each individual product is valid.
+No default budget is increased by this interface.
+
+One command submission contains the compute passes and final readback copies.
+Only requested retained results and fresh input exports survive the transaction. Ordinary rollback
+drains already queued writes before releasing tracked buffers; failure to drain
+invalidates the device and its existing handles. Cancellation still skips queued
+requests or discards all newly retained outputs after execution. It does not
+preempt submitted GPU work.
+
+Portable failure-injection and transaction checks:
+
+```sh
+node packages/torchwasm/benchmarks/webgpu_rpc/check-program.mjs
+```
+
+See [iteration 75](../../../../docs/validation/torch-runtime-iteration-75.md) for
+three program ownership modes, native numerical controls, real multi-output
+quota/cancellation checks and sequential-versus-program measurements. The initial
+short-batch measurements are retained. The longer measurement host raises only
+its trusted request counter quota to support longer sampling; the default
+4096-request limit, memory/work/handle limits and production runtime are unchanged.
+
+
+### Primitive failure and cancellation recovery
+
+Upload, matmul and readback failures now wait for possibly issued queue work
+before destroying temporary buffers or reclaiming their tracked byte quota.
+A failed drain closes the device and invalidates all resident handles. An
+acknowledged cancellation takes precedence over a later execution error
+while the session remains open; the execution queue advances after rollback.
+Normal program transactions keep the same planner, shader and default limits.
+
+Portable checks share the injected surface in `gpu-fixture.mjs`:
+
+```sh
+node packages/torchwasm/benchmarks/webgpu_rpc/check-primitive.mjs
+node packages/torchwasm/benchmarks/webgpu_rpc/check-cancel-drain.mjs
+node packages/torchwasm/benchmarks/webgpu_rpc/check-program.mjs
+node packages/torchwasm/benchmarks/webgpu_rpc/check-protocol.mjs
+```
+
+The first two cover 39 primitive lifecycle cases and four acknowledged
+cancellation/failure races. Set `GPU_PRIMITIVE_RESULT` or
+`GPU_CANCEL_DRAIN_RESULT` to save JSON results. Real Chrome GPU queue,
+numerical-recovery and device-destruction evidence is recorded in
+[iteration 78](../../../../docs/validation/torch-runtime-iteration-78.md).
+This remains an explicit experiment and does not add a Torch GPU device.
+## Matched Torch forward/VJP workloads
+
+`torch_workload.py` supplies a NumPy-only fixture generator and two matched
+providers. `TorchMatrixStep` runs the actual CPU library's `a @ b` and
+`autograd.grad(output, (a, b), g)`; `GpuMatrixStep` builds explicit GPU forward,
+left-VJP and right-VJP programs. Both return three independent CPU snapshots.
+The GPU provider is an experiment, not a Torch storage or autograd backend.
+
+Cases are `(37,53,29)`, 64³, 256³ and 512³, with cold and resident inputs.
+Resident setup uploads three matrices once; calls still read every result back.
+Cold mode includes all uploads. The 512³ workload uses two programs to respect
+the unchanged aggregate MAC limit, including repeated cold input uploads.
+
+The current real Chrome controls match native Torch 2.6/2.14 values, retain
+read-only inputs and release handles/allocations. These controls contain no
+latency measurement. Earlier raw NumPy CPU baselines do not establish a speedup
+over the improved Torch CPU path. See the
+[0.80 qualification record](../../../../docs/validation/torch-runtime-0.80-qualification.md)
+before drawing any GPU routing or performance conclusion.
+
+## Explicit Tensor matmul offload
+
+`torch_bridge.py` adds an opt-in `MatmulOffload` prototype. With ordinary
+TorchWasm Tensor operands, it returns a CPU Tensor whose forward and active
+first-order matrix pullbacks use the existing GPU program service. Standard
+`autograd.grad`, `backward`, hooks, retained graphs and optimizers can consume
+the result. It does not replace `torch.matmul` or create a GPU Tensor device.
+The host setup and JSPI entry requirements above still apply; load
+`matrix_client.py` and `torch_bridge.py` alongside the installed library.
+
+```python
+from torchwasm import torch
+from torch_bridge import MatmulOffload
+
+offload = MatmulOffload()
+x = torch.ones(256, 256, requires_grad=True)
+w = torch.ones(256, 256, requires_grad=True)
+output = offload(x, w)
+output.square().mean().backward()
+```
+
+The GPU route covers finite float32 2D matrices within conservative numerical
+range and unchanged host work/memory bounds. It submits only requested
+pullbacks and partitions programs when the sum of their work exceeds one
+program's MAC limit. No GPU handles survive a call. Reusing input CPU Tensors
+does not cache their values on the GPU; snapshots, uploads, readback and checks
+remain part of every GPU call.
+
+`no_grad`, forward/higher-order AD transforms, other dtypes, vectors, batches,
+empty matrices and exceptional numerical ranges use the existing CPU operation.
+Backward explicitly invoked with grad recording disabled also uses CPU
+pullbacks. These routes do not suspend. GPU transport errors propagate without
+a silent CPU retry. This prototype depends on private 0.83 graph interfaces and
+is not yet a stable independent-package API.
+
+Before suspension it captures required input values, identities, metadata and
+storage versions. After each GPU program it checks versions and value bits,
+including raw NumPy writes and signed-zero changes. It also checks the backward
+seed and global AD mode before publishing results. NumPy shared-storage writes
+between forward and backward use the current backward factors, matching native
+CPU matmul behavior. Tracked writes to saved factors retain ordinary graph
+version checks. A module-level gate rejects reentrant offload calls; this does
+not serialize arbitrary Python callbacks or establish general task isolation.
+
+Native transport/numerical/AD regression checks require NumPy, pytest and native
+Torch for independent controls:
+
+```sh
+PYTHONPATH=packages/torchwasm/src python -B -m pytest \
+  packages/torchwasm/benchmarks/webgpu_rpc/test_torch_bridge.py -q
+```
+
+The actual Chrome probe compares 51 value/gradient cases with native Torch
+2.6/2.14, runs five optimizer steps and checks 19 state/lifecycle controls.
+A matched three-process comparison includes actual autograd, all snapshots and
+three owned CPU outputs. See the
+[Tensor offload report](../../../../docs/validation/torch-webgpu-tensor-offload.md)
+for results and remaining boundaries. Small matrices remain slower on GPU;
+these measurements do not define a general automatic dispatch threshold.
+
+## Resident Tensor offload sessions
+
+`ResidentMatmulOffload` adds an explicit context for reusing immutable GPU
+buffers between calls. It retains input values, forward intermediates and
+pullbacks needed by an adjacent GPU node. It still returns ordinary CPU Tensors
+and executes every requested matrix program; numerical results are not
+memoized.
+
+```python
+from resident_bridge import ResidentMatmulOffload
+
+with ResidentMatmulOffload() as offload:
+    hidden = offload(x, first_weight)
+    output = offload(hidden, second_weight)
+    output.square().mean().backward()
+```
+
+The default cache holds at most eight matrices and 8 MiB of private CPU shadows
+and corresponding GPU values. `max_entries` and `max_bytes` can only reduce
+those bounds. Missing values are uploaded and retained by the computation
+request; evictions are released together. Values that cannot fit are passed as
+ordinary inline descriptors, preserving the existing host quotas. A sampled
+signature filters candidates, followed by a full bit comparison before reuse.
+
+`clear()` frees the cache while keeping the session open. `close()` releases all
+owned buffers, is idempotent and rejects new forward calls. Graphs already
+returned can finish on CPU after intentional closure. Transport failures remain
+errors, with newly owned resources rolled back; failed cleanup retains the
+ownership records so `close()` can retry. Close and clear are explicit RPC
+boundaries. The original AD/mutation checks and CPU fallbacks remain, and no
+default torch device or judge path is changed.
+
+Run both developer test modules with the command above, adding
+`packages/torchwasm/benchmarks/webgpu_rpc/test_resident_bridge.py`.
+The [resident-session report](../../../../docs/validation/torch-webgpu-resident-session.md)
+includes native/GPU state checks, direct transfer traces and all six paired
+performance contexts, including continuously updated weights. Cache lookup,
+per-call evictions, uploads and copies are timed; session setup and final close
+are checked separately. This remains an opt-in prototype tied to private 0.83
+graph interfaces.

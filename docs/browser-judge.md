@@ -5,24 +5,24 @@ All maintained teaching modules use the browser's CPU through Pyodide + NumPy. *
 ## Publishing a new module
 
 The tensor implementation is the independently buildable
-[`stridetorch`](../packages/stridetorch/README.md) package. Its runtime
+[`torchwasm`](../packages/torchwasm/README.md) package. Its runtime
 dependency is NumPy. Tensor/storage, autodiff/JVP, operators, RNG, neural network
 functions/modules, optimizers, linear algebra and capability registration have
-separate modules in `packages/stridetorch/src/stridetorch/`.
+separate modules in `packages/torchwasm/src/torchwasm/`.
 `paperleet/browser/numpy_autograd.py` and `schedules_numpy.py` remain compatibility
 entry points. Change implementations in the library, keeping the schedules
 profile's narrower contract intact.
 
 The main PaperLeet wheel includes the same source tree, so existing installations
 need no additional unpublished package. The standalone wheel contains only the
-library. `from stridetorch import torch` leaves native PyTorch imports alone;
+library. `from torchwasm import torch` leaves native PyTorch imports alone;
 `as_torch()` provides an explicit, restoring import context for isolated workers.
 The browser exporter includes installed library sources in each content-addressed
 shared runtime, with a small source set for schedules. Problem bundles cannot
-override `stridetorch/` files. Old self-contained/shared assets remain usable.
+override `torchwasm/` files. Old self-contained/shared assets remain usable.
 
 Validate extraction and packaging with
-`python -m pytest packages/stridetorch/tests tests/test_lightweight_torch.py tests/test_browser_*.py -q`.
+`python -m pytest packages/torchwasm/tests tests/test_lightweight_torch.py tests/test_browser_*.py -q`.
 This includes native PyTorch parity, all configured problem suites/mutants,
 standalone wheel isolation, import restoration and offline source bundling.
 
@@ -307,7 +307,7 @@ TIGER adds frozen semantic ID encoding and original-style unconstrained generati
 
 ## Reproducible checks
 
-- `python -m pytest tests packages/stridetorch/tests -q`: the full native infrastructure and standalone-library suite, including independent PyTorch parity, complete reference/mutant calibration, syntax/unsupported API behavior and false-positive prevention. Browser adapters are installed in isolated subprocesses so they cannot replace the server's native torch.
+- `python -m pytest tests packages/torchwasm/tests -q`: the full native infrastructure and standalone-library suite, including independent PyTorch parity, complete reference/mutant calibration, syntax/unsupported API behavior and false-positive prevention. Browser adapters are installed in isolated subprocesses so they cannot replace the server's native torch.
 - `cd web && npm run check`: compile-only syntax checks for all 498 maintained starters/references/mutants, source-specific diagnostics, every exported module, immutable asset integrity, download reuse/concurrency, bounded caches, retry/cancellation, worker/report validation, owner isolation, and the UI/workspace checks.
 - `cd web && npm run build`: TypeScript and production assets.
 - `cd web && npm run check:browser-wasm`: execute all 78 exported modules in fresh pinned Pyodide processes. All 619 learner tests must pass and all 342 maintained mutants must be caught; reference/mutant counts, source SHA-256, asset hashes and timing budgets are reported. The 13-module `:smoke` command is a development check, not the publication gate. See the [complete 0.13.1 CI run](https://github.com/PaperLeet/paperleet.github.io/actions/runs/38816994895) for the measured snapshot.

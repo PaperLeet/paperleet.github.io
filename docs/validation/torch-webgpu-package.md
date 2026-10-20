@@ -33,7 +33,7 @@ The old Python benchmark import names alias the canonical modules, including
 their shared reentry gate. Old JS entry points re-export the package sources
 when the full repository tree is served. Independent hosts should export
 `service_sources()` instead of copying those thin entries. Setup and usage are
-documented in the [package README](../../packages/stridetorch/README.md#experimental-browser-gpu-integration).
+documented in the [package README](../../packages/torchwasm/README.md#experimental-browser-gpu-integration).
 
 ## Client ownership
 
@@ -122,8 +122,8 @@ was rerun or replaced. These results qualify bounded overhead, not a speedup.
 
 ## Evidence and remaining scope
 
-The [machine-readable qualification](../../packages/stridetorch/benchmarks/results/webgpu-package.json)
-links the [verified raw archive](../../packages/stridetorch/benchmarks/results/webgpu-package-harness.tar.gz):
+The [machine-readable qualification](../../packages/torchwasm/benchmarks/results/webgpu-package.json)
+links the [verified raw archive](../../packages/torchwasm/benchmarks/results/webgpu-package-harness.tar.gz):
 2,629 files, 433 unique payloads, SHA-256
 `1f68b93e2acca88f2fc509a86db6f6ce58dbd86141f3c4abfaddcbf73907a1f9`.
 It preserves both package candidates, the negative binding test, failed layout
@@ -147,6 +147,6 @@ files. Four targeted frontend checks pass after integrating current main.
 
 Both feature and integration SHAs have zero workflow runs. Pages still uses the
 legacy `gh-pages` branch. No tag, publication or deployment was made.
-The [main adoption receipt](../../packages/stridetorch/benchmarks/results/webgpu-package-main-adoption.json)
-and [raw verification evidence](../../packages/stridetorch/benchmarks/results/webgpu-package-main-adoption-harness.tar.gz)
+The [main adoption receipt](../../packages/torchwasm/benchmarks/results/webgpu-package-main-adoption.json)
+and [raw verification evidence](../../packages/torchwasm/benchmarks/results/webgpu-package-main-adoption-harness.tar.gz)
 record the guarded ordinary push and exact remote checks.

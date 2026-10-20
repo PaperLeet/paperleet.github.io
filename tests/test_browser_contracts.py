@@ -125,8 +125,8 @@ def test_triangular_transforms_zero_masked_nonfinite_values_and_gradients(operat
 def test_triangular_vector_input_is_rejected_and_tensor_methods_are_not_shadowed():
     for operation in ('triu', 'tril'):
         with pytest.raises(RuntimeError): getattr(wasm.Tensor([1., 2.]), operation)()
-    import stridetorch
-    for source in Path(stridetorch.__file__).parent.glob('*.py'):
+    import torchwasm
+    for source in Path(torchwasm.__file__).parent.glob('*.py'):
         tree = ast.parse(source.read_text())
         for cls in (node for node in tree.body if isinstance(node, ast.ClassDef)):
             methods = []

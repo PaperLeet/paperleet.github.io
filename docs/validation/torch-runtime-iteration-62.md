@@ -194,8 +194,8 @@ The full review is archived as `webgpu-backend-notes.md`.
 
 ## Reproduction
 
-[Machine report](../../packages/stridetorch/benchmarks/results/iteration-62.json)
-and [raw harness](../../packages/stridetorch/benchmarks/results/iteration-62-harness.tar.gz).
+[Machine report](../../packages/torchwasm/benchmarks/results/iteration-62.json)
+and [raw harness](../../packages/torchwasm/benchmarks/results/iteration-62-harness.tar.gz).
 Archive: 5,356,757 bytes; SHA-256 `d388b0b739594df3f4da5c99cab6321a0443dc12dad6b4293f3d863e1d215c1b`. Frozen baseline/candidate
 sources, programs, native inputs/results, runtime plans, package artifacts,
 receipts, prototypes and samples are included. The repository benchmark is

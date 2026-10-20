@@ -174,8 +174,8 @@ not total tape bytes, process RSS, LAPACK workspace or WASM heap size. Cold-firs
 diagnostics remain separate. Full allocation/footprint tables are in the machine
 report; no new runtime dependency or GPU path is introduced.
 
-[Machine report](../../packages/stridetorch/benchmarks/results/iteration-63.json)
-and [raw harness](../../packages/stridetorch/benchmarks/results/iteration-63-harness.tar.gz).
+[Machine report](../../packages/torchwasm/benchmarks/results/iteration-63.json)
+and [raw harness](../../packages/torchwasm/benchmarks/results/iteration-63-harness.tar.gz).
 Archive: 5,218,350 bytes; SHA-256 `6a4f4ec2cfff232c66360d88b20f25f734e7b383c82b4630406ed4aba742e3ba`. Source snapshots, frozen
 native inputs/results, policy diagnostics, programs, plans, package artifacts,
 receipts, development failures and samples are included. The public benchmark

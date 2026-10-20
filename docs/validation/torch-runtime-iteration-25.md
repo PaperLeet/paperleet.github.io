@@ -74,8 +74,8 @@ process samples per label are retained; small differences are not causal wins.
 CPU environment requests two BLAS threads; actual threading is unverified.
 No local tests, builds or audits overlap the controlled timing phase.
 
-[Evidence](../../packages/stridetorch/benchmarks/results/iteration-25.json) and
-the [reproducibility archive](../../packages/stridetorch/benchmarks/results/iteration-25-harness.tar.gz)
+[Evidence](../../packages/torchwasm/benchmarks/results/iteration-25.json) and
+the [reproducibility archive](../../packages/torchwasm/benchmarks/results/iteration-25-harness.tar.gz)
 retain frozen sources, all timing children, original failed test fixtures,
 the corrected validation-order audit, distribution artifacts and final gates.
 
@@ -110,8 +110,8 @@ assertions pass. No application browser visual QA is claimed.
 
 Rebuilt private wheel/sdist contain the exact new core and latest application
 catalog/server, with paths disjoint from the standalone wheel.
-[Integration evidence](../../packages/stridetorch/benchmarks/results/iteration-25-integration-gates.json)
-and its [202-file archive](../../packages/stridetorch/benchmarks/results/iteration-25-integration-gates-harness.tar.gz)
+[Integration evidence](../../packages/torchwasm/benchmarks/results/iteration-25-integration-gates.json)
+and its [202-file archive](../../packages/torchwasm/benchmarks/results/iteration-25-integration-gates-harness.tar.gz)
 retain reports, harnesses, frozen export bytes and distribution artifacts.
 
 ## Main and actual site adoption
@@ -131,7 +131,7 @@ These runner durations are not controlled speedup comparisons.
 Eligible Pages run 38900518818 completes the actual build and deploy jobs.
 Subsequent live verification matches all 78 decoded starters and active manifest
 references, all 158 immutable payload bytes and both 0.25 runtime versions and
-Apache notices. [Remote adoption evidence](../../packages/stridetorch/benchmarks/results/iteration-25-remote-adoption.json)
-and the [actual receipt archive](../../packages/stridetorch/benchmarks/results/iteration-25-remote-adoption-harness.tar.gz)
+Apache notices. [Remote adoption evidence](../../packages/torchwasm/benchmarks/results/iteration-25-remote-adoption.json)
+and the [actual receipt archive](../../packages/torchwasm/benchmarks/results/iteration-25-remote-adoption-harness.tar.gz)
 preserve job steps, equivalence, reports and live byte checks. Independent public
 package publication remains separate work.

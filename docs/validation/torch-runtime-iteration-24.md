@@ -115,8 +115,8 @@ causal gains. The float64 WASM small method case is 2.9% slower, and remains
 explicit rather than counted as a win. Earlier half-row and copy-trial costs
 are retained alongside the final samples. No universal speedup is claimed.
 
-The [development evidence](../../packages/stridetorch/benchmarks/results/iteration-24.json)
-and [source/test/harness archive](../../packages/stridetorch/benchmarks/results/iteration-24-harness.tar.gz)
+The [development evidence](../../packages/torchwasm/benchmarks/results/iteration-24.json)
+and [source/test/harness archive](../../packages/torchwasm/benchmarks/results/iteration-24-harness.tar.gz)
 retain all four phases, failed fixtures/prototypes, final source and distribution
 receipts. They explicitly leave original application/export/remote gates pending.
 
@@ -136,16 +136,16 @@ and identical standalone core bytes. Complete frontend checks validate 48
 bilingual guides/144 prompts; production build (5.44s) and Pages policy pass.
 Initial JavaScript is 408,091 raw / 131,542 gzip bytes.
 
-The [integration gates](../../packages/stridetorch/benchmarks/results/iteration-24-integration-gates.json)
-and [integration snapshot archive](../../packages/stridetorch/benchmarks/results/iteration-24-integration-gates-harness.tar.gz)
+The [integration gates](../../packages/torchwasm/benchmarks/results/iteration-24-integration-gates.json)
+and [integration snapshot archive](../../packages/torchwasm/benchmarks/results/iteration-24-integration-gates-harness.tar.gz)
 retain those receipts. Complete exported WASM now passes all 78 modules with no
 browser budget violations (355.605s aggregate). Flow Matching takes 84.719s
 calibration, 17.001s learner and 103.320s total, within unchanged 240/60/300s
 limits. These application times are budget observations, not controlled
 performance comparisons with another release.
 
-The [complete local gates](../../packages/stridetorch/benchmarks/results/iteration-24-local-gates.json)
-and [final WASM receipts](../../packages/stridetorch/benchmarks/results/iteration-24-local-gates-harness.tar.gz)
+The [complete local gates](../../packages/torchwasm/benchmarks/results/iteration-24-local-gates.json)
+and [final WASM receipts](../../packages/torchwasm/benchmarks/results/iteration-24-local-gates-harness.tar.gz)
 close the catalog gate against frozen source and all 161 export hashes. The later
 eight-file UI change at `1be5db7e` is preserved byte-for-byte. Repeated complete
 frontend checks, production build (8.84s) and Pages policy pass; initial JavaScript
@@ -153,8 +153,8 @@ is 408,091 raw / 131,549 gzip bytes. Core/license, Python packaging, tests,
 problems, workflows and all 161 export hashes remain identical, preserving the
 completed numerical/catalog evidence without repeating unrelated workloads.
 
-[Latest upstream gates](../../packages/stridetorch/benchmarks/results/iteration-24-latest-upstream-gates.json)
-and the [affected-check archive](../../packages/stridetorch/benchmarks/results/iteration-24-latest-upstream-gates-harness.tar.gz)
+[Latest upstream gates](../../packages/torchwasm/benchmarks/results/iteration-24-latest-upstream-gates.json)
+and the [affected-check archive](../../packages/torchwasm/benchmarks/results/iteration-24-latest-upstream-gates-harness.tar.gz)
 close that integration gate. Exact main [Quality run 38890431872](https://github.com/PaperLeet/paperleet.github.io/actions/runs/38890431872)
 subsequently passed all three jobs: native, browser-WASM and pilot. Native Linux
 ran 25,928 infrastructure tests (one optional Docker skip, 26 warnings, 525.93s),
@@ -162,8 +162,8 @@ then all 78 problems / 10,218 executions / 342 mutants / three repeats in 406.63
 Pinned WASM passed all 78 problems in 763,674ms without any budget violation.
 These are independent runner durations, not controlled speedup comparisons.
 
-[Main Quality evidence](../../packages/stridetorch/benchmarks/results/iteration-24-main-quality.json)
-and its [receipt/archive](../../packages/stridetorch/benchmarks/results/iteration-24-main-quality-harness.tar.gz)
+[Main Quality evidence](../../packages/torchwasm/benchmarks/results/iteration-24-main-quality.json)
+and its [receipt/archive](../../packages/torchwasm/benchmarks/results/iteration-24-main-quality-harness.tar.gz)
 preserve actual reports and the terminal observer. No eligible Pages deployment
 or subsequent live-byte verification was observed for this commit; skipped
 Pages run 38890780962 does not count as publication.

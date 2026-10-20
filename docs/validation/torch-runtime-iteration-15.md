@@ -99,7 +99,7 @@ without native PyTorch, and passed **226 tests** in 4.83 s.
   standalone README metadata is checked against source. The final executable
   module hashes equal the isolated wheel that passed 226 tests.
 
-The [complete local validation record](../../packages/stridetorch/benchmarks/results/iteration-15-validation.json)
+The [complete local validation record](../../packages/torchwasm/benchmarks/results/iteration-15-validation.json)
 preserves raw catalog results, package/resource hashes, upstream invariance,
 asset preservation/pruning evidence and log attestations. Final deployment
 expectations were frozen before publication; remote results remain a separate
@@ -114,7 +114,7 @@ failed log is retained. The first cProfile run passed the experiment but failed
 report export after asking the alias for an absent `__version__`; its rerun
 uses the actual package version. Neither failed tooling run is a timing sample.
 
-The [measurement record](../../packages/stridetorch/benchmarks/results/iteration-15.json)
+The [measurement record](../../packages/torchwasm/benchmarks/results/iteration-15.json)
 contains all per-batch/per-process timing samples, source hashes, numerical
 results, package identity and raw artifact attestations. Its accompanying
 `iteration-15-harness.tar.gz` contains the exact diagnostic/experimental runners
@@ -144,7 +144,7 @@ assets and both 0.15 runtime/resource profiles match byte-for-byte. LICENSE and
 NOTICE are checked in both runtime profiles. The remote observer, downloads and
 live verifier were all observed terminal before starting the next iteration.
 
-See the [remote adoption record](../../packages/stridetorch/benchmarks/results/iteration-15-remote-adoption.json)
+See the [remote adoption record](../../packages/torchwasm/benchmarks/results/iteration-15-remote-adoption.json)
 for exact run IDs/jobs, raw catalog results, Flow Matching budgets, live payload
 hashes, log attestations and process receipts. Subsequent main UI changes through
 `0a6f0ecf` preserve all 35 numerical modules and two license resources unchanged.

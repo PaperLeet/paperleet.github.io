@@ -99,7 +99,7 @@ async function denied(edit,pattern) {const f=fixture();edit(f);await assert.reje
   const ci=fs.readFileSync(path.join(__dirname,'../../.github/workflows/ci.yml'),'utf8');
   assert(!/^  pull_request:/m.test(ci)&&!/^    branches:/m.test(ci));assert.match(ci,/tags: \['v\*'\]/);
   assert.equal((ci.match(/run: node web\/scripts\/check-release-request.cjs/g)||[]).length,3);
-  assert.match(ci,/run: paperleet ci --budget 600/);assert.match(ci,/run: python -m pytest tests packages\/stridetorch\/tests -q/);assert.match(ci,/npm run check:browser-wasm/);
+  assert.match(ci,/run: paperleet ci --budget 600/);assert.match(ci,/run: python -m pytest tests packages\/torchwasm\/tests -q/);assert.match(ci,/npm run check:browser-wasm/);
   const productionBuild=ci.split('      - name: Build production Pages edition\n')[1]?.split('\n      - ')[0];
   assert(productionBuild,'The quality gate must check the production Pages edition before publication');
   const pagesBuild=workflow.split('      - name: Build public site\n')[1].split('\n      - ')[0];

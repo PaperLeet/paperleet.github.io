@@ -10,13 +10,14 @@ import './report-practice-search.css';
 export function useReportPracticeSearch({ids,topics,scope,expanded,listId,onCollapse}:{ids:readonly string[];topics:ReadonlyMap<string,ProblemTopic>;scope:string;expanded:boolean;listId:string;onCollapse:()=>void}){
  const {t}=useI18n(),root=useRef<HTMLDivElement>(null),input=useRef<HTMLInputElement>(null),composing=useRef(false),compositionLease=useRef<{scope:string;href:string}>(undefined);
  const [state,setState]=useState({scope,draft:'',query:''});
- const lease=useRef({scope,href:location.href});
+ const href=typeof location==='undefined'?'':location.href;
+ const lease=useRef({scope,href});
  // A fresh identity retires unfinished input even if the same source returns later.
- if(lease.current.scope!==scope){lease.current={scope,href:location.href};composing.current=false;}
+ if(lease.current.scope!==scope){lease.current={scope,href};composing.current=false;}
  if(state.scope!==scope)setState({scope,draft:'',query:''});
  const draft=state.scope===scope&&expanded?state.draft:'',query=state.scope===scope&&expanded?state.query.trim():'';
  const matches=reportPracticeMatches(ids,topics,query),missing=ids.filter(id=>!topics.has(id)).length;
- const canAct=()=>expanded&&activeSourcePreview(root.current)&&!root.current?.closest('details:not([open])')&&lease.current.scope===scope&&lease.current.href===location.href;
+ const canAct=()=>expanded&&typeof location!=='undefined'&&activeSourcePreview(root.current)&&!root.current?.closest('details:not([open])')&&lease.current.scope===scope&&lease.current.href===location.href;
  function change(value:string,transient=false){
   if(!canAct()||transient&&compositionLease.current!==lease.current)return;
   const next=transient?value:reportPracticeQuery(value);

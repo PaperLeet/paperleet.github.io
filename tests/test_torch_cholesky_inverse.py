@@ -2,7 +2,7 @@
 import numpy as np
 import pytest
 import torch as native
-from stridetorch import torch as lite, UnsupportedOperation
+from torchwasm import torch as lite, UnsupportedOperation
 
 
 def close(a, b, dtype):
