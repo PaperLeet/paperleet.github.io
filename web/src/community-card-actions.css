@@ -23,7 +23,8 @@
 .interview-report-card>.community-card-interaction{padding-top:4px;border-top:1px solid var(--line)}
 .card-account-recovery{padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface2)}
 .card-account-recovery p{margin:0 0 8px;line-height:1.6}
-.card-account-recovery a{margin-inline-start:14px}
+.card-account-recovery :is(button,a){display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:7px 10px}
+.card-account-recovery a{margin-inline-start:6px;color:var(--accent);text-underline-offset:3px}
 .card-comments{margin-top:12px;padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow-wrap:anywhere}
 .card-comments>header{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;font-size:var(--type-body);padding-bottom:12px;border-bottom:1px solid var(--line)}
 .card-comments>header>span{color:var(--text-secondary);font-size:var(--type-meta)}
@@ -85,9 +86,12 @@ button.card-comment-context:hover{border-inline-start-color:var(--accent);backgr
 .card-reply-form>footer small{font-size:var(--type-meta);color:var(--text-secondary);line-height:1.5}
 .card-reply-feedback{display:grid;justify-items:start;gap:5px;min-width:0}
 .card-reply-feedback>.card-posted-reply{font-size:var(--type-small);padding:4px 0}
-.card-reply-form>footer .button{flex-shrink:0;min-height:36px;font-size:var(--type-small)}
+.card-reply-form>footer .button{flex-shrink:0;min-height:44px;font-size:var(--type-control)}
 .card-comment-signin{display:block;text-align:center;font-size:var(--type-body);padding:16px 0 8px}
-.card-action-error{font-size:var(--type-small);margin-top:8px}
+.card-action-error{display:grid;gap:10px;font-size:var(--type-small);margin-top:10px}
+.card-action-error :is(.card-like-error,.card-comment-error){display:grid;gap:6px;min-width:0}
+.card-action-error :is(.card-like-error,.card-comment-error)>.text-button{justify-self:start}
+.card-action-error .social-notice{margin:0}
 @media(max-width:600px){.card-comments{padding:12px;margin-inline:-8px}.card-actions>button{min-height:44px}.card-comment-links button,.card-more-comments,.card-collapse-comments{min-height:44px}.card-reply-form>footer{align-items:flex-start;flex-direction:column}.card-reply-form>footer .button{align-self:flex-end;min-height:44px}.card-comments>header{flex-wrap:wrap}}
 @media(prefers-reduced-motion:reduce){.card-actions>button,button.card-comment-context{transition:none}}
 @media(max-width:600px){button.card-comment-context,.card-reply-feedback>.card-posted-reply{min-height:44px}}

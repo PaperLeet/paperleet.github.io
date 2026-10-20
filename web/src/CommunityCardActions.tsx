@@ -1,3 +1,4 @@
+import WritingFeedback from './WritingFeedback';
 import {TranslatedReply} from './CommunityTranslation';
 import {appLocation} from './appLocation';
 import AppLink from './AppLink';
@@ -56,9 +57,9 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
   const [postedId,setPostedId]=useState<string>();
   const [quoteNotice,setQuoteNotice]=useState<''|'added'|'exists'|'length'|'unavailable'>('');
   const quoteEdit=useRef<DraftQuote&{selection:ReplyQuoteSelection}>(undefined);
-  const [loading,setLoading]=useState(false),[loadError,setLoadError]=useState(''),[error,setError]=useState(''),[notice,setNotice]=useState('');
+  const [loading,setLoading]=useState(false),[loadError,setLoadError]=useState(''),[error,setError]=useState(''),[replyError,setReplyError]=useState(''),[notice,setNotice]=useState('');
   const [busy,setBusy]=useState<'like'|'reply'|'account'|''>(''),[pendingLike,setPendingLike]=useState<boolean>();
-  const [accountRecovery,setAccountRecovery]=useState(false);
+  const [accountRecovery,setAccountRecovery]=useState(false),[recoveryFrom,setRecoveryFrom]=useState<'like'|'reply'>('like');
   const [draft,setDraft]=useState<ReplyDraft>(()=>readReplyDraft(tabDraftStorage(),owner,initial.id)||{body:''});
   const [saved,setSaved]=useState(true),[preview,setPreview]=useState(false),[writing,setWriting]=useState(false),[focusTick,setFocusTick]=useState(0);
   const [publication,setPublication]=useState(()=>readPublication(tabDraftStorage(),owner,'reply',initial.id));
@@ -70,6 +71,7 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
   const editorView=useRef<MarkdownEditorView|undefined>(undefined);
   const minimized=useRef<{opener:HTMLElement;href:string}|undefined>(undefined),opening=useRef<{opener:Element|null;href:string;source:string;selection?:ReplyQuoteSelection;atEnd?:boolean}|undefined>(undefined),formId=fieldId+'-form';
   const closing=useRef<{opener:HTMLElement;href:string}|undefined>(undefined);
+  const replyOperationHref=useRef('');
   const retryLike=useRef<HTMLButtonElement>(null),accountFocus=useRef<{opener:Element|null;href:string}|undefined>(undefined);
   useLayoutEffect(()=>{
     const intent=closing.current;if(open||!intent)return;closing.current=undefined;
@@ -124,8 +126,8 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
     if(busy||accountLoading||accountRecovery||!accountFocus.current)return;
     const intent=accountFocus.current;accountFocus.current=undefined;
     if(location.href!==intent.href||document.activeElement!==intent.opener&&!(document.activeElement===document.body&&!intent.opener?.isConnected))return;
-    (retryLike.current||(writing?(!preview?textarea.current:toggle.current):composePrompt.current)||toggle.current)?.focus({preventScroll:true});
-  },[busy,accountLoading,accountRecovery,preview,writing]);
+    ((recoveryFrom==='like'?retryLike.current:undefined)||(writing?(!preview?textarea.current:toggle.current):composePrompt.current)||toggle.current)?.focus({preventScroll:true});
+  },[busy,accountLoading,accountRecovery,preview,writing,recoveryFrom]);
   async function load(){
     const version=++readVersion.current;
     request.current?.abort();const controller=new AbortController();request.current=controller;
@@ -204,11 +206,11 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
     if(replyEdit||!operation||working.current||busy||accountLoading||accountRecovery||!canShare()||canAct?.()===false||!controlIsActive(trigger)||!sameReplyDraft(operation.after,current.current))return;
     edit({body:operation.before.body,parentId:operation.before.parentId});quoteEdit.current=undefined;setWriting(true);setPreview(false);focusReply(operation.selection);
   }
-  async function reportFailure(e:unknown){
+  async function reportFailure(e:unknown,operation:'like'|'reply'){
     if(!mounted.current)return;
-    setError(errorMessage(e));
+    (operation==='reply'?setReplyError:setError)(errorMessage(e));
     if(e instanceof SocialError&&(e.status===401||e.code==='account_changed')){
-      setAccountRecovery(true);
+      setRecoveryFrom(operation);setAccountRecovery(true);
       try{await refreshAccount();if(mounted.current)setAccountRecovery(false);}
       catch{/* Keep the saved draft and show explicit sign-in/account recovery controls. */}
     }
@@ -219,7 +221,7 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
     accountFocus.current={opener:document.activeElement,href:location.href};
     working.current=true;setBusy('account');
     try{await refreshAccount();if(mounted.current)setAccountRecovery(false);}
-    catch(e){if(mounted.current)setError(errorMessage(e));}
+    catch(e){if(mounted.current)(recoveryFrom==='reply'?setReplyError:setError)(errorMessage(e));}
     finally{working.current=false;if(mounted.current)setBusy('');}
   }
   async function like(active:boolean){
@@ -230,13 +232,13 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
       const value=await socialApi<Post>(`${path}/like`,{active,expected_user_id:owner},AbortSignal.timeout(20_000));
       if(value.id!==initial.id||value.viewer.liked!==active||!Number.isSafeInteger(value.counts.likes))throw Error(t('点赞状态尚未确认，请重试。','The like state is unconfirmed. Please retry.'));
       if(mounted.current){setPost(value);setPendingLike(undefined);}
-    }catch(e){if(mounted.current)setPendingLike(active);await reportFailure(e);}
+    }catch(e){if(mounted.current)setPendingLike(active);await reportFailure(e,'like');}
     finally{working.current=false;if(mounted.current)setBusy('');}
   }
   async function publish(previous?:PublicationReceipt){
     const submitted={...current.current};
     if(replyEdit||!owner||!canPublish||!writing||working.current||accountLoading||accountRecovery||loading||!detail||!previous&&(!submitted.body.trim()||submitted.parentId&&!detail.replies.some(row=>row.id===submitted.parentId)))return;
-    working.current=true;setBusy('reply');setError('');setNotice('');
+    replyOperationHref.current=location.href;working.current=true;setBusy('reply');setReplyError('');setNotice('');
     try{
       const pending=preparePublication(tabDraftStorage(),owner,'reply',initial.id,previous?.payload||replyPublication(submitted),previous);
       setPublication(pending);
@@ -252,12 +254,16 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
       if(sendsCurrent&&sameReplyDraft(current.current,submitted)){current.current={body:''};setDraft(current.current);setSaved(true);setPreview(false);setQuoteNotice('');quoteEdit.current=undefined;}
       setNotice(t('回复已发布。','Reply posted.'));
       setPostedId(row.id);
-    }catch(e){await reportFailure(e);}
+    }catch(e){await reportFailure(e,'reply');}
     finally{working.current=false;if(mounted.current)setBusy('');}
   }
   const editingRow=replyEdit?detail?.replies.find(row=>row.id===replyEdit.id):undefined;
   const target=draft.parentId?detail?.replies.find(row=>row.id===draft.parentId):undefined;
   const missingTarget=!!draft.parentId&&!!detail&&!target;
+  const replyFeedbackVisible=open&&writing&&!replyEdit&&!accountLoading&&!!owner&&!!user;
+  const inlineAccountRecovery=replyFeedbackVisible&&recoveryFrom==='reply';
+  const accountRecoveryControls=accountRecovery&&<div className="card-account-recovery"><p>{t('账号状态尚未确认，草稿已保留。确认账号后可重试原操作。','Your account is unconfirmed. Your draft is kept. Confirm your account before retrying.')}</p><button type="button" className="text-button" disabled={!!busy} onClick={()=>void confirmAccount()}>{t('刷新账号','Refresh account')}</button><AppLink href={signInHref(returnTo||'community')}>{t('重新登录','Sign in again')}</AppLink></div>;
+  const replyErrorId=fieldId+'-publication-error';
   return <div ref={card} className="community-card-interaction">
     <div className="post-card-counts card-actions">
       <button ref={toggle} type="button" onClick={expand} aria-expanded={open} aria-controls={regionId} disabled={accountLoading}>
@@ -274,7 +280,11 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
       {showActivity&&post.last_reply_at&&<span className="post-card-activity">{t('最近回复','Last reply')} <DateLabel value={post.last_reply_at}/></span>}
       {children&&<div className="card-actions-extras">{children}</div>}
     </div>
-    {error&&<div className="card-action-error"><SocialNotice error={error}/>{accountRecovery&&<div className="card-account-recovery"><p>{t('账号状态尚未确认，草稿已保留。确认账号后可重试原操作。','Your account is unconfirmed. Your draft is kept. Confirm your account before retrying.')}</p><button type="button" className="text-button" disabled={!!busy} onClick={()=>void confirmAccount()}>{t('刷新账号','Refresh account')}</button><AppLink href={signInHref(returnTo||'community')}>{t('重新登录','Sign in again')}</AppLink></div>}{pendingLike!==undefined&&<button ref={retryLike} type="button" className="text-button" disabled={!!busy||loading||accountRecovery} onClick={()=>void like(pendingLike)}>{t('重试原点赞操作','Retry like action')}</button>}</div>}
+    {(error||replyError&&!replyFeedbackVisible||accountRecovery&&!inlineAccountRecovery)&&<div className="card-action-error">
+      {error&&<div className="card-like-error"><SocialNotice error={error}/>{pendingLike!==undefined&&<button ref={retryLike} type="button" className="text-button" disabled={!!busy||loading||accountRecovery} onClick={()=>void like(pendingLike)}>{t('重试原点赞操作','Retry like action')}</button>}</div>}
+      {replyError&&!replyFeedbackVisible&&<div className="card-comment-error"><SocialNotice error={replyError}/><button type="button" className="text-button" aria-controls={formId} disabled={!!replyEdit||!!busy||accountLoading||accountRecovery} onClick={event=>{if(location.href===replyOperationHref.current&&canShare()&&canAct?.()!==false&&controlIsActive(event.currentTarget))writeComment();}}>{t('继续处理评论','Review comment')}</button></div>}
+      {!inlineAccountRecovery&&accountRecoveryControls}
+    </div>}
     {open&&<section id={regionId} ref={replies.root} tabIndex={-1} className="card-comments" aria-label={t('评论预览','Comment preview')} aria-keyshortcuts="Escape" onKeyDown={event=>{
       if(event.key!=='Escape'||event.defaultPrevented||event.repeat||event.nativeEvent.isComposing||event.nativeEvent.keyCode===229||event.altKey||event.ctrlKey||event.metaKey||event.shiftKey)return;
       const active=document.activeElement;
@@ -312,9 +322,12 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
         {draft.parentId&&<div className="reply-target"><span>{t('回复','Replying to')} {target?.author.anonymous?t('匿名用户','Anonymous'):target?.author.display_name||t('原评论','original comment')}</span><button type="button" className="icon-button" aria-label={t('取消指定回复','Cancel reply target')} disabled={!!busy} onClick={()=>edit({parentId:undefined})}><X size={14}/></button></div>}
         {missingTarget&&<SocialNotice error={t('原评论已不可用，请取消指定回复后再发布。草稿已保留。','The original comment is unavailable. Cancel the reply target before posting. Your draft is kept.')}/>}
         <MarkdownEditor scopeKey={JSON.stringify(['inline-reply',owner,initial.id])} submitShortcut textareaRef={textarea} viewStateRef={editorView} id={fieldId} label={t('写评论','Write a comment')} modeLabel={t('评论编辑模式','Comment editor mode')} value={draft.body} onChange={body=>edit({body})} rows={3} maxLength={10000} busy={!!busy} disabled={accountRecovery} preview={preview} onPreviewChange={value=>{setPreview(value);if(!value)focusReply();}} placeholder={t('写下你的想法…','Share your thoughts…')}/>
-        <PublicationRecovery pending={publication} payload={replyPublication(draft)} busy={!!busy||loading||accountRecovery} disabled={!canPublish} onRetry={()=>void publish(publication?.receipt)}/>
         <PublishingRules action="reply"/>
-        <footer><div className="card-reply-feedback"><small role="status">{!saved?t('草稿未能保存，离开前请复制内容。','Draft could not be saved. Copy it before leaving.'):notice|| (hasReplyDraft(draft)?t('草稿已保存，可在完整讨论中继续编辑。','Draft saved. Continue editing in the full discussion.'):t('折叠评论不会丢失草稿。','Collapsing keeps your draft.'))}</small>{postedId&&replies.byId.has(postedId)&&<button type="button" className="text-button card-posted-reply" disabled={loading||accountLoading||!!loadError} onClick={event=>revealComment(postedId,event.currentTarget)}>{t('查看刚发布的评论','View your posted comment')}</button>}</div><button className="button" disabled={!!busy||!canPublish||accountRecovery||loading||!detail||!!loadError||!draft.body.trim()||missingTarget}>{busy==='reply'?t('发布中…','Posting…'):publication?samePublication(publication.receipt,replyPublication(draft))?t('重试发布','Retry publication'):t('作为新内容发布','Publish as new content'):t('发布评论','Post comment')}</button></footer>
+        {(replyError||publication||accountRecovery&&inlineAccountRecovery)&&<WritingFeedback error={replyFeedbackVisible?replyError:undefined} errorId={replyErrorId}>
+          {inlineAccountRecovery&&accountRecoveryControls}
+          <PublicationRecovery pending={publication} payload={replyPublication(draft)} busy={!!busy||loading||accountRecovery} disabled={!canPublish} onRetry={()=>void publish(publication?.receipt)}/>
+        </WritingFeedback>}
+        <footer><div className="card-reply-feedback"><small role="status">{!saved?t('草稿未能保存，离开前请复制内容。','Draft could not be saved. Copy it before leaving.'):notice|| (hasReplyDraft(draft)?t('草稿已保存，可在完整讨论中继续编辑。','Draft saved. Continue editing in the full discussion.'):t('折叠评论不会丢失草稿。','Collapsing keeps your draft.'))}</small>{postedId&&replies.byId.has(postedId)&&<button type="button" className="text-button card-posted-reply" disabled={loading||accountLoading||!!loadError} onClick={event=>revealComment(postedId,event.currentTarget)}>{t('查看刚发布的评论','View your posted comment')}</button>}</div><button className="button" aria-describedby={replyFeedbackVisible&&replyError?replyErrorId:undefined} disabled={!!busy||!canPublish||accountRecovery||loading||!detail||!!loadError||!draft.body.trim()||missingTarget}>{busy==='reply'?t('发布中…','Posting…'):publication?samePublication(publication.receipt,replyPublication(draft))?t('重试发布','Retry publication'):t('作为新内容发布','Publish as new content'):t('发布评论','Post comment')}</button></footer>
       </form></>:<AppLink className="card-comment-signin" href={signInHref(returnTo||'community')}>{t('登录后参与评论','Sign in to comment')}</AppLink>}
       <button type="button" className="card-collapse-comments" aria-keyshortcuts="Escape" title={t('收起评论（Esc）','Collapse comments (Esc)')} onClick={event=>dismissComments(event.currentTarget)}><ChevronUp size={14} aria-hidden="true"/>{t('收起评论','Collapse comments')}</button>
     </section>}
