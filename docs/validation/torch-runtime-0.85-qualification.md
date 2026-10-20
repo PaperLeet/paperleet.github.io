@@ -62,3 +62,13 @@ Core qualification uses source base `d8012b46` with separately hash-bound fresh
 exports. Later main updates require their own integration qualification before
 adoption. No Actions dispatch, tag, package publication or site deployment was
 performed by this qualification.
+
+Main subsequently advanced to `31f26cd4`, adding 24 frontend, font and search/
+paging paths. Those changes are preserved, including new saved-page recovery
+tests. The merge retains separate exact assertions for result range and page
+total. All 78 public resources, 95 SDK files and 183 active exports remain
+identical to core qualification. Twelve affected and related frontend checks,
+both builds, immutable asset copies, generated Worker and actual nested Worker
+pass on combined source base `8c196845`. The
+[current-main integration record](../../packages/stridetorch/benchmarks/results/qualification-0.85-current-main.json)
+and its raw archive preserve that later qualification separately.
