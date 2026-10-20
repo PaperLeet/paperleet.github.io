@@ -88,14 +88,18 @@ def update(root, source, revision):
     before = {name: (package / name).read_bytes() for name in previous["files"]}
     old_lock = (root / LOCK).read_bytes()
     touched = set()
+    temporary_paths = set()
     try:
         for name, data in files.items():
             path = package / name
             if before.get(name) == data:
                 continue
             path.parent.mkdir(parents=True, exist_ok=True)
-            temporary = path.with_name(path.name + ".runtime-update")
-            temporary.write_bytes(data)
+            with tempfile.NamedTemporaryFile(dir=path.parent, prefix=".runtime-update-", delete=False) as output:
+                temporary = Path(output.name)
+                temporary_paths.add(temporary)
+                output.write(data)
+            temporary.chmod(0o644)
             temporary.replace(path)
             touched.add(name)
         for name in previous["files"].keys() - files.keys():
@@ -113,8 +117,8 @@ def update(root, source, revision):
         (root / LOCK).write_bytes(old_lock)
         raise
     finally:
-        for name in files:
-            (package / name).with_name(Path(name).name + ".runtime-update").unlink(missing_ok=True)
+        for temporary in temporary_paths:
+            temporary.unlink(missing_ok=True)
     return len(touched)
 
 
