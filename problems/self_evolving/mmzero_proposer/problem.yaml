@@ -1,0 +1,76 @@
+id: self_evolving/mmzero_proposer
+number: 112
+title: MM-Zero 视觉课程奖励
+title_en: MM-Zero Visual Curriculum Rewards
+paper_id: mm-zero
+paper:
+  title: 'MM-Zero: Self-Evolving Multi-Model Vision Language Models From Zero Data'
+  authors: Zongxia Li, Hongyang Du, Chengsong Huang et al.
+  venue: arXiv 2026
+  arxiv: '2603.09206'
+  url: https://arxiv.org/abs/2603.09206
+  anchors:
+  - 'Section 2.4, Eqs. 4–10: execution gating, score balance and diversity'
+  official_code: https://github.com/zli12321/MM-Zero
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: diversity_adjustment
+  signature: 'diversity_adjustment(shares: Tensor, valid_count: int, strength: float=0.5)
+    -> Tensor'
+- name: proposal_rewards
+  signature: 'proposal_rewards(executed: Tensor, easy_accuracy: Tensor, consistency:
+    Tensor, adjustments: Tensor, valid: Tensor) -> Tensor'
+module:
+  goal: MM-Zero 视觉课程奖励
+  goal_en: MM-Zero Visual Curriculum Rewards
+  scope: 聚合成功与失败的渲染反馈，计算提案奖励和多样性调整。
+  scope_en: Aggregate successful and failed render feedback with proposal and diversity rewards.
+  required_functions:
+  - diversity_adjustment
+  - proposal_rewards
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: CPU float32/float64; long IDs; bool masks.
+  contract: Finite inputs; no mutation. Starter docstrings define shapes, endpoints,
+    ties and gradient ownership.
+tests:
+  T0: 1
+  T1: 1
+  T2: 3
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+tags:
+- Self-Evolution
+- Self-Play
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-20'
+verified_sources:
+  checked_at: '2026-10-20'
+  links:
+  - https://arxiv.org/abs/2603.09206
+  - https://github.com/zli12321/MM-Zero
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2603.09206
+  anchor: 'Section 2.4, Eqs. 4–10: execution gating, score balance and diversity'
+  adaptation: A deterministic CPU toy policy trained with the submitted reward or
+    filtering function; not an LLM/VLM reproduction.
+mutants:
+- id: m1_cap
+  bug: Do not cap easy-question solvability.
+- id: m2_uncertainty
+  bug: Double the difficulty score.
+- id: m3_execution
+  bug: Count failed render scores.
+- id: m4_invalid
+  bug: Use zero for invalid proposals.
+- id: m5_diversity
+  bug: Reward repetition instead of diversity.

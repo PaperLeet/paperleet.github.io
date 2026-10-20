@@ -890,3 +890,62 @@ papers:
     scope_en: Parameter perturbation, expert selection and majority voting.
     module_ids:
     - finetuning/neural_thickets
+  - id: r-zero
+    number: 74
+    category: post-training
+    short_title: R-Zero
+    year: 2025
+    tags:
+    - Self-Evolution
+    - Self-Play
+    summary: 文本出题者与解题者交替进化。
+    summary_en: Co-evolve a text challenger and solver.
+    scope: R-Zero 出题奖励；R-Zero 伪标签与课程
+    scope_en: R-Zero Challenger Rewards; R-Zero Pseudo-Labels and Curriculum
+    module_ids:
+    - self_evolving/rzero_rewards
+    - self_evolving/rzero_curriculum
+  - id: g-zero
+    number: 75
+    category: post-training
+    short_title: G-Zero
+    year: 2026
+    tags:
+    - Self-Evolution
+    - Self-Play
+    summary: 以提示概率差驱动开放式自演化。
+    summary_en: Drive open-ended self-play with hint-induced probability shifts.
+    scope: G-Zero 提示概率差；G-Zero 偏好样本筛选
+    scope_en: G-Zero Hint-Delta; G-Zero Preference Curation
+    module_ids:
+    - self_evolving/gzero_hint
+    - self_evolving/gzero_pairs
+  - id: visplay
+    number: 76
+    category: post-training
+    short_title: VisPlay
+    year: 2025
+    tags:
+    - Self-Evolution
+    - Self-Play
+    summary: 从无标注图像构造视觉课程。
+    summary_en: Build a visual curriculum from unlabeled images.
+    scope: VisPlay 图像分组奖励
+    scope_en: VisPlay Image-Grouped Rewards
+    module_ids:
+    - self_evolving/visplay_rewards
+  - id: mm-zero
+    number: 77
+    category: post-training
+    short_title: MM-Zero
+    year: 2026
+    tags:
+    - Self-Evolution
+    - Self-Play
+    summary: 出题、渲染、解题三个角色共同演化。
+    summary_en: Co-evolve proposer, renderer and multimodal solver.
+    scope: MM-Zero 视觉课程奖励；MM-Zero 编码与解题反馈
+    scope_en: MM-Zero Visual Curriculum Rewards; MM-Zero Coder and Solver Feedback
+    module_ids:
+    - self_evolving/mmzero_proposer
+    - self_evolving/mmzero_feedback

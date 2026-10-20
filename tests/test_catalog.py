@@ -141,9 +141,23 @@ def test_split_index_omits_heavy_content_and_links_immutable_details(tmp_path, m
         {**item, "starter": sources[item["id"]]} for item in compact["problems"]]}
     del restored["starters"]
     assert restored == index, "Transport compaction must not modify source, paper or grading metadata"
+    latest_path = full_path.parent / "index-v4.json"
+    latest = json.loads(latest_path.read_text())
+    assert latest["schema_version"] == 4
+    packed = json.loads(gzip.decompress(base64.b64decode(latest["payload"]["data"])))
+    def unpack(value):
+        if isinstance(value, list):
+            return [unpack(item) for item in value]
+        if isinstance(value, dict):
+            shape, items = next(iter(value.items()))
+            return dict(zip(packed["shapes"][int(shape)], map(unpack, items)))
+        return value
+    assert unpack(packed["tree"]) == index
+    latest_before = latest_path.read_bytes()
     before = compact_path.read_bytes()
     export_catalog()
     assert compact_path.read_bytes() == before, "The source transport is reproducible"
+    assert latest_path.read_bytes() == latest_before, "The complete compact transport is reproducible"
     (folder / "solution.py").write_text("updated reference source")
     export_catalog()
     updated = json.loads(index_path.read_text())["problems"][0]

@@ -8,9 +8,11 @@ try {
   const { loadProblemDetail } = await server.ssrLoadModule("/src/catalogData.ts");
   const {decodeCatalogIndex,loadCatalogIndex}=await server.ssrLoadModule('/src/catalogIndex.ts');
   const { parseJob, requestJob, watchJob, pollDelay } = await server.ssrLoadModule("/src/judgeJobs.ts");
-  const indexSource=fs.readFileSync('public/data/index-v3.json','utf8');
-  const compact=JSON.parse(indexSource);
-  const index = await decodeCatalogIndex(compact);
+  const indexSource=fs.readFileSync('public/data/index-v4.json','utf8');
+  const latest=JSON.parse(indexSource);
+  const compact=JSON.parse(fs.readFileSync('public/data/index-v3.json','utf8'));
+  const index = await decodeCatalogIndex(latest);
+  assert.deepEqual(await decodeCatalogIndex(compact),index,'Already-open v3 clients retain the identical catalog');
   const legacy=JSON.parse(fs.readFileSync('public/data/index.json','utf8'));
   assert.deepEqual(index,legacy,'The transport preserves every starter byte, paper field and progress comparison');
   const summary = index.problems[0];
@@ -18,14 +20,18 @@ try {
   assert(gzipSync(indexSource).length < 96 * 1024, "The homepage index has a 96 KB gzip budget");
   assert.deepEqual(await decodeCatalogIndex([]),{problems:[],papers:[]});assert.deepEqual(await decodeCatalogIndex({problems:legacy.problems}),{problems:legacy.problems,papers:[]},'Legacy module-only consumers keep their established model');
   const urls=[];
-  assert.deepEqual(await loadCatalogIndex('/preview/',async(url,options)=>{urls.push(url);assert.equal(options.cache,'no-cache');return Response.json(compact);}),legacy);
-  assert.deepEqual(urls,['/preview/data/index-v3.json'],'The actual homepage request uses the bounded compact manifest');
+  assert.deepEqual(await loadCatalogIndex('/preview/',async(url,options)=>{urls.push(url);assert.equal(options.cache,'no-cache');return Response.json(latest);}),legacy);
+  assert.deepEqual(urls,['/preview/data/index-v4.json'],'The actual homepage request uses the bounded compact manifest');
   const fallback=[];
-  assert.deepEqual(await loadCatalogIndex('/old/',async url=>{fallback.push(url);return url.endsWith('index-v3.json')?new Response('',{status:404}):Response.json(legacy);}),legacy);
-  assert.deepEqual(fallback,['/old/data/index-v3.json','/old/data/index.json']);
+  assert.deepEqual(await loadCatalogIndex('/old/',async url=>{fallback.push(url);return url.endsWith('index-v4.json')?new Response('',{status:404}):Response.json(legacy);}),legacy);
+  assert.deepEqual(fallback,['/old/data/index-v4.json','/old/data/index.json']);
   const decompressor=globalThis.DecompressionStream;
   try{globalThis.DecompressionStream=undefined;const reads=[];assert.deepEqual(await loadCatalogIndex('/compat/',async url=>{reads.push(url);return Response.json(legacy);}),legacy);assert.deepEqual(reads,['/compat/data/index.json'],'Browsers without the native decoder retain their established source and progress behavior');}finally{globalThis.DecompressionStream=decompressor;}
   for(const invalid of [null,{}, {...compact,schema_version:999}, {...compact,starters:{...compact.starters,encoding:'unknown'}}, {...compact,starters:{...compact.starters,bytes:1}}, {...compact,starters:{...compact.starters,bytes:3*1024*1024}}, {...compact,starters:{...compact.starters,data:'not a gzip body'}}, {...compact,problems:[...compact.problems,compact.problems[0]]}, {...compact,problems:compact.problems.map((row,i)=>i?row:{...row,id:'wrong/module'})}, {...compact,problems:compact.problems.map((row,i)=>i?row:{...row,starter:'competing source'})}])await assert.rejects(decodeCatalogIndex(invalid),'Malformed or oversized source transports cannot initialize an editor');
+  const wire=packed=>{const bytes=Buffer.from(JSON.stringify(packed));return {schema_version:4,payload:{encoding:'gzip-base64',bytes:bytes.length,data:gzipSync(bytes).toString('base64')}};};
+  for(const malformed of [null,{}, {tree:{'1':[]},shapes:[[]]}, {tree:{'0':[]},shapes:[['x']]}, {tree:{'0':[1,2]},shapes:[['x','x']]}, {tree:{'wrong':[]},shapes:[[]]}, {tree:{'0':[],'1':[]},shapes:[[]]}, {tree:{'0':[]},shapes:Array.from({length:257},()=>[])}])await assert.rejects(decodeCatalogIndex(wire(malformed)));
+  for(const payload of [{...latest.payload,bytes:1},{...latest.payload,bytes:3*1024*1024},{...latest.payload,encoding:'unknown'},{...latest.payload,data:'not gzip'}])await assert.rejects(decodeCatalogIndex({...latest,payload}));
+  const nested=[];let cursor=nested;for(let i=0;i<35;i++){const next=[];cursor.push(next);cursor=next;}await assert.rejects(decodeCatalogIndex(wire({shapes:[],tree:nested})),'Transport nesting is bounded');
   await assert.rejects(loadCatalogIndex('/',async()=>new Response('',{status:500})),/Catalog unavailable/);
   for (const item of index.problems) {
     assert(!item.readme && !item.notes && !item.solution && !item.vizData);

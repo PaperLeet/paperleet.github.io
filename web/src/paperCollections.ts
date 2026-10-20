@@ -24,6 +24,12 @@ export const paperCollections: PaperCollection[] = [
     paperIds: ["transformer", "rmsnorm", "roformer", "gqa", "adamw", "flash-attention", "lora", "kimi-k3", "glm-5", "es-at-scale", "neural-thickets"],
   },
   {
+    id: "self-evolving",
+    name: "自演化",
+    name_en: "Self-Evolving",
+    paperIds: ["r-zero", "g-zero", "visplay", "mm-zero"],
+  },
+  {
     id: "retrieval",
     name: "检索与推荐",
     name_en: "Retrieval",
