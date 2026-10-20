@@ -1,4 +1,5 @@
-.discussion-reading { min-width:0; }
+.discussion-reading { container:discussion-reader / inline-size; min-width:0; }
+.discussion-reading-layout { min-width:0; }
 .discussion-reading-body { min-width:0; }
 .discussion-outline { margin:0 0 24px; border:1px solid var(--line); border-radius:9px; background:var(--surface2); color:var(--text-secondary); }
 .discussion-outline > summary { display:flex; align-items:center; gap:8px; min-height:44px; padding:10px 12px; cursor:pointer; list-style:none; font-size:var(--type-small); }
@@ -16,9 +17,15 @@
 .discussion-outline button:focus-visible,.discussion-outline summary:focus-visible { outline:2px solid var(--accent); outline-offset:-2px; }
 .discussion-section-heading { scroll-margin-top:100px; }
 .discussion-section-heading:focus-visible { outline:2px solid var(--accent); outline-offset:5px; border-radius:3px; }
-@media (min-width:1200px) { .discussion-reading.has-outline { display:grid; grid-template-columns:minmax(0,1fr) 170px; gap:24px; align-items:start; } .discussion-reading.has-outline > .discussion-outline { grid-column:2; grid-row:1; position:sticky; top:88px; } .discussion-reading.has-outline > .discussion-reading-body { grid-column:1; grid-row:1; } .discussion-outline nav { max-height:min(420px,calc(100vh - 190px)); } }
+@container discussion-reader (min-width:880px) {
+ .discussion-reading.has-outline:not(.is-compact)>.discussion-reading-layout { display:grid; grid-template-columns:minmax(0,1fr) clamp(220px,25cqw,280px); gap:24px; align-items:start; }
+ .discussion-reading.has-outline:not(.is-compact)>.discussion-reading-layout>.discussion-outline { grid-column:2; grid-row:1; position:sticky; top:88px; }
+ .discussion-reading.has-outline:not(.is-compact)>.discussion-reading-layout>.discussion-reading-body { grid-column:1; grid-row:1; }
+ .discussion-reading:not(.is-compact)>.discussion-reading-layout>.discussion-outline nav { max-height:min(420px,calc(100dvh - 190px)); }
+ .discussion-reading:not(.is-compact)>.discussion-reading-layout>.discussion-outline:has(.discussion-outline-tools) nav { max-height:min(420px,calc(100dvh - 280px)); }
+}
 .discussion-reading.is-compact.has-outline { display:block; }
-.discussion-reading.is-compact.has-outline>.discussion-outline { position:static; margin:0 0 20px; }
+.discussion-reading.is-compact.has-outline>.discussion-reading-layout>.discussion-outline { position:static; margin:0 0 20px; }
 .discussion-reading.is-compact .discussion-outline nav { max-height:220px; }
 @media (pointer:coarse) { .discussion-outline li button { min-height:44px; } }
 @media (prefers-reduced-motion:reduce) { .discussion-outline > summary > svg:last-child { transition:none; } }
@@ -35,5 +42,3 @@
 .discussion-outline-empty { padding:10px 12px; border-top:1px solid var(--line); font-size:var(--type-small); line-height:1.6; }
 .discussion-outline-empty>button { min-height:40px; margin-top:5px; color:var(--accent); }
 @media(pointer:coarse) { .discussion-outline-filter,.discussion-outline-filter button,.discussion-outline-empty>button { min-height:44px; } .discussion-outline-filter button { width:44px; } }
-
-@media (min-width:1200px) { .discussion-reading:not(.is-compact)>.discussion-outline:has(.discussion-outline-tools) nav { max-height:min(420px,calc(100dvh - 280px)); } }
