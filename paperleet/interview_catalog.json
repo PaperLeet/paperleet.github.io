@@ -104,6 +104,12 @@
       "initials": "T"
     },
     {
+      "id": "huggingface",
+      "name": "Hugging Face",
+      "name_en": "Hugging Face",
+      "initials": "HF"
+    },
+    {
       "id": "other",
       "name": "其他公司",
       "name_en": "Other companies",
@@ -594,6 +600,39 @@
       "url": "https://www.tensorflow.org/tutorials/generative/cvae",
       "description": "对照 TensorFlow 官方卷积 VAE 教程阅读高斯后验、重参数化、Bernoulli 重建项与蒙特卡洛 ELBO 估计。",
       "description_en": "Read Gaussian posteriors, reparameterization, Bernoulli reconstruction and Monte Carlo ELBO estimation in TensorFlow’s official convolutional VAE tutorial.",
+      "checked": "2026-10-20",
+      "kind": "technical"
+    },
+    {
+      "id": "huggingface-careers",
+      "company": "huggingface",
+      "name": "Hugging Face 官方招聘入口",
+      "name_en": "Hugging Face careers",
+      "url": "https://apply.workable.com/huggingface/",
+      "description": "从 Hugging Face 官方网站链接进入招聘页，核对岗位职责、工作地点与申请条件；职位信息以原站为准。",
+      "description_en": "Follow the careers destination linked by Hugging Face’s official website. Review role requirements, locations and application details on the original site.",
+      "checked": "2026-10-20",
+      "kind": "careers"
+    },
+    {
+      "id": "huggingface-diffusion-course",
+      "company": "huggingface",
+      "name": "扩散模型入门：从玩具去噪到 DDPM",
+      "name_en": "Diffusion fundamentals: from toy denoising to DDPM",
+      "url": "https://huggingface.co/learn/diffusion-course/en/unit1/3",
+      "description": "通过 Hugging Face 官方课程比较玩具扰动与 DDPM 噪声日程、干净样本与噪声预测目标，以及训练和采样的不同角色。",
+      "description_en": "Compare toy corruption with DDPM noise schedules, clean-sample and noise-prediction objectives, and the different roles of training and sampling in Hugging Face’s official course.",
+      "checked": "2026-10-20",
+      "kind": "technical"
+    },
+    {
+      "id": "huggingface-ddim-scheduler",
+      "company": "huggingface",
+      "name": "Diffusers DDIM：预测约定、时间步与随机性",
+      "name_en": "Diffusers DDIM: prediction types, timesteps and stochasticity",
+      "url": "https://huggingface.co/docs/diffusers/en/api/schedulers/ddim",
+      "description": "阅读 Hugging Face 官方 DDIMScheduler 文档，核对预测类型、训练与推理时间步、eta、显式方差噪声及干净终点选项。",
+      "description_en": "Read the official DDIMScheduler reference for prediction types, training and inference timesteps, eta, explicit variance noise and the clean-endpoint option.",
       "checked": "2026-10-20",
       "kind": "technical"
     }

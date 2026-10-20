@@ -17,11 +17,11 @@ try{
   assert.equal(interviewCatalog.resources.find(row=>row.id===id)?.kind,'technical');assert(entry.modules.length>0&&entry.modules.length<=3);assert.equal(new Set(entry.modules).size,entry.modules.length);
   const actual=model.resolveResourcePractice(id,modules);assert.equal(actual.missing,0);assert.deepEqual(actual.modules.map(row=>row.id),entry.modules);assert(actual.modules.every(row=>modules.includes(row)));
  }
- assert.equal(Object.keys(model.resourcePractice).length,10);assert.equal(model.resolveResourcePractice('anthropic-effective-agents',modules),undefined);assert.equal(model.resolveResourcePractice('toString',modules),undefined);
+ assert.equal(Object.keys(model.resourcePractice).length,12);assert.equal(model.resolveResourcePractice('anthropic-effective-agents',modules),undefined);assert.equal(model.resolveResourcePractice('toString',modules),undefined);
  const next=modules.find(row=>row.id==='foundations/next_token_loss'),attention=modules.find(row=>row.id==='architecture/attention');assert(next&&attention);
  assert.equal(model.resolveResourcePractice('google-ml-crash-course',[next,next,attention]).missing,1);assert.equal(model.resolveResourcePractice('google-ml-crash-course',[next,{...attention,number:next.number}]).modules.length,0);
  for(const number of [0,-1,1.5,NaN,Infinity])assert.equal(model.resolveResourcePractice('google-ml-crash-course',[{...next,number},attention]).missing,1);
- console.log('PASS resource practice catalog: ten explicitly curated technical-source connections resolve only published unique modules; absent agent curricula,unknown/prototype IDs,duplicate identities/numbers and invalid route numbers never produce invented links');
+ console.log('PASS resource practice catalog: twelve explicitly curated technical-source connections resolve only published unique modules; absent agent curricula,unknown/prototype IDs,duplicate identities/numbers and invalid route numbers never produce invented links');
  let owner='alice',company='google',problems=modules,error='',retries=0,locale,submits=0;
  const filters={...nav.emptyInterviewFilters(),company:'google',role:'llm',stage:'technical',days:'90',sort:'helpful',page:3,view:'companies',q:'模型 loss',saved:true,outcome:'offer',location:'Bay Area',month_from:'2026-01',month_to:'2026-09'},origin=nav.interviewHref(filters);
  window.history.replaceState(null,'',origin);
