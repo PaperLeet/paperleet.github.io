@@ -27,7 +27,7 @@ def _write_bundle(output, prefix, bundle):
     name = f"browser-judge/{prefix}-{hashlib.sha256(raw.encode()).hexdigest()[:20]}.json"
     path = output / name
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(raw)
+    path.write_text(raw, encoding="utf-8")
     return name
 
 
@@ -38,16 +38,16 @@ def export_browser_bundle(entry, output):
     repository, directory = root(), entry["directory"]
     relative = directory.relative_to(repository).as_posix()
     tests = sorted((directory / "tests").glob("test_*.py"))
-    files = {f"{relative}/tests/{test.name}": test.read_text() for test in tests}
+    files = {f"{relative}/tests/{test.name}": test.read_text(encoding="utf-8") for test in tests}
     experiment = directory / "experiment.py"
     if experiment.exists():
-        files[f"{relative}/experiment.py"] = experiment.read_text()
+        files[f"{relative}/experiment.py"] = experiment.read_text(encoding="utf-8")
     toy = directory / 'toy.py'
     if toy.exists():
-        files[f"{relative}/toy.py"] = toy.read_text()
+        files[f"{relative}/toy.py"] = toy.read_text(encoding="utf-8")
     package = Path(__file__).resolve().parent
-    files["paperleet/common/asserts.py"] = (package / "common/asserts.py").read_text()
-    files["paperleet/common/comparisons.py"] = (package / "common/comparisons.py").read_text()
+    files["paperleet/common/asserts.py"] = (package / "common/asserts.py").read_text(encoding="utf-8")
+    files["paperleet/common/comparisons.py"] = (package / "common/comparisons.py").read_text(encoding="utf-8")
     for name in config['resources']:
         # Common helpers belong to the installed runtime package; problem data
         # belongs to PAPERLEET_ROOT, which may deliberately link a catalog tree.
@@ -67,8 +67,8 @@ def export_browser_bundle(entry, output):
         "version": 1, "backend": backend,
         "files": {**{name: files.pop(name) for name in SHARED_FILES},
                   **source_files('schedules' if backend == 'numpy-wasm' else 'autograd')},
-        "adapter": (browser / BACKENDS[backend]).read_text(),
-        "harness": (browser / "harness.py").read_text(),
+        "adapter": (browser / BACKENDS[backend]).read_text(encoding="utf-8"),
+        "harness": (browser / "harness.py").read_text(encoding="utf-8"),
     }
     runtime_url = _write_bundle(output, "runtime", runtime)
     if not tests: raise ValueError(f"{entry['id']}: browser suites require at least one test file")
@@ -76,7 +76,7 @@ def export_browser_bundle(entry, output):
               "test_file": f"{relative}/tests/{tests[0].name}",
               "test_files": [f"{relative}/tests/{test.name}" for test in tests],
               "packages": config["packages"], "budgets": config["budgets"], "files": files,
-              "reference": (directory / "solution.py").read_text(),
-              "mutants": {p.stem: p.read_text() for p in sorted((directory / "mutants").glob("*.py"))},
+              "reference": (directory / "solution.py").read_text(encoding="utf-8"),
+              "mutants": {p.stem: p.read_text(encoding="utf-8") for p in sorted((directory / "mutants").glob("*.py"))},
               "runtime_bundle_url": runtime_url}
     return {"bundle_url": _write_bundle(output, str(entry['number']), bundle), "backend": backend, "budgets": config["budgets"]}
