@@ -530,6 +530,28 @@
       "description_en": "This 2020 research article explains the three ZeRO stages through optimizer-state, gradient and parameter partitioning, covering memory redundancy and communication tradeoffs.",
       "checked": "2026-10-20",
       "kind": "technical"
+    },
+    {
+      "id": "google-recommendation-systems",
+      "company": "google",
+      "name": "推荐系统课程：召回、打分与重排",
+      "name_en": "Recommendation systems: retrieval, scoring and re-ranking",
+      "url": "https://developers.google.com/machine-learning/recommendation/overview/types",
+      "description": "通过 Google 官方课程复习候选生成、协同过滤、用户与物品嵌入、矩阵分解，以及打分与重排中的新鲜度和多样性取舍。",
+      "description_en": "Review candidate generation, collaborative filtering, user and item embeddings, matrix factorization, scoring, and freshness and diversity in re-ranking through Google’s official course.",
+      "checked": "2026-10-20",
+      "kind": "technical"
+    },
+    {
+      "id": "nvidia-gnn-introduction",
+      "company": "nvidia",
+      "name": "图神经网络入门：消息传递与邻域采样",
+      "name_en": "Graph neural networks: message passing and neighborhood sampling",
+      "url": "https://docs.nvidia.com/sdgm/research/concepts-models/gnn-introduction",
+      "description": "从节点、边和消息传递开始，理解邻域聚合、GCN、GraphSAGE 的采样与归纳学习，并了解图推荐和过平滑等应用与限制。",
+      "description_en": "Start with nodes, edges and message passing. Explore neighborhood aggregation, GCN, GraphSAGE sampling and inductive learning, graph recommendations and over-smoothing.",
+      "checked": "2026-10-20",
+      "kind": "technical"
     }
   ],
   "paths": [

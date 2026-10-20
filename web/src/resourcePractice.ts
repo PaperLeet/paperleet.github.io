@@ -2,6 +2,8 @@ import type {Problem} from './types';
 
 /** Editorial connections to introductory concepts, never company interview evidence. */
 export const resourcePractice:Record<string,{modules:string[];zh:string;en:string}>={
+ 'google-recommendation-systems':{modules:['retrieval/bpr','retrieval/lightgcn'],zh:'结合 BPR 的成对排序与 LightGCN 的协同传播，练习反馈与嵌入打分；这两种论文方法是平台补充练习。',en:'Practice feedback and embedding scores with BPR pairwise ranking and LightGCN collaborative propagation. These paper methods are supplementary exercises curated by PaperLeet.'},
+ 'nvidia-gnn-introduction':{modules:['representation/graphsage_mean'],zh:'用 GraphSAGE 均值聚合练习连接邻域采样、消息传递与新节点上的归纳编码。',en:'Connect neighborhood sampling, message passing and inductive encoding on new nodes through the GraphSAGE mean-aggregation exercise.'},
  'google-ml-crash-course':{modules:['foundations/next_token_loss','architecture/attention'],zh:'结合下一词预测损失和注意力练习，复习课程中的语言模型基础。',en:'Review introductory language-model concepts through next-token loss and attention exercises.'},
  'nvidia-cuda-programming':{modules:['architecture/flash_attention'],zh:'用分块注意力练习理解计算与内存的关系；CUDA 编程请结合官方指南学习。',en:'Explore computation and memory through tiled attention. Learn CUDA programming with the official guide.'},
  'meta-fsdp':{modules:['optimization/adamw'],zh:'先用 AdamW 练习理解优化器状态更新，再结合原文学习分布式分片。',en:'Review optimizer-state updates with AdamW before studying distributed sharding in the original article.'},

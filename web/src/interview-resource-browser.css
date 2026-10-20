@@ -50,3 +50,5 @@
 .resource-concept-body>a:hover{border-color:var(--accent);color:var(--accent)}
 .resource-practice-unavailable{border-top:1px solid var(--line);padding-top:8px}
 .resource-practice-unavailable>.text-button{min-height:44px}
+
+.resource-concept-body>a .resource-practice-meta{display:block;margin-top:3px;color:var(--muted);font-size:var(--type-meta);font-weight:400;line-height:1.6}
