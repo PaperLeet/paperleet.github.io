@@ -1,3 +1,4 @@
+import {useWorkspaceIntent} from './useWorkspaceIntent';
 import WritingFeedback from './WritingFeedback';
 import {TranslatedReply} from './CommunityTranslation';
 import {appLocation} from './appLocation';
@@ -72,6 +73,8 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
   const minimized=useRef<{opener:HTMLElement;href:string}|undefined>(undefined),opening=useRef<{opener:Element|null;href:string;source:string;selection?:ReplyQuoteSelection;atEnd?:boolean}|undefined>(undefined),formId=fieldId+'-form';
   const closing=useRef<{opener:HTMLElement;href:string}|undefined>(undefined);
   const replyOperationHref=useRef('');
+  const likeControl=useRef<HTMLButtonElement>(null),likeReturn=useRef<{href:string;claim:()=>boolean}>(undefined);
+  const likeIntent=useWorkspaceIntent(JSON.stringify(['card-like-retry',owner,initial.id]));
   const retryLike=useRef<HTMLButtonElement>(null),accountFocus=useRef<{opener:Element|null;href:string}|undefined>(undefined);
   useLayoutEffect(()=>{
     const intent=closing.current;if(open||!intent)return;closing.current=undefined;
@@ -128,6 +131,14 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
     if(location.href!==intent.href||document.activeElement!==intent.opener&&!(document.activeElement===document.body&&!intent.opener?.isConnected))return;
     ((recoveryFrom==='like'?retryLike.current:undefined)||(writing?(!preview?textarea.current:toggle.current):composePrompt.current)||toggle.current)?.focus({preventScroll:true});
   },[busy,accountLoading,accountRecovery,preview,writing,recoveryFrom]);
+  useLayoutEffect(()=>{
+    const request=likeReturn.current;if(busy||!request)return;likeReturn.current=undefined;
+    const allowed=request.claim();
+    if(!allowed||location.href!==request.href||loading||accountLoading||accountRecovery||replyEdit||!canShare()||canAct?.()===false)return;
+    const target=pendingLike===undefined?likeControl.current:retryLike.current;
+    if(!target||target.disabled||!controlIsActive(target)||target.closest('.community-card-interaction')!==card.current)return;
+    target.focus({preventScroll:true});keepReadingTriggerVisible(target,100);
+  },[busy,error,pendingLike,loading,accountLoading,accountRecovery,replyEdit]);
   async function load(){
     const version=++readVersion.current;
     request.current?.abort();const controller=new AbortController();request.current=controller;
@@ -224,9 +235,11 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
     catch(e){if(mounted.current)(recoveryFrom==='reply'?setReplyError:setError)(errorMessage(e));}
     finally{working.current=false;if(mounted.current)setBusy('');}
   }
-  async function like(active:boolean){
+  async function like(active:boolean,opener?:HTMLButtonElement){
+    if(opener&&(!canShare()||canAct?.()===false||!controlIsActive(opener)))return;
     if(replyEdit||working.current||accountLoading||loading||accountRecovery)return;
     if(!owner){appLocation.hash=signInHref(returnTo||'community');return;}
+    if(opener&&document.activeElement===opener)likeReturn.current={href:location.href,claim:likeIntent.create()};
     working.current=true;setBusy('like');setError('');
     try{
       const value=await socialApi<Post>(`${path}/like`,{active,expected_user_id:owner},AbortSignal.timeout(20_000));
@@ -269,7 +282,7 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
       <button ref={toggle} type="button" onClick={expand} aria-expanded={open} aria-controls={regionId} disabled={accountLoading}>
         <MessageCircle size={15}/><span>{post.counts.replies} {t('评论','comments')}</span>{open?<ChevronUp size={13}/>:<ChevronDown size={13}/>}
       </button>
-      <button type="button" onClick={()=>void like(!post.viewer.liked)} className={post.viewer.liked?'is-liked':''} aria-pressed={!!post.viewer.liked} disabled={!!replyEdit||!!busy||loading||accountLoading||accountRecovery||pendingLike!==undefined}>
+      <button ref={likeControl} type="button" onClick={()=>void like(!post.viewer.liked)} className={post.viewer.liked?'is-liked':''} aria-pressed={!!post.viewer.liked} disabled={!!replyEdit||!!busy||loading||accountLoading||accountRecovery||pendingLike!==undefined}>
         <Heart size={15} fill={post.viewer.liked?'currentColor':'none'}/><span>{post.counts.likes} {busy==='like'?t('确认中…','Confirming…'):t('赞','likes')}</span>
       </button>
       <button type="button" onClick={writeComment} aria-controls={regionId} disabled={!!replyEdit||!!busy||accountLoading||accountRecovery}><PenLine size={15}/>{t('写评论','Write comment')}</button>
@@ -281,7 +294,7 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
       {children&&<div className="card-actions-extras">{children}</div>}
     </div>
     {(error||replyError&&!replyFeedbackVisible||accountRecovery&&!inlineAccountRecovery)&&<div className="card-action-error">
-      {error&&<div className="card-like-error"><SocialNotice error={error}/>{pendingLike!==undefined&&<button ref={retryLike} type="button" className="text-button" disabled={!!busy||loading||accountRecovery} onClick={()=>void like(pendingLike)}>{t('重试原点赞操作','Retry like action')}</button>}</div>}
+      {error&&<div className="card-like-error"><SocialNotice error={error}/>{pendingLike!==undefined&&<button ref={retryLike} type="button" className="text-button" disabled={!!busy||loading||accountRecovery} onClick={event=>void like(pendingLike,event.currentTarget)}>{t('重试原点赞操作','Retry like action')}</button>}</div>}
       {replyError&&!replyFeedbackVisible&&<div className="card-comment-error"><SocialNotice error={replyError}/><button type="button" className="text-button" aria-controls={formId} disabled={!!replyEdit||!!busy||accountLoading||accountRecovery} onClick={event=>{if(location.href===replyOperationHref.current&&canShare()&&canAct?.()!==false&&controlIsActive(event.currentTarget))writeComment();}}>{t('继续处理评论','Review comment')}</button></div>}
       {!inlineAccountRecovery&&accountRecoveryControls}
     </div>}
