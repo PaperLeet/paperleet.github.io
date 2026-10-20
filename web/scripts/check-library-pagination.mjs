@@ -34,6 +34,13 @@ try{
  assert(resultTools&&navigation,'Display options and result navigation have separate layout regions');
  assert(resultTools.compareDocumentPosition(navigation)&window.Node.DOCUMENT_POSITION_FOLLOWING,'Keyboard order reaches view and sorting options before pagination');
  assert(navigation.contains(document.querySelector('.library-result-summary'))&&navigation.contains(document.querySelector('.library-pagination-compact')),'The current result count stays with the top pager');
+ const returnControl=()=>pager().querySelector('.library-return-results');
+ assert.equal(document.querySelectorAll('.library-return-results').length,1,'Only the footer needs a return-to-results action');
+ assert.equal(returnControl().type,'button');assert.equal(returnControl().getAttribute('aria-controls'),list.id);
+ const returnRows=rows(),returnRoute=current,returnChanges=changes.length,returnScrolls=focusScrolls,returnButton=returnControl();
+ await click(returnButton);assert(document.activeElement===document.querySelector('.library-result-summary'));assert.equal(focusScrolls,returnScrolls+1);assert.equal(current,returnRoute);assert.equal(changes.length,returnChanges);assert(rows().every((row,index)=>row===returnRows[index]));
+ await act(async()=>setLocale('zh'));assert(returnControl()===returnButton);assert.equal(returnButton.textContent,'返回列表顶部');await act(async()=>setLocale('en'));
+ console.log('PASS footer return: explicit native action focuses the result heading without page/filter navigation, row remounts or private editor changes; locale-stable control and actual list association');
  const key=async(node,value,extra={})=>{const event=new window.KeyboardEvent('keydown',{key:value,bubbles:true,cancelable:true,...extra});await act(async()=>node.dispatchEvent(event));return event;};
  await act(async()=>page(1).focus());const beforeKeyboard=changes.length;
  assert((await key(page(1),'ArrowRight')).defaultPrevented);assert.equal(document.activeElement,page(2));assert.equal(changes.length,beforeKeyboard,'Moving page focus must not navigate');
@@ -138,9 +145,11 @@ try{
  for(const attribute of ['hidden','inert','aria-hidden']){
   main.setAttribute(attribute,attribute==='aria-hidden'?'true':'');outside.focus();const before=changes.length;
   assert(!(await key(outside,'/')).defaultPrevented,`${attribute} library must not own the search shortcut`);assert.equal(document.activeElement,outside);
+  const beforeReturn=focusScrolls;await act(async()=>returnControl().click());assert(document.activeElement===outside);assert.equal(focusScrolls,beforeReturn,'A hidden library cannot return or scroll');
   await select(document.querySelector('[aria-label="Filter module difficulty"]'),'H');assert.equal(changes.length,before,'Hidden filters cannot change the route');
   main.removeAttribute(attribute);
  }
+ const activeRoute=location.href;history.replaceState(null,'','#/favorites');outside.focus();const retiredReturnScrolls=focusScrolls;await act(async()=>returnControl().click());assert(document.activeElement===outside);assert.equal(focusScrolls,retiredReturnScrolls);history.replaceState(null,'',activeRoute);
  for(const extra of [{repeat:true},{isComposing:true},{keyCode:229},{ctrlKey:true},{metaKey:true},{altKey:true}]){outside.focus();assert(!(await key(outside,'/',extra)).defaultPrevented);assert.equal(document.activeElement,outside);}
  outside.contentEditable='plaintext-only';outside.setAttribute('contenteditable','plaintext-only');outside.focus();assert(!(await key(outside,'/')).defaultPrevented);assert.equal(document.activeElement,outside);outside.removeAttribute('contenteditable');
  outside.focus();const handled=new window.KeyboardEvent('keydown',{key:'/',bubbles:true,cancelable:true});handled.preventDefault();await act(async()=>outside.dispatchEvent(handled));assert.equal(document.activeElement,outside,'Already handled shortcuts keep focus');

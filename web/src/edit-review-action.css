@@ -1,0 +1,7 @@
+.edit-review-action { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px 16px; min-width:0; padding:14px 16px; border:1px solid var(--line); border-radius:10px; background:var(--surface2); }
+.edit-review-action>p { flex:1 1 230px; min-width:0; margin:0; color:var(--text-secondary); font-size:var(--type-small); line-height:1.75; overflow-wrap:anywhere; }
+.edit-review-action>button { display:inline-flex; align-items:center; justify-content:center; gap:7px; min-height:44px; max-width:100%; padding:8px 12px; border:1px solid var(--line); border-radius:8px; background:var(--surface); color:var(--text); font:inherit; font-size:var(--type-small); line-height:1.5; }
+.edit-review-action>button svg { flex:none; color:var(--accent); }
+.edit-review-action>button:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+@media(hover:hover) { .edit-review-action>button:hover:not(:disabled) { border-color:var(--accent); background:color-mix(in srgb,var(--accent) 7%,var(--surface)); } }
+@media(max-width:560px) { .edit-review-action { padding:12px; } .edit-review-action>p { flex-basis:100%; } }

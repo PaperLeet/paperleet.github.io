@@ -1,13 +1,14 @@
 /* Keep navigation, counts and sizing in independent regions. */
 .library-pagination{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:14px 20px;min-width:0;padding:16px 18px;margin-top:18px;border:1px solid var(--line);border-radius:12px;background:var(--surface);box-shadow:0 2px 8px #00000004;color:var(--muted);font-size:var(--type-small);line-height:1.6;container:library-pages / inline-size}
+.library-return-results{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:6px 9px;margin-inline-end:auto;border:1px solid transparent;border-radius:8px;color:var(--text-secondary);font:inherit;font-size:var(--type-small);text-align:start;transition:background-color .15s,border-color .15s,color .15s}
 .library-page-range{min-width:0;margin:0;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
 .library-page-range b{color:var(--text);font-weight:600}
 .library-page-total{display:block;margin-top:3px;color:var(--muted);font-size:var(--type-meta)}
-.library-page-buttons{display:flex;align-items:center;gap:4px;min-width:0;padding:4px;border:1px solid var(--line);border-radius:11px;background:var(--surface2);grid-column:2;grid-row:1;justify-self:end}
+.library-page-buttons{display:flex;align-items:center;gap:5px;min-width:0;padding:5px;border:1px solid var(--line);border-radius:11px;background:var(--surface2);grid-column:2;grid-row:1;justify-self:end}
 .library-page-buttons button{display:inline-flex;align-items:center;justify-content:center;gap:6px;flex-shrink:0;min-width:44px;min-height:44px;padding:7px 10px;border:1px solid transparent;border-radius:8px;background:transparent;color:var(--text-secondary);font:inherit;font-size:var(--type-control);font-variant-numeric:tabular-nums;transition:background-color .15s,border-color .15s,color .15s,box-shadow .15s}
 .library-page-buttons :is(.library-page-arrow,.library-page-boundary){background:var(--surface)}
 .library-page-buttons .library-page-boundary{display:none}
-.library-page-buttons button[aria-current=page]{background:var(--primary-bg);border-color:var(--primary-bg);color:var(--primary-text);font-weight:650;box-shadow:inset 0 1px 0 #ffffff26,0 2px 4px #00000014;cursor:default}
+.library-page-buttons button[aria-current=page]{background:var(--primary-bg);border-color:color-mix(in srgb,var(--primary-bg) 80%,var(--primary-text));color:var(--primary-text);font-weight:650;box-shadow:inset 0 1px 0 #ffffff26,0 2px 4px #00000014;cursor:default}
 .library-page-buttons button:disabled{opacity:.4;cursor:not-allowed}
 .library-page-buttons .library-page-gap{color:var(--muted);letter-spacing:2px}
 .library-page-arrow-label{white-space:nowrap;font-size:var(--type-small);font-weight:550}
@@ -33,7 +34,8 @@
 .library-pagination-compact .library-page-buttons{flex-wrap:wrap;align-items:flex-start;justify-content:center;max-width:100%;padding:3px;gap:4px}
 .library-pagination-compact .library-page-arrow{flex:none;background:transparent}
 .library-pagination .library-quick-jump{max-width:240px;gap:6px;justify-content:center;align-items:center}
-.library-quick-jump label>span{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.library-quick-jump label>span{font-size:var(--type-small);white-space:nowrap}
+.library-pagination .library-quick-jump label{gap:7px;padding-inline-start:7px}
 .library-pagination .library-quick-jump input{width:max(58px,calc(var(--page-jump-digits,2)*1ch + 20px));padding-inline:6px;border-color:transparent;background:var(--surface);font-weight:600;box-shadow:0 1px 2px #00000008}
 .library-pagination .library-quick-jump input[aria-invalid=true]{border-color:var(--red,var(--chart-5))}
 .library-pagination .library-quick-jump input:focus-visible{border-color:var(--accent)}
@@ -46,6 +48,7 @@
 .library-result-summary:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:4px}
 .library-visible-range{white-space:nowrap}
 @media(hover:hover){
+ .library-return-results:hover{color:var(--accent);background:var(--surface2);border-color:var(--line)}
  .library-page-buttons button:hover:not(:disabled):not([aria-current]){background:var(--surface);border-color:var(--line);color:var(--text)}
  .library-page-size select:hover:not(:focus-visible),.library-pagination .page-jump input:hover:not(:focus-visible):not([aria-invalid=true]){border-color:var(--text-secondary)}
 }
@@ -63,6 +66,7 @@
  .library-page-buttons .library-page-boundary{display:inline-flex}
  .library-page-mobile-current{display:block;flex:1;min-width:0;font-size:var(--type-meta);line-height:1.5}
  .library-page-options{row-gap:14px}
+ .library-return-results{flex-basis:100%;margin-inline:0}
  .library-page-options .page-jump{flex-basis:100%;padding-inline-start:0;border-inline-start:0}
  .library-pagination[data-single-page=true] .library-page-range{grid-column:1/-1;text-align:center}
  .library-pagination[data-single-page=true] .library-page-options{grid-column:1/-1;grid-row:2;justify-content:center}
@@ -70,5 +74,5 @@
 @media(max-width:700px){.library-pagination-compact{margin-left:0;justify-content:flex-start;max-width:100%}.library-page-arrow-label{display:none}}
 @media(max-width:520px){.library-pagination:not(.library-pagination-compact){padding:16px 12px}}
 @media(max-width:380px){.library-pagination-compact{width:100%;justify-content:space-between;gap:10px}.library-pagination-compact .library-page-size{flex:1 1 100%}}
-@media(prefers-reduced-motion:reduce){.library-page-buttons button,.library-pagination :is(.library-page-size select,.page-jump input){transition:none}}
+@media(prefers-reduced-motion:reduce){.library-page-buttons button,.library-return-results,.library-pagination :is(.library-page-size select,.page-jump input){transition:none}}
 @media(forced-colors:active){.library-pagination .library-page-buttons{border-color:ButtonText}.library-pagination button[aria-current=page]{outline:2px solid Highlight;outline-offset:-3px}.library-pagination .library-quick-jump input[aria-invalid=true]{border-color:LinkText}}

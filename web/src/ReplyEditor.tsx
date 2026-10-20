@@ -1,3 +1,5 @@
+import EditReviewAction from './EditReviewAction';
+import {useEditReviewNavigation} from './useEditReviewNavigation';
 import WritingFeedback from './WritingFeedback';
 import {appLocation} from './appLocation';
 import AppLink from './AppLink';
@@ -15,8 +17,8 @@ import {signInHref} from './accountNavigation';
 import {keepReadingTriggerVisible} from './readingViewport';
 
 
-export default function ReplyEditor({reply,owner,disabled,onSaved,onClose,onRefresh,focusOrigin,compact=false}:{
-  reply:Reply;owner:string;disabled:boolean;onSaved:(reply:Reply,confirmation?:ReplyEditConfirmation)=>void;onClose:()=>void;onRefresh:()=>Promise<boolean>;focusOrigin?:ReplyEditOrigin;compact?:boolean;
+export default function ReplyEditor({reply,owner,disabled,onSaved,onClose,onRefresh,focusOrigin,compact=false,canNavigate}:{
+  reply:Reply;owner:string;disabled:boolean;onSaved:(reply:Reply,confirmation?:ReplyEditConfirmation)=>void;onClose:()=>void;onRefresh:()=>Promise<boolean>;focusOrigin?:ReplyEditOrigin;compact?:boolean;canNavigate?:()=>boolean;
 }) {
   const {t}=useI18n(),publicationErrorId=useId();
   const {user,capabilities,loading:accountLoading,refresh:refreshAccount}=useAccount();
@@ -38,6 +40,8 @@ export default function ReplyEditor({reply,owner,disabled,onSaved,onClose,onRefr
   const [preview,setPreview]=useState(false), [discard,setDiscard]=useState(false);
   useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;};},[]);
   const needsReview=draft.baseVersion!==reply.edit_version;
+  const reviewBlocked=busy||disabled||accountLoading||user?.id!==owner||accountUnconfirmed;
+  const reviewNavigation=useEditReviewNavigation({scope:JSON.stringify(['reply-edit',owner,reply.id]),version:reply.edit_version,value:draft.body,preview,blocked:reviewBlocked,field,onPreviewChange:setPreview,canAct:()=>mounted.current&&!saving.current&&user?.id===owner,canNavigate});
   function edit(change:Partial<ReplyEditDraft>) {
     const next={...current.current,...change}; current.current=next;setDraft(next);
     setSaved(writeReplyEdit(tabDraftStorage(),owner,reply.id,next));setNotice('');
@@ -81,14 +85,14 @@ export default function ReplyEditor({reply,owner,disabled,onSaved,onClose,onRefr
       :t('修改草稿按账号和回复保存在本标签页；保存修改后才会公开更新。','Edit drafts stay in this tab, separately for your account and reply. Changes become public only when saved.')}</p>
     {needsReview&&<div className="publication-recovery" role="status">
       <p>{t('当前草稿基于较早版本。请对照最新回复，将需要保留的内容合并到草稿。','This draft is based on an older version. Compare the latest reply and merge anything you want to keep into your draft.')}</p>
-      <details open><summary>{t('最新回复内容','Latest reply content')}</summary><CommunityMarkdown body={reply.body}/></details>
-      <button type="button" disabled={busy||disabled} onClick={()=>{edit({baseVersion:reply.edit_version!});setError('');}}>{t('已核对，以此版本继续编辑','Reviewed; continue from this version')}</button>
+      <details ref={reviewNavigation.review} id={reviewNavigation.id} open><summary>{t('最新回复内容','Latest reply content')}</summary><CommunityMarkdown body={reply.body}/></details>
+      <button type="button" disabled={reviewBlocked} onClick={event=>reviewNavigation.acceptReview(event.currentTarget,()=>{edit({baseVersion:reply.edit_version!});setError('');})}>{t('已核对，以此版本继续编辑','Reviewed; continue from this version')}</button>
     </div>}
     <form className="social-form" onSubmit={e=>{e.preventDefault();void save();}}>
-      <MarkdownEditor scopeKey={JSON.stringify(['reply-edit',owner,reply.id])} submitShortcut value={draft.body} onChange={body=>edit({body})} preview={preview} onPreviewChange={setPreview}
+      <MarkdownEditor scopeKey={JSON.stringify(['reply-edit',owner,reply.id])} submitShortcut value={draft.body} onChange={body=>edit({body})} preview={preview} onPreviewChange={reviewNavigation.changePreview}
         label={compact?t('评论内容','Comment body'):t('正文','Reply body')} modeLabel={t('回复修改模式','Reply edit mode')} rows={compact?4:6} maxLength={10000} busy={busy} disabled={disabled||accountLoading||accountUnconfirmed||user?.id!==owner} textareaRef={field}/>
-      <WritingFeedback error={error} errorId={publicationErrorId}/>
-      <div className="form-footer"><button type="button" className="text-button" disabled={busy} onClick={()=>setDiscard(true)}>{t('丢弃修改','Discard edits')}</button><button className="button" aria-describedby={error?publicationErrorId:undefined} disabled={busy||disabled||!canPublish||needsReview||!draft.body.trim()}>{busy?t('正在保存…','Saving…'):t('保存修改','Save changes')}</button></div>
+      <WritingFeedback error={error} errorId={publicationErrorId}>{needsReview&&<EditReviewAction hintId={reviewNavigation.hintId} controls={reviewNavigation.id} disabled={reviewBlocked} onReview={reviewNavigation.openReview}/>}</WritingFeedback>
+      <div className="form-footer"><button type="button" className="text-button" disabled={busy} onClick={()=>setDiscard(true)}>{t('丢弃修改','Discard edits')}</button><button className="button" aria-describedby={[error?publicationErrorId:undefined,needsReview?reviewNavigation.hintId:undefined].filter(Boolean).join(' ')||undefined} disabled={busy||disabled||!canPublish||needsReview||!draft.body.trim()}>{busy?t('正在保存…','Saving…'):t('保存修改','Save changes')}</button></div>
     </form>
     {discard&&<div className="draft-discard-confirm" role="alert"><p>{t('丢弃未保存的修改？已发布的回复不会改变。','Discard unsaved edits? The published reply will stay as it is.')}</p><button type="button" disabled={busy} onClick={()=>{clearSavedReplyEdit(tabDraftStorage(),owner,reply.id,current.current);onClose();}}>{t('确认丢弃修改','Discard unsaved edits')}</button><button type="button" onClick={()=>setDiscard(false)}>{t('保留修改','Keep edits')}</button></div>}
   </section>;

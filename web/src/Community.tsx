@@ -1142,7 +1142,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
         <>
           {post.problem && <TopicContext topic={post.problem} discussion solutions={post.solution} practiceReturnTo={postHref(id)}/>}
           {postEdited&&<p role="status">{t('帖子修改已保存。','Post changes saved.')}</p>}
-          {editingPost&&canEditPost(post,owner)&&<PostEditor post={post} owner={owner} disabled={busy||loading} onRefresh={refresh} onClose={closePostEditing} onSaved={confirmed=>{
+          {editingPost&&canEditPost(post,owner)&&<PostEditor canNavigate={()=>mounted.current&&post.id===id&&controlIsActive(practiceReading.root.current)&&communityContinuation(appLocation.hash)===postHref(id,providedReturnTo,replyTarget).slice(2)} post={post} owner={owner} disabled={busy||loading} onRefresh={refresh} onClose={closePostEditing} onSaved={confirmed=>{
             setPost(previous=>previous&&previous.id===confirmed.id?{...confirmed,replies:previous.replies}:previous);
             closePostEditing();setPostEdited(true);
           }}/>}
@@ -1257,7 +1257,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
                   </div>
                   <ReplySearchContext reply={r} list={replyList} canAct={()=>mounted.current&&post.id===id&&controlIsActive(practiceReading.root.current)&&communityContinuation(appLocation.hash)===postHref(id,providedReturnTo,replyTarget).slice(2)}><TranslatedReply reply={r} /></ReplySearchContext>
                   {replyEdited===r.id&&<p role="status">{t('回复修改已保存。','Reply changes saved.')}</p>}
-                  {editingReply===r.id&&canEditReply(r,owner)&&<ReplyEditor reply={r} owner={owner} focusOrigin={replyEditOrigin.current} disabled={busy||loading} onRefresh={refresh} onClose={()=>closeReplyEditing(r.id)} onSaved={(confirmed,confirmation)=>{
+                  {editingReply===r.id&&canEditReply(r,owner)&&<ReplyEditor canNavigate={()=>mounted.current&&post.id===id&&controlIsActive(practiceReading.root.current)&&communityContinuation(appLocation.hash)===postHref(id,providedReturnTo,replyTarget).slice(2)} reply={r} owner={owner} focusOrigin={replyEditOrigin.current} disabled={busy||loading} onRefresh={refresh} onClose={()=>closeReplyEditing(r.id)} onSaved={(confirmed,confirmation)=>{
                     readVersion.current++;setLoading(false);
                     setPost(previous=>withConfirmedReplyEdit(previous,confirmed,confirmation?.baseVersion||r.edit_version!));
                     if(!confirmation?.keepEditing){closeReplyEditing(r.id,confirmation?.origin);setReplyEdited(r.id);}

@@ -1,6 +1,6 @@
 import {useRef} from 'react';
 import {controlIsActive} from './activeControls';
-import {ChevronLeft,ChevronRight,ChevronsLeft,ChevronsRight} from 'lucide-react';
+import {ArrowUp,ChevronLeft,ChevronRight,ChevronsLeft,ChevronsRight} from 'lucide-react';
 import {paginationWindow as libraryPageNumbers,focusPaginationButton} from './paginationNavigation';
 export {paginationWindow as libraryPageNumbers} from './paginationNavigation';
 import {useI18n} from './i18n';
@@ -8,9 +8,9 @@ import PageJump from './PageJump';
 import type {LibraryPageSize} from './libraryNavigation';
 import './library-pagination.css';
 
-export type Props={page:number;size:LibraryPageSize;total:number;modules:boolean;listId:string;compact?:boolean;labels?:{nav:[string,string];jump:[string,string];count:[string,string]};onPage:(page:number)=>void;onSize:(size:LibraryPageSize)=>void;canAct?:()=>boolean};
+export type Props={page:number;size:LibraryPageSize;total:number;modules:boolean;listId:string;compact?:boolean;labels?:{nav:[string,string];jump:[string,string];count:[string,string]};onPage:(page:number)=>void;onSize:(size:LibraryPageSize)=>void;onReturnToResults?:()=>void;canAct?:()=>boolean};
 
-export default function LibraryPagination({page,size,total,modules,listId,compact=false,labels,onPage,onSize,canAct}:Props){
+export default function LibraryPagination({page,size,total,modules,listId,compact=false,labels,onPage,onSize,onReturnToResults,canAct}:Props){
  const root=useRef<HTMLElement>(null);
  const active=()=>controlIsActive(root.current)&&canAct?.()!==false;
  const choose=(next:number)=>{if(active())onPage(next);};
@@ -36,6 +36,6 @@ export default function LibraryPagination({page,size,total,modules,listId,compac
    }
    return <button type="button" data-pagination-control="" className="library-page-number" key={n} aria-label={t(`第 ${n} 页`,`Page ${n}`)} title={pageHint(n)} aria-controls={listId} aria-current={n===page?'page':undefined} onClick={()=>{if(n!==page)choose(n);}}>{n}</button>;
   })}{!compact&&<span className="library-page-mobile-current" aria-current={valid?'page':undefined}>{valid?t(`第 ${page} / ${pages} 页`,`Page ${page} of ${pages}`):t('选择有效页码','Choose an available page')}</span>}{next}{!compact&&boundary(true)}</div>}
-  {!compact&&<div className="library-page-options">{pageSize}{pages>1&&<PageJump key={page} page={page} maxPage={pages} onChange={choose} canAct={active} label={labels?t(...labels.jump):t('跳转题库页码','Jump to library page')} controls={listId}/>}</div>}
+  {!compact&&<div className="library-page-options">{onReturnToResults&&<button type="button" className="library-return-results" aria-controls={listId} onClick={()=>{if(active())onReturnToResults();}}><ArrowUp size={15} aria-hidden="true"/>{t('返回列表顶部','Back to results')}</button>}{pageSize}{pages>1&&<PageJump key={page} page={page} maxPage={pages} onChange={choose} canAct={active} label={labels?t(...labels.jump):t('跳转题库页码','Jump to library page')} controls={listId}/>}</div>}
  </nav>;
 }

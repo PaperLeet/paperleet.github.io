@@ -319,7 +319,7 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
       <button type="button" className="card-collapse-comments" aria-keyshortcuts="Escape" title={t('收起评论（Esc）','Collapse comments (Esc)')} onClick={event=>dismissComments(event.currentTarget)}><ChevronUp size={14} aria-hidden="true"/>{t('收起评论','Collapse comments')}</button>
     </section>}
     {replyEdit&&<div id={fieldId+'-edit'} className="card-comment-editor" hidden={!open}>
-      {editingRow&&canEditReply(editingRow,owner)?<ReplyEditor key={owner+':'+editingRow.id} compact reply={editingRow} owner={owner} focusOrigin={replyEdit.origin} disabled={!open||!!busy||loading||accountLoading||accountRecovery||!!loadError} onRefresh={load} onClose={()=>closeReplyEdit()} onSaved={savedReplyEdit}/>:<div role="status"><p>{t('这条评论已删除或暂不可编辑，修改草稿已保留。','This comment is deleted or cannot be edited now. Your edit draft is kept.')}</p><button type="button" className="text-button" onClick={()=>closeReplyEdit()}>{t('关闭编辑','Close editor')}</button></div>}
+      {editingRow&&canEditReply(editingRow,owner)?<ReplyEditor canNavigate={()=>canShare()&&canAct?.()!==false} key={owner+':'+editingRow.id} compact reply={editingRow} owner={owner} focusOrigin={replyEdit.origin} disabled={!open||!!busy||loading||accountLoading||accountRecovery||!!loadError} onRefresh={load} onClose={()=>closeReplyEdit()} onSaved={savedReplyEdit}/>:<div role="status"><p>{t('这条评论已删除或暂不可编辑，修改草稿已保留。','This comment is deleted or cannot be edited now. Your edit draft is kept.')}</p><button type="button" className="text-button" onClick={()=>closeReplyEdit()}>{t('关闭编辑','Close editor')}</button></div>}
     </div>}
   </div>;
 }

@@ -112,12 +112,16 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
     if(!currentView()||(filters.view||'papers')===value)return;
     change({view:value==='modules'?'modules':undefined},true);
   }
+  function returnToResults(){
+    if(waitingForStatus||!currentView())return;
+    resultsHeading.current?.focus({preventScroll:true});resultsHeading.current?.scrollIntoView({block:'start',behavior:'instant'});
+  }
   function paginate(next:number,nextSize= size){
     if(waitingForStatus||!currentView()||!Number.isSafeInteger(next)||next<1||next>Math.max(1,Math.ceil(rowIds.length/nextSize))||![20,50,100].includes(nextSize)||next===page&&nextSize===size)return;
-    resultsHeading.current?.focus({preventScroll:true});resultsHeading.current?.scrollIntoView({block:'start',behavior:'instant'});
+    returnToResults();
     change({page:next>1?next:undefined,page_size:nextSize===20?undefined:nextSize},true);
   }
-  const pagination={page,size,canAct:currentView,total:rowIds.length,modules:!!moduleView,listId,onPage:(page:number)=>paginate(page),onSize:(size:import('./libraryNavigation').LibraryPageSize)=>paginate(outOfRange?1:Math.floor(offset/size)+1,size)};
+  const pagination={page,size,canAct:currentView,total:rowIds.length,modules:!!moduleView,listId,onPage:(page:number)=>paginate(page),onSize:(size:import('./libraryNavigation').LibraryPageSize)=>paginate(outOfRange?1:Math.floor(offset/size)+1,size),onReturnToResults:returnToResults};
   useEffect(() => {
     if (waitingForStatus) return;
     let disposed = false, stop: (() => void) | undefined;

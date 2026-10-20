@@ -1,3 +1,5 @@
+import EditReviewAction from './EditReviewAction';
+import {useEditReviewNavigation} from './useEditReviewNavigation';
 import WritingFeedback from './WritingFeedback';
 import {useCommunityTaxonomy} from './useCommunityTaxonomy';
 import CommunityTagPicker from './CommunityTagPicker';
@@ -21,8 +23,8 @@ import { communityCategoryHint } from './communityCategories';
 import {topicFromProblem} from './communityTopics';
 import {communityPostHref} from './communityNavigation';
 
-export default function PostEditor({post,owner,disabled,onSaved,onClose,onRefresh}:{
-  post:Post;owner:string;disabled:boolean;onSaved:(post:Post)=>void;onClose:()=>void;onRefresh:()=>Promise<boolean>;
+export default function PostEditor({post,owner,disabled,onSaved,onClose,onRefresh,canNavigate}:{
+  post:Post;owner:string;disabled:boolean;onSaved:(post:Post)=>void;onClose:()=>void;onRefresh:()=>Promise<boolean>;canNavigate?:()=>boolean;
 }) {
   const {t}=useI18n(),publicationErrorId=useId();
   const taxonomy=useCommunityTaxonomy();
@@ -31,6 +33,7 @@ export default function PostEditor({post,owner,disabled,onSaved,onClose,onRefres
   const [draft,setDraft]=useState(()=>readPostEdit(tabDraftStorage(),owner,post.id)||newPostEdit(post));
   const current=useRef(draft), mounted=useRef(true), saving=useRef(false);
   const [busy,setBusy]=useState(false), [error,setError]=useState(''), [saved,setSaved]=useState<boolean|null>(null);
+  const field=useRef<HTMLTextAreaElement>(null);
   const [preview,setPreview]=useState(false), [discard,setDiscard]=useState(false);
   const [modules,setModules]=useState<InterviewModule[]>([]),[catalogError,setCatalogError]=useState(false),[catalogRetry,setCatalogRetry]=useState(0);
   useEffect(()=>{
@@ -41,6 +44,8 @@ export default function PostEditor({post,owner,disabled,onSaved,onClose,onRefres
   },[!!post.interview,catalogRetry]);
   useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;};},[]);
   const needsReview=draft.baseVersion!==post.edit_version;
+  const reviewBlocked=busy||disabled||accountLoading||user?.id!==owner;
+  const reviewNavigation=useEditReviewNavigation({scope:JSON.stringify(['post-edit',owner,post.id]),version:post.edit_version,value:draft.body,preview,blocked:reviewBlocked,field,onPreviewChange:setPreview,canAct:()=>mounted.current&&!saving.current&&user?.id===owner,canNavigate});
   const tagPersistenceUnavailable=!taxonomy.supported&&!!(draft.tagIds?.length||post.tags?.length);
   const currentCategory=taxonomy.data.boards.find(category=>category.id===post.category);
   const categoryHint=communityCategoryHint(draft.category),categoryHintId=useId();
@@ -84,8 +89,8 @@ export default function PostEditor({post,owner,disabled,onSaved,onClose,onRefres
       :t('修改草稿按账号和帖子保存在本标签页；保存修改后才会公开更新。','Edit drafts stay in this tab, separately for your account and post. Changes become public only when saved.')}</p>
     {needsReview&&<div className="publication-recovery" role="status">
       <p>{t('当前草稿基于较早版本。请对照最新帖子，将需要保留的内容合并到草稿。','This draft is based on an older version. Compare the latest post and merge anything you want to keep into your draft.')}</p>
-      <details open><summary>{t('最新帖子内容','Latest post content')}</summary><strong>{post.title}</strong>{post.interview&&<InterviewMeta details={post.interview} topics={modules.map(topicFromProblem)} catalogLoading={!modules.length&&!catalogError} returnTo={communityPostHref(post.id)}/>}<CommunityMarkdown body={post.body}/><PaperPreviewCard url={post.paper_url} paper={post.paper}/><p>{t('版块','Category')}: {currentCategory?t(currentCategory.zh,currentCategory.en):post.category}</p><p className="community-latest-tag-snapshot">{t('标签','Tags')}: {post.tags?.length?post.tags.map(tag=>t(tag.zh,tag.en)+(tag.enabled===false?t('（已停用）',' (paused)'):'' )).join(' · '):t('无','None')}</p></details>
-      <button type="button" disabled={busy||disabled} onClick={()=>{edit({baseVersion:post.edit_version!});setError('');}}>{t('已核对，以此版本继续编辑','Reviewed; continue from this version')}</button>
+      <details ref={reviewNavigation.review} id={reviewNavigation.id} open><summary>{t('最新帖子内容','Latest post content')}</summary><strong>{post.title}</strong>{post.interview&&<InterviewMeta details={post.interview} topics={modules.map(topicFromProblem)} catalogLoading={!modules.length&&!catalogError} returnTo={communityPostHref(post.id)}/>}<CommunityMarkdown body={post.body}/><PaperPreviewCard url={post.paper_url} paper={post.paper}/><p>{t('版块','Category')}: {currentCategory?t(currentCategory.zh,currentCategory.en):post.category}</p><p className="community-latest-tag-snapshot">{t('标签','Tags')}: {post.tags?.length?post.tags.map(tag=>t(tag.zh,tag.en)+(tag.enabled===false?t('（已停用）',' (paused)'):'' )).join(' · '):t('无','None')}</p></details>
+      <button type="button" disabled={reviewBlocked} onClick={event=>reviewNavigation.acceptReview(event.currentTarget,()=>{edit({baseVersion:post.edit_version!});setError('');})}>{t('已核对，以此版本继续编辑','Reviewed; continue from this version')}</button>
     </div>}
     <form className="social-form" onSubmit={e=>{e.preventDefault();void save();}}>
       {post.interview&&<InterviewFields value={draft.interview||post.interview} onChange={interview=>edit({interview,category:'career'})} problems={modules} disabled={busy}/>}
@@ -97,10 +102,10 @@ export default function PostEditor({post,owner,disabled,onSaved,onClose,onRefres
       {tagPersistenceUnavailable&&<p className="community-tag-persistence-notice" role="status">{t("当前服务无法保存标签变更，修改仅保留在草稿中；配置恢复后再保存。","This service cannot save tag changes. Your edits remain in the draft; save after settings become available.")}</p>}
       {draft.category==='papers' && <PaperLinkField value={draft.paperUrl || ''} onChange={paperUrl=>edit({paperUrl})} owner={owner} available={capabilities?.community_papers===true} disabled={busy} initialPaper={post.paper} onUseTitle={title=>edit({title:title.slice(0,180)})}/>}
       <label>{t('标题','Title')}<input autoFocus required maxLength={180} value={draft.title} disabled={busy} onChange={e=>edit({title:e.target.value})}/></label>
-      <MarkdownEditor sectionNavigation scopeKey={JSON.stringify(['post-edit',owner,post.id])} submitShortcut value={draft.body} onChange={body=>edit({body})} preview={preview} onPreviewChange={setPreview}
-        label={t('正文','Post body')} modeLabel={t('帖子修改模式','Post edit mode')} rows={10} maxLength={20000} busy={busy} disabled={disabled}/>
-      <WritingFeedback error={error} errorId={publicationErrorId}/>
-      <div className="form-footer"><button type="button" className="text-button" disabled={busy} onClick={()=>setDiscard(true)}>{t('丢弃修改','Discard edits')}</button><button className="button" aria-describedby={error?publicationErrorId:undefined} disabled={busy||disabled||!canPublish||needsReview||tagPersistenceUnavailable||taxonomy.supported&&!taxonomy.ready||!draft.title.trim()||!draft.body.trim()}>{busy?t('正在保存…','Saving…'):t('保存修改','Save changes')}</button></div>
+      <MarkdownEditor sectionNavigation scopeKey={JSON.stringify(['post-edit',owner,post.id])} submitShortcut value={draft.body} onChange={body=>edit({body})} preview={preview} onPreviewChange={reviewNavigation.changePreview}
+        textareaRef={field} label={t('正文','Post body')} modeLabel={t('帖子修改模式','Post edit mode')} rows={10} maxLength={20000} busy={busy} disabled={disabled}/>
+      <WritingFeedback error={error} errorId={publicationErrorId}>{needsReview&&<EditReviewAction hintId={reviewNavigation.hintId} controls={reviewNavigation.id} disabled={reviewBlocked} onReview={reviewNavigation.openReview}/>}</WritingFeedback>
+      <div className="form-footer"><button type="button" className="text-button" disabled={busy} onClick={()=>setDiscard(true)}>{t('丢弃修改','Discard edits')}</button><button className="button" aria-describedby={[error?publicationErrorId:undefined,needsReview?reviewNavigation.hintId:undefined].filter(Boolean).join(' ')||undefined} disabled={busy||disabled||!canPublish||needsReview||tagPersistenceUnavailable||taxonomy.supported&&!taxonomy.ready||!draft.title.trim()||!draft.body.trim()}>{busy?t('正在保存…','Saving…'):t('保存修改','Save changes')}</button></div>
     </form>
     {discard&&<div className="draft-discard-confirm" role="alert"><p>{t('丢弃未保存的修改？已发布的帖子不会改变。','Discard unsaved edits? The published post will stay as it is.')}</p><button type="button" disabled={busy} onClick={()=>{clearSavedPostEdit(tabDraftStorage(),owner,post.id,current.current);onClose();}}>{t('确认丢弃修改','Discard unsaved edits')}</button><button type="button" onClick={()=>setDiscard(false)}>{t('保留修改','Keep edits')}</button></div>}
   </section>;
