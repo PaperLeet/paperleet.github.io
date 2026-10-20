@@ -121,3 +121,7 @@ SHA-256 checksums record the downloaded originals.
 | `cornell.ico` | `f0a4cc7802d4c58a38a6710917e748c55b151435afb91a5295c23291fc6b8971` |
 | `stanford.ico` | `6854d33f319eb408a0aa0f9f2cb5ed443240aa338226e230f48e51e40c1eb03e` |
 | `cmu.ico` | `07e720a8d3afd981be56fb76aa146bd2b31c840765e81f89a8ccb7af93456d2a` |
+
+## Hugging Face official asset (2026-10-20)
+
+`huggingface.svg` is the unmodified icon linked from [Hugging Face Brand Assets](https://huggingface.co/brand): [official SVG](https://huggingface.co/datasets/huggingface/brand-assets/resolve/main/hf-logo.svg?download=true). It is bundled locally. SHA-256: `942cad1ccda905ac5a659dfd2d78b344fccfb84a8a3ac3721e08f488205638a0`.

@@ -8,6 +8,8 @@ import {topicFromProblem,type ProblemTopic} from './communityTopics';
 import {usePracticeProgress} from './PracticeProgressContext';
 import {keepReadingTriggerVisible} from './readingViewport';
 import InterviewReportStudyList from './InterviewReportStudyList';
+import {useReportPracticeSearch} from './ReportPracticeFinder';
+import InterviewSearchMatch from './InterviewSearchMatch';
 
 /** An expansion is local reading state; it never fetches or starts a practice session. */
 export default function InterviewReportPractice({questions,problems=[],topics,returnTo,catalogLoading,catalogError,onRetryCatalog,revealPractice,revealRequest=0}:{questions:string[];revealRequest?:number;problems?:Problem[];topics?:ProblemTopic[];returnTo:string;catalogLoading?:boolean;catalogError?:string;onRetryCatalog?:()=>void;revealPractice?:string}){
@@ -25,10 +27,12 @@ export default function InterviewReportPractice({questions,problems=[],topics,re
  const expanded=fromReturn||view.expanded;
  // Keep a revealed origin mounted if the parent later yields to newer focus.
  useLayoutEffect(()=>{if(fromReturn)setView({expanded:true,revealed:revealKey});},[fromReturn,revealKey]);
- const shown=expanded?ids:ids.slice(0,2),missing=shown.some(id=>!byId.has(id));
+
  const progress=ids.flatMap(id=>{const value=byId.has(id)?workspace?.read(id):undefined;return value?[{id,...value}]:[];});
  const passed=progress.filter(row=>row.state==='done').length,complete=progress.length===ids.length&&passed===ids.length;
  const started=progress.filter(row=>row.state==='started').sort((a,b)=>b.updated.localeCompare(a.updated));
+ const search=useReportPracticeSearch({ids,topics:byId,scope:JSON.stringify([ids,returnTo,revealKey]),expanded,listId:id,onCollapse:()=>{pending.current={href:location.href,opener:document.activeElement,kind:'collapse',keyboard:true};setView({expanded:false,revealed:revealKey||view.revealed});}});
+ const shown=expanded?search.matches:ids.slice(0,2),missing=(search.query?ids:shown).some(id=>!byId.has(id));
  const sourceKey=ids.join(','),pinned=focusedNext?.owner===workspace?.owner&&focusedNext?.source===sourceKey?progress.find(row=>row.id===focusedNext.id):undefined;
  const next=pinned||started[0]||progress.find(row=>row.state==='todo')||(complete?progress[0]:undefined);
  const nextTopic=next?byId.get(next.id):undefined;
@@ -52,7 +56,7 @@ export default function InterviewReportPractice({questions,problems=[],topics,re
   if(request.kind==='retry'){
    if(request.question&&(byId.has(request.question)||retired.has(request.question))){
     const row=list.current?.querySelector<HTMLElement>(`[data-practice-index="${ids.indexOf(request.question)}"]`);
-    (row?.querySelector<HTMLElement>('a')||row)?.focus({preventScroll:true});pending.current=undefined;
+    (row?.querySelector<HTMLElement>('a')||row||(search.query?search.input.current:null))?.focus({preventScroll:true});pending.current=undefined;
    }return;
   }
   pending.current=undefined;
@@ -63,17 +67,19 @@ export default function InterviewReportPractice({questions,problems=[],topics,re
  });
  if(!ids.length)return null;
  return <div className="interview-report-practice">
+  {search.controls}
   <div id={id} ref={list} className="interview-report-topics" role="group" aria-label={t('面经配套练习','Practice linked to this experience')}>
-   <b>{t('配套练习','Practice')}</b>{shown.map((question,index)=>{
+   <b>{t('配套练习','Practice')}</b>{shown.map(question=>{
+    const index=ids.indexOf(question);
     const problem=byId.get(question);
     if(!problem)return <span key={question} data-practice-index={index} tabIndex={-1} className="interview-report-practice-item interview-report-practice-missing"><code>{question}</code><small>{waiting&&!retired.has(question)?t('信息待加载','Details pending'):t('练习暂不可用','Practice unavailable')}</small></span>;
     const title=locale==='en'?problem.title_en||problem.title:problem.title;
     const state=progress.find(row=>row.id===question)?.state;
-    return <span key={question} data-practice-index={index} tabIndex={-1} className="interview-report-practice-item"><AppLink data-reading-link="practice" data-reading-practice={question} data-practice-state={state} href={withLibraryContext(problem.id,returnTo)} title={title}>{state==='done'?<CheckCircle2 size={13} aria-hidden="true"/>:state==='started'?<Clock3 size={13} aria-hidden="true"/>:<Code2 size={13} aria-hidden="true"/>}<span>{title}</span>{state&&<small className="interview-report-practice-state">{stateLabel(state)}</small>}</AppLink></span>;
+    return <span key={question} data-practice-index={index} data-practice-matched={!!search.query||undefined} tabIndex={-1} className="interview-report-practice-item"><AppLink data-reading-link="practice" data-reading-practice={question} data-practice-state={state} href={withLibraryContext(problem.id,returnTo)} title={title} aria-describedby={search.query?id+'-match-'+index:undefined}>{state==='done'?<CheckCircle2 size={13} aria-hidden="true"/>:state==='started'?<Clock3 size={13} aria-hidden="true"/>:<Code2 size={13} aria-hidden="true"/>}<span>{search.query?<InterviewSearchMatch text={title} query={search.query}/>:title}</span>{state&&<small className="interview-report-practice-state">{stateLabel(state)}</small>}</AppLink>{search.query&&<small id={id+'-match-'+index} className="report-practice-match"><InterviewSearchMatch text={[problem.number?`#${problem.number}`:'',locale==='en'?problem.title:problem.title_en,question].filter(Boolean).join(' · ')} query={search.query}/></small>}</span>;
    })}
   </div>
-  {ids.length>2&&<button ref={toggle} type="button" className="interview-report-practice-toggle" aria-expanded={expanded} aria-controls={id} onClick={event=>{pending.current={href:location.href,opener:document.activeElement,kind:expanded?'collapse':'expand',keyboard:event.detail===0};setView({expanded:!expanded,revealed:revealKey||view.revealed});}}>{expanded?<ChevronUp size={13} aria-hidden="true"/>:<ChevronDown size={13} aria-hidden="true"/>}{expanded?t('收起配套练习','Collapse practice'):t(`再展开 ${ids.length-2} 个知识点`,`Show ${ids.length-2} more ${ids.length-2===1?'concept':'concepts'}`)}</button>}
-  {missing&&catalogError&&<p className="interview-report-practice-retry" role="status">{t('部分练习信息暂未加载，面经和评论仍可阅读。','Some practice details could not load. The experience and comments remain readable.')} {onRetryCatalog&&<button type="button" onClick={event=>{pending.current={href:location.href,opener:event.currentTarget,kind:'retry',keyboard:false,question:shown.find(question=>!byId.has(question)&&!retired.has(question))||shown.find(question=>!byId.has(question))};onRetryCatalog();}}><RefreshCw size={12} aria-hidden="true"/>{t('重试练习信息','Retry practice details')}</button>}</p>}
+  {ids.length>2&&<button ref={toggle} type="button" className="interview-report-practice-toggle" aria-expanded={expanded} aria-controls={id} onClick={event=>{pending.current={href:location.href,opener:document.activeElement,kind:expanded?'collapse':'expand',keyboard:event.detail===0};search.reset();setView({expanded:!expanded,revealed:revealKey||view.revealed});}}>{expanded?<ChevronUp size={13} aria-hidden="true"/>:<ChevronDown size={13} aria-hidden="true"/>}{expanded?t('收起配套练习','Collapse practice'):t(`再展开 ${ids.length-2} 个知识点`,`Show ${ids.length-2} more ${ids.length-2===1?'concept':'concepts'}`)}</button>}
+  {missing&&catalogError&&<p className="interview-report-practice-retry" role="status">{t('部分练习信息暂未加载，面经和评论仍可阅读。','Some practice details could not load. The experience and comments remain readable.')} {onRetryCatalog&&<button type="button" onClick={event=>{pending.current={href:location.href,opener:event.currentTarget,kind:'retry',keyboard:false,question:(search.query?ids:shown).find(question=>!byId.has(question)&&!retired.has(question))||(search.query?ids:shown).find(question=>!byId.has(question))};onRetryCatalog();}}><RefreshCw size={12} aria-hidden="true"/>{t('重试练习信息','Retry practice details')}</button>}</p>}
   <InterviewReportStudyList questions={ids} topics={sources} returnTo={returnTo}/>
   {workspace&&<div ref={progressRoot} tabIndex={-1} className="interview-report-progress" aria-label={t('本篇面经的练习进度','Practice progress for this experience')}>
    <span className="interview-report-progress-label">{t('我的练习','My practice')}</span>

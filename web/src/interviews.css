@@ -114,10 +114,11 @@
 .interview-resource-panel,.interview-sharing-panel { padding:20px; border:1px solid var(--line); border-radius:12px; background:var(--surface); }
 .interview-panel-kicker { color:var(--accent); font-size:var(--type-caption); letter-spacing:.05em; }
 .interview-resource-panel > h2 { margin-top:8px; font-size:var(--type-body); font-weight:600; }
-.interview-resource-list > a { display:block; padding-top:18px; margin-top:18px; border-top:1px solid var(--line); }
-.interview-resource-list > a > span { display:flex; align-items:center; gap:5px; color:var(--accent); font-size:var(--type-caption); }
-.interview-resource-list > a > span > svg:last-child { margin-left:auto; }
-.interview-resource-list > a > b { display:block; margin-top:8px; font-size:var(--type-body); font-weight:550; line-height:1.7; }
+.interview-resource-list > article { padding-top:18px; margin-top:18px; border-top:1px solid var(--line); min-width:0; }
+.interview-resource-list > article > a { display:block; }
+.interview-resource-list > article > a > span { display:flex; align-items:center; gap:5px; color:var(--accent); font-size:var(--type-caption); }
+.interview-resource-list > article > a > span > svg:last-child { margin-left:auto; }
+.interview-resource-list > article > a > b { display:block; margin-top:8px; font-size:var(--type-body); font-weight:550; line-height:1.7; }
 .interview-resource-panel p { margin:7px 0; font-size:var(--type-small); color:var(--muted); line-height:1.9; }
 .interview-resource-panel small { font-size:var(--type-caption); color:var(--muted); }
 .interview-sharing-panel > svg { color:var(--accent); }

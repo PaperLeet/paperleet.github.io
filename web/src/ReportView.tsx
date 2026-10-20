@@ -6,7 +6,7 @@ import { ReportSourceNotice } from "./ReportSourceNotice";
 import type { ReportSourceState } from "./reportSource";
 import { learnerTraceFrames, type SourceLocation } from "./sourceLocation";
 import FailureDiagnostic from './FailureDiagnostic';
-import { ReportTests } from "./ReportTests";
+import { ReportTests,type TestDetailReveal } from "./ReportTests";
 
 export default function ReportView({
   report,
@@ -16,6 +16,7 @@ export default function ReportView({
   onLocate,
   children,
   accepted,
+  revealTest,
 }: {
   report?: Report;
   problem: Problem;
@@ -25,6 +26,7 @@ export default function ReportView({
   children?: ReactNode;
   /** Immutable account history uses the verdict recorded when this attempt ran. */
   accepted?: boolean;
+  revealTest?:TestDetailReveal;
 }) {
   const { t, locale } = useI18n();
   const labels = t(
@@ -107,7 +109,7 @@ export default function ReportView({
           );
         })}
       </div>
-      <ReportTests key={`${report.problem}:${report.created_at || report.source_sha256 || "latest"}`} tests={report.tests} source={source} sourceState={sourceState} impl={report.impl} onLocate={onLocate} />
+      <ReportTests revealTest={revealTest} key={`${report.problem}:${report.created_at || report.source_sha256 || "latest"}`} tests={report.tests} source={source} sourceState={sourceState} impl={report.impl} onLocate={onLocate} />
       {report.mutation && (
         <section className="mutation">
           <h4>{t("错误变体检查", "Mutation checks")}</h4>

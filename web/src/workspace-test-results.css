@@ -20,3 +20,9 @@
 .workspace-test-detail-error { padding:8px 0; font-size:var(--type-small); color:var(--text-secondary); }
 .workspace-test-detail-error button { min-height:40px; font-size:var(--type-small); color:var(--accent); }
 @media (pointer:coarse) { .workspace-test-results .feedback-actions > .button,.workspace-test-details > summary,.workspace-test-detail-error button { min-height:44px; } }
+
+.feedback-test-details{display:inline-flex;align-items:center;gap:6px;min-height:44px;margin-top:8px;color:var(--accent);font-size:var(--type-small)}
+.report-test-located{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;margin:10px 0;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface2);color:var(--text-secondary);font-size:var(--type-small);line-height:1.65}
+.report-test-located>span{flex:1 1 240px;min-width:0}.report-test-located>button{min-height:44px}
+.report-tests>.test-detail[data-test-revealed]{border-color:var(--accent)}
+.report-tests>.test-detail[data-test-revealed]>summary{box-shadow:inset 3px 0 var(--accent)}

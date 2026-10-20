@@ -1,0 +1,9 @@
+.practice-metadata{display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;min-width:0;max-width:100%;margin-top:8px}
+.practice-metadata>:is(.practice-metadata-difficulty,.practice-metadata-time){display:inline-flex;align-items:center;gap:5px;min-width:0;max-width:100%;box-sizing:border-box;min-height:28px;padding:3px 8px;border:1px solid var(--line);border-radius:6px;background:var(--surface2);color:var(--text-secondary);font-size:var(--type-small);font-weight:500;line-height:1.5;overflow-wrap:anywhere}
+.practice-metadata>.practice-metadata-difficulty{--practice-level:var(--accent);color:var(--practice-level);border-color:color-mix(in srgb,var(--practice-level) 22%,var(--line));background:color-mix(in srgb,var(--practice-level) 7%,var(--surface))}
+.practice-metadata>[data-difficulty=E]{--practice-level:var(--green)}
+.practice-metadata>[data-difficulty=H]{--practice-level:var(--chart-5)}
+.practice-metadata-time>svg{flex:none}.practice-metadata-time>span{min-width:0;font-variant-numeric:tabular-nums}
+.company-preparation-next>.practice-metadata{justify-content:flex-end;margin-top:0}
+@media(max-width:600px){.company-preparation-next>.practice-metadata{justify-content:flex-start}}
+@media(forced-colors:active){.practice-metadata>.practice-metadata-difficulty{border-color:CanvasText;color:CanvasText;background:Canvas}}

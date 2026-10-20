@@ -1,4 +1,6 @@
 import AppLink from './AppLink';
+import './readingPreferences';
+import './reading-appearance.css';
 import { Children, createElement, isValidElement, memo, useMemo } from 'react';
 import type { ReactNode } from 'react';
 import Markdown from 'react-markdown';

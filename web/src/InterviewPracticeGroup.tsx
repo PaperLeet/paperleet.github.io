@@ -11,6 +11,7 @@ import InterviewBatchShare from './InterviewBatchShare';
 import {PRACTICE_GROUP_LIMIT,interviewBatchShareHref} from './interviewBatchSharing';
 import InterviewBudgetPlanner from './InterviewBudgetPlanner';
 import {interviewBudgetPlan,type BudgetInput,type BudgetMode,type BudgetPlan} from './interviewBudgetPlan';
+import {keepReadingTriggerVisible} from './readingViewport';
 
 export {PRACTICE_GROUP_LIMIT} from './interviewBatchSharing';
 type Source='reports'|'curated';
@@ -28,7 +29,7 @@ function capturedGroup(queue:string){
 
 /** Selection changes are local; only starting practice captures the ordered public IDs in its URL. */
 export function useInterviewPracticeGroup({filters,source,problems,candidates,filterPending,saved,ready,selectionScope,pendingReason='progress',owner='guest'}:{filters:InterviewFilters;source:Source;problems:Problem[];candidates:Problem[];filterPending:boolean;saved:Record<string,Saved>;ready:boolean;selectionScope?:string;pendingReason?:'progress'|'catalog'|'sources';owner?:string}){
- const scope=JSON.stringify([owner,selectionScope??interviewHref(filters)]),initial=capturedGroup(filters.queue);
+ const id=useId(),scope=JSON.stringify([owner,selectionScope??interviewHref(filters)]),initial=capturedGroup(filters.queue);
  const renderedHref=typeof location==='undefined'?'':location.href;
  const undoVisit=useRef({scope,source});
  // A later visit to the same scope must not revive an earlier undo snapshot.
@@ -43,11 +44,21 @@ export function useInterviewPracticeGroup({filters,source,problems,candidates,fi
  const candidateNumbers=filterPending?[]:[...new Set(candidates.map(problem=>problem.number))].filter(number=>byNumber.has(number));
  const additions=(values:number[])=>candidateNumbers.filter(number=>!values.includes(number)).slice(0,Math.max(0,PRACTICE_GROUP_LIMIT-values.length));
  const fillCount=additions(numbers).length;
- const root=useRef<HTMLElement>(null),heading=useRef<HTMLHeadingElement>(null),focus=useRef<Focus|undefined>(undefined);
+ const root=useRef<HTMLElement>(null),heading=useRef<HTMLHeadingElement>(null),reviewRoot=useRef<HTMLDivElement>(null),focus=useRef<Focus|undefined>(undefined);
  const planningScope=JSON.stringify([scope,source,owner]),alive=useRef(true);
  useLayoutEffect(()=>{alive.current=true;return()=>{alive.current=false;};},[]);
- const latest=useRef({scope,source,owner,numbers,initial,problems,candidateNumbers,filterPending,saved,ready,undoContext});
- latest.current={scope,source,owner,numbers,initial,problems,candidateNumbers,filterPending,saved,ready,undoContext};
+ const reviewVisit={};
+ const latest=useRef({scope,source,owner,numbers,initial,problems,candidateNumbers,filterPending,saved,ready,undoContext,reviewVisit});
+ latest.current={scope,source,owner,numbers,initial,problems,candidateNumbers,filterPending,saved,ready,undoContext,reviewVisit};
+ function canReview(opener:HTMLElement){
+  const available=(node:HTMLElement|null)=>controlIsActive(node)&&!node?.closest('details:not([open]),dialog:not([open])');
+  return alive.current&&latest.current.reviewVisit===reviewVisit&&location.href===renderedHref&&numbers.length>0&&!!reviewRoot.current?.contains(opener)&&available(opener)&&available(root.current)&&available(heading.current);
+ }
+ function review(opener:HTMLButtonElement){
+  if(!canReview(opener))return;
+  const target=heading.current!;target.focus({preventScroll:true});
+  if(document.activeElement===target&&canReview(opener))keepReadingTriggerVisible(target,100);
+ }
  function plan(budget:number|undefined,mode:BudgetMode,selected=latest.current.numbers){
   const value=latest.current;
   const input:BudgetInput={scope:JSON.stringify([value.scope,value.source]),owner:value.owner,selected,candidates:value.candidateNumbers,ready:value.ready,pending:value.filterPending,items:value.problems.map(problem=>({id:problem.id,number:problem.number,minutes:problem.estimated_minutes,state:value.ready?status(problem,value.saved[problem.id]):'unknown'}))};
@@ -125,9 +136,20 @@ export function useInterviewPracticeGroup({filters,source,problems,candidates,fi
  const first=(ready?modules.find(problem=>status(problem,saved[problem.id])!=='done'):undefined)||modules[0];
  const completed=ready?modules.filter(problem=>status(problem,saved[problem.id])==='done').length:undefined;
  const shareHref=numbers.length&&!missing?interviewBatchShareHref(filters,modules):undefined;
- return {shareHref,modules,root,heading,numbers,byNumber,missing,change:current.change,canUndo:current.undo?.context===undoContext,undo,uneditable:!!filters.queue&&!initial&&!current.change,toggle,fill,fillCount,filterPending,pendingReason,candidateCount:candidateNumbers.length,remove,move,clear,retryCatalog,href,first,startHref:first?href(first):undefined,completed,ready,state:(problem:Problem)=>ready?status(problem,saved[problem.id]):undefined,continuing:ready&&!!first&&status(first,saved[first.id])==='started',planningScope,planningDefault:filters.study==='done'?'all' as const:'remaining' as const,plan,applyPlan};
+ return {id,canReview,review,reviewRoot,shareHref,modules,root,heading,numbers,byNumber,missing,change:current.change,canUndo:current.undo?.context===undoContext,undo,uneditable:!!filters.queue&&!initial&&!current.change,toggle,fill,fillCount,filterPending,pendingReason,candidateCount:candidateNumbers.length,remove,move,clear,retryCatalog,href,first,startHref:first?href(first):undefined,completed,ready,state:(problem:Problem)=>ready?status(problem,saved[problem.id]):undefined,continuing:ready&&!!first&&status(first,saved[first.id])==='started',planningScope,planningDefault:filters.study==='done'?'all' as const:'remaining' as const,plan,applyPlan};
 }
 export type InterviewPracticeGroupState=ReturnType<typeof useInterviewPracticeGroup>;
+
+/** A local return to the selection, beside the same captured native practice link. */
+export function InterviewBatchReview({group}:{group:InterviewPracticeGroupState}){
+ const {t}=useI18n();
+ if(!group.numbers.length)return null;
+ const allDone=group.completed!==undefined&&group.completed===group.numbers.length;
+ return <div ref={group.reviewRoot} className="practice-batch-review" role="group" aria-label={t('已选练习组快捷操作','Selected practice batch actions')}>
+  <p><b>{t(`已选 ${group.numbers.length} / ${PRACTICE_GROUP_LIMIT} 道`,`${group.numbers.length} of ${PRACTICE_GROUP_LIMIT} selected`)}</b>{group.missing>0&&<small>{t('部分题目待加载，可先查看练习组。','Some exercises need to load. Review your batch first.')}</small>}</p>
+  <div><button type="button" aria-controls={group.id} onClick={event=>group.review(event.currentTarget)}><Layers3 size={16} aria-hidden="true"/>{t('查看练习组','View batch')}</button>{group.startHref&&<AppLink className="button" href={group.startHref} onClick={event=>{if(!group.canReview(event.currentTarget))event.preventDefault();}}>{allDone?t('复习这组','Review this batch'):group.continuing?t('继续这组练习','Resume this batch'):group.ready?t('开始这组练习','Start this batch'):t('打开这组练习','Open this batch')}<ArrowRight size={15} aria-hidden="true"/></AppLink>}</div>
+ </div>;
+}
 
 export function InterviewGroupToggle({problem,name,group}:{problem:Problem;name:string;group:InterviewPracticeGroupState}){
  const {t}=useI18n(),selected=group.numbers.includes(problem.number),full=!selected&&group.numbers.length>=PRACTICE_GROUP_LIMIT;
@@ -143,7 +165,7 @@ export default function InterviewPracticeGroup({group,onRetryCatalog}:{group:Int
  const allDone=group.completed!==undefined&&group.completed===group.numbers.length;
  const minutes=group.numbers.map(number=>group.byNumber.get(number)?.estimated_minutes);
  const estimate=minutes.length&&minutes.every(value=>typeof value==='number'&&Number.isFinite(value)&&value>0)?minutes.reduce<number>((total,value)=>total+value!,0):undefined;
- return <section ref={group.root} className="interview-practice-group" aria-labelledby={headingId}>
+ return <section ref={group.root} id={group.id} className="interview-practice-group" aria-labelledby={headingId}>
   <header><div><h3 ref={group.heading} id={headingId} tabIndex={-1}><Layers3 size={16}/>{t('自选练习组','Your practice batch')}</h3><p>{t('最多选 6 道，按自己的顺序连续练习。','Pick up to 6 concepts and practice in your own order.')}</p></div>{group.numbers.length>0&&<button type="button" className="text-button" onClick={event=>group.clear(event.currentTarget)}>{t('清空','Clear')}</button>}</header>
   <div className="practice-group-feedback"><p className="practice-group-status" role="status">{t(`已选 ${group.numbers.length} / ${PRACTICE_GROUP_LIMIT}`,`${group.numbers.length} of ${PRACTICE_GROUP_LIMIT} selected`)}{change?.kind==='undo'?<span> · {t('已撤销上次调整。','Last change undone.')}</span>:feedback&&<span> · {feedback}</span>}</p>{group.canUndo&&<button type="button" className="practice-group-undo" aria-label={t('撤销上一次练习组调整','Undo the last practice batch change')} onClick={event=>group.undo(event.currentTarget)}><Undo2 size={15} aria-hidden="true"/>{t('撤销','Undo')}</button>}</div>
   <div className="practice-group-fill"><button type="button" className="button subtle" aria-disabled={!group.fillCount} aria-describedby={fillHintId} onClick={group.fill}>{group.fillCount?group.numbers.length?t(`再加入 ${group.fillCount} 道`,`Add ${group.fillCount} more`):t(`加入前 ${group.fillCount} 道`,`Add the first ${group.fillCount}`):group.numbers.length>=PRACTICE_GROUP_LIMIT?t('练习组已满','Batch full'):group.filterPending?group.pendingReason==='catalog'?t('需先加载题库','Catalog required'):group.pendingReason==='sources'?t('需先读取来源','Sources required'):t('需先读取学习进度','Progress required'):group.candidateCount?t('当前列表已加入','Current list added'):t('当前筛选暂无练习','No concepts in this view')}</button><small id={fillHintId}>{group.filterPending?group.pendingReason==='catalog'?t('题库加载后可按完整对比列表组题；也可以先逐题加入已加载的练习。','Load the catalog to fill from the complete comparison. You can still add loaded concepts individually.'):group.pendingReason==='sources'?t('来源统计就绪后，可从当前对比范围组题。','Current source counts are needed to fill a comparison batch.'):t('学习进度就绪后，才能按所选状态组题；仍可逐题加入。','Learning progress is needed for this state filter. You can still add individual concepts.'):t('按当前筛选与排序补齐，保留已选题目和顺序。','Fill from the current filters and order, keeping your existing choices.')}</small></div>

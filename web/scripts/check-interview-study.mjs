@@ -61,7 +61,7 @@ try{
  console.log('PASS generation targets study: every seven-step progress transition, current-module continuation, complete path and incomplete-catalog completion guard');
 
  const filters={...emptyInterviewFilters(),company:'google',role:'llm',days:'90',q:'数学 & attention 😀',view:'companies',track:'llm'},returnTo=interviewHref(filters);
- const render=async(Component,props)=>act(async()=>{if(!root)root=createRoot(document.querySelector('#root'));root.render(React.createElement(LocaleProvider,null,React.createElement(Component,props)));});
+ const render=async(Component,props)=>act(async()=>{if(Component===Paths)window.history.replaceState(null,'',interviewHref(props.filters));if(!root)root=createRoot(document.querySelector('#root'));root.render(React.createElement(LocaleProvider,null,React.createElement(Component,props)));});
  const click=async element=>{assert(element,'Missing control');await act(async()=>element.click());};
  const destination=anchor=>readInterviewRoute(libraryReturnHref(anchor.getAttribute('href')));
  const selectedCard=()=>document.querySelector('.interview-path-grid article[data-selected]');
@@ -210,9 +210,9 @@ try{
  }
  console.log('PASS complete curricula: three new ordered practice paths, every progress and next-step transition, exact role/company/stage/saved returns, selected-card order and full-catalog completion guards');
  location.hash=interviewHref({...emptyInterviewFilters(),view:'companies'});const resourceScope=location.hash;
- await render(Resources,{});const first=document.querySelector('.interview-resource-list a'),more=document.querySelector('.resource-browser-more');assert.equal(document.querySelectorAll('.interview-resource-list a').length,3);more.focus();await click(more);
- const links=[...document.querySelectorAll('.interview-resource-list a')];assert.equal(links.length,6);assert.equal(document.activeElement,links[3],'Expansion reveals and focuses the first source in the next bounded batch');
- const compact=[...document.querySelectorAll('.resource-browser-actions button')].find(button=>button.textContent==='Show fewer resources');assert(compact);await click(compact);assert.equal(document.querySelectorAll('.interview-resource-list a').length,3);assert.equal(document.querySelector('.interview-resource-list a'),first,'Compaction retains the initial links and reading position');assert.equal(document.activeElement,compact);assert.equal(compact.getAttribute('aria-disabled'),'true');
+ await render(Resources,{});const first=document.querySelector('.interview-resource-list a[data-resource-id]'),more=document.querySelector('.resource-browser-more');assert.equal(document.querySelectorAll('.interview-resource-list a[data-resource-id]').length,3);more.focus();await click(more);
+ const links=[...document.querySelectorAll('.interview-resource-list a[data-resource-id]')];assert.equal(links.length,6);assert.equal(document.activeElement,links[3],'Expansion reveals and focuses the first source in the next bounded batch');
+ const compact=[...document.querySelectorAll('.resource-browser-actions button')].find(button=>button.textContent==='Show fewer resources');assert(compact);await click(compact);assert.equal(document.querySelectorAll('.interview-resource-list a[data-resource-id]').length,3);assert.equal(document.querySelector('.interview-resource-list a[data-resource-id]'),first,'Compaction retains the initial links and reading position');assert.equal(document.activeElement,compact);assert.equal(compact.getAttribute('aria-disabled'),'true');
  assert.equal(location.hash,resourceScope,'Resource disclosure keeps the active interview route');
  console.log('PASS interview study flow: native three-module preview and per-card expansion, focus order, retained disclosure across fresh progress, full-path totals and unavailable-module handling; real workspace progress, loading/error/owner transitions, recent draft resume, complete/missing catalog, curriculum order including optional modules, scoped picker/next links, Unicode return filters and keyboard resource disclosure order');
 }finally{

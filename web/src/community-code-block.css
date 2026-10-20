@@ -17,7 +17,12 @@
 @media(pointer:coarse) { .community-code-header .community-code-actions button { min-height:44px; } }
 
 .community-code-header>span>small { display:inline-block; margin-inline-start:8px; color:var(--muted); font:var(--type-caption)/1.5 var(--font-sans); }
-.community-code-content { min-width:0; }
+.community-code-content { min-width:0; max-height:560px; max-height:min(560px,60dvh); overflow:auto; overscroll-behavior:contain; scrollbar-width:thin; }
+.community-code-content:focus-visible { outline:2px solid var(--accent); outline-offset:-3px; }
+/* The retained viewport owns both axes before and after async highlighting. */
+.community-code-content>.highlight { overflow:visible; }
+.community-code-block .community-code-content pre { box-sizing:border-box; width:max-content; min-width:100%; max-width:none; overflow:visible; }
+.community-code-block.is-wrapped .community-code-content pre { width:auto; }
 .community-code-disclosure { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px 16px; padding:10px 12px; border-top:1px solid var(--line); background:var(--surface2); }
 .community-code-disclosure>span { color:var(--text-secondary); font:var(--type-small)/1.6 var(--font-sans); }
 .community-code-disclosure>button { display:inline-flex; align-items:center; justify-content:center; gap:5px; min-height:40px; padding:6px 8px; margin-inline-start:auto; border-radius:5px; color:var(--accent); font:var(--type-small)/1.5 var(--font-sans); }

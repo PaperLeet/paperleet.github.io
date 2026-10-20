@@ -51,7 +51,8 @@ function CodeBlock({code,language,initiallyExpanded}:Required<Props>) {
         </button>
       </div>
     </div>
-    <div id={regionId} className="community-code-content" role={reading.collapsible?'region':undefined} aria-label={reading.collapsible?t(`${language} 代码`,`${language} code`):undefined}>
+    <span id={regionId+'-help'} className="sr-only">{t('代码可使用方向键滚动浏览，按 Tab 离开。可在上方切换自动换行。','Use arrow keys to scroll the code and Tab to leave. Toggle line wrapping above.')}</span>
+    <div id={regionId} className="community-code-content" tabIndex={0} role="region" aria-label={t(`${language} 代码`,`${language} code`)} aria-describedby={regionId+'-help'}>
       <Highlight code={!reading.collapsible||expanded?code:reading.preview} lang={language}/>
     </div>
     {reading.collapsible&&<div className="community-code-disclosure">

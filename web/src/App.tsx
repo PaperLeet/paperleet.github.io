@@ -511,10 +511,6 @@ function Workspace() {
     ["solution", t("题解", "Solutions")],
     ...(hostedAppAvailable?[["discussion",t("讨论","Discuss")]]:[]),
   ];
-  const webReadme = problem?.readme.replace(
-    /##\s*6[.、．]?\s*(?:怎么运行|编写与运行|在网页中运行|Write and run|Run your implementation|Running)[^\n]*\n[\s\S]*?(?=\n##\s*7|$)/,
-    `## 6. ${t("编写与运行", "Write and run")}\n\n${problem?.browser_judge ? t("在右侧完成实现，点击「运行测试」，通过后解锁坑点。注册或登录后提交，可保存解答和成绩到「我的提交」。", "Write code on the right, then Run tests to unlock Notes. Join or sign in, then Submit to save your solution and results in My submissions.") : t("在右侧完成实现，登录后 Submit。服务端会判题并保存解答和结果，可在「我的提交」中查看。", "Write code on the right, then sign in and Submit. The server judges your solution and saves it in My submissions.")}\n\n${t("游客草稿自动保存在当前浏览器，刷新后恢复，不会自动并入账号。", "Guest drafts save in this browser and survive reloads, separately from your account.")}\n`,
-  );
   const libraryActive=!problem&&path!=='daily-challenge'&&!submissionPage&&!communityPage&&!messagesPage&&!interviewPage&&!accountPage&&!settingsPage&&!achievementsPage&&!profileUsername;
   const workspaceSaveState = practice.error || (problem && practice.conflicts[problem.id]) ? "warning"
     : practice.loading || !practice.ready ? "loading"
@@ -719,7 +715,7 @@ function Workspace() {
               setLayoutRequest({horizontal:{ratio}});
             }} />
             <button className="workspace-focus-toggle" aria-pressed={focusMode} title={t("专注写代码，按 Esc 返回分栏", "Focus on code; press Esc to restore both panels")} onClick={() => { if (!focusMode) openEditor(); setFocusMode(value => !value); }}>{focusMode ? <WorkspacePanelIcon name="unfocus" size={14}/> : <WorkspacePanelIcon name="focus" size={14}/>}{focusMode ? t("退出专注", "Exit focus") : t("专注模式", "Focus mode")}</button>
-            {readFavoriteRoute(libraryReturn||'')?.list?<StudyListPracticeNavigation key={`${practice.owner}:${problem.id}`} problemId={problem.id} returnTo={libraryReturn!} problems={problems}/>:<ModuleNavigator key={problem.id} course={inCourse&&!directLibrary} current={problem} modules={listPractice?practiceScope.problems:siblingModules} allModules={problems} saved={learningSaved} ready={progressReady} scopeReady={companyReady&&(!directLibrary||scopeView?.filters.state==='all'||progressReady)} returnTo={libraryReturn} />}
+            {readFavoriteRoute(libraryReturn||'')?.list?<StudyListPracticeNavigation key={`${practice.owner}:${problem.id}`} problemId={problem.id} returnTo={libraryReturn!} problems={problems}/>:<ModuleNavigator key={`${practice.owner}:${problem.id}`} course={inCourse&&!directLibrary} current={problem} modules={listPractice?practiceScope.problems:siblingModules} allModules={problems} saved={learningSaved} ready={progressReady} scopeReady={companyReady&&(!directLibrary||scopeView?.filters.state==='all'||progressReady)} returnTo={libraryReturn} />}
           </div>
           <div className="mobile-workspace-switch" role="group" aria-label={t("练习视图", "Practice view")}>
             <button aria-pressed={mobilePane === "read"} aria-controls="problem-description-panel" onClick={() => selectReadingTab(tab)}><BookOpen size={16}/>{t('题面','Problem')}</button>
@@ -825,7 +821,8 @@ function Workspace() {
                       </div>
                     )}
                     <Prose
-                      content={webReadme || ""}
+                      content={problem.readme || ""}
+                      statementExecution={problem.browser_judge?"browser":"server"}
                       problemId={problem.id}
                       onViz={() => openLab("concept")}
                     />

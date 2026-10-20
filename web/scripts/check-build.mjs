@@ -72,7 +72,7 @@ assert(!manifest['src/PaperViews.tsx']?.isDynamicEntry&&files.some(file=>{const 
 const studyLists=manifest['src/StudyLists.tsx']?[['src/StudyLists.tsx',manifest['src/StudyLists.tsx']]]:Object.entries(manifest).filter(([,entry])=>entry.name==='StudyLists'&&entry.isDynamicEntry);
 assert(studyLists.length===1&&studyLists[0][1].isDynamicEntry&&!initial.has(studyLists[0][0]), 'Private study-list reading and editing must remain uniquely deferred');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Could not confirm your private study lists.')), 'Private study-list stores must not grow the library shell');
-assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Company interview practice')), 'Library interview preparation must not grow the initial shell');
+assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('library-interview-guide')), 'Library interview preparation must not grow the initial shell');
 assert(files.every(file => !/\/(editor|markdown|Community|Lab|PythonEditor|RichText|SolutionHistory)-/.test(file)), 'Optional runtime dependencies must not be pulled back into the shell');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Your implementation goal')), 'Problem overview and statistics rendering must stay deferred');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Reference reading actions')), 'Reference reading controls must remain deferred with problem solutions');

@@ -104,6 +104,12 @@
       "initials": "T"
     },
     {
+      "id": "huggingface",
+      "name": "Hugging Face",
+      "name_en": "Hugging Face",
+      "initials": "HF"
+    },
+    {
       "id": "other",
       "name": "其他公司",
       "name_en": "Other companies",
@@ -530,6 +536,127 @@
       "description_en": "This 2020 research article explains the three ZeRO stages through optimizer-state, gradient and parameter partitioning, covering memory redundancy and communication tradeoffs.",
       "checked": "2026-10-20",
       "kind": "technical"
+    },
+    {
+      "id": "google-recommendation-systems",
+      "company": "google",
+      "name": "推荐系统课程：召回、打分与重排",
+      "name_en": "Recommendation systems: retrieval, scoring and re-ranking",
+      "url": "https://developers.google.com/machine-learning/recommendation/overview/types",
+      "description": "通过 Google 官方课程复习候选生成、协同过滤、用户与物品嵌入、矩阵分解，以及打分与重排中的新鲜度和多样性取舍。",
+      "description_en": "Review candidate generation, collaborative filtering, user and item embeddings, matrix factorization, scoring, and freshness and diversity in re-ranking through Google’s official course.",
+      "checked": "2026-10-20",
+      "kind": "technical"
+    },
+    {
+      "id": "nvidia-gnn-introduction",
+      "company": "nvidia",
+      "name": "图神经网络入门：消息传递与邻域采样",
+      "name_en": "Graph neural networks: message passing and neighborhood sampling",
+      "url": "https://docs.nvidia.com/sdgm/research/concepts-models/gnn-introduction",
+      "description": "从节点、边和消息传递开始，理解邻域聚合、GCN、GraphSAGE 的采样与归纳学习，并了解图推荐和过平滑等应用与限制。",
+      "description_en": "Start with nodes, edges and message passing. Explore neighborhood aggregation, GCN, GraphSAGE sampling and inductive learning, graph recommendations and over-smoothing.",
+      "checked": "2026-10-20",
+      "kind": "technical"
+    },
+    {
+      "id": "nvidia-tensorrt-attention",
+      "company": "nvidia",
+      "name": "TensorRT-LLM：注意力阶段与 KV cache",
+      "name_en": "TensorRT-LLM: attention phases and KV caches",
+      "url": "https://nvidia.github.io/TensorRT-LLM/advanced/gpt-attention.html",
+      "description": "结合 NVIDIA 官方文档区分上下文与逐 token 生成，阅读 MHA、MQA、GQA、分块注意力、连续与分页 KV cache 的实现思路。",
+      "description_en": "Use NVIDIA’s official documentation to distinguish context and token generation, and study MHA, MQA, GQA, tiled attention, and contiguous versus paged KV caches.",
+      "checked": "2026-10-20",
+      "kind": "technical"
+    },
+    {
+      "id": "meta-llama3-reference",
+      "company": "meta",
+      "name": "Llama 3 历史参考源码：RMSNorm、RoPE 与 KV 头共享",
+      "name_en": "Llama 3 historical reference: RMSNorm, RoPE and KV head sharing",
+      "url": "https://github.com/meta-llama/llama3/blob/32b7ddc9b638f0fd6b04b80e1845536a95f7a5d5/llama/model.py",
+      "description": "对照 Meta 的 2024 年参考实现阅读归一化、旋转位置编码、KV 头重复与缓存写入。仓库已归档，链接固定到历史提交，适合源码学习。",
+      "description_en": "Read normalization, rotary positions, KV head repetition and cache updates in Meta’s 2024 reference implementation. The repository is archived; this source-reading link pins the historical revision.",
+      "checked": "2026-10-20",
+      "kind": "technical"
+    },
+    {
+      "id": "google-gan-course",
+      "company": "google",
+      "name": "Google GAN 课程：对抗损失与交替训练",
+      "name_en": "Google GAN course: adversarial losses and alternating training",
+      "url": "https://developers.google.com/machine-learning/gan",
+      "description": "通过 Google 官方课程复习生成器与判别器、交替训练、minimax 与非饱和目标，并思考如何判断训练状态。",
+      "description_en": "Review generators, discriminators, alternating training, minimax and non-saturating objectives, and training diagnostics through Google’s official course.",
+      "checked": "2026-10-20",
+      "kind": "technical"
+    },
+    {
+      "id": "tensorflow-vae-tutorial",
+      "company": "google",
+      "name": "TensorFlow 官方 VAE 教程：重参数化与 ELBO",
+      "name_en": "TensorFlow VAE tutorial: reparameterization and ELBO",
+      "url": "https://www.tensorflow.org/tutorials/generative/cvae",
+      "description": "对照 TensorFlow 官方卷积 VAE 教程阅读高斯后验、重参数化、Bernoulli 重建项与蒙特卡洛 ELBO 估计。",
+      "description_en": "Read Gaussian posteriors, reparameterization, Bernoulli reconstruction and Monte Carlo ELBO estimation in TensorFlow’s official convolutional VAE tutorial.",
+      "checked": "2026-10-20",
+      "kind": "technical"
+    },
+    {
+      "id": "huggingface-careers",
+      "company": "huggingface",
+      "name": "Hugging Face 官方招聘入口",
+      "name_en": "Hugging Face careers",
+      "url": "https://apply.workable.com/huggingface/",
+      "description": "从 Hugging Face 官方网站链接进入招聘页，核对岗位职责、工作地点与申请条件；职位信息以原站为准。",
+      "description_en": "Follow the careers destination linked by Hugging Face’s official website. Review role requirements, locations and application details on the original site.",
+      "checked": "2026-10-20",
+      "kind": "careers"
+    },
+    {
+      "id": "huggingface-diffusion-course",
+      "company": "huggingface",
+      "name": "扩散模型入门：从玩具去噪到 DDPM",
+      "name_en": "Diffusion fundamentals: from toy denoising to DDPM",
+      "url": "https://huggingface.co/learn/diffusion-course/en/unit1/3",
+      "description": "通过 Hugging Face 官方课程比较玩具扰动与 DDPM 噪声日程、干净样本与噪声预测目标，以及训练和采样的不同角色。",
+      "description_en": "Compare toy corruption with DDPM noise schedules, clean-sample and noise-prediction objectives, and the different roles of training and sampling in Hugging Face’s official course.",
+      "checked": "2026-10-20",
+      "kind": "technical"
+    },
+    {
+      "id": "huggingface-ddim-scheduler",
+      "company": "huggingface",
+      "name": "Diffusers DDIM：预测约定、时间步与随机性",
+      "name_en": "Diffusers DDIM: prediction types, timesteps and stochasticity",
+      "url": "https://huggingface.co/docs/diffusers/en/api/schedulers/ddim",
+      "description": "阅读 Hugging Face 官方 DDIMScheduler 文档，核对预测类型、训练与推理时间步、eta、显式方差噪声及干净终点选项。",
+      "description_en": "Read the official DDIMScheduler reference for prediction types, training and inference timesteps, eta, explicit variance noise and the clean-endpoint option.",
+      "checked": "2026-10-20",
+      "kind": "technical"
+    },
+    {
+      "id": "microsoft-lora-paper",
+      "company": "microsoft",
+      "kind": "technical",
+      "name": "LoRA 原始论文：冻结基座与低秩更新",
+      "name_en": "LoRA original paper: frozen weights and low-rank updates",
+      "description": "微软研究院论文页，介绍冻结预训练权重与可训练低秩分解，结合第 14 题练习缩放更新与独立线性层。",
+      "description_en": "Microsoft Research publication page on frozen pretrained weights and trainable low-rank factors. Use module 14 to study scaled updates and an isolated linear layer.",
+      "url": "https://www.microsoft.com/en-us/research/publication/lora-low-rank-adaptation-of-large-language-models/",
+      "checked": "2026-10-20"
+    },
+    {
+      "id": "huggingface-qlora-foundations",
+      "company": "huggingface",
+      "kind": "technical",
+      "name": "QLoRA 原理（2023）：NF4 与可训练 Adapter",
+      "name_en": "QLoRA foundations (2023): NF4 and trainable adapters",
+      "description": "Hugging Face 的 2023 年原理文章，区分 4-bit 权重存储、计算精度与可训练 Adapter；结合第 15 题理解 NF4 分块与冻结量化基座。",
+      "description_en": "A 2023 Hugging Face introduction distinguishing 4-bit weight storage, compute precision and trainable adapters. Use module 15 for NF4 blocks and a frozen quantized base.",
+      "url": "https://huggingface.co/blog/4bit-transformers-bitsandbytes",
+      "checked": "2026-10-20"
     }
   ],
   "paths": [

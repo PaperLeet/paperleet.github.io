@@ -29,14 +29,21 @@ def test_shared_interview_taxonomy_and_preparation_paths_are_publishable():
     companies = {row['id'] for row in catalog['companies']}
     official = {'www.amazon.jobs', 'careers.microsoft.com', 'openai.com', 'www.google.com', 'www.metacareers.com',
                 'deepmind.google', 'developers.google.com', 'www.nvidia.com', 'docs.nvidia.com',
-                'engineering.fb.com', 'www.anthropic.com', 'www.apple.com',
+                'engineering.fb.com', 'nvidia.github.io', 'www.anthropic.com', 'www.apple.com',
                 'jobs.bytedance.com', 'talent.alibaba.com', 'careers.tencent.com', 'talent.baidu.com',
                 'zhaopin.meituan.com', 'zhaopin.kuaishou.cn', 'www.deepseek.com', 'x.ai', 'www.tesla.com', 'www.microsoft.com'}
+    # Publisher-owned references outside the official hosts are exact URL/company pairs.
+    official_code = {'https://github.com/meta-llama/llama3/blob/32b7ddc9b638f0fd6b04b80e1845536a95f7a5d5/llama/model.py': 'meta',
+                     'https://www.tensorflow.org/tutorials/generative/cvae': 'google',
+                     'https://apply.workable.com/huggingface/': 'huggingface',
+                     'https://huggingface.co/learn/diffusion-course/en/unit1/3': 'huggingface',
+                     'https://huggingface.co/docs/diffusers/en/api/schedulers/ddim': 'huggingface',
+                     'https://huggingface.co/blog/4bit-transformers-bitsandbytes': 'huggingface'}
     assert len({row['id'] for row in catalog['resources']}) == len(catalog['resources'])
     assert len({row['company'] for row in catalog['resources']}) >= 17
     for row in catalog['resources']:
         url = urlsplit(row['url'])
-        assert url.scheme == 'https' and url.hostname in official and not url.username and not url.password
+        assert url.scheme == 'https' and (url.hostname in official or official_code.get(row['url']) == row['company']) and not url.username and not url.password
         assert all(isinstance(row.get(field),str) and row[field].strip() for field in ('name','name_en','description','description_en'))
         assert row['kind'] in {'guide', 'careers', 'technical'}
         assert row['company'] in companies and row['checked']

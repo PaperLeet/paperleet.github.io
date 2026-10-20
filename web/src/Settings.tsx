@@ -1,4 +1,5 @@
 import AppLink from './AppLink';
+import ReadingAppearance from './ReadingAppearance';
 import { ArrowLeft, ArrowRight, Award, Check, Globe2, HardDriveDownload, Moon, Palette, Sun, UserRound } from 'lucide-react';
 import { useI18n } from './i18n';
 import './settings.css';
@@ -34,6 +35,7 @@ export default function SettingsPage({ theme, onTheme, returnTo, onBackup, backu
           <button type="button" lang="en" aria-pressed={locale === 'en'} onClick={() => setLocale('en')}>English{locale === 'en' && <Check size={13} aria-hidden="true" />}</button>
         </div>
       </div>
+      <div className="settings-row"><ReadingAppearance mode="settings"/></div>
     </section>
     <section className="settings-card settings-backup-card" aria-labelledby="settings-backup-title">
       <div className="settings-card-heading"><span className="settings-section-icon"><HardDriveDownload size={19} aria-hidden="true" /></span><div><h2 id="settings-backup-title">{t('代码备份与恢复', 'Code backup & restore')}</h2><p>{workspaceName}</p></div></div>
