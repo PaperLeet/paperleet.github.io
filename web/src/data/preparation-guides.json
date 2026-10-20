@@ -5990,6 +5990,30 @@
             "en": "Replication preserves the mean update, while reward negation reverses its direction. Singleton and constant populations check degeneracy."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "reward-scale",
+          "question": {
+            "zh": "奖励乘以正数再加常数时，更新方向一定不变吗？",
+            "en": "Does multiplying rewards by a positive number and adding a constant always preserve the update?"
+          },
+          "hint": {
+            "zh": "先在标准差大于 eps 时推导中心化与缩放的抵消。若标准差触及固定下限，缩放会改变权重大小；负数缩放还会翻转方向。",
+            "en": "First derive cancellation when the standard deviation exceeds eps. A fixed floor changes weight magnitudes when it becomes active; a negative multiplier also reverses the direction."
+          }
+        },
+        {
+          "id": "noise-scale",
+          "question": {
+            "zh": "改变 sigma 后，为什么不能只把它当作代码里遗漏的除数？",
+            "en": "Why is changing sigma more than inserting a missing divisor into this update?"
+          },
+          "hint": {
+            "zh": "sigma 决定实际评估的候选模型，因此会改变奖励。调用方传入未缩放的 epsilon，本题 alpha 已吸收逆 sigma 因子；候选评估和更新步长是两个需要分别检查的环节。",
+            "en": "Sigma changes the evaluated candidate models and therefore their rewards. The caller supplies unscaled epsilon and this exercise absorbs inverse sigma into alpha. Check candidate evaluation and update step size separately."
+          }
+        }
       ]
     },
     {
@@ -6034,6 +6058,30 @@
             "en": "The penalty gradient is twice strength times factor times displacement. The independent first-coordinate optimum is 1/(1+8*strength)."
           }
         }
+      ],
+      "followups": [
+        {
+          "id": "importance-movement",
+          "question": {
+            "zh": "同样的重要度下，历史变化更小的提示坐标为什么约束更强？",
+            "en": "With equal importance, why is a prompt coordinate with less historical movement constrained more strongly?"
+          },
+          "hint": {
+            "zh": "逐坐标检查 eta/(delta²+xi)。平方让正负变化对称，xi 保证零变化时仍有限；这种系数依赖已提供的历史重要度，并不重新估计 Fisher。",
+            "en": "Inspect eta/(delta²+xi) coordinate by coordinate. Squaring makes movement signs symmetric and xi keeps zero movement finite. This coefficient uses supplied historical importance rather than re-estimating a Fisher matrix."
+          }
+        },
+        {
+          "id": "domain-count",
+          "question": {
+            "zh": "历史记录重复一遍后，稳态因子和当前提示的梯度怎样变化？",
+            "en": "What happens to the homeostatic factor and current-prompt gradient if every historical record is duplicated?"
+          },
+          "hint": {
+            "zh": "因子按域求和，因此翻倍；在当前提示、锚点和强度固定时，惩罚梯度也翻倍。历史、锚点与因子保持冻结，只有当前提示接收梯度。",
+            "en": "Factors sum across domains, so they double. At fixed current prompt, anchor and strength, the penalty gradient also doubles. History, anchor and factors stay frozen; only the current prompt receives gradients."
+          }
+        }
       ]
     },
     {
@@ -6076,6 +6124,30 @@
           "hint": {
             "zh": "改变未选专家预测应保持结果；选择集与测试集分离，另测两种并列值约定和空样本。",
             "en": "Changing rejected predictions must preserve outputs. Separate selection/test data, then test both tie conventions and an empty sample batch."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "search-selection",
+          "question": {
+            "zh": "随机候选越多，选择集最高分越高，就能断定测试性能更好吗？",
+            "en": "If searching more random candidates raises the best selection-set score, does that establish better test performance?"
+          },
+          "hint": {
+            "zh": "更多尝试也会提高对选择集噪声的过拟合机会。固定选择规则后，用未参与专家筛选和参数选择的数据评估；最终测试标签不能用于挑选 K 或扰动尺度。",
+            "en": "More trials also increase opportunities to fit selection-set noise. Evaluate a fixed selection rule on data excluded from expert and hyperparameter selection; final test labels must not choose K or perturbation scales."
+          }
+        },
+        {
+          "id": "correlated-experts",
+          "question": {
+            "zh": "多个高分专家犯完全相同的错时，多数投票还能改善什么？",
+            "en": "What can majority voting improve when several high-scoring experts make exactly the same errors?"
+          },
+          "hint": {
+            "zh": "先构造所有专家预测相同的情况，此时投票等于单个预测。收益取决于错误差异和每个样本的票数，而不仅是各自的平均准确率；保留更多专家还会增加推理成本。",
+            "en": "Start with identical expert predictions: voting then equals a single prediction. Gains depend on error diversity and per-sample votes, not only individual average accuracy; retaining more experts also increases inference cost."
           }
         }
       ]
