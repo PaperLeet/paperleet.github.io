@@ -73,6 +73,16 @@
 }
 @media(max-width:700px){.library-pagination-compact{margin-left:0;justify-content:flex-start;max-width:100%}.library-page-arrow-label{display:none}}
 @media(max-width:520px){.library-pagination:not(.library-pagination-compact){padding:16px 12px}}
+@media(max-width:520px){
+ .library-pagination-compact .library-page-buttons{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;width:100%;max-width:420px;gap:4px}
+ .library-pagination-compact .library-page-buttons>.library-page-arrow{width:44px;padding-inline:0}
+ .library-pagination .library-quick-jump{width:100%;max-width:none;min-width:0;gap:4px}
+ .library-pagination .library-quick-jump label{flex:1 1 44px;min-width:0;justify-content:center;padding-inline-start:0}
+ .library-quick-jump label>span{display:none}
+ .library-pagination .library-quick-jump input{width:100%;max-width:96px;min-width:0}
+ .library-pagination .library-quick-jump>button[type=submit]{min-width:44px;padding-inline:7px}
+ .library-pagination-compact .library-page-size{min-height:44px}
+}
 @media(max-width:380px){.library-pagination-compact{width:100%;justify-content:space-between;gap:10px}.library-pagination-compact .library-page-size{flex:1 1 100%}}
 @media(prefers-reduced-motion:reduce){.library-page-buttons button,.library-return-results,.library-pagination :is(.library-page-size select,.page-jump input){transition:none}}
 @media(forced-colors:active){.library-pagination .library-page-buttons{border-color:ButtonText}.library-pagination button[aria-current=page]{outline:2px solid Highlight;outline-offset:-3px}.library-pagination .library-quick-jump input[aria-invalid=true]{border-color:LinkText}}

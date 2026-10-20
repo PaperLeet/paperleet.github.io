@@ -10,6 +10,7 @@ export default function PageJump({page,maxPage,onChange,label,className='',contr
  const [value,setValue]=useState(String(page)),[invalid,setInvalid]=useState(false);
  useLayoutEffect(()=>{const requested=recoveryFocus.current;recoveryFocus.current=false;if(requested&&active()&&input.current===document.activeElement)input.current?.select();});
  const normalized=value.normalize('NFKC').trim(),numeric=Number(normalized);
+ const pending=!invalid&&/^\d+$/.test(normalized)&&Number.isSafeInteger(numeric)&&numeric>=1&&numeric<=maxPage&&numeric!==page;
  const outsideRange=/^-?\d+$/.test(normalized)&&Number.isSafeInteger(numeric)&&(numeric<1||numeric>maxPage);
  const currentValid=Number.isSafeInteger(page)&&page>=1&&page<=maxPage;
  const recovery=outsideRange?(numeric<1?1:maxPage):currentValid?page:Number.isSafeInteger(page)?Math.max(1,Math.min(page,maxPage)):1;
@@ -26,7 +27,7 @@ export default function PageJump({page,maxPage,onChange,label,className='',contr
   setInvalid(false);setValue(String(next));
   if(next!==page)onChange(next);
  }
- return <form ref={form} className={`page-jump ${className}`} style={{'--page-jump-digits':Math.min(12,Math.max(2,String(maxPage).length,value.length))} as import('react').CSSProperties} aria-label={label} onSubmit={event=>{event.preventDefault();jump();}}>
+ return <form ref={form} className={`page-jump ${className}`} data-pending={pending||undefined} style={{'--page-jump-digits':Math.min(12,Math.max(2,String(maxPage).length,value.length))} as import('react').CSSProperties} aria-label={label} onSubmit={event=>{event.preventDefault();jump();}}>
   <span id={id+'-hint'} className="sr-only">{t(`页码范围 1 至 ${maxPage}，Enter 跳转，Esc 恢复当前页。`,`Pages 1 to ${maxPage}. Enter to go; Escape to restore the current page.`)}</span>
   <label><span>{t('前往','Go to')}</span><input ref={input} type="text" inputMode="numeric" enterKeyHint="go" autoComplete="off" maxLength={20} value={value} aria-label={t('跳转页码','Jump to page')} aria-controls={controls} aria-invalid={invalid||undefined} aria-describedby={id+'-hint'+(invalid?' '+id+'-error':'')}
    onFocus={event=>{if(active())event.currentTarget.select();}}

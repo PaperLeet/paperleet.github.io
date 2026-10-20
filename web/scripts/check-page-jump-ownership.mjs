@@ -19,7 +19,14 @@ try{
  const input=async value=>act(async()=>{Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value').set.call(field(),value);field().dispatchEvent(new window.Event('input',{bubbles:true}));});
  const submit=async()=>act(async()=>form().dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true})));
  const key=async()=>{const event=new window.KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true});await act(async()=>field().dispatchEvent(event));return event;};
- await render();const node=field();await input('0');outside.focus();await submit();assert(document.activeElement===node);assert.equal(node.getAttribute('aria-invalid'),'true');assert(document.querySelector('[role=alert]'));await key();assert.equal(node.value,'2');assert(!node.hasAttribute('aria-invalid'));
+ await render();const node=field();
+ assert(!form().hasAttribute('data-pending'),'The current page has no pending navigation');
+ for(const value of ['3',' ３ ']){await input(value);assert.equal(form().dataset.pending,'true');assert.deepEqual(changes,[],'Typing a destination only prepares navigation');}
+ await act(async()=>changeLocale('zh'));assert(field()===node);assert.equal(node.value,' ３ ');assert.equal(form().dataset.pending,'true');await act(async()=>changeLocale('en'));
+ await key();assert.equal(node.value,'2');assert(!form().hasAttribute('data-pending'));
+ for(const value of ['２','0','9','1.5','','9007199254740993']){await input(value);assert(!form().hasAttribute('data-pending'),'Current, empty, malformed and out-of-range pages are not ready destinations');}
+ console.log('PASS page-jump destination feedback: valid normalized destinations highlight the explicit Go action without navigation; current, empty, invalid and unsafe values stay neutral; Escape and locale retain the native input');
+ await input('0');outside.focus();await submit();assert(document.activeElement===node);assert.equal(node.getAttribute('aria-invalid'),'true');assert(document.querySelector('[role=alert]'));await key();assert.equal(node.value,'2');assert(!node.hasAttribute('aria-invalid'));
  const recovery=()=>form().querySelector('.page-jump-recovery');
  for(const [value,expected,label]of [['99','8','Use last page (8)'],['０','1','Use first page (1)'],['－２','1','Use first page (1)'],['1.5','2','Restore current page (2)'],['9007199254740993','2','Restore current page (2)']]){
   await input(value);await submit();assert.equal(recovery().textContent,label);assert.equal(recovery().type,'button');

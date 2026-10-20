@@ -13,6 +13,7 @@
 @media(pointer:coarse) { .page-jump :is(input,button) { min-height:44px; font-size:var(--type-body); } }
 
 .page-jump button:hover { color:var(--accent); background:var(--surface2); }
+.page-jump[data-pending=true] > button[type=submit] { border-color:var(--accent); color:var(--accent); background:color-mix(in srgb,var(--accent) 9%,var(--surface)); }
 @media(prefers-reduced-motion:no-preference) { .page-jump button { transition:background-color .15s,border-color .15s,color .15s; } }
 @media(forced-colors:active) { .page-jump input[aria-invalid=true] { border:2px solid LinkText; } }
 @media(prefers-reduced-motion:reduce) { .page-jump :is(input,button) { transition:none; } }
@@ -20,3 +21,4 @@
 .page-jump button.page-jump-recovery { max-width:100%; min-height:44px; padding:6px 10px; border-color:transparent; background:transparent; color:var(--accent); font-size:var(--type-small); white-space:normal; overflow-wrap:anywhere; text-align:center; }
 @media(hover:hover) { .page-jump button.page-jump-recovery:hover { border-color:var(--line); background:var(--surface); } }
 @media(forced-colors:active) { .page-jump .page-jump-feedback { border-color:LinkText; } }
+@media(forced-colors:active) { .page-jump[data-pending=true] > button[type=submit] { border-color:Highlight; outline:1px solid Highlight; outline-offset:-3px; } }
