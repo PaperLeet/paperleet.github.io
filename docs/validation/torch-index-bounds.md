@@ -1,11 +1,11 @@
 # Integer index bounds without full-size comparison buffers
 
-This is a locally validated development candidate based on `08636f5e`, with
-package version still `0.84.0`. It has not been adopted on main. The existing
-0.84 release qualification describes the earlier implementation; catalog
-exports, the actual application Worker and a fresh adoption audit remain
-required before integrating a new version. No CI, tag, publication or deployment
-was triggered. The package has not been renamed.
+These measurements describe the development candidate based on `08636f5e`,
+whose package version was still `0.84.0`. Its mathematical source is now included
+in the [0.85 qualification](torch-runtime-0.85-qualification.md), with fresh
+installed-package, catalog, frontend and actual Worker checks. Main adoption is
+recorded separately. No CI, tag, publication or deployment was triggered by
+these measurements. The package has not been renamed.
 
 `gather`, `index_select`, `index_add`, `scatter_add` and selection pullbacks now
 share a checked integer-range predicate. Two integer reductions replace the

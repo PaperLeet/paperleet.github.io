@@ -1,0 +1,64 @@
+# StrideTorch 0.85 CPU/WASM qualification
+
+Version 0.85 removes index-sized boolean comparison buffers from integer bounds
+validation shared by gather, selection, indexed addition and selection
+pullbacks. The [index-bounds record](torch-index-bounds.md) retains the original
+allocation measurements, complete-flow timings and three focused independent
+Node repeats of an initial timing anomaly. The measured mathematical source is
+unchanged; the runtime resource delta since that candidate is only the package
+version literal.
+
+| Verification | Result |
+| --- | --- |
+| Installed wheel SDK and native indexed comparisons, NumPy 2.5.4 / Torch 2.14.1 | 13,144 passed |
+| Same, NumPy 1.26.4 / Torch 2.6.0 | 13,141 passed, 3 existing skips |
+| Actual wheel in Node and Chrome Worker Pyodide | 12,466 passed each |
+| Default exported CPU VM independent SDK | 12,455 passed across 93 suites |
+| Full exported PaperLeet WASM catalog | 89 modules, 406 mutants caught, no budget violations |
+| Public/private wheel, sdist and rebuilt wheel | Six artifacts inspected; both native NumPy baselines pass |
+| Current frontend command coverage | All 222 checks passed |
+| Local and Pages-profile builds | Passed |
+| Generated Worker and actual nested problem page | Exact 63-resource identities; 7/7 tests and explicit bounds/gradient/JVP/HVP checks passed |
+
+The native 89-module catalog result is reused only after checking all 1,427
+problem, native runner and root-test inputs and all 89 report hashes. These
+native PyTorch computations do not call the lightweight bounds predicate. The
+fresh real WASM run executes the new adapter through the complete catalog.
+This is not described as another complete native application run.
+
+The first frontend run stopped at a stale favorite-pagination assertion. The
+component now includes a page-total annotation inside its range status. The
+repaired check asserts the exact result range and exact page total separately;
+its other interactions remain covered. The unchanged 84-command successful
+prefix and all 138 repaired/remaining commands are retained, with no omitted
+check. A later build stopped with ENOSPC while copying static resources. Both
+failed predecessors remain in the raw record.
+
+The failed partial build was verified against canonical resources before
+cleanup. Local build copies then used independent native APFS snapshots for
+immutable assets: roughly 580 MB of logical resources initially added about
+10 MB of physical storage. Only derived output links to those snapshots; the
+original files have separate inodes. Every immutable output was verified
+against its original bytes. Mutable assets and generated pages use ordinary
+build behavior. This local storage accommodation changes no application or
+product build script. Both complete build profiles and the real Chrome Worker
+passed afterward.
+
+The installed public package retains 78 resources, the private runtime 67,
+default embedding 63 and schedules embedding six. Optional WebGPU imports and
+exports remain covered by the wheel SDK; automatic GPU dispatch stays disabled.
+The package name remains unchanged pending a separate naming decision.
+
+The [summary](../../packages/stridetorch/benchmarks/results/qualification-0.85.json)
+and [raw archive](../../packages/stridetorch/benchmarks/results/qualification-0.85-harness.tar.gz)
+contain exact sources, all six artifact identities, installed/WASM results,
+complete frontend coverage, both failed predecessors and recovery receipts,
+export identities, generated code and actual Worker probes. The archive has
+4,010 logical files and 2,822 unique payloads. SHA-256:
+
+`94cab7f2767e82f00b707f66821829b43295a60eaaffa05cf7a5760046006042`
+
+Core qualification uses source base `d8012b46` with separately hash-bound fresh
+exports. Later main updates require their own integration qualification before
+adoption. No Actions dispatch, tag, package publication or site deployment was
+performed by this qualification.
