@@ -12,6 +12,7 @@ import NavMetric from './NavMetric';
 
 // Both custom renderers supply their own visible labels.
 const customRecoveryLabel:[string,string]=['',''];
+const quietEnhancement={loading:()=>null,failure:()=>null};
 
 function PresencePlaceholder({retry}: {retry?: () => void}) {
   const {t} = useI18n();
@@ -30,7 +31,7 @@ export const OnlinePresence = deferredFeature(() => import('./OnlinePresence'), 
 export const InboxBell = deferredFeature(() => import('./InboxBell'), ['通知', 'notifications'], {loading: () => null});
 export const Messages = deferredFeature(() => import('./Messages'), ['私信', 'messages']);
 // These optional controls render nothing while loading or after failure.
-export const ReadingTabControls = deferredFeature(() => import('./ReadingTabControls'), customRecoveryLabel, {loading:()=>null,failure:()=>null});
+export const ReadingTabControls = deferredFeature(() => import('./ReadingTabControls'), customRecoveryLabel, quietEnhancement);
 
 export const InterviewPracticeNextStep = deferredFeature(() => import('./InterviewPracticeNextStep'), ['下一道准备练习','next preparation module']);
 export const PaperDetail = deferredFeature<Parameters<typeof import('./PaperDetail').default>[0]&{recovery:EditorRecovery}>(() => import('./PaperDetail'), ['论文详情','paper details'], {
@@ -39,7 +40,7 @@ export const PaperDetail = deferredFeature<Parameters<typeof import('./PaperDeta
 
 export const Interviews = deferredFeature(() => import('./Interviews'), ['面经与面试准备','interview preparation']);
 export const ProblemOverview = deferredFeature(() => import('./ProblemOverview'), customRecoveryLabel, {loading:props=><ProblemOverviewFallback problem={props.problem}/>,failure:(props,retry)=><ProblemOverviewFallback problem={props.problem} retry={retry}/>});
-export const ProblemCompanyTags = deferredFeature(() => import('./ProblemCompanyTags'), customRecoveryLabel, {loading:()=>null,failure:()=>null});
+export const ProblemCompanyTags = deferredFeature(() => import('./ProblemCompanyTags'), customRecoveryLabel, quietEnhancement);
 export const PreparationGuide = deferredFeature(() => import('./PreparationGuide'), customRecoveryLabel, {loading:()=>null,failure:(_props,retry)=><RuntimeDetailsFailure retry={retry} label={['重试自测提纲','Retry study prompts']}/>});
 export const Community = deferredFeature(() => import('./Community'), ['社区', 'community']);
 export const DraftCenter = deferredFeature(() => import('./DraftCenter'), ['创作草稿','writing drafts']);
@@ -53,7 +54,7 @@ export const SubmissionResultPage = deferredFeature(() => import('./SubmissionRe
 export const ResizableSplit = deferredFeature(() => import('./ResizableSplit'), ['做题布局', 'workspace layout']);
 export const SettingsPage = deferredFeature(() => import('./Settings'), ['设置', 'settings']);
 export const Achievements = deferredFeature(() => import('./Achievements'), ['学习勋章', 'achievements']);
-export const AchievementObserver = deferredFeature(() => import('./AchievementObserver'), customRecoveryLabel, {loading: () => null, failure: () => null});
+export const AchievementObserver = deferredFeature(() => import('./AchievementObserver'), customRecoveryLabel, quietEnhancement);
 export const WorkspaceLayoutMenu = deferredFeature(() => import('./WorkspaceLayoutMenu'), customRecoveryLabel, {loading:()=>null,failure:(_props,retry)=><RuntimeDetailsFailure retry={retry} label={['重试布局选项','Retry layout options']}/>});
 export const JudgeRuntimeDetails = deferredFeature(() => import('./JudgeRuntimeDetails'), customRecoveryLabel, {loading:()=>null,failure:(_props,retry)=><RuntimeDetailsFailure retry={retry} label={['重试加载运行说明','Retry run details']}/>});
 export const BrowserResultActions = deferredFeature<Parameters<typeof import('./BrowserResultActions').BrowserResultActions>[0]>(() => import('./BrowserResultActions').then(module => ({default:module.BrowserResultActions})), ['账号成绩确认', 'account verification'], {failure: (_props,retry) => <VerificationFailure retry={retry} />});
