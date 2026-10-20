@@ -27,7 +27,7 @@ function ModuleNavigation({current,modules:paperModules,allModules,saved,ready,r
  const root=useRef<HTMLDivElement>(null),trigger=useRef<HTMLButtonElement>(null),search=useRef<HTMLInputElement>(null),list=useRef<HTMLDivElement>(null),composing=useRef(false);
  const href=useRef(typeof window==='undefined'?'':window.location.href).current,popupId=useId(),listId=popupId+'-list',hint=popupId+'-hint';
  const scope=JSON.stringify([current.id,returnTo,scopeReady,modules.map(module=>module.id)]),intent=useWorkspaceIntent(scope);
- const opening=useRef<{keyboard:boolean;claim:()=>boolean}>(undefined);
+ const opening=useRef<{keyboard:boolean;current?:boolean;claim:()=>boolean}>(undefined);
  const index=modules.findIndex(module=>module.id===current.id),core=batch||scoped?modules:modules.filter(module=>!module.module.optional);
  const states=useMemo(()=>new Map(modules.map(module=>[module.id,ready?status(module,saved[module.id]):'todo'] as const)),[modules,saved,ready]);
  const solved=core.filter(module=>states.get(module.id)==='done').length,searchable=modules.length>8||!!draft||!!query;
@@ -46,10 +46,11 @@ function ModuleNavigation({current,modules:paperModules,allModules,saved,ready,r
  useLayoutEffect(()=>{
   const request=opening.current;if(!request||!open)return;opening.current=undefined;
   if(!here()||!request.claim())return;
-  const rows=links(),target=rows.find(link=>link.getAttribute('aria-current')==='page')||rows[0];
-  if(request.keyboard)(search.current||target)?.focus({preventScroll:true});
+  const rows=links(),target=rows.find(link=>link.getAttribute('aria-current')==='page')||(request.current?undefined:rows[0]);
+  if(request.current)target?.focus({preventScroll:true});
+  else if(request.keyboard)(search.current||target)?.focus({preventScroll:true});
   if(target)revealLink(target);
- },[open,scope]);
+ },[open,scope,query]);
  useEffect(()=>{
   if(!open)return;
   const outside=(event:PointerEvent)=>{if(!root.current?.contains(event.target as Node)){opening.current=undefined;intent.cancel();setOpen(false);}};
@@ -69,6 +70,11 @@ function ModuleNavigation({current,modules:paperModules,allModules,saved,ready,r
   const next=transient?value:Array.from(value).slice(0,200).join('');setDraft(next);if(!transient)setQuery(next.replace(/[\u0000-\u001f\u007f]/g,' '));
  }
  function clear(){if(!usable())return;composing.current=false;setDraft('');setQuery('');search.current?.focus({preventScroll:true});}
+ function locate(node:HTMLElement){
+  if(!usable()||!controlIsActive(node)||index<0)return;
+  composing.current=false;opening.current={keyboard:false,current:true,claim:intent.create()};setDraft('');setQuery('');
+  if(!query){const request=opening.current;opening.current=undefined;if(request.claim()){const target=links().find(link=>link.getAttribute('aria-current')==='page');target?.focus({preventScroll:true});if(target)revealLink(target);}}
+ }
  function browse(event:KeyboardEvent<HTMLElement>){
   if(!usable()||!plain(event)||!['ArrowDown','ArrowUp','Home','End'].includes(event.key)||event.target!==document.activeElement)return;
   const rows=links(),active=document.activeElement,position=rows.findIndex(row=>row===active);
@@ -101,13 +107,13 @@ function ModuleNavigation({current,modules:paperModules,allModules,saved,ready,r
       if(event.key==='Escape'&&!event.repeat&&draft){event.preventDefault();event.stopPropagation();clear();return;}
       browse(event);
      }}/>{!!draft&&<button type="button" className="icon-button" aria-label={t('清空题单搜索','Clear list search')} onClick={clear}><X size={16} aria-hidden="true"/></button>}</div>
-    <p id={popupId+'-count'} role="status" aria-atomic="true">{t(`显示 ${visible.length} / ${modules.length} 道题目`,`${visible.length} of ${modules.length} modules`)}<span>{t('顺序保持不变','Original order kept')}</span></p>
+    <p><span id={popupId+'-count'} role="status" aria-atomic="true">{t(`显示 ${visible.length} / ${modules.length} 道题目`,`${visible.length} of ${modules.length} modules`)}</span>{index>=0&&<button type="button" className="module-picker-locate" onClick={event=>locate(event.currentTarget)} aria-controls={listId} title={t('清空题单搜索并定位当前题','Clear list search and show the current module')} aria-label={t(`定位当前题：${current.number}. ${current.title}`,`Show current module: ${current.number}. ${current.translations?.en?.title||current.title}`)}>{t('定位当前题','Show current')}</button>}</p>
    </div>}
-   <span id={hint} className="sr-only">{t('最多200个字符，仅筛选当前题单。用上下方向键浏览结果，在题目链接按 Enter 打开；Esc先清空搜索，再关闭列表。','Up to 200 characters; filters this list only. Use arrow keys to browse results and Enter on a link to open it. Escape clears search, then closes the list.')}</span>
+   <span id={hint} className="sr-only">{t('最多200个字符，仅筛选当前题单，顺序保持不变。用上下方向键浏览结果，在题目链接按 Enter 打开；Esc先清空搜索，再关闭列表。定位当前题会清空搜索。','Up to 200 characters; filters this list only and keeps its original order. Use arrow keys to browse results and Enter on a link to open it. Escape clears search, then closes the list. Show current clears the search.')}</span>
    <div className="module-picker-links" ref={list} id={listId} onKeyDown={browse}>{visible.map(module=>{
     const state=states.get(module.id)||'todo',active=module.id===current.id;
     const minutes=typeof module.estimated_minutes==='number'&&Number.isFinite(module.estimated_minutes)&&module.estimated_minutes>0?module.estimated_minutes:undefined;
-    return <AppLink key={module.id} href={withLibraryContext(module.number,returnTo)} aria-current={active?'page':undefined} onClick={event=>{if(!usable()){event.preventDefault();return;}if(event.button===0&&!event.metaKey&&!event.ctrlKey&&!event.altKey&&!event.shiftKey)setOpen(false);}}>
+    return <AppLink key={module.id} href={withLibraryContext(module.number,returnTo)} aria-current={active?'page':undefined} onClick={event=>{if(!usable()||!controlIsActive(event.currentTarget)){event.preventDefault();return;}if(event.button===0&&!event.metaKey&&!event.ctrlKey&&!event.altKey&&!event.shiftKey){if(active){event.preventDefault();close();}else setOpen(false);}}}>
      <span className={`module-picker-state ${state}`} role="img" aria-label={!ready?t('正在加载进度','Loading progress'):state==='done'?t('已通过','Solved'):state==='started'?t('进行中','In progress'):t('未开始','Not started')}>{state==='done'?<CheckCircle2 size={16}/>:<Circle size={16}/>}</span>
      <span><b>{module.number}. {locale==='en'?module.translations?.en?.title||module.title:module.title}</b><small>{minutes?t(`预计 ${minutes} 分钟`,`About ${minutes} min`):t('时长未标注','Time not listed')}{module.module.optional?` · ${t('可选拓展','Optional extension')}`:''}{active?` · ${t('当前模块','Current module')}`:''}</small></span>
      {active&&<span className="module-picker-current" aria-hidden="true"/>}
