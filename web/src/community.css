@@ -437,6 +437,9 @@
 }
 .community-board-scroll {
   min-width: 0;
+  overscroll-behavior-x: contain;
+  scroll-padding-inline: 8px;
+  scrollbar-width: thin;
 }
 .community-compose-button {
   width: 100%;
@@ -454,6 +457,7 @@
 }
 .board-list button {
   display: flex;
+  min-height: 44px;
   width: 100%;
   gap: 11px;
   align-items: center;
@@ -1188,6 +1192,7 @@
   }
   .board-list button {
     width: auto;
+    flex-shrink: 0;
     white-space: nowrap;
     padding: 8px;
     font-size: var(--type-body);
