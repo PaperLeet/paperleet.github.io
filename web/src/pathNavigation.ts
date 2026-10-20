@@ -20,7 +20,7 @@ export function startPathNavigation() {
     const path=split<0?raw:raw.slice(0,split),query=split<0?'':raw.slice(split);
     if(!path)return '/'+query;
     if(/^(papers|collections)\/[a-z0-9_-]+$/.test(path))return '/'+path+'/'+query;
-    const module=modules.get(path)||(/^(foundations|rl|architecture|diffusion|finetuning|optimization|representation|world_models|retrieval)\/[a-z0-9_-]+$/.test(path)?path:undefined);
+    const module=modules.get(path)||(/^(foundations|rl|architecture|diffusion|finetuning|optimization|representation|world_models|retrieval|self_evolving)\/[a-z0-9_-]+$/.test(path)?path:undefined);
     return module?'/problems/'+module+'/'+query:'/'+value;
   }
   function navigate(value:string) {
