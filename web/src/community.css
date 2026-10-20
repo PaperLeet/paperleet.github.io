@@ -1588,7 +1588,7 @@
 .problem-community .community-feed-controls { flex:1 1 100%; }
 .problem-community .community-post-card { padding:20px 0; }
 .problem-community .feed-items { border:0; background:transparent; }
-.problem-community .post-card-layout { gap:12px; }
+.problem-community .post-card-layout { column-gap:12px; }
 .problem-community-heading { display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:20px; }
 .problem-community-heading h2 { margin:0; font-size:var(--type-title); }
 .problem-community-heading p { margin:8px 0 0; font-size:var(--type-small); line-height:1.7; color:var(--muted); }
