@@ -20,14 +20,20 @@ import { emptyLibraryFilters, libraryHref, libraryTags, sameLibraryTag, normaliz
 
 import type {LibraryCompanyScope} from './libraryCompanyScope';
 import {CompanyTools} from './LibraryCompanyTools';
+// Share the native-key guard across search and filter disclosure shortcuts.
+function libraryKey(event:KeyboardEvent){
+ return !event.defaultPrevented&&!event.repeat&&!event.isComposing&&event.keyCode!==229&&!event.ctrlKey&&!event.metaKey&&!event.altKey;
+}
 type Practice = { problems: Problem[]; saved: Record<string, Saved> };
 export { paperModules, matchingPaperModules, paperProgress } from './libraryPractice';
 
 // Collection discovery loads independently of search and the first usable list.
 const LibraryCollections = deferredFeature<import('./LibraryCollections').Props>(()=>import('./LibraryCollections'), ['精选合集','featured collections'], {loading:()=><div className="library-collections-placeholder" aria-hidden="true"/>});
-const ResultControls = deferredFeature<import('./LibraryResultControls').Props>(()=>import('./LibraryResultControls'), ['列表显示','list display'], {loading:()=>null});
-const ActiveFilters = deferredFeature<import('react').ComponentProps<typeof import('./LibraryResultControls').LibraryActiveFilters>>(()=>import('./LibraryResultControls').then(module=>({default:module.LibraryActiveFilters})),['当前筛选','active filters'],{loading:()=>null});
-const TableHeaders=deferredFeature<import('./LibraryResultControls').LibraryHeaderProps>(()=>import('./LibraryResultControls').then(module=>({default:module.LibraryTableHeaders})),['',''],{loading:props=><LibraryHeadersFallback {...props}/>,failure:props=><LibraryHeadersFallback {...props}/>});
+const loadLibraryControls=()=>import('./LibraryResultControls');
+const ResultControls = deferredFeature<import('./LibraryResultControls').Props>(loadLibraryControls, ['列表显示','list display'], {loading:()=>null});
+const ActiveFilters = deferredFeature<import('react').ComponentProps<typeof import('./LibraryResultControls').LibraryActiveFilters>>(()=>loadLibraryControls().then(module=>({default:module.LibraryActiveFilters})),['当前筛选','active filters'],{loading:()=>null});
+const CategoryToggle=deferredFeature<import('./LibraryResultControls').LibraryCategoryToggleProps>(()=>loadLibraryControls().then(module=>({default:module.LibraryCategoryToggle})),['分类','categories'],{loading:()=>null});
+const TableHeaders=deferredFeature<import('./LibraryResultControls').LibraryHeaderProps>(()=>loadLibraryControls().then(module=>({default:module.LibraryTableHeaders})),['',''],{loading:props=><LibraryHeadersFallback {...props}/>,failure:props=><LibraryHeadersFallback {...props}/>});
 function LibraryHeadersFallback({moduleView}:import('./LibraryResultControls').LibraryHeaderProps){const {t}=useI18n();return <><span>{t('状态','Status')}</span><span>{moduleView?t('练习','Module'):t('论文','Paper')}</span><span className="paper-year">{moduleView?t('用时','Time'):t('年份','Year')}</span><span>{moduleView?t('难度','Difficulty'):t('已通过 / 模块','Solved / Modules')}</span><span/></>;}
 const LibraryOverview = deferredFeature(() => import('./LibraryOverview'), ['练习概览','practice overview'], {loading:()=>null});
 const LibraryPagination = deferredFeature<import('./LibraryPagination').Props>(()=>import('./LibraryPagination'), ['题库分页','library pages'], {loading:props=><LibraryPageFallback {...props}/>,failure:(props,retry)=><><LibraryPageFallback {...props}/><FeatureRetry retry={retry}/></>});
@@ -98,7 +104,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
   }
   useEffect(() => {
     const focusSearch = (event: KeyboardEvent) => {
-      if(event.key!=='/'||event.defaultPrevented||event.repeat||event.isComposing||event.keyCode===229||event.ctrlKey||event.metaKey||event.altKey||!currentView())return;
+      if(event.key!=='/'||!libraryKey(event)||!currentView())return;
       const target=event.target;
       if(target instanceof Element&&target.closest('input,textarea,select,[contenteditable]:not([contenteditable="false"]),[role="textbox"],[role="dialog"],dialog[open]')||document.querySelector('dialog[open]'))return;
       event.preventDefault();searchInput.current?.focus({preventScroll:true});libraryMain.current?.scrollIntoView({block:'start'});
@@ -175,15 +181,15 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
         return <button key={item.id} className={`category-${item.id}`} aria-pressed={category === item.id} onClick={() => { change({category:item.id,tag:"all"}); }}><i aria-hidden="true" /><BilingualText zh={label[0]} en={label[1]} /><span>{listedPapers.filter((paper) => paper.category === item.id).length}</span></button>;
       })}
     </div>
-    {visibleCategories.length > 3 && <button type="button" className="library-category-toggle" aria-controls={categoriesId} aria-expanded={categoriesOpen} aria-label={categoriesOpen?t('收起分类','Collapse categories'):t('展开全部分类','Expand all categories')} onClick={() => {if(currentView())setCategoriesOpen(open => !open);}}>{categoriesOpen?t('收起','Collapse'):t('展开','Expand')}<ChevronDown size={14} aria-hidden="true"/></button>}
+    {visibleCategories.length > 3 && <CategoryToggle controls={categoriesId} expanded={categoriesOpen} onToggle={() => {if(currentView())setCategoriesOpen(open => !open);}}/>}
     </div>}
     <section className="problem-list" aria-label={course ? t("课程练习", "Course modules") : t("论文列表", "Paper list")}>
       <div className="library-toolbar">
-        <div className="search"><Search size={17} aria-hidden="true" /><input ref={searchInput} type="search" maxLength={200} aria-label={t("搜索论文或模块", "Search papers or modules")} aria-controls={listId} aria-keyshortcuts="/" placeholder={directModules?t("题目编号、标题、作者或 arXiv…","Exercise number, title, author or arXiv…"):t("标题、作者、arXiv 或模块…", "Title, author, arXiv or module…")} value={query} onChange={(e) => change({query:e.target.value})} onKeyDown={(e) => { if (e.key === "Escape"&&!e.defaultPrevented&&currentView()&&!e.repeat&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!e.shiftKey&&!e.nativeEvent.isComposing&&e.nativeEvent.keyCode!==229) {e.preventDefault();e.stopPropagation();change({query:''});} }} />{query ? <button type="button" className="search-clear" aria-label={t("清空搜索", "Clear search")} onClick={() => { if(!currentView())return;searchInput.current?.focus({preventScroll:true});change({query:""}); }}><X size={15} /></button> : <kbd aria-hidden="true">/</kbd>}</div>
+        <div className="search"><Search size={17} aria-hidden="true" /><input ref={searchInput} type="search" maxLength={200} aria-label={t("搜索论文或模块", "Search papers or modules")} aria-controls={listId} aria-keyshortcuts="/" placeholder={directModules?t("题目编号、标题、作者或 arXiv…","Exercise number, title, author or arXiv…"):t("标题、作者、arXiv 或模块…", "Title, author, arXiv or module…")} value={query} onChange={(e) => change({query:e.target.value})} onKeyDown={(e) => { if (e.key==='Escape'&&!e.shiftKey&&!e.defaultPrevented&&libraryKey(e.nativeEvent)&&currentView()) {e.preventDefault();e.stopPropagation();change({query:''});} }} />{query ? <button type="button" className="search-clear" aria-label={t("清空搜索", "Clear search")} onClick={() => { if(!currentView())return;searchInput.current?.focus({preventScroll:true});change({query:""}); }}><X size={15} /></button> : <kbd aria-hidden="true">/</kbd>}</div>
         <button type="button" className="library-filter-toggle" aria-controls={filtersId} aria-expanded={filtersOpen} onClick={event => {if(currentView()){if(filtersOpen&&libraryMain.current?.querySelector('.library-filter-panel')?.contains(document.activeElement))event.currentTarget.focus({preventScroll:true});setFiltersOpen(open => !open);}}}><SlidersHorizontal size={16} aria-hidden="true" />{t("筛选", "Filters")}{advancedFilterCount > 0 && <span>{advancedFilterCount}</span>}<ChevronDown size={13} aria-hidden="true" /></button>
         <button type="button" className="random-problem" aria-label={t('随机一题', 'Random problem')} onClick={randomProblem} disabled={!progressReady || !companyReady || !unattempted.length} title={!companyReady?t("公司练习范围尚未确认","Company practice scope is unconfirmed"):!progressReady ? t("学习进度尚未就绪", "Practice progress is not ready") : unattempted.length ? t(`从当前范围内 ${unattempted.length} 道未开始的题目中随机选择`, `Pick from ${unattempted.length} unattempted problems in this view`) : t("当前范围内没有未开始的题目", "No unattempted problems in this view")}><Shuffle size={17} aria-hidden="true" /><span>{t("随机一题", "Random problem")}</span></button>
       </div>
-      <div className="library-filter-panel" id={filtersId} hidden={!filtersOpen} onKeyDown={event=>{if(filtersOpen&&event.key==='Escape'&&!event.defaultPrevented&&!event.repeat&&!event.nativeEvent.isComposing&&event.nativeEvent.keyCode!==229&&!event.ctrlKey&&!event.metaKey&&!event.altKey&&!event.shiftKey&&currentView()){event.preventDefault();event.stopPropagation();libraryMain.current?.querySelector<HTMLButtonElement>('.library-filter-toggle')?.focus({preventScroll:true});setFiltersOpen(false);}}}>
+      <div className="library-filter-panel" id={filtersId} hidden={!filtersOpen} onKeyDown={event=>{if(filtersOpen&&event.key==='Escape'&&!event.shiftKey&&!event.defaultPrevented&&libraryKey(event.nativeEvent)&&currentView()){event.preventDefault();event.stopPropagation();libraryMain.current?.querySelector<HTMLButtonElement>('.library-filter-toggle')?.focus({preventScroll:true});setFiltersOpen(false);}}}>
         <div className="filter-bar" data-expanded={filtersOpen}>
           <div className="select-wrap" data-active={selectedTag!=="all"||undefined}><select aria-controls={listId} aria-label={t("主题筛选", "Filter by topic")} value={selectedTag} onChange={(e) => change({tag:e.target.value})}>
             <option value="all">{t("主题", "Topic")}</option>{tags.map((name) => <option key={name}>{name}</option>)}

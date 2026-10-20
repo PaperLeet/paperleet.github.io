@@ -1,4 +1,4 @@
-import {ArrowDown,ArrowUp,ArrowUpDown,ArrowDownWideNarrow,BookOpen,Bookmark,Building2,Code2,List,Rows3,X} from 'lucide-react';
+import {ChevronDown,ArrowDown,ArrowUp,ArrowUpDown,ArrowDownWideNarrow,BookOpen,Bookmark,Building2,Code2,List,Rows3,X} from 'lucide-react';
 import {useI18n} from './i18n';
 import type {LibraryFilters,LibrarySort} from './libraryNavigation';
 import {interviewLabel} from './interviewModels';
@@ -52,4 +52,11 @@ export function LibraryTableHeaders({moduleView,company,course,sort,listId,onSor
   return <button key={field} type="button" className={'library-column-sort'+(field==='duration'||field==='year'?' paper-year':'')} data-sort-column={field} aria-pressed={active} aria-controls={listId} aria-label={description} title={description} onClick={()=>onSort(next)}><span className="library-column-label">{name}</span>{field==='difficulty'&&<span className="library-column-short" aria-hidden="true">{t('难度','Level')}</span>}<Icon size={13} aria-hidden="true"/></button>;
  }
  return <><span>{t('状态','Status')}</span>{!moduleView||direct?column('title',moduleView?['练习','Module']:['论文','Paper'],['title']):<span>{t('练习','Module')}</span>}{!moduleView?column('year',['年份','Year'],['newest','oldest']):direct?column('duration',['用时','Time'],['duration','duration-desc']):<span className="paper-year">{t('用时','Time')}</span>}{direct?column('difficulty',['难度','Difficulty'],['difficulty','difficulty-desc']):<span>{moduleView?t('难度','Difficulty'):t('已通过 / 模块','Solved / Modules')}</span>}<span className="library-company-column-marker" title={t('题目操作','Exercise actions')}><span className="library-favorite-column-marker"><Bookmark size={16} aria-hidden="true"/></span><span className="library-source-column-marker"><Building2 size={16} aria-hidden="true"/></span><span className="sr-only">{t('题目操作','Exercise actions')}</span></span></>;
+}
+
+export type LibraryCategoryToggleProps={controls:string;expanded:boolean;onToggle:()=>void};
+/** Share the existing deferred controls bundle; category links stay usable immediately. */
+export function LibraryCategoryToggle({controls,expanded,onToggle}:LibraryCategoryToggleProps){
+ const {t}=useI18n();
+ return <button type="button" className="library-category-toggle" aria-controls={controls} aria-expanded={expanded} aria-label={expanded?t('收起分类','Collapse categories'):t('展开全部分类','Expand all categories')} onClick={onToggle}>{expanded?t('收起','Collapse'):t('展开','Expand')}<ChevronDown size={14} aria-hidden="true"/></button>;
 }
