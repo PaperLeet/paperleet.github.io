@@ -53,6 +53,7 @@ jobs:
         run: |
           python web/scripts/check-pages-assets.py
           node web/scripts/check-pages-backfill.cjs
+          node web/scripts/check-native-pages-seed.cjs
       - name: Download the exact tested production build
         if: steps.release.outputs.publish == 'true'
         uses: actions/download-artifact@v4
@@ -128,6 +129,26 @@ jobs:
               previousArchive: path.join(process.env.RUNNER_TEMP, 'paperleet-previous-assets/artifact.tar'),
               directory: path.join(process.env.RUNNER_TEMP, 'paperleet-historical-assets'),
             });
+      - name: Snapshot branch-published assets
+        if: steps.release.outputs.publish == 'true'
+        run: |
+          remote="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git"
+          if git ls-remote --exit-code --heads "$remote" refs/heads/gh-pages > /dev/null; then
+            native="$RUNNER_TEMP/paperleet-native-pages"
+            git clone --filter=blob:none --no-checkout --single-branch --depth=1 \
+              --branch gh-pages "$remote" "$native"
+            git -C "$native" sparse-checkout set --no-cone /assets/ /pages-assets-manifest.json
+            git -C "$native" checkout --force gh-pages
+            paths=(assets)
+            if git -C "$native" cat-file -e HEAD:pages-assets-manifest.json; then
+              paths+=(pages-assets-manifest.json)
+            fi
+            git -C "$native" archive --format=tar HEAD "${paths[@]}" \
+              > "$RUNNER_TEMP/paperleet-native-assets.tar"
+          else
+            snapshot_status=$?
+            if [[ "$snapshot_status" != 2 ]]; then exit "$snapshot_status"; fi
+          fi
       - name: Retain assets for cached pages
         if: steps.release.outputs.publish == 'true'
         env:
@@ -141,6 +162,9 @@ jobs:
           for archive in "$RUNNER_TEMP"/paperleet-historical-assets/*/artifact.tar; do
             previous+=(--seed "$archive")
           done
+          if [[ -f "$RUNNER_TEMP/paperleet-native-assets.tar" ]]; then
+            previous+=(--seed "$RUNNER_TEMP/paperleet-native-assets.tar")
+          fi
           mkdir -p "$RUNNER_TEMP/paperleet-retained-assets"
           python web/scripts/retain-pages-assets.py web/dist "${previous[@]}" \
             --archive-out "$RUNNER_TEMP/paperleet-retained-assets/artifact.tar"
