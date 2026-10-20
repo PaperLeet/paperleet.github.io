@@ -31,4 +31,14 @@
 .library-interview-guide footer { margin-top:12px; }
 .library-interview-guide :is(a,button,select,summary):focus-visible { outline:2px solid var(--accent); outline-offset:3px; border-radius:5px; }
 @media(max-width:1199px) { .library-overview.has-interview-guide { display:block; grid-row:1; } .library-overview.has-interview-guide>.library-progress-card { display:none; } }
+@media(max-width:600px) {
+ .library-interview-guide { padding:12px 14px; }
+ .library-interview-guide header { flex-wrap:nowrap; gap:12px; }
+ .library-interview-guide h2 { flex:1; min-width:0; }
+ .library-interview-guide h2>button { width:100%; min-height:44px; }
+ .library-interview-guide h2>button>span { min-width:0; overflow-wrap:anywhere; }
+ .library-interview-guide h2>button>svg:last-child { margin-inline-start:auto; }
+ .library-interview-guide header>a { box-sizing:border-box; flex:none; width:44px; height:44px; justify-content:center; border-radius:8px; background:var(--surface2); }
+ .library-interview-guide header>a>span { display:none; }
+}
 @media(pointer:coarse) { .library-interview-guide :is(a,button,select,summary) { min-height:44px; } }
