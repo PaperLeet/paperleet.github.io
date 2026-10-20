@@ -9,8 +9,14 @@ const server = await createServer({
 });
 try {
   const renderToString = await localizedRenderer(server, "zh");
-  const { TestSignIn, SignIn, OrganizationSignIn, ProfileSettings, EmailQuotaNotice } =
+  const { default: Account, TestSignIn, SignIn, OrganizationSignIn, ProfileSettings, EmailQuotaNotice } =
     await server.ssrLoadModule("/src/Account.tsx");
+  for (const locale of ['zh', 'en']) {
+    const renderAccount = await localizedRenderer(server, locale);
+    const accountPage = renderAccount(React.createElement(Account));
+    assert.match(accountPage, /<footer class="account-legal"><a class="privacy-link" href="\/privacy.html">/);
+    assert(accountPage.includes(locale === 'zh' ? '隐私政策' : 'Privacy policy'));
+  }
   const { PersonLink, AccountNav } = await server.ssrLoadModule("/src/social.tsx");
   const { AccountAccessGate } = await server.ssrLoadModule('/src/Waitlist.tsx');
   const { signInHref, accountReturnHref, isAccountRoute } = await server.ssrLoadModule("/src/accountNavigation.ts");

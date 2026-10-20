@@ -556,7 +556,6 @@ function Workspace() {
             <AppLink className={interviewPage ? "active" : ""} aria-current={interviewPage ? "page" : undefined} href="#/interviews"><BilingualText zh="面经" en="Interviews" /></AppLink>
           </nav>
           <div className="nav-actions">
-            <AppLink className="privacy-link" href={`${import.meta.env.BASE_URL}privacy.html`}>{t("隐私", "Privacy")}</AppLink>
             <RepositoryLink />
             <GroupChat route={id} />
             <OnlinePresence />

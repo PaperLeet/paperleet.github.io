@@ -79,6 +79,9 @@ export default function Account({ returnTo }: { returnTo?: string }) {
       ) : (
         <SignIn enabled={capabilities?.auth_available === true} workEmailRegistration={capabilities?.work_email_registration === true} />
       )}
+      <footer className="account-legal">
+        <AppLink className="privacy-link" href={`${import.meta.env.BASE_URL}privacy.html`}>{t("隐私政策", "Privacy policy")}</AppLink>
+      </footer>
     </main>
   );
 }
