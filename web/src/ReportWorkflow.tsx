@@ -9,8 +9,8 @@ import type { BrowserSyntaxFailure } from './browserSyntax';
 import type { ReportSourceState } from './reportSource';
 import type { SourceLocation } from './sourceLocation';
 
-export type ReportWorkflowProps = {report?:Report;syntax?:BrowserSyntaxFailure;source:string;sourceState:ReportSourceState;canRun:boolean;running:boolean;onEdit:()=>void;onRun:()=>void;onLocate?:(location:SourceLocation)=>void;onStop?:()=>void;compact?:boolean;resultTitle?:string};
-export default function ReportWorkflow({report,syntax,source,sourceState,canRun,running,onEdit,onRun,onLocate,onStop,compact=false,resultTitle}:ReportWorkflowProps) {
+export type ReportWorkflowProps = {report?:Report;syntax?:BrowserSyntaxFailure;source:string;sourceState:ReportSourceState;canRun:boolean;running:boolean;onEdit:()=>void;onRun:()=>void;onLocate?:(location:SourceLocation)=>void;onStop?:()=>void;compact?:boolean;resultTitle?:string;onTestDetails?:(index:number,trigger:HTMLButtonElement)=>void};
+export default function ReportWorkflow({report,syntax,source,sourceState,canRun,running,onEdit,onRun,onLocate,onStop,compact=false,resultTitle,onTestDetails}:ReportWorkflowProps) {
   const {t} = useI18n();
   const [index,setIndex] = useState(0);
   useEffect(() => setIndex(0),[report,syntax]);
@@ -30,6 +30,7 @@ export default function ReportWorkflow({report,syntax,source,sourceState,canRun,
         <button type="button" className="icon-button" disabled={running || current === 0} aria-label={t('上一个错误','Previous failure')} onClick={() => setIndex(current - 1)}><ChevronLeft size={15}/></button><span aria-live="polite">{current + 1} / {targets.length}</span><button type="button" className="icon-button" disabled={running || current === targets.length - 1} aria-label={t('下一个错误','Next failure')} onClick={() => setIndex(current + 1)}><ChevronRight size={15}/></button></div>}
     </div>
     {target?.message && !running && <p className="feedback-diagnostic">{changed && t('上次运行：','Previous run: ')}{target.message}</p>}
+    {!running&&onTestDetails&&target?.testIndex!==undefined&&<button type="button" className="text-button feedback-test-details" onClick={event=>onTestDetails(target.testIndex!,event.currentTarget)}><Search size={14} aria-hidden="true"/>{t('查看这项失败详情','View failure details')}</button>}
     {target?.comparison && !running && <TestComparison comparison={target.comparison}/>}
     {!changed && !running && !!context.length && <pre className="feedback-code-context" aria-label={t('当前实现的错误上下文','Failure context in the current source')}><code>{context.map(row => <span key={row.line} data-active={row.active}><i aria-hidden="true">{row.line}</i><span>{row.text || ' '}</span></span>)}</code></pre>}
     {target && !target.location && !changed && !running && <p className="feedback-location-note">{t('此错误没有可确认的实现行号，可先查看下方数值对比与完整诊断。','No verified implementation line is available. Review the numerical comparison and full diagnostic below.')}</p>}

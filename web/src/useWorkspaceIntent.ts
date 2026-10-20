@@ -9,9 +9,9 @@ export function useWorkspaceIntent(scope:string) {
   },[]);
   useLayoutEffect(()=>{latest.current.cancel();latest.current.scope=scope;},[scope]);
   function create() {
-    if(!latest.current.live||latest.current.scope!==scope)return()=>false;
+    if(!latest.current.live||latest.current.scope!==scope)return Object.assign(()=>false,{active:()=>false});
     latest.current.cancel();
-    if(document.visibilityState==='hidden')return()=>false;
+    if(document.visibilityState==='hidden')return Object.assign(()=>false,{active:()=>false});
     const href=location.href,capturedScope=latest.current.scope;
     let opener=document.activeElement,retired=false;
     const events=['pointerdown','click','keydown','beforeinput','input','compositionstart','wheel','touchstart','touchmove'] as const;
@@ -34,12 +34,13 @@ export function useWorkspaceIntent(scope:string) {
     document.addEventListener('focusin',focus,true);
     document.addEventListener('visibilitychange',visibility);
     window.addEventListener('hashchange',route);window.addEventListener('popstate',route);window.addEventListener('blur',stop);
-    return()=>{
-      const active=document.activeElement;
-      const allowed=!retired&&latest.current.live&&latest.current.scope===capturedScope&&location.href===href&&document.visibilityState!=='hidden'&&
-        (active===opener||neutralBody(active));
-      stop();return allowed;
+    // Deferred readers can check validity before consuming the one-time claim.
+    const active=()=>{
+      const focused=document.activeElement;
+      return !retired&&latest.current.live&&latest.current.scope===capturedScope&&location.href===href&&document.visibilityState!=='hidden'&&
+        (focused===opener||neutralBody(focused));
     };
+    return Object.assign(()=>{const allowed=active();stop();return allowed;},{active});
   }
   return {create,cancel:()=>{if(latest.current.scope===scope)latest.current.cancel();},isCurrent:()=>latest.current.live&&latest.current.scope===scope};
 }
