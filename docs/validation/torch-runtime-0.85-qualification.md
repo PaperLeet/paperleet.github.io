@@ -72,3 +72,10 @@ both builds, immutable asset copies, generated Worker and actual nested Worker
 pass on combined source base `8c196845`. The
 [current-main integration record](../../packages/stridetorch/benchmarks/results/qualification-0.85-current-main.json)
 and its raw archive preserve that later qualification separately.
+
+The later `c6132c07` main update adds six interview-authoring paths. Source base
+`650b48d6` preserves them and passes all 31 interview-related check commands,
+including their readonly variants, both builds and the actual Worker. The
+[follow-up record](../../packages/stridetorch/benchmarks/results/qualification-0.85-current-main-followup.json)
+retains the initial runner argument-splitting failure and its correction.
+Numerical sources, SDK and active exports remain unchanged.
