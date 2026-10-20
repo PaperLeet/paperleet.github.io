@@ -8,13 +8,13 @@ import {readingPreferenceAnchor,type PreferenceAnchor} from './readingPreference
 import {readingPreferences,type ReadingPreferenceSnapshot} from './readingPreferences';
 import './reading-appearance.css';
 
-type Props={mode?:'inline'|'settings';target?:RefObject<HTMLElement|null>;scope?:string;controlsId?:string};
+type Props={mode?:'inline'|'settings';target?:RefObject<HTMLElement|null>;scope?:string;controlsId?:string;canAct?:()=>boolean};
 type Pending={point:PreferenceAnchor;root:HTMLElement;expected:ReadingPreferenceSnapshot;claim:()=>boolean};
-export default function ReadingAppearance({mode='inline',target,scope='',controlsId}:Props){
+export default function ReadingAppearance({mode='inline',target,scope='',controlsId,canAct}:Props){
  const {t,locale}=useI18n(),id=useId(),root=useRef<HTMLDivElement>(null),details=useRef<HTMLDetailsElement>(null),pending=useRef<Pending|undefined>(undefined);
  const preferences=useSyncExternalStore(readingPreferences.subscribe,readingPreferences.getSnapshot,readingPreferences.getServerSnapshot);
  const href=typeof window==='undefined'?'':window.location.href,intent=useWorkspaceIntent(JSON.stringify([scope,locale,href]));
- const current=()=>controlIsActive(root.current)&&location.href===href&&intent.isCurrent();
+ const current=()=>controlIsActive(root.current)&&location.href===href&&intent.isCurrent()&&canAct?.()!==false;
  const panelActive=()=>current()&&(mode==='settings'||details.current?.open===true);
  function change(action:()=>void){
   if(!panelActive())return;

@@ -241,7 +241,7 @@ function PostCard({ post, activity, returnTo:sourceReturnTo, resumed, showActivi
             </AppLink>
           )}
           {post.interview && <InterviewMeta details={post.interview} compact browseFrom={returnTo}/>}
-          <InlinePostBody postId={post.id} body={post.body} displayBody={translation.body} limit={190} query={searchQuery}/>
+          <InlinePostBody canAct={canAct} postId={post.id} body={post.body} displayBody={translation.body} limit={190} query={searchQuery}/>
           <PaperPreviewCard url={post.paper_url} paper={post.paper} compact />
           </>}
           <PostTags post={post} returnTo={returnTo}/>
