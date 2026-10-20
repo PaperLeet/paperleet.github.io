@@ -18,6 +18,28 @@ def _print_report(report):
         print(report["error"])
 
 
+def _local_report(path):
+    """Return None when no report exists; an unreadable report still counts as an attempt."""
+    if not path.exists():
+        return None
+    try:
+        report = json.loads(path.read_text(encoding="utf-8"))
+    except ValueError:
+        return {}
+    return report if isinstance(report, dict) else {}
+
+
+def _list_status(entry, report):
+    if report is None:
+        return "Todo"
+    try:
+        summary = report.get("summary", {})
+        complete = report.get("passed") and all(summary.get(layer, [0, 0])[0] >= count for layer, count in entry.get("tests", {}).items())
+    except (AttributeError, TypeError, IndexError, KeyError):
+        complete = False
+    return "Accepted" if complete else "Attempted"
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(prog="paperleet", description="PaperLeet: implement and test the core algorithms of AI research papers.")
     parser.add_argument("--version", action="version", version="PaperLeet 0.1.0")
@@ -46,15 +68,12 @@ def main(argv=None):
     args = parser.parse_args(argv)
     try:
         if args.command == "list":
-            print(f"{'ID':<8} {'Problem':<30} {'Level':<6} Status")
-            for entry in problems():
-                path = root() / "reports" / (entry["id"].replace("/", "-") + ".json")
-                report = json.loads(path.read_text()) if path.exists() else {}
-                required = entry.get("tests", {})
-                summary = report.get("summary", {})
-                complete = report.get("passed") and all(summary.get(layer, [0, 0])[0] >= count for layer, count in required.items())
-                status = "Accepted" if complete else ("Attempted" if report else "Todo")
-                print(f"{entry['number']:<8} {entry['id']:<30} {entry['difficulty']:<6} {status}")
+            entries = problems()
+            width = max([len("Problem")] + [len(entry["id"]) for entry in entries])
+            print(f"{'No.':<8} {'Problem':<{width}} {'Level':<6} Status")
+            for entry in entries:
+                status = _list_status(entry, _local_report(root() / "reports" / (entry["id"].replace("/", "-") + ".json")))
+                print(f"{entry['number']:<8} {entry['id']:<{width}} {entry['difficulty']:<6} {status}")
         elif args.command == "init":
             entry = problem(args.problem)
             destination = workspace_path(entry)
