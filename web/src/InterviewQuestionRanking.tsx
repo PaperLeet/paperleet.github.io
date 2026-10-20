@@ -18,6 +18,7 @@ import {interviewPracticeHref} from './interviewPracticeBatch';
 import InterviewPracticeGroup,{InterviewGroupToggle,useInterviewPracticeGroup} from './InterviewPracticeGroup';
 import {interviewConceptMatch,matchingInterviewCompanies,type InterviewMatchField} from './interviewSearch';
 import PreparationGuide from './PreparationGuide';
+import PracticeMetadata from './PracticeMetadata';
 import {interviewPracticeMatch} from './interviewPracticeCriteria';
 import {useWorkspaceIntent} from './useWorkspaceIntent';
 import {keepReadingTriggerVisible} from './readingViewport';
@@ -145,7 +146,7 @@ export default function InterviewQuestionRanking({filters,questions,problems,sav
     <div className="interview-ranking-copy"><div className="interview-ranking-title">{problem?<AppLink id={heading} href={practice(problem)}><InterviewSearchMatch text={name} query={query}/></AppLink>:<b id={heading} tabIndex={-1}><InterviewSearchMatch text={name} query={query}/></b>}{problem&&<span className={`interview-ranking-state ${state||''}`}>{state==='done'?<CheckCircle2 size={12}/>:state==='started'?<Clock3 size={12}/>:null}{stateLabel(state)}</span>}</div>
      {!!matches.length&&<p className="interview-search-match"><span>{t('匹配：','Matched: ')}</span>{matches.map(matchLabel).join(' · ')}{matches.includes('paper')&&problem?.paper?.title&&<span className="interview-search-paper"><InterviewSearchMatch text={problem.paper.title} query={query}/></span>}{evidence&&matches.includes('goal')&&problem&&<span className="interview-search-paper"><InterviewSearchMatch text={locale==='en'?problem.module.goal_en||problem.module.goal:problem.module.goal} query={query}/></span>}</p>}
      {!!contexts.length&&<div className="interview-search-contexts">{contexts.map(context=><div key={context.key} className="interview-search-context"><small>{context.kind==='title'?t('匹配另一种语言的标题','Matched title in the other language'):context.kind==='goal'?t('匹配另一种语言的实现目标','Matched implementation goal in the other language'):context.kind==='company'?t('匹配来源公司','Matched source company'):t('匹配题目编号或标识','Matched exercise number or ID')}</small><span lang={context.lang}><InterviewSearchMatch text={context.text} query={query}/></span></div>)}</div>}
-     {problem&&<p className="interview-ranking-module-meta">{[({E:t('简单','Easy'),M:t('中等','Medium'),H:t('困难','Hard')} as Record<string,string>)[problem.difficulty],problem.estimated_minutes?`${problem.estimated_minutes} min`:''].filter(Boolean).join(' · ')}</p>}
+     {problem&&<PracticeMetadata className="interview-ranking-module-meta" difficulty={problem.difficulty} estimatedMinutes={problem.estimated_minutes}/>}
      {evidence&&(latest!==undefined||evidenceOrder==='recent')&&<p className="interview-ranking-latest"><Clock3 size={13} aria-hidden="true"/>{latest!==undefined?<>{t('最新关联分享','Latest linked report')} <time dateTime={new Date(latest).toISOString()}>{new Date(latest).toISOString().slice(0,10)}</time></>:t('分享日期暂不可用','Publication date unavailable')}</p>}
      {evidence?<InterviewCompanySources companies={evidence.companies} problemId={id} name={name} filters={filters} renderLabel={label=><InterviewSearchMatch text={label} query={query}/>}/>:problem&&<p className="interview-curated-goal"><InterviewSearchMatch text={locale==='en'?problem.module.goal_en||problem.module.goal:problem.module.goal} query={query}/></p>}
     </div>
