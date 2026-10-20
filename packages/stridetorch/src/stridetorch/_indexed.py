@@ -26,7 +26,7 @@ def _dense(value):
 
 
 def _bounds(index,size,*,scatter=False):
-    if np.any(index < 0) or np.any(index >= size):
+    if _indexing._out_of_bounds(index,size):
         if scatter:raise RuntimeError('scatter_add index out of bounds')
         raise IndexError('Index out of range')
 

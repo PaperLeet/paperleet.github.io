@@ -79,3 +79,80 @@ def test_sparse_forward_without_recording_and_unsupported_modes_are_explicit():
         else:
             assert type(p) is type(t);np.testing.assert_array_equal(t.indices.numpy(),np.zeros(t.indices.shape,dtype=np.int64))
         with pytest.raises(RuntimeError):torch.func.jvp(f,(torch.ones(3),),(torch.ones(3),),strict=True)
+
+
+@pytest.mark.parametrize('name', ['gather', 'index_select', 'index_add', 'scatter_add'])
+@pytest.mark.parametrize('dtype', [np.int32, np.int64])
+@pytest.mark.parametrize('layout', ['dense', 'descending', 'slice', 'broadcast', 'transpose'])
+def test_index_views_preserve_values_and_weighted_adjoints(name, dtype, layout):
+    vector = name in ('index_select', 'index_add')
+    shape = (6,) if vector else (6, 5)
+    values = (np.arange(np.prod(shape)).reshape(shape) % 4).astype(dtype)
+    if layout == 'descending':
+        values = values[::-1].copy()
+    elif layout == 'slice':
+        storage = np.empty((12,) if vector else (12, 5), dtype=dtype)
+        storage[::2] = values
+        values = storage[::2]
+    elif layout == 'broadcast':
+        values = np.broadcast_to(np.array(2, dtype=dtype), shape)
+    elif layout == 'transpose':
+        values = np.ascontiguousarray(values.T).T if not vector else values[::-1].copy()
+    index = torch.from_numpy(values)
+    data = np.arange(20, dtype=np.float64).reshape(4, 5) / 8
+    source = np.arange(30, dtype=np.float64).reshape(6, 5) / 4
+    x = torch.tensor(data, requires_grad=True)
+    src = torch.tensor(source, requires_grad=True)
+    selecting = name in ('gather', 'index_select')
+    y = getattr(x, name)(0, index) if selecting else getattr(x, name)(0, index, src)
+    coordinates = (values[:, None], np.arange(5)[None, :]) if vector else (values, np.arange(5)[None, :])
+    expected = data[coordinates] if selecting else data.copy()
+    if not selecting:
+        np.add.at(expected, coordinates, source)
+    np.testing.assert_array_equal(y.numpy(), expected)
+    seed = np.arange(y.numel(), dtype=np.float64).reshape(y.shape) / 16
+    if selecting:
+        actual = torch.autograd.grad(y, x, torch.tensor(seed))[0]
+        gradient = np.zeros_like(data)
+        np.add.at(gradient, coordinates, seed)
+        np.testing.assert_array_equal(actual.numpy(), gradient)
+    else:
+        gx, gs = torch.autograd.grad(y, (x, src), torch.tensor(seed))
+        np.testing.assert_array_equal(gx.numpy(), seed)
+        np.testing.assert_array_equal(gs.numpy(), seed[coordinates])
+
+
+@pytest.mark.parametrize('name', ['gather', 'index_select', 'index_add', 'scatter_add'])
+@pytest.mark.parametrize('dtype', [np.int32, np.int64])
+@pytest.mark.parametrize('position', [0, -1])
+@pytest.mark.parametrize('invalid', ['negative', 'upper', 'minimum', 'maximum'])
+def test_index_bounds_extremes_rejected_without_mutation(name, dtype, position, invalid):
+    limits = np.iinfo(dtype)
+    value = dict(negative=-1, upper=4, minimum=limits.min, maximum=limits.max)[invalid]
+    raw = np.array([0, 1, 2, 3], dtype=dtype)
+    raw[position] = value
+    storage = np.empty(8, dtype=dtype)
+    storage[::2] = raw
+    index = torch.from_numpy(storage[::2])
+    x = torch.arange(4, dtype=torch.float64)
+    before, version = x.numpy().copy(), x._version
+    expected_error = IndexError if name in ('index_select', 'index_add') else RuntimeError
+    with pytest.raises(expected_error):
+        if name in ('gather', 'index_select'):
+            getattr(x, name)(0, index)
+        else:
+            getattr(x, name + '_')(0, index, torch.ones(4, dtype=x.dtype))
+    np.testing.assert_array_equal(x.numpy(), before)
+    assert x._version == version
+
+
+@pytest.mark.parametrize('name', ['gather', 'index_select', 'index_add', 'scatter_add'])
+@pytest.mark.parametrize('dtype', [torch.int32, torch.int64])
+def test_empty_indices_on_empty_axis_preserve_gradients(name, dtype):
+    x = torch.empty(0, dtype=torch.float64, requires_grad=True)
+    src = torch.empty(0, dtype=x.dtype, requires_grad=True)
+    index = torch.empty(0, dtype=dtype)
+    y = getattr(x, name)(0, index) if name in ('gather', 'index_select') else getattr(x, name)(0, index, src)
+    assert y.shape == (0,)
+    gradients = torch.autograd.grad(y, x if name in ('gather', 'index_select') else (x, src), torch.empty_like(y))
+    assert all(g.shape == (0,) for g in gradients)

@@ -30,8 +30,18 @@ def _flag(value, name):
     return value
 
 
+def _out_of_bounds(index, size):
+    # Integer reductions avoid an index-sized boolean temporary for each
+    # comparison, including on noncontiguous and broadcast index views.
+    if index.dtype.kind == 'i':
+        return bool(index.size and (index.min() < 0 or index.max() >= size))
+    # Preserve comparison semantics for other arrays (notably NaNs) that may
+    # reach a saved-index pullback after raw NumPy storage metadata changes.
+    return np.any(index < 0) or np.any(index >= size)
+
+
 def _bounds(index, size):
-    if np.any(index < 0) or np.any(index >= size):raise RuntimeError('gather index out of bounds')
+    if _out_of_bounds(index, size):raise RuntimeError('gather index out of bounds')
 
 
 def _take(data, index, axis):
