@@ -1,0 +1,2 @@
+.interview-concept-mark{padding:0;border-radius:3px;background:color-mix(in srgb,var(--accent) 20%,var(--surface));color:inherit;box-decoration-break:clone;-webkit-box-decoration-break:clone;text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:3px}
+@media(forced-colors:active){.interview-concept-mark{background:Mark;color:MarkText}}

@@ -85,3 +85,9 @@
 .interview-ranking-latest{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:6px 0;color:var(--muted);font-size:var(--type-small);line-height:1.6}
 .interview-ranking-latest time{font-variant-numeric:tabular-nums}
 @media(max-width:600px){.interview-evidence-order>small{flex-basis:100%}.interview-evidence-order select{flex:1;min-width:0}}
+
+.interview-search-contexts{display:grid;gap:7px;min-width:0;margin-top:10px}
+.interview-search-context{display:grid;gap:4px;min-width:0;padding:9px 11px;border-inline-start:2px solid var(--accent);border-radius:0 6px 6px 0;background:var(--surface2);font-size:var(--type-small);line-height:1.7;overflow-wrap:anywhere}
+.interview-search-context>small{color:var(--muted);font:inherit}
+.interview-search-context>span{color:var(--text);font:inherit}
+@media(forced-colors:active){.interview-search-context{border-color:Highlight}}
