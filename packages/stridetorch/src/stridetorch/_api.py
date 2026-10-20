@@ -161,6 +161,9 @@ def create_torch(name='torch', *, register=False):
     registry.group('torch', {'addmm': _ops.addmm, 'addmv': _ops.addmv}, reverse='analytic', forward=True,
                    unsupported_keywords=('out',), implementation_keywords=('out',))
     registry.add('torch.nn.functional.pdist', _ops.pdist, reverse='analytic')
+    registry.group('torch', {'index_select':_indexed.index_select, 'index_add':_indexed.index_add,
+                            'scatter_add':_indexed.scatter_add}, reverse='analytic', forward=True,
+                   unsupported_keywords=('out',), implementation_keywords=('out',))
     registry.add('torch.nan_to_num', _ops.nan_to_num, reverse='analytic', unsupported_keywords=('out',))
     def outer(input, other):
         if input.ndim != 1 or other.ndim != 1: raise RuntimeError('outer expects vectors')
@@ -303,6 +306,6 @@ def create_torch(name='torch', *, register=False):
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
 from . import _defaults
-from . import _determinants, _arithmetic, _activation, _autograd, _average_pooling, _average_pooling3d, _batchnorm, _cholesky, _classification, _construction, _convolution, _conversion, _device, _errors, _groupnorm, _instancenorm, _linalg, _vector_norm, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _pooling, _pooling3d, _promotion, _random, _registry, _schedulers, _serialization, _tensor, _transpose_convolution, _multihead, _transformer
+from . import _determinants, _arithmetic, _activation, _autograd, _average_pooling, _average_pooling3d, _batchnorm, _cholesky, _classification, _construction, _convolution, _conversion, _device, _errors, _groupnorm, _instancenorm, _linalg, _vector_norm, _module_hooks, _nn, _nn_modules, _normalization, _ops, _optim, _pooling, _pooling3d, _promotion, _random, _registry, _schedulers, _serialization, _tensor, _transpose_convolution, _multihead, _transformer, _indexed
 
 from . import _gradient_utils

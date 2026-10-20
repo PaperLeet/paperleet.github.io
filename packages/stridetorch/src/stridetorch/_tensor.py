@@ -1104,6 +1104,16 @@ class Tensor:
         return _indexing.sort(self,dim,descending,stable=stable,out=out)
     def topk(self, k, dim=-1, largest=True, sorted=True, *, out=None):
         return _indexing.topk(self,k,dim,largest,sorted,out=out)
+    def index_select(self, dim, index):
+        return _indexed.index_select(self,dim,index)
+    def index_add(self, dim, index, source, *, alpha=1):
+        return _indexed.index_add(self,dim,index,source,alpha=alpha)
+    def index_add_(self, dim, index, source, *, alpha=1):
+        return _indexed.inplace(self,dim,index,source,alpha=alpha)
+    def scatter_add(self, dim, index, src):
+        return _indexed.scatter_add(self,dim,index,src)
+    def scatter_add_(self, dim, index, src):
+        return _indexed.inplace(self,dim,index,src,scatter=True)
     def scatter(self, dim, index, src, *, reduce=None):
         if reduce is not None: raise _errors.BrowserUnsupported('Scatter reductions require the server')
         if not self.ndim: raise _errors.BrowserUnsupported('Scalar scatter requires the server')
@@ -1293,4 +1303,4 @@ class Tensor:
 
 
 # Late module references break Tensor/autograd/operator cycles without rebinding functions.
-from . import _arithmetic, _autograd, _cholesky, _conversion, _defaults, _device, _errors, _linalg, _ops, _random, _state, _tensor_hooks, _indexing
+from . import _arithmetic, _autograd, _cholesky, _conversion, _defaults, _device, _errors, _linalg, _ops, _random, _state, _tensor_hooks, _indexing, _indexed
