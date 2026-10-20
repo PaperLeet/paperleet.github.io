@@ -73,3 +73,27 @@ The [catalogue followup record](../../packages/torchwasm/benchmarks/results/qual
 binds this qualification. Its v2 archive inherits only physically present blobs
 from the delivered current core and main-integration archives; no omitted
 development-only provider or Git blob is introduced. Main adoption is separate.
+
+
+## Leaf resource UI followup
+
+Main subsequently adds resource-kind entry controls in one component and its
+scoped stylesheet. The [resource UI record](../../packages/torchwasm/benchmarks/results/qualification-0.91-main-resource-ui.json)
+qualifies the exact merged source `59b46c1267a532ab048e6f357503a57d7195838d` on top of main
+`34628ed3f83ec335193fd24006d84d64741b3225`. Numerical source, SDK, private application, catalogue,
+package inputs and active data retain the preceding qualified identities.
+
+Current252 registered coverage reruns114 commands: every new/changed checker,
+the core/workspace/runtime prefix, resource/preparation checks, checks referencing
+the changed component or its14 conservative reverse-import parents, and dynamic
+SSR-loader cases.138 unrelated unchanged checker sources retain their previous
+individual success receipts. This is scoped followup coverage, not another full
+252-command rerun. Both builds, retained assets, exact generated Worker and real
+Chrome seven-test judgement also pass. Six unchanged distribution artifacts and
+both catalogue tests retain their qualified source/input identities.
+
+The current v2 archive is 1,371,201 bytes; SHA-256
+`317f86919e30e6aabddac95538d83a947961f399cebd433410dba50e62d32b27`. Providers are flattened to physically present
+current0.91 archives. Main adoption still requires a fresh strict local pack,
+qualified-source grant and the unchanged native push/release-chain guards.
+No CI dispatch, tag, publication or deployment is initiated by this record.
