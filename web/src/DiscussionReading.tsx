@@ -2,6 +2,7 @@ import {controlIsActive} from './activeControls';
 import {useEffect,useId,useLayoutEffect,useMemo,useRef,useState} from 'react';
 import {ChevronDown,ListTree,X} from 'lucide-react';
 import CommunityMarkdown from './CommunityMarkdown';
+import ReadingAppearance from './ReadingAppearance';
 import {markdownOutline} from './markdownOutline';
 import {keepReadingTriggerVisible,readingScrollRoot,readingToolbar,readingToolbarInset,revealReadingSection} from './readingViewport';
 import {useI18n} from './i18n';
@@ -11,7 +12,7 @@ import PostSearchMatch from './PostSearchMatch';
 import './discussion-reading.css';
 
 export default function DiscussionReading({body,displayBody=body,postId,compact=false,instance=false}:{body:string;displayBody?:string;postId:string;compact?:boolean;instance?:boolean}){
-  const {t}=useI18n(),root=useRef<HTMLDivElement>(null),instanceId=useId();
+  const {t}=useI18n(),root=useRef<HTMLDivElement>(null),bodyRoot=useRef<HTMLDivElement>(null),instanceId=useId();
   const suffix=instance?'-instance-'+instanceId.split('').map(character=>character.charCodeAt(0).toString(16).padStart(4,'0')).join(''):'';
   const scope=`reading-${postId}${suffix}`,sections=useMemo(()=>{const source=markdownOutline(body,scope);if(body===displayBody)return source;const display=markdownOutline(displayBody,scope);return source.map((section,index)=>({...section,label:display[index]?.label||section.label}));},[body,displayBody,scope]);
   const [open,setOpen]=useState(()=>!compact&&typeof window!=='undefined'&&!!window.matchMedia?.('(min-width: 1200px)').matches);
@@ -113,7 +114,7 @@ export default function DiscussionReading({body,displayBody=body,postId,compact=
         }}><PostSearchMatch text={section.label} query={query}/></button>
       </li>)}</ol></nav>}
     </details>}
-    <div className="discussion-reading-body"><CommunityMarkdown body={body} displayBody={displayBody} headingScope={scope}/></div>
+    <div ref={bodyRoot} id={`${instanceId}-body`} className="discussion-reading-body">{!compact&&<ReadingAppearance target={bodyRoot} controlsId={`${instanceId}-body`} scope={JSON.stringify([scope,body,displayBody])}/>}<CommunityMarkdown body={body} displayBody={displayBody} headingScope={scope}/></div>
    </div>
   </div>;
 }

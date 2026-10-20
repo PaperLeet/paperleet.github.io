@@ -1,5 +1,6 @@
 import AppLink from './AppLink';
-import type { ReactNode } from "react";
+import {useId,useRef,type ReactNode} from "react";
+import ReadingAppearance from './ReadingAppearance';
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
@@ -21,6 +22,7 @@ export function Prose({
   onViz?: () => void;
 }) {
   const { t } = useI18n();
+  const readingRoot=useRef<HTMLDivElement>(null),readingId=useId();
   const processed = content.replace(
     /<viz\s+id=["']([^"']+)["']\s*\/>/g,
     `[${t("打开交互实验", "Open interactive lab")}](#viz-$1)`,
@@ -58,7 +60,7 @@ export function Prose({
     return <AppLink href={href}>{children}</AppLink>;
   }
   return (
-    <div className="prose" onClick={event => {
+    <div ref={readingRoot} id={readingId} className="prose" onClick={event => {
       if (!(event.target instanceof Element)) return;
       const button = event.target.closest<HTMLButtonElement>('button[data-reading-section]');
       const menu = event.currentTarget.querySelector<HTMLDetailsElement>('.reading-outline');
@@ -74,7 +76,7 @@ export function Prose({
       heading.focus({preventScroll:true});
       heading.scrollIntoView({block:'start', behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'});
     }} onKeyDown={event => {
-      if (event.key !== 'Escape') return;
+      if (event.key !== 'Escape' || event.defaultPrevented || event.repeat || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey || event.nativeEvent.isComposing || event.keyCode === 229) return;
       const menu = event.currentTarget.querySelector<HTMLDetailsElement>('.reading-outline[open]');
       if (!menu) return;
       event.preventDefault(); event.stopPropagation();
@@ -84,6 +86,7 @@ export function Prose({
       const menu = event.currentTarget.querySelector<HTMLDetailsElement>('.reading-outline[open]');
       if (menu && event.relatedTarget instanceof Node && !menu.contains(event.relatedTarget)) menu.open = false;
     }}>
+      {content.length>=1200&&<ReadingAppearance target={readingRoot} controlsId={readingId} scope={content}/>}
       <Markdown
         remarkPlugins={[remarkGfm, remarkMath]}
         rehypePlugins={[[readingOutline, {title:t('本文导航', 'On this page'), sectionLabel:t('节', 'sections')}], rehypeKatex]}
