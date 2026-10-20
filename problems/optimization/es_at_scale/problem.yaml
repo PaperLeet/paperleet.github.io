@@ -1,0 +1,76 @@
+id: optimization/es_at_scale
+number: 104
+title: ES 奖励加权更新
+title_en: ES Reward-Weighted Update
+paper_id: es-at-scale
+paper:
+  title: 'Evolution Strategies at Scale: LLM Fine-Tuning Beyond Reinforcement Learning'
+  authors: Xin Qiu, Yulu Gan et al.
+  venue: ICML 2026
+  arxiv: '2509.24372'
+  url: https://arxiv.org/abs/2509.24372
+  anchors:
+  - 'Section 3, Algorithm 1: z-score rewards and the mean reward-weighted parameter perturbation'
+  - 'Algorithm 2: seeded layer-wise perturbation evaluation'
+  official_code: https://github.com/VsonicV/es-at-scale
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: reward_zscores
+  signature: 'reward_zscores(rewards: Tensor, eps: float=1e-08) -> Tensor'
+- name: es_step
+  signature: 'es_step(theta: Tensor, noise: Tensor, rewards: Tensor, alpha: float, eps: float=1e-08) -> Tensor'
+module:
+  goal: 按奖励组合随机参数扰动。
+  goal_en: Reward-weighted parameter perturbations.
+  scope: 奖励标准化与 ES 更新。
+  scope_en: Reward standardization and ES updates.
+  required_functions:
+  - reward_zscores
+  - es_step
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: CPU float32/float64, matching floating dtype/device; discrete indices/predictions are long.
+  contract: Inputs meet the documented shapes and finite-arithmetic assumptions. No mutation or input-validation
+    code required. See each starter docstring for return, gradient and endpoint conventions.
+tests:
+  T0: 1
+  T1: 1
+  T2: 4
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+tags:
+- Evolution Strategies
+- Post-training
+- Black-box Optimization
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-20'
+verified_sources:
+  checked_at: '2026-10-20'
+  links:
+  - https://arxiv.org/abs/2509.24372
+  - https://github.com/VsonicV/es-at-scale
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2509.24372
+  anchor: 'Section 3, Algorithm 1: z-score rewards and the mean reward-weighted parameter perturbation'
+  adaptation: 100 reward-only updates on a two-dimensional squared-distance objective, population 30, sigma=0.1
+    and alpha=0.05; CPU float64, seed 42. Not an LLM benchmark.
+mutants:
+- id: m1_wrong_sign
+  bug: Minimize instead of maximizing rewards.
+- id: m2_population_sum
+  bug: Sum directions instead of averaging the population.
+- id: m3_sample_std
+  bug: Use sample instead of population standard deviation.
+- id: m4_train_weights
+  bug: Keep an autograd path through base weights.
+- id: m5_ignore_floor
+  bug: Ignore the caller-supplied standard-deviation floor.

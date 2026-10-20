@@ -1,0 +1,79 @@
+id: finetuning/visual_domain_prompt
+number: 105
+title: 视觉提示与稳态正则
+title_en: Visual Prompts and Homeostatic Regularization
+paper_id: visual-domain-prompt
+paper:
+  title: 'Decorate the Newcomers: Visual Domain Prompt for Continual Test Time Adaptation'
+  authors: Yulu Gan et al.
+  venue: AAAI 2023
+  arxiv: '2212.04145'
+  url: https://arxiv.org/abs/2212.04145
+  anchors:
+  - 'Method, Eq. (1): additive domain-specific and domain-agnostic visual prompts'
+  - 'Method, Eqs. (3)-(4): homeostatic factor and weighted prompt anchoring'
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: apply_prompts
+  signature: 'apply_prompts(images: Tensor, specific: Tensor, agnostic: Tensor) -> Tensor'
+- name: homeostatic_factor
+  signature: 'homeostatic_factor(importance: Tensor, displacement: Tensor, xi: float=0.01) -> Tensor'
+- name: homeostatic_penalty
+  signature: 'homeostatic_penalty(prompt: Tensor, anchor: Tensor, factor: Tensor, strength: float) -> Tensor'
+module:
+  goal: 冻结模型，学习视觉提示。
+  goal_en: Adapt visual prompts with a frozen model.
+  scope: 提示叠加、历史因子与稳态正则。
+  scope_en: Prompt addition, historical factors and homeostatic regularization.
+  required_functions:
+  - apply_prompts
+  - homeostatic_factor
+  - homeostatic_penalty
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: CPU float32/float64, matching floating dtype/device; discrete indices/predictions are long.
+  contract: Inputs meet the documented shapes and finite-arithmetic assumptions. No mutation or input-validation
+    code required. See each starter docstring for return, gradient and endpoint conventions.
+tests:
+  T0: 1
+  T1: 1
+  T2: 4
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+tags:
+- Continual Learning
+- Test-Time Adaptation
+- Visual Prompting
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-20'
+verified_sources:
+  checked_at: '2026-10-20'
+  links:
+  - https://arxiv.org/abs/2212.04145
+  - https://ojs.aaai.org/index.php/AAAI/article/view/25922
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2212.04145
+  anchor: 'Method, Eq. (1): additive domain-specific and domain-agnostic visual prompts'
+  adaptation: Two-pixel identity readout, supplied fixed teacher features and supplied history; 120 SGD updates
+    at lr=0.1 for strengths 0 and 1. Squared feature consistency replaces classifier cross entropy for an independent
+    analytic optimum. Not CTTA benchmark reproduction.
+mutants:
+- id: m1_drop_agnostic
+  bug: Omit the domain-agnostic prompt.
+- id: m2_average_domains
+  bug: Average historical domains instead of summing.
+- id: m3_unsquared_displacement
+  bug: Use signed rather than squared displacement.
+- id: m4_extra_half
+  bug: Add an EWC-style half absent from Eq. (4).
+- id: m5_train_anchor
+  bug: Allow gradients into the previous-domain anchor.
