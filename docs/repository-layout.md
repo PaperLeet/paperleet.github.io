@@ -37,7 +37,9 @@ This preserves existing standalone installs without adding nested submodules.
 The runtime is now named **TorchWasm** in the unmerged 0.91 main-integration
 candidate (`codex/torchwasm-main-091`). Its distribution, import and launcher
 become `torchwasm`, and its product path becomes `packages/torchwasm`. The
-current main branch still uses StrideTorch 0.85. Keep its existing provenance
+current main branch still uses StrideTorch 0.85. The standalone adoption is
+tracked in [TorchWasm candidate PR](https://github.com/PaperLeet/stridetorch/pull/1).
+Keep its existing provenance
 pin until the candidate and product integration are reviewed together.
 `sync_stridetorch.py` deliberately refuses a renamed package: moving the
 package directory, Python imports, browser bundles, Worker and provenance
