@@ -9,6 +9,9 @@
 .paper-library .library-heading > .text-button:hover { color: var(--text); }
 .paper-library .library-heading > .library-progress { margin-left: auto; }
 
+/* Search bar reads as a framed panel rather than an edge-to-edge white strip on the page background. */
+.paper-library .library-toolbar { border: 1px solid var(--line); border-radius: 12px; }
+
 /* Paper rows: keep the number beside its title when the title wraps, and keep topic tags legible. */
 .paper-library .paper-info strong { flex-wrap: nowrap; }
 .paper-title-tags > span { padding: 1px 7px; border-radius: 999px; font-size: var(--type-caption); line-height: 1.45; }
@@ -54,3 +57,43 @@
 /* Interview resources: kind filters fill each row evenly in the narrow sidebar; an inert "Show fewer" is not shown. */
 .interview-resource-panel .resource-browser-kinds > button { flex: 1 1 auto; justify-content: space-between; }
 .resource-browser-actions button[aria-disabled=true] { display: none; }
+
+/* Workspace: on editions without server submission, "Run tests" is the only action, so it carries the primary style. */
+.editor-run-actions > .run-button.subtle:only-child { border-color: transparent; background: var(--primary-bg); color: var(--primary-text); box-shadow: inset 0 1px 0 #ffffff26, 0 2px 4px #00000006; }
+.editor-run-actions > .run-button.subtle:only-child:hover:not(:disabled) { border-color: transparent; background: var(--primary-bg); filter: brightness(1.05); }
+
+/* Paper detail on phones: stack the hero actions at full width and fold the three facts into one divided strip. */
+@media (max-width: 600px) {
+  .paper-detail .paper-detail-actions { flex-direction: column; align-items: stretch; }
+  .paper-detail-actions > .paper-primary-action { flex: none; min-width: 0; }
+  .paper-detail-actions > .button { align-self: stretch; }
+  .paper-detail-actions .button { white-space: nowrap; }
+  .paper-at-a-glance { gap: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+  .paper-at-a-glance > div { gap: 0; padding: 12px 12px 13px; border: 0; border-radius: 0; background: none; }
+  .paper-at-a-glance > div + div { border-left: 1px solid var(--line); }
+  .paper-at-a-glance > div > svg { display: none; }
+  .paper-at-a-glance span { font-size: var(--type-caption); line-height: 1.45; }
+  .paper-at-a-glance > div > span { display: flex; flex-direction: column; height: 100%; }
+  .paper-at-a-glance b { margin-top: auto; padding-top: 4px; }
+}
+
+/* Submission steps on phones: one vertical sequence joined by a thin rail instead of a 2×2 grid with stray arrows. */
+@media (max-width: 520px) {
+  .submission-pipeline { grid-template-columns: minmax(0, 1fr); gap: 10px; padding: 14px 16px; }
+  .submission-pipeline > div { position: relative; }
+  .submission-pipeline > div + div::before { content: ""; position: absolute; left: 12px; top: -10px; height: 10px; border-left: 1px solid var(--line); }
+  .submission-pipeline svg { display: none; }
+  .submission-pipeline b { font-size: var(--type-small); }
+}
+
+/* Button labels never break mid-phrase: single-line labels stay on one line, and secondary lines inside card-style links truncate. */
+.interview-path-grid a.interview-path-start > span { min-width: 0; }
+.interview-path-start small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.external-company-practice > summary { flex-wrap: wrap; column-gap: 10px; row-gap: 2px; }
+.external-company-practice > summary > small { color: var(--muted); font-size: var(--type-meta); font-weight: 400; white-space: nowrap; }
+.submission-heading .button, .paper-detail-actions .button, .paper-completion-card .button { white-space: nowrap; }
+@media (max-width: 600px) {
+  .external-company-practice > summary > small { flex-basis: 100%; padding-left: 22px; }
+  .interview-resource-panel .resource-browser-kinds { display: flex; }
+  .interview-resource-panel .resource-browser-kinds > button { flex: 1 1 auto; justify-content: space-between; white-space: nowrap; }
+}

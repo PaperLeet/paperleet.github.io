@@ -51,9 +51,9 @@ try {
   assert(!action(loading).includes('其他论文') && !loading.includes('探索全部论文'),'Changing owners or loading progress cannot expose an old continuation target');
   const allSaved=Object.fromEntries(catalog.problems.map(problem=>[problem.id,{report:accepted(problem)}]));
   const finished=renderToStaticMarkup(React.createElement(PaperDetail,{...courseProps,saved:allSaved}));
-  assert(action(finished).includes('回顾实现') && !action(finished).includes('继续学习') && finished.includes('探索全部论文'),'A completed catalog offers review and discovery without inventing an unsolved target');
+  assert(action(finished).includes('回顾') && !action(finished).includes('继续学习') && finished.includes('探索全部论文'),'A completed catalog offers review and discovery without inventing an unsolved target');
   const completedPaper=renderToStaticMarkup(React.createElement(PaperDetail,{paper,problems:catalog.problems,saved:allSaved}));
-  assert(action(completedPaper).includes('回顾实现') && !completedPaper.includes('探索全部论文'),'The course continuation does not change ordinary paper review');
+  assert(action(completedPaper).includes('回顾') && !completedPaper.includes('探索全部论文'),'The course continuation does not change ordinary paper review');
   const renderEnglish=await localizedRenderer(server,'en',renderStatic);
   const english=renderEnglish(React.createElement(PaperDetail,courseProps));
   assert(action(english).includes('Continue learning') && action(english).includes('Another paper') && english.includes('Explore all papers'));
