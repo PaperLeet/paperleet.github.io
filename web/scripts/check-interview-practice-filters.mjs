@@ -58,7 +58,12 @@ try{
  const group=()=>document.querySelector('.interview-practice-group'),selected=()=>[...group().querySelectorAll('[data-selected-problem]')].map(node=>Number(node.dataset.selectedProblem));
  const difficulty=()=>document.querySelector('[aria-label="Practice difficulty"]'),duration=()=>document.querySelector('[aria-label="Estimated time per exercise"]');
  const storage=JSON.stringify({...sessionStorage}),evidence=JSON.stringify(questions),originalSaved=JSON.stringify(saved);
- await go(route);await wait(()=>group());const calls=requests.length,selectNode=difficulty(),durationNode=duration(),editor=document.querySelector('[aria-label="Private editor"]');editor.setSelectionRange(2,10,'backward');editor.scrollTop=81;editor.scrollLeft=13;
+ await go(route);await wait(()=>group());
+ // Practice criteria live inside the disclosure; closed controls intentionally
+ // reject synthetic changes, just as they are unavailable to a real user.
+ await click(document.querySelector('.interview-more-filters summary'));
+ assert(document.querySelector('.interview-more-filters').open);
+ const calls=requests.length,selectNode=difficulty(),durationNode=duration(),editor=document.querySelector('[aria-label="Private editor"]');editor.setSelectionRange(2,10,'backward');editor.scrollTop=81;editor.scrollLeft=13;
  await change(difficulty(),'M');assert.equal(difficulty(),selectNode);assert.equal(document.activeElement,selectNode);assert.deepEqual(numbers(),[2,3,6,8]);
  await change(duration(),'30');assert.equal(duration(),durationNode);assert.equal(document.activeElement,durationNode);assert.deepEqual(numbers(),[2,3,8]);assert.deepEqual([...document.querySelectorAll('.interview-rank')].map(node=>node.textContent),['02','03','08']);assert.equal(requests.length,calls,'Practice metadata filters do not request different source statistics');assert(document.body.textContent.includes('2 concepts lack the metadata'));assert(!document.querySelector('.interview-ranking-completion'));
  assert(document.querySelector('[aria-label="Remove filter: Difficulty: Medium"]'));assert(document.querySelector('[aria-label="Remove filter: Up to 30 min per exercise"]'));
