@@ -84,3 +84,13 @@ Main then added five identity-choice paths at `3c61d129`. Source base `773be1f2`
 preserves them; five affected identity/interview checks, both build profiles and
 the actual Worker pass. The [next follow-up](../../packages/stridetorch/benchmarks/results/qualification-0.85-current-main-followup-2.json)
 retains this qualification and the cumulative 31 frontend path identities.
+
+Main adoption was verified at `5eafe4d638fae2a6759150de05441fd5a0855fc1`.
+The remote matches the qualified tree: 78 public resources, 95 SDK files,
+183 active exports and all 20,637 tracked files. Own implementation/integration
+commits have zero workflow runs. Pages remains a legacy `gh-pages` deployment.
+The [adoption proof](../../packages/stridetorch/benchmarks/results/qualification-0.85-main-adoption.json)
+retains the successful ordinary push, the rejected current-workflow and
+advanced-main audits, and the read-only wait through the existing quality/Pages
+chain. This iteration dispatched no CI, cancelled no workflow, and created no
+tag, package publication or site deployment.

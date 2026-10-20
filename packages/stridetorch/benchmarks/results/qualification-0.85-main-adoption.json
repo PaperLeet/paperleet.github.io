@@ -1,0 +1,59 @@
+{
+  "status": "verified_0.85_main_adoption",
+  "version": "0.85.0",
+  "adopted_commit": "5eafe4d638fae2a6759150de05441fd5a0855fc1",
+  "verification": {
+    "status": "verified_remote_0.85_source_identity",
+    "adopted_commit": "5eafe4d638fae2a6759150de05441fd5a0855fc1",
+    "remote": "5eafe4d638fae2a6759150de05441fd5a0855fc1",
+    "tracked_files": 20637,
+    "public_resources": 78,
+    "sdk_files": 95,
+    "active_exports": 183,
+    "own_commit_workflows": [],
+    "pages_source": {
+      "branch": "gh-pages",
+      "path": "/"
+    },
+    "pages_build_type": "legacy",
+    "working_tree_clean": true,
+    "ci_triggered_by_iteration": false
+  },
+  "qualification_sha256": "16810a4ba41de703031b12da596b398f5ca3829123b6ebbbfca74b67a11bb85d",
+  "current_main_qualification_sha256": "9fadc496f855b1e309817236f78b6b8d1e4324209512b702630e3061aff44750",
+  "push_receipt": {
+    "kind": "adoption",
+    "exit_code": 0,
+    "expected_remote": "3c61d1295db4a21f01041178504d2f6c8580ce33",
+    "seconds": 15.613730583005236,
+    "command": [
+      "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+      "-B",
+      "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-67/final-integration/push-main-native.py",
+      "3c61d1295db4a21f01041178504d2f6c8580ce33",
+      "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-707/audit-main.py"
+    ],
+    "scoped_git_config": {
+      "http.postBuffer": "134217728",
+      "http.lowSpeedTime": "30",
+      "http.lowSpeedLimit": "1",
+      "push.negotiate": "true"
+    },
+    "mandatory_wrapper_unchanged": true,
+    "ordinary_no_tag_push": true,
+    "log_sha256": "646f1f2202bde3a63b10753f23e62fb0a7dc08b736cf8ba91fa5dec72c764f8d"
+  },
+  "raw_archive": {
+    "path": "packages/stridetorch/benchmarks/results/qualification-0.85-main-adoption-harness.tar.gz",
+    "sha256": "1fa435356a44b898f7053cf4a7ef1a63f5f6fc540a93aaf118704ee0494db5ed",
+    "virtual_files": 66,
+    "unique_payloads": 45,
+    "bytes": 5667870
+  },
+  "prior_guard_rejection": "696: current-head manual Quality in progress; 698: main advanced while waiting. Both stopped before Git mutations. The completed Quality/Pages chain and all newer UI updates were verified before fresh707 push.",
+  "ci_triggered": false,
+  "published": false,
+  "tagged": false,
+  "deployed": false,
+  "goal_status": "active"
+}
