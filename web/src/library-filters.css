@@ -60,3 +60,12 @@
 
 .paper-library .library-filter-panel>.feature-loading{min-height:44px;padding:10px 0;font-size:var(--type-small)}
 .paper-library .library-filter-panel>[role="alert"]>.text-button{min-height:44px;white-space:normal;text-align:start;font-size:var(--type-small)}
+
+/* End the filter flow beside its live result count, without another trip to the toolbar. */
+.paper-library .library-filter-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;padding-top:12px;border-top:1px solid var(--line)}
+.paper-library .library-filter-footer>span{display:grid;gap:3px;min-width:0}
+.paper-library .library-filter-footer strong{font-size:var(--type-body);font-weight:600;line-height:1.6;overflow-wrap:anywhere}
+.paper-library .library-filter-footer small{color:var(--muted);font-size:var(--type-small);line-height:1.6}
+.paper-library .library-show-results{flex:none;min-height:44px;gap:8px;padding:10px 16px;border-radius:8px;font-size:var(--type-control);white-space:nowrap}
+.paper-library .library-show-results:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+@media(max-width:480px){.paper-library .library-filter-footer{display:grid;grid-template-columns:minmax(0,1fr)}.paper-library .library-show-results{width:100%;font-size:16px}}
