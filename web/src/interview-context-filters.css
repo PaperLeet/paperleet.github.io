@@ -6,3 +6,15 @@
 @media(max-width:380px){.interview-context-fields{grid-template-columns:1fr}.interview-context-actions>.button{width:100%}}
 @media(pointer:coarse){.interview-context-fields input,.interview-context-actions>:is(button,a){min-height:44px}}
 
+
+/* Validation belongs to the exact native field and stays readable in both themes. */
+.interview-context-fields input{min-height:44px;border-radius:var(--control-radius,8px)}
+.interview-context-fields input[aria-invalid=true]{border-color:var(--red,var(--chart-5));background:color-mix(in srgb,var(--red,var(--chart-5)) 4%,var(--surface))}
+.interview-context-fields input[aria-invalid=true]:focus-visible{outline-color:var(--red,var(--chart-5));box-shadow:0 0 0 3px color-mix(in srgb,var(--red,var(--chart-5)) 16%,transparent)}
+.interview-context-fields input[aria-invalid=true]:hover{border-color:var(--red,var(--chart-5))}
+.interview-context-filters .interview-context-error{display:flex;align-items:flex-start;gap:9px;padding:11px 12px;border:1px solid color-mix(in srgb,var(--red,var(--chart-5)) 28%,var(--line));border-radius:8px;background:color-mix(in srgb,var(--red,var(--chart-5)) 6%,var(--surface));color:var(--red,var(--chart-5))}
+.interview-context-error>svg{flex:none;margin-top:3px}
+.interview-context-error>span{min-width:0;overflow-wrap:anywhere}
+.interview-context-actions>.text-button{min-height:44px;padding:8px 10px;border-radius:var(--control-radius,8px)}
+.interview-context-actions>.text-button:hover{background:var(--surface2)}
+@media(forced-colors:active){.interview-context-fields input[aria-invalid=true]{border:2px solid LinkText}.interview-context-filters .interview-context-error{border-color:LinkText}}

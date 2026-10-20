@@ -165,10 +165,13 @@ json.dumps(run_suite(multi,bundle['reference'],'/judge'))
           runtime_bundle_url:smallManifest.runtime_bundle_url,supplemented_files:supplemented});
         py.runPython("import importlib\nimportlib.invalidate_caches()");
         const contracts = path.join(web, '../packages/stridetorch/tests');
-        // Launcher/install contracts need host processes; every other maintained
-        // NumPy-only suite also runs against the actual exported VM library.
+        // Installed-package/launcher contracts need host processes and optional
+        // WebGPU assets that are intentionally absent from the CPU/WASM bundle.
+        // Both host suites run in CI's infrastructure job; all NumPy VM suites
+        // still run here against the actual exported library.
+        const hostOnlySuites = new Set(['test_standalone.py', 'test_webgpu_package.py']);
         const suites = fs.readdirSync(contracts).filter(name =>
-          /^test_[a-z0-9_]+\.py$/.test(name) && name !== 'test_standalone.py').sort();
+          /^test_[a-z0-9_]+\.py$/.test(name) && !hostOnlySuites.has(name)).sort();
         assert(suites.length, 'Independent WASM contracts must not be empty');
         for (const suite of suites) {
           const testPath = `/judge/test_lightweight_${suite}`;

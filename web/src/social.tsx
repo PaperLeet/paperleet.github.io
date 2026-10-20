@@ -19,6 +19,8 @@ const AccountAccessGate = lazy(() => import('./Waitlist').then(module => ({ defa
 
 export type Institution = { id: string; name: string; name_en?: string };
 export type Affiliation = { name: string; name_en?: string; domain: string; kind: "institution" | "email_domain" };
+export type AffiliationRecord = Affiliation & { id: string; position: string; start_date: string; end_date: string; status: 'current' | 'past'; is_primary: boolean; verified_at: string; revision: number; email?: string };
+export type LoginMethod = { id: string; email: string; kind: 'email' | 'google' | 'microsoft' | 'github'; verified: boolean; enabled: boolean; is_primary: boolean };
 export type PublicUser = {
   id: string;
   username: string;
@@ -29,6 +31,7 @@ export type PublicUser = {
   created_at: string;
   institution?: Institution | null;
   affiliation?: Affiliation | null;
+  affiliations?: AffiliationRecord[];
   country?: string;
   show_progress?: boolean;
   is_test_user?: boolean;
@@ -45,6 +48,7 @@ export type AccountUser = PublicUser & {
   institution_verified?: boolean;
   affiliation_verified?: boolean;
   affiliation_email?: string | null;
+  login_methods?: LoginMethod[];
   email_verified?: boolean;
   can_publish_community?: boolean;
   login_username?: string;
@@ -52,6 +56,8 @@ export type AccountUser = PublicUser & {
   profile_edit_policy?: ProfileEditPolicy;
 };
 export type AccountCapabilities = {
+  account_identity_management?: boolean;
+  login_email_binding_available?: boolean;
   community_translation?: boolean;
   admin_workspace?: boolean;
   admin_highlights?: boolean;

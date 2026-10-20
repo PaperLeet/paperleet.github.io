@@ -19,6 +19,7 @@ import {useSolutionReadingNavigation,SolutionReadingScope,SolutionReadingNotice}
 import {sourcePostReadingReturn} from './readingReturn';
 import {readProfileRoute,profileFeedHref,type ProfileTab} from './profileNavigation';
 import AffiliationBadge from "./AffiliationBadge";
+import AffiliationHistory from './AffiliationHistory';
 import { resolveAffiliation } from './affiliationNames';
 import InterviewMeta from './InterviewMeta';
 import {readInterviewFeed} from './interviewModels';
@@ -1595,7 +1596,7 @@ function UserProfileContents({ username,route }: { username: string;route:string
                   ) : (
                     <span className="profile-affiliation-empty">
                       <Building2 size={13} />
-                      {t("机构未认证", "Affiliation not verified")}
+                      {profile.affiliations?.length ? t('暂无当前机构', 'No current affiliation') : t("机构未认证", "Affiliation not verified")}
                     </span>
                   ))}
                   {profile.country && (
@@ -1610,6 +1611,7 @@ function UserProfileContents({ username,route }: { username: string;route:string
                   </span>
                 </div>
                 {profile.bio && <p className="profile-bio">{profile.bio}</p>}
+                {!profile.is_test_user && <AffiliationHistory affiliations={profile.affiliations} />}
               </div>
               {profile.viewer.is_self ? (
                 <AppLink className="button subtle profile-edit" href="#/account">

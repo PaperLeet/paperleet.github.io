@@ -20,7 +20,8 @@ export default function AffiliationVerification({ user }: { user: AccountUser })
     const timer = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(timer);
   }, [request, remaining]);
-  const verified = user.affiliation_verified === true || Boolean(user.affiliation);
+  const multiple = capabilities?.account_identity_management === true;
+  const verified = !multiple && (user.affiliation_verified === true || Boolean(user.affiliation));
   async function send() {
     if (busy || remaining) return;
     setBusy(true); setError('');
@@ -47,12 +48,12 @@ export default function AffiliationVerification({ user }: { user: AccountUser })
       if (!active.current) return;
       if (data.user.id !== user.id) throw new Error(t('账号已变化，请刷新后重试。', 'Your account changed. Refresh and try again.'));
       setUser(data.user);
-      setRequest(undefined); setCode('');
+      setRequest(undefined); setCode(''); setEmail('');
     } catch (e) { if (active.current) setError(errorMessage(e)); }
     finally { if (active.current) setBusy(false); }
   }
   return <section className="social-panel affiliation-verification" aria-labelledby="affiliation-heading">
-    <h3 id="affiliation-heading"><ShieldCheck size={16} aria-hidden="true" /> {t('学校／企业邮箱认证', 'School / company email verification')}</h3>
+    <h3 id="affiliation-heading"><ShieldCheck size={16} aria-hidden="true" /> {multiple ? t('添加机构认证', 'Verify another affiliation') : t('学校／企业邮箱认证', 'School / company email verification')}</h3>
     {verified ? <>
       <p role="status">{t('学校／企业邮箱已认证，无需重复验证。', 'Your school/company email is verified. No additional verification is needed.')}</p>
       <AffiliationBadge affiliation={user.affiliation} institution={user.institution} />
