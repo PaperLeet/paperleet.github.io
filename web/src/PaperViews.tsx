@@ -44,8 +44,9 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
   const { t, locale } = useI18n();
   const searchInput = useRef<HTMLInputElement>(null);
   const libraryMain = useRef<HTMLDivElement>(null);
-  const resultsHeading=useRef<HTMLDivElement>(null),listId=useId(),filtersId=listId+'-filters';
+  const resultsHeading=useRef<HTMLDivElement>(null),listId=useId(),filtersId=listId+'-filters',categoriesId=listId+'-categories';
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [density, setDensity] = useState<'comfortable' | 'compact'>(() => {
     try { return localStorage.getItem('paperleet.library.density.v1') === 'compact' ? 'compact' : 'comfortable'; }
     catch { return 'comfortable'; }
@@ -61,8 +62,8 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
   const listedPapers = papersInCollection(papers, selectedCollection);
   const filters = normalizeLibraryFilters(readLibraryRoute(route)?.filters || emptyLibraryFilters(), listedPapers);
   const {query,category,tag,difficulty:diff,state,sort = 'default'} = filters;
-  const advancedFilterCount = [tag, diff, state].filter(value => value !== 'all').length;
   const company=filters.company||'',companyDays=filters.company_days||'365',moduleView=course||!!company||filters.view==='modules',directModules=filters.view==='modules'&&!course&&!company;
+  const advancedFilterCount = [tag, diff, state].filter(value => value !== 'all').length + Number(!!company);
   const companyData=companyScope?.data?.scope===companyScope?.scope?companyScope?.data:undefined;
   const companyReady=!company||companyData?.phase==='ready';
   const waitingForStatus = state !== 'all' && !progressReady || !companyReady;
@@ -79,6 +80,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
   const listedModules = problems.filter((problem) => listedModuleIds.has(problem.id));
   const selectedCategory=categories.find(item=>item.id===category);
   const visibleCategories = categories.filter((item) => listedPapers.some((paper) => paper.category === item.id));
+  const shownCategories = categoriesOpen ? visibleCategories : visibleCategories.filter((item,index) => index < 3 || item.id === category);
   const tags = libraryTags(listedPapers, category);
   const selectedTag = tag === 'all' ? 'all' : tags.find(name => sameLibraryTag(name, tag)) ?? tag;
   const overviewModules=company?listedModules.filter(problem=>companyData?.ids.has(problem.id)):listedModules;
@@ -161,18 +163,24 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
       <AppLink className="text-button" href="#/favorites">{t("收藏题目","Saved problems")}</AppLink>
       <div className="library-progress"><CheckCircle2 size={16} /><BilingualText zh="已通过模块" en="Modules solved" /><b>{companyReady?solvedModules:'—'} / {companyReady?overviewModules.length:'—'}</b></div>
     </header>
-    {!course && <div className="paper-categories" aria-label={t("论文分类", "Paper categories")}>
+    {!course && <div className="library-category-browser" data-expanded={categoriesOpen}>
+    <div className="paper-categories" id={categoriesId} aria-label={t("论文分类", "Paper categories")}>
       <button aria-pressed={category === "all"} onClick={() => { change({category:"all",tag:"all"}); }}><Library size={16} /><BilingualText zh="全部" en="All" /><span>{listedPapers.length}</span></button>
-      {visibleCategories.map((item) => {
+      {shownCategories.map((item) => {
         const label = [item.name, item.name_en];
         return <button key={item.id} className={`category-${item.id}`} aria-pressed={category === item.id} onClick={() => { change({category:item.id,tag:"all"}); }}><i aria-hidden="true" /><BilingualText zh={label[0]} en={label[1]} /><span>{listedPapers.filter((paper) => paper.category === item.id).length}</span></button>;
       })}
+    </div>
+    {visibleCategories.length > 3 && <button type="button" className="library-category-toggle" aria-controls={categoriesId} aria-expanded={categoriesOpen} aria-label={categoriesOpen?t('收起分类','Collapse categories'):t('展开全部分类','Expand all categories')} onClick={() => {if(currentView())setCategoriesOpen(open => !open);}}>{categoriesOpen?t('收起','Collapse'):t('展开','Expand')}<ChevronDown size={14} aria-hidden="true"/></button>}
     </div>}
     <section className="problem-list" aria-label={course ? t("课程练习", "Course modules") : t("论文列表", "Paper list")}>
       <div className="library-toolbar">
         <div className="search"><Search size={17} aria-hidden="true" /><input ref={searchInput} type="search" maxLength={200} aria-label={t("搜索论文或模块", "Search papers or modules")} aria-controls={listId} aria-keyshortcuts="/" placeholder={directModules?t("题目编号、标题、作者或 arXiv…","Exercise number, title, author or arXiv…"):t("标题、作者、arXiv 或模块…", "Title, author, arXiv or module…")} value={query} onChange={(e) => change({query:e.target.value})} onKeyDown={(e) => { if (e.key === "Escape"&&!e.defaultPrevented&&currentView()&&!e.repeat&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!e.shiftKey&&!e.nativeEvent.isComposing&&e.nativeEvent.keyCode!==229) {e.preventDefault();e.stopPropagation();change({query:''});} }} />{query ? <button type="button" className="search-clear" aria-label={t("清空搜索", "Clear search")} onClick={() => { if(!currentView())return;searchInput.current?.focus({preventScroll:true});change({query:""}); }}><X size={15} /></button> : <kbd aria-hidden="true">/</kbd>}</div>
-        <button type="button" className="library-filter-toggle" aria-controls={filtersId} aria-expanded={filtersOpen} onClick={() => {if(currentView())setFiltersOpen(open => !open);}}><SlidersHorizontal size={16} aria-hidden="true" />{t("筛选", "Filters")}{advancedFilterCount > 0 && <span>{advancedFilterCount}</span>}<ChevronDown size={13} aria-hidden="true" /></button>
-        <div className="filter-bar" id={filtersId} data-expanded={filtersOpen}>
+        <button type="button" className="library-filter-toggle" aria-controls={filtersId} aria-expanded={filtersOpen} onClick={event => {if(currentView()){if(filtersOpen&&libraryMain.current?.querySelector('.library-filter-panel')?.contains(document.activeElement))event.currentTarget.focus({preventScroll:true});setFiltersOpen(open => !open);}}}><SlidersHorizontal size={16} aria-hidden="true" />{t("筛选", "Filters")}{advancedFilterCount > 0 && <span>{advancedFilterCount}</span>}<ChevronDown size={13} aria-hidden="true" /></button>
+        <button type="button" className="random-problem" aria-label={t('随机一题', 'Random problem')} onClick={randomProblem} disabled={!progressReady || !companyReady || !unattempted.length} title={!companyReady?t("公司练习范围尚未确认","Company practice scope is unconfirmed"):!progressReady ? t("学习进度尚未就绪", "Practice progress is not ready") : unattempted.length ? t(`从当前范围内 ${unattempted.length} 道未开始的题目中随机选择`, `Pick from ${unattempted.length} unattempted problems in this view`) : t("当前范围内没有未开始的题目", "No unattempted problems in this view")}><Shuffle size={17} aria-hidden="true" /><span>{t("随机一题", "Random problem")}</span></button>
+      </div>
+      <div className="library-filter-panel" id={filtersId} hidden={!filtersOpen} onKeyDown={event=>{if(filtersOpen&&event.key==='Escape'&&!event.defaultPrevented&&!event.repeat&&!event.nativeEvent.isComposing&&event.nativeEvent.keyCode!==229&&!event.ctrlKey&&!event.metaKey&&!event.altKey&&!event.shiftKey&&currentView()){event.preventDefault();event.stopPropagation();libraryMain.current?.querySelector<HTMLButtonElement>('.library-filter-toggle')?.focus({preventScroll:true});setFiltersOpen(false);}}}>
+        <div className="filter-bar" data-expanded={filtersOpen}>
           <div className="select-wrap" data-active={selectedTag!=="all"||undefined}><select aria-controls={listId} aria-label={t("主题筛选", "Filter by topic")} value={selectedTag} onChange={(e) => change({tag:e.target.value})}>
             <option value="all">{t("主题", "Topic")}</option>{tags.map((name) => <option key={name}>{name}</option>)}
           </select><ChevronDown size={12} aria-hidden="true" /></div>
@@ -183,9 +191,8 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
             <option value="all">{t("状态", "Status")}</option><option value="todo">{t("未开始", "Not started")}</option><option value="started">{t("进行中", "In progress")}</option><option value="done">{t("已完成", "Solved")}</option>
           </select><ChevronDown size={12} aria-hidden="true" /></div>
         </div>
-        <button type="button" className="random-problem" aria-label={t('随机一题', 'Random problem')} onClick={randomProblem} disabled={!progressReady || !companyReady || !unattempted.length} title={!companyReady?t("公司练习范围尚未确认","Company practice scope is unconfirmed"):!progressReady ? t("学习进度尚未就绪", "Practice progress is not ready") : unattempted.length ? t(`从当前范围内 ${unattempted.length} 道未开始的题目中随机选择`, `Pick from ${unattempted.length} unattempted problems in this view`) : t("当前范围内没有未开始的题目", "No unattempted problems in this view")}><Shuffle size={17} aria-hidden="true" /><span>{t("随机一题", "Random problem")}</span></button>
+        <CompanyTools company={company} days={companyDays} onChange={(company,days)=>change({company:company||undefined,company_days:company?days:undefined})}/>
       </div>
-      <CompanyTools company={company} days={companyDays} onChange={(company,days)=>change({company:company||undefined,company_days:company?days:undefined})}/>
       {company&&companyScope&&<CompanyTools company={company} days={companyDays} returnTo={viewHref} {...companyScope}/>}
       <div className="library-results">
         <ResultControls listId={listId} hasFilters={hasFilters} moduleView={moduleView} onView={!course&&!company?changeView:undefined} company={company} course={course} sort={sort} density={density} onClear={clear} onSort={changeSort} onDensity={changeDensity}/>

@@ -145,7 +145,7 @@ try{
  outside.contentEditable='plaintext-only';outside.setAttribute('contenteditable','plaintext-only');outside.focus();assert(!(await key(outside,'/')).defaultPrevented);assert.equal(document.activeElement,outside);outside.removeAttribute('contenteditable');
  outside.focus();const handled=new window.KeyboardEvent('keydown',{key:'/',bubbles:true,cancelable:true});handled.preventDefault();await act(async()=>outside.dispatchEvent(handled));assert.equal(document.activeElement,outside,'Already handled shortcuts keep focus');
  assert((await key(outside,'/')).defaultPrevented);assert.equal(document.activeElement,librarySearch());assert.equal(librarySearch().getAttribute('aria-controls'),document.querySelector('.problem-rows').id);
- const filterToggle=document.querySelector('.library-filter-toggle');assert.equal(document.getElementById(filterToggle.getAttribute('aria-controls')),document.querySelector('.filter-bar'));
+ const filterToggle=document.querySelector('.library-filter-toggle');assert.equal(document.getElementById(filterToggle.getAttribute('aria-controls')),document.querySelector('.library-filter-panel'));
  const beforeRetired=changes.length,storedDensity=localStorage.getItem('paperleet.library.density.v1');history.replaceState(null,'','#/favorites');outside.focus();
  assert(!(await key(outside,'/')).defaultPrevented);assert.equal(document.activeElement,outside);
  await select(document.querySelector('[aria-label="Filter module difficulty"]'),'M');await select(document.querySelector('[aria-label="Sort papers"]'),'title');await click(document.querySelector('[aria-label="Compact list"]'));
