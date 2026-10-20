@@ -96,7 +96,7 @@ try {
   await act(async()=>finishLogout(Response.json({ok:true})));
   await settle(()=>!account.user&&!find('.account-menu-panel'));
   const join=find('.header-signin-cta');
-  assert(join&&join.textContent==='Join / Sign in','Guests can reach sign-in without opening the personal menu');
+  assert(join&&join.textContent==='Sign in','Guests have one concise sign-in action without opening the personal menu');
   assert.equal(join.getAttribute('href'),'#/account/continue/22','Registration returns to the current practice route');
   assert.equal(logoutRequests,2,'Showing the registration entry does not create any account or submission request');
   await click(find('.account-menu-trigger'));
@@ -126,7 +126,7 @@ try {
   await settle(()=>document.activeElement===button('Reading'));
   const panel=find('.workspace-layout-popover'),preset=button('Reading'),controls=layoutTrigger.getAttribute('aria-controls');
   await act(async()=>localeControl.setLocale('zh'));assert.equal(find('.workspace-layout-popover'),panel);assert.equal(document.activeElement,preset);assert.equal(preset.textContent.trim(),'阅读优先');assert(panel.textContent.includes('均分题面与代码')&&panel.textContent.includes('收起此面板'));
-  assert.equal(find('.header-signin-cta').textContent,'注册 / 登录');
+  assert.equal(find('.header-signin-cta').textContent,'登录');
   await act(async()=>localeControl.setLocale('en'));assert.equal(document.activeElement,preset);assert.equal(layoutTrigger.getAttribute('aria-controls'),controls);assert(panel.textContent.includes('Equal pane widths')&&panel.textContent.includes('Close this panel'));
   for(const options of [{isComposing:true},{keyCode:229},{repeat:true},{altKey:true},{ctrlKey:true},{metaKey:true},{shiftKey:true}]){
     const event=await key(button('Reading'),{key:'Escape',...options});
