@@ -64,7 +64,7 @@ a.account-menu-identity:hover { background:var(--surface2); }
 }
 @media (max-width:480px) {
   /* Passive counters give way to sign-in, notifications and account controls. */
-  .topbar .nav-metric { display:none; }
+  .topbar .nav-actions .nav-metric { display:none; }
 }
 @media (prefers-reduced-motion:no-preference) {
   .account-menu-panel { animation:account-menu-enter .16s ease-out both; }
