@@ -155,7 +155,7 @@ button:disabled { cursor: default; }
 /* Collection progress stays visible without competing with its main topic. */
 .collection-card { height: 216px; }
 .collection-copy p { max-width: 260px; }
-.collection-learning-progress { position: absolute; left: 24px; right: 24px; bottom: 16px; z-index: 2; color: #ffffffe6; font-size: var(--type-meta); }
+.collection-learning-progress { position: absolute; left: 24px; right: 24px; bottom: 16px; z-index: 2; color: #fff; font-size: var(--type-meta); }
 .collection-learning-progress > div { height: 3px; margin-top: 6px; border-radius: 4px; overflow: hidden; background: #ffffff30; }
 .collection-learning-progress i { display: block; height: 100%; background: #ffffffd9; border-radius: inherit; }
 .collection-art { bottom: -4px; opacity: .5; }
