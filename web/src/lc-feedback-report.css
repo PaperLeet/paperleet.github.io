@@ -55,10 +55,13 @@
 .test-comparison h4 { margin:0 0 6px; color:var(--text-secondary); font-size:var(--type-meta); font-weight:500; }
 .test-comparison .comparison-index,.test-comparison .comparison-values dd { display:block; margin:0; padding:9px 12px; border-radius:var(--control-radius); background:color-mix(in srgb,var(--text) 5%,var(--surface)); color:var(--text); font:var(--type-small)/1.6 var(--font-mono); white-space:pre; overflow-x:auto; overflow-wrap:normal; }
 .test-comparison .comparison-values { grid-template-columns:minmax(0,1fr); gap:12px; margin:12px 0; }
+@media (min-width:560px) { .test-comparison .comparison-values { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 .test-comparison .comparison-values > div { min-width:0; padding:0; border:0; border-radius:0; background:none; }
-.test-comparison .comparison-values dt { margin-bottom:6px; color:var(--text-secondary); font-size:var(--type-meta); }
-.test-comparison .comparison-values > div:last-child dd { box-shadow:inset 2px 0 var(--red); }
-.test-comparison .comparison-tolerances { grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr)); gap:8px 16px; margin:0 0 6px; }
+.test-comparison .comparison-values dt { margin-bottom:6px; color:var(--text-secondary); font-size:var(--type-meta); font-weight:500; }
+.test-comparison .comparison-values > div:first-child dd { box-shadow:inset 2px 0 var(--green); background:color-mix(in srgb,var(--green) 5%,var(--surface)); }
+.test-comparison .comparison-values > div:last-child dd { box-shadow:inset 2px 0 var(--red); background:color-mix(in srgb,var(--red) 6%,var(--surface)); }
+.test-comparison .comparison-tolerances { grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr)); gap:8px 12px; margin:0 0 6px; }
+.test-comparison .comparison-tolerances > div { padding:6px 10px; border-radius:var(--radius-sm); background:color-mix(in srgb,var(--text) 4%,var(--surface)); }
 .test-comparison .comparison-tolerances dt { margin-bottom:2px; color:var(--text-secondary); font-size:var(--type-meta); }
 .test-comparison .comparison-tolerances dd { font:var(--type-meta)/1.6 var(--font-mono); overflow-wrap:break-word; }
 .test-comparison p { margin:6px 0 0; font-size:var(--type-meta); line-height:1.7; overflow-wrap:break-word; }

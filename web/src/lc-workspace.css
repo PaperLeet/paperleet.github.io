@@ -129,7 +129,8 @@
 
 /* Panels: rounded cards on the gutter; the splitter shows a full-height line on hover or drag. */
 .workspace-view .workspace { padding: 0 8px 8px; }
-.workspace-view .workspace > :is(.description-pane, .editor-pane) { border: 1px solid var(--workspace-panel-border); border-radius: var(--control-radius); background: var(--surface); box-shadow: none; }
+.workspace-view .workspace > :is(.description-pane, .editor-pane) { border: 1px solid var(--workspace-panel-border); border-radius: var(--control-radius); background: var(--surface); box-shadow: none; transition: border-color .15s; }
+.workspace-view .workspace[data-dragging="true"] > :is(.description-pane, .editor-pane) { border-color: color-mix(in srgb, var(--accent-fill) 32%, var(--workspace-panel-border)); }
 .workspace-view .workspace > .split-handle { position: relative; background: transparent; }
 .workspace-view .workspace > .split-handle::before { content: ""; position: absolute; top: 6px; bottom: 6px; left: 50%; width: 2px; border-radius: 2px; background: transparent; transform: translateX(-50%); transition: background-color .15s; }
 .workspace-view .workspace > .split-handle > .split-handle-grip { width: 2px; height: 24px; background: var(--line); opacity: 1; transition: opacity .15s; }
@@ -138,6 +139,13 @@
 .workspace-view .workspace[data-dragging="true"] > .split-handle::before { background: var(--accent-fill); }
 .workspace-view .workspace > .split-handle:hover > .split-handle-grip,
 .workspace-view .workspace[data-dragging="true"] > .split-handle > .split-handle-grip { opacity: 0; }
+.workspace-view .workspace > .split-handle::after { content: attr(aria-valuetext); content: attr(aria-valuetext) / ""; position: absolute; top: 50%; left: 50%; z-index: 30; padding: 3px 8px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface-overlay); box-shadow: var(--shadow-overlay); color: var(--text); font: 600 var(--type-caption)/1.35 var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; opacity: 0; pointer-events: none; transform: translate(-50%, -50%) scale(.96); transition: opacity .12s, transform .12s; }
+.workspace-view .workspace > .split-handle:focus-visible::after,
+.workspace-view .workspace[data-dragging="true"] > .split-handle::after { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+@media (prefers-reduced-motion: reduce) {
+  .workspace-view .workspace > :is(.description-pane, .editor-pane),
+  .workspace-view .workspace > .split-handle::after { transition: none; }
+}
 
 /* Tab bands: one 40px header tone, 14px labels, a 2px indicator and no filled block. */
 .workspace-view .workspace :is(.reading-tab-strip, .editor-header) { background: var(--workspace-band-bg); border-bottom: 1px solid var(--line); }

@@ -77,13 +77,27 @@
   .paper-library .problem-rows :is(a, button) { scroll-margin-top: calc(var(--topbar-height, 56px) + 54px); }
 }
 
-/* Rows: blank status until a problem is started, difficulty in the shared hues. */
+/* Rows: blank status until a problem is started, difficulty in the shared hues, title highlights on hover. */
 .paper-library .row-state.todo > svg { visibility: hidden; }
+.paper-library .problem-row .library-row-title { transition: color .15s; }
+.paper-library .problem-row:hover .library-row-title { color: var(--accent); }
 .paper-library .paper-year { font-size: var(--type-meta); }
 .paper-library .paper-row-progress { font-size: var(--type-small); }
 .paper-library .problem-row > .difficulty { color: var(--diff-medium); font-size: var(--type-small); font-weight: 500; }
 .paper-library .problem-row > .difficulty.E { color: var(--diff-easy); }
 .paper-library .problem-row > .difficulty.H { color: var(--diff-hard); }
+.paper-library .matching-modules > a { padding: 3px 10px; border-radius: 999px; font-size: var(--type-caption); }
+
+/* Active filter chips: compact LeetCode pill tags with clear kind/value hierarchy. */
+.paper-library .active-filters { gap: 6px; margin-bottom: 10px; }
+.paper-library .active-filters > button:not(.text-button) { min-height: 28px; padding: 2px 10px; gap: 5px; border-radius: 999px; border-color: color-mix(in srgb, var(--accent-fill) 28%, var(--line)); background: color-mix(in srgb, var(--accent-fill) 10%, var(--surface)); color: var(--text); font-size: var(--type-meta); }
+.paper-library .active-filters > button:not(.text-button):hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent-fill) 16%, var(--surface)); }
+.paper-library .active-filters .library-filter-kind { color: var(--text-secondary); }
+.paper-library .active-filters .library-filter-value { font-weight: 500; }
+.paper-library .active-filters > .text-button { min-height: 28px; padding: 2px 8px; font-size: var(--type-meta); }
+@media (pointer: coarse) {
+  .paper-library .active-filters > button { min-height: 44px; }
+}
 
 @media (max-width: 520px) {
   .paper-library .library-result-actions > .library-view-switch { flex: 1 1 100%; }

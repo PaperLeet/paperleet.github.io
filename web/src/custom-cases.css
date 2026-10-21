@@ -6,7 +6,8 @@
 .custom-cases>summary+p{margin-top:12px}
 .custom-cases p,.custom-cases small{font-size:var(--type-meta);line-height:1.65;color:var(--text-secondary)}
 .custom-cases label{display:grid;gap:6px;margin:12px 0;color:var(--text-secondary);font-size:var(--type-meta)}
-.custom-cases textarea,.custom-cases select{width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid transparent;border-radius:var(--control-radius);background:color-mix(in srgb,var(--text) 5%,var(--surface));color:var(--text);font:inherit;font-size:var(--type-small)}
+.custom-cases textarea,.custom-cases select{width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid transparent;border-radius:var(--control-radius);background:color-mix(in srgb,var(--text) 5%,var(--surface));color:var(--text);font:inherit;font-size:var(--type-control)}
+@media (hover:hover) and (pointer:fine){.custom-cases textarea,.custom-cases select{font-size:var(--type-small)}}
 .custom-cases select{min-height:var(--control-height);border-color:var(--line);background:var(--surface)}
 .custom-cases textarea{min-height:64px;border-color:var(--line);resize:vertical;font-family:var(--font-mono,monospace);line-height:1.6}
 .custom-cases textarea:hover{border-color:color-mix(in srgb,var(--text) 28%,var(--line))}
@@ -26,6 +27,8 @@
 .custom-case-result>strong{display:block;margin:0 0 8px;color:var(--text);font-size:var(--type-body);font-weight:600}
 .custom-case-result:is([data-state=error],[data-state=mismatch])>strong{color:var(--red)}
 .custom-case-result[data-state=match]>strong{color:var(--green)}
+.custom-case-result[data-state=match]>pre:first-of-type{box-shadow:inset 2px 0 var(--green)}
+.custom-case-result[data-state=mismatch]>pre:first-of-type{box-shadow:inset 2px 0 var(--red)}
 .custom-case-result[data-state=error]>pre:first-of-type{background:color-mix(in srgb,var(--red) 7%,var(--surface));color:color-mix(in srgb,var(--red) 82%,var(--text))}
 .custom-case-result h4{margin:12px 0 6px;color:var(--text-secondary);font-size:var(--type-meta);font-weight:500}
 .custom-case-result>.notice{margin:0 0 10px}
