@@ -7,11 +7,12 @@
 .company-comparison-content > p { margin:4px 0 14px; color:var(--muted); font-size:var(--type-meta); line-height:1.6; overflow-wrap:anywhere; }
 .company-comparison-controls { display:flex; align-items:flex-end; flex-wrap:wrap; gap:10px; }
 .company-comparison-controls label { display:flex; flex:1 1 160px; flex-direction:column; gap:6px; min-width:0; color:var(--muted); font-size:var(--type-small); }
-.company-comparison-controls select { width:100%; min-height:42px; padding:8px 10px; border:1px solid var(--line); border-radius:8px; background:var(--surface2); color:var(--text); font-size:var(--type-control); }
-.company-comparison-controls button,.company-comparison-more button { display:flex; align-items:center; justify-content:center; gap:7px; min-height:42px; padding:8px 12px; border:1px solid var(--line); border-radius:8px; background:var(--surface); color:var(--text); font-size:var(--type-control); cursor:pointer; }
+.company-comparison-controls select { box-sizing:border-box; width:100%; min-height:var(--control-height,44px); padding:4px 28px 4px 10px; border:1px solid var(--line); border-radius:var(--control-radius,8px); background-color:var(--surface); color:var(--text); font-size:var(--type-control); }
+@media(hover:hover) and (pointer:fine) { .company-comparison-controls select { font-size:var(--type-small); } }
+.company-comparison-controls button,.company-comparison-more button { display:flex; align-items:center; justify-content:center; gap:7px; box-sizing:border-box; min-height:42px; padding:4px 12px; border:1px solid var(--line); border-radius:var(--control-radius,8px); background:var(--surface); color:var(--text); font-size:var(--type-control); cursor:pointer; }
 .company-comparison button:disabled { opacity:.5; cursor:default; }
 .company-comparison-totals { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin:18px 0; }
-.company-comparison-totals > div { min-width:0; padding:14px; border-radius:9px; background:var(--surface2); }
+.company-comparison-totals > div { min-width:0; padding:14px; border-radius:var(--control-radius,8px); background:var(--surface2); }
 .company-comparison-totals h3 { display:flex; align-items:center; gap:8px; margin:0 0 8px; font-size:var(--type-body); overflow-wrap:anywhere; }
 .company-comparison-totals a,.company-comparison-totals span { font-size:var(--type-small); line-height:1.6; }
 .company-comparison-totals a,.company-comparison-table a { color:var(--accent); text-underline-offset:3px; overflow-wrap:anywhere; }
@@ -22,10 +23,12 @@
 .company-comparison-table :is(tbody th > a,td > a):hover { color:var(--accent); }
 .company-comparison-table td > .interview-frequency { display:block; margin:6px 0 0; }
 .company-comparison-views { display:flex; flex-wrap:wrap; gap:7px; margin:14px 0; }
-.company-comparison-views button { display:flex; align-items:center; gap:7px; min-height:40px; padding:8px 11px; border:1px solid var(--line); border-radius:8px; background:var(--surface); color:var(--muted); font-size:var(--type-control); cursor:pointer; }
-.company-comparison-views button[aria-pressed="true"] { border-color:color-mix(in srgb,var(--accent) 35%,var(--line)); background:color-mix(in srgb,var(--accent) 8%,var(--surface)); color:var(--accent); }
+.company-comparison-views button { display:flex; align-items:center; gap:7px; min-height:40px; padding:8px 11px; border:1px solid var(--line); border-radius:var(--control-radius,8px); background:var(--surface); color:var(--text-secondary); font-size:var(--type-control); cursor:pointer; }
+.company-comparison-views button:hover { background:var(--surface2); color:var(--text); }
+/* Selected view: the neutral filled chip used by the other interview filters. */
+.company-comparison-views button[aria-pressed="true"] { border-color:transparent; background:var(--surface3,var(--surface2)); color:var(--text); font-weight:500; }
 .company-comparison-views span { font-variant-numeric:tabular-nums; }
-.company-comparison-table { max-width:100%; overflow:auto; border:1px solid var(--line); border-radius:9px; }
+.company-comparison-table { max-width:100%; overflow:auto; border:1px solid var(--line); border-radius:var(--control-radius,8px); }
 .company-comparison-table table { width:100%; min-width:520px; border-collapse:collapse; text-align:left; font-size:var(--type-small); line-height:1.5; }
 .company-comparison-table th,.company-comparison-table td { padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:top; }
 .company-comparison-table thead { background:var(--surface2); }
@@ -45,14 +48,14 @@
 .company-comparison-practice .interview-practice-group { margin-top:12px; }
 .company-comparison-table .interview-group-toggle { display:flex; width:fit-content; margin-top:8px; }
 
-.company-comparison-learning{margin-top:16px;padding:14px;border:1px solid var(--line);border-radius:9px;background:var(--surface2);min-width:0}
+.company-comparison-learning{margin-top:16px;padding:14px;border:1px solid var(--line);border-radius:var(--control-radius,8px);background:var(--surface2);min-width:0}
 .company-comparison-learning-heading{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;font-size:var(--type-body)}
 .company-comparison-learning-heading>span{display:flex;align-items:center;gap:10px;font-size:var(--type-small);font-variant-numeric:tabular-nums;color:var(--muted)}
 .company-comparison-learning progress{width:90px;max-width:100%;height:6px;accent-color:var(--accent)}
 .company-comparison-learning p{margin:8px 0;font-size:var(--type-small);line-height:1.75;color:var(--muted);overflow-wrap:anywhere}.company-comparison-learning p>button{margin-inline-start:10px}
 .company-comparison-learning-filters{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
-.company-comparison-learning-filters>button{display:flex;align-items:center;gap:8px;min-height:40px;padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--muted);font-size:var(--type-control)}
-.company-comparison-learning-filters>button[aria-pressed=true]{color:var(--accent);border-color:var(--accent)}.company-comparison-learning-filters small{font-variant-numeric:tabular-nums}
+.company-comparison-learning-filters>button{display:flex;align-items:center;gap:8px;min-height:var(--control-height,40px);padding:4px 10px;border:1px solid var(--line);border-radius:var(--control-radius,8px);background:var(--surface);color:var(--text-secondary);font-size:var(--type-small)}
+.company-comparison-learning-filters>button[aria-pressed=true]{border-color:transparent;background:var(--surface3,var(--surface2));color:var(--text);font-weight:500}.company-comparison-learning-filters small{font-variant-numeric:tabular-nums}
 .company-comparison-row-practice{display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px;margin-top:4px;font-size:var(--type-meta)}
 .company-comparison-row-practice>.interview-group-toggle{margin-top:0}.company-comparison-state{color:var(--muted);font-weight:400}.company-comparison-state.done{color:var(--green)}.company-comparison-state.started{color:var(--accent)}
 .company-comparison-row-practice>a{display:inline-flex;align-items:center;min-height:32px}.company-comparison-learning p>.text-button{min-height:32px}
@@ -61,20 +64,22 @@
 .company-comparison-learning-heading>h3{margin:0;font-size:inherit;font-weight:600}.company-comparison-learning-heading>h3:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
 
 .company-choice-finder{display:grid;gap:7px;margin:0 0 14px;min-width:0}
-.company-choice-finder>p{margin:0;color:var(--muted);font-size:var(--type-small);line-height:1.7;overflow-wrap:anywhere}
-.company-choice-search{display:flex;align-items:center;gap:8px;min-width:0;min-height:44px;padding:1px 3px 1px 11px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--muted)}
+.company-choice-finder>p{margin:0;color:var(--muted);font-size:var(--type-meta);line-height:1.55;overflow-wrap:anywhere}
+.company-choice-search{display:flex;align-items:center;gap:8px;box-sizing:border-box;min-width:0;min-height:var(--control-height,44px);padding:0 3px 0 10px;border:1px solid var(--line);border-radius:var(--control-radius,8px);background:var(--surface);color:var(--muted)}
 .company-choice-search>svg{flex:none}
-.company-choice-search>input[type=search]{min-width:0;flex:1;width:100%;min-height:40px;padding:6px 0;border:0;background:transparent;color:var(--text);font:inherit;font-size:var(--type-body);line-height:1.5;outline:none}
+.company-choice-search>input[type=search]{min-width:0;flex:1;width:100%;min-height:calc(var(--control-height,44px) - 2px);padding:0;border:0;background:transparent;color:var(--text);font:inherit;font-size:var(--type-control);line-height:1.5;outline:none}
+@media(hover:hover) and (pointer:fine){.company-choice-search>input[type=search]{font-size:var(--type-small)}}
 .company-choice-search:focus-within{outline:2px solid var(--accent);outline-offset:2px}
 .company-choice-search>input::-webkit-search-cancel-button,.company-choice-search>input::-webkit-search-decoration{-webkit-appearance:none}
-.company-choice-search>button{display:grid;place-items:center;flex:none;min-width:40px;min-height:40px;border:0;border-radius:6px;background:transparent;color:var(--muted);cursor:pointer}
+.company-choice-search>button{display:grid;place-items:center;flex:none;min-width:calc(var(--control-height,44px) - 6px);min-height:calc(var(--control-height,44px) - 6px);border:0;border-radius:var(--radius-sm,6px);background:transparent;color:var(--muted);cursor:pointer}
 .company-choice-search>button:hover{background:var(--surface2);color:var(--text)}
 .company-comparison-more>div{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
 .company-comparison-more button[aria-disabled=true]{opacity:.5;cursor:default}
-@media(pointer:coarse){.company-choice-search{min-height:48px}.company-choice-search>input[type=search],.company-choice-search>button{min-height:44px}.company-choice-search>button{min-width:44px}}
+@media(pointer:coarse){.company-choice-search{min-height:44px}.company-choice-search>input[type=search],.company-choice-search>button{min-height:42px}.company-choice-search>button{position:relative;min-width:42px}.company-choice-search>button::before{content:"";position:absolute;inset:-1px}}
 
 /* Swap and Clear match the selects beside them. */
 .company-comparison .company-comparison-controls :is(select,button),.company-comparison .company-comparison-more button{min-height:var(--control-height,44px)}
 .company-comparison .company-comparison-controls button,.company-comparison .company-comparison-more button,.company-comparison-views button{font-size:var(--type-small)}
 .company-comparison-views button{min-height:var(--control-height,40px);padding:4px 11px}
 @media(pointer:coarse){.company-comparison .company-comparison-controls :is(select,button),.company-comparison .company-comparison-more button,.company-comparison-views button{min-height:44px}}
+@media(forced-colors:active){.company-comparison-views button[aria-pressed="true"],.company-comparison-learning-filters>button[aria-pressed=true]{outline:2px solid Highlight;outline-offset:-3px}}

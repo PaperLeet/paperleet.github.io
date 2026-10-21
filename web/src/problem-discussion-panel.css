@@ -2,6 +2,10 @@
 .problem-discussion-header { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px 16px; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--line); }
 .problem-discussion-header p { display:flex; align-items:flex-start; gap:8px; min-width:0; margin:0; color:var(--muted); font-size:var(--type-small); line-height:1.7; overflow-wrap:anywhere; }
 .problem-discussion-header .button { min-height:var(--control-height,44px); padding:4px 12px; font-size:var(--type-small); }
+/* "Back to code" is the same quiet accent text action as on the Solutions tab, not a bordered button. */
+.problem-discussion-header .button.subtle { gap:7px; padding-inline:8px; border-color:transparent; background:transparent; box-shadow:none; color:var(--accent); font-weight:400; }
+.problem-discussion-header .button.subtle:hover { border-color:transparent; background:var(--surface2); color:var(--accent); }
+.problem-discussion-panel .problem-discussion-header .button.subtle { margin-inline-start:auto; }
 .problem-discussion-header p svg { flex:none; margin-top:5px; }
 /* The pane tab already names the module; keep the line for assistive technology only. */
 .problem-discussion-panel .problem-discussion-header p { position:absolute; width:1px; height:1px; margin:0; overflow:hidden; clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap; }

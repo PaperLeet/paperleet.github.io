@@ -6,20 +6,36 @@
 .community-topic-browser[open]{flex-basis:100%;width:100%}
 .community-topic-browser[open]>summary{border-color:var(--accent);color:var(--accent)}
 .community-topic-browser[open]>summary>svg:last-child{transform:rotate(180deg)}
-.community-topic-panel{display:grid;gap:12px;padding:16px;margin-top:10px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
-.community-topic-panel>header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.community-topic-panel{display:grid;gap:10px;padding:14px;margin-top:8px;border:1px solid var(--line);border-radius:var(--radius-lg,12px);background:var(--surface)}
+.community-topic-panel>header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px 12px}
 .community-topic-panel>header>div{min-width:0}
-.community-topic-panel strong{font-size:var(--type-body);line-height:1.6}
-.community-topic-panel p{margin:5px 0 0;line-height:1.7;font-size:var(--type-small);color:var(--muted)}
-.community-topic-panel>header>button{flex:none;min-height:44px}
-.community-topic-selection{display:grid;gap:7px;min-width:0;font-size:var(--type-body)}
-.community-topic-selection>select{width:100%;min-width:0;max-width:100%;min-height:44px;padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--text);font:inherit;text-overflow:ellipsis}
-.community-topic-status{color:var(--muted);font-size:var(--type-small);line-height:1.7;overflow-wrap:anywhere}
+.community-topic-panel strong{font-size:var(--type-small);font-weight:600;line-height:1.5}
+.community-topic-panel p{margin:2px 0 0;line-height:1.55;font-size:var(--type-meta);color:var(--muted)}
+.community-topic-panel>header>button{flex:none;min-height:var(--control-height,44px);margin:-6px -6px 0 0;padding:4px 8px;border-radius:var(--control-radius,8px);color:var(--text-secondary);font-size:var(--type-meta)}
+.community-topic-panel>header>button:hover{background:var(--surface3,var(--surface2));color:var(--text)}
+.community-topic-panel .related-module-search{min-height:var(--control-height,44px);box-sizing:border-box;padding-block:0;border-radius:var(--control-radius,8px)}
+.community-topic-panel .related-module-search>input[type=search]{min-height:calc(var(--control-height,44px) - 2px)}
+.community-topic-panel .related-module-search>button{width:calc(var(--control-height,44px) - 6px);min-height:calc(var(--control-height,44px) - 6px)}
+.community-topic-selection{display:grid;gap:4px;min-width:0;font-size:var(--type-body)}
+.community-topic-selection>span{color:var(--text-secondary);font-size:var(--type-meta);font-weight:500}
+.community-topic-selection>select{width:100%;min-width:0;max-width:100%;min-height:var(--control-height,44px);padding:4px 28px 4px 10px;border:1px solid var(--line);border-radius:var(--control-radius,8px);background-color:var(--surface);color:var(--text);font:inherit;text-overflow:ellipsis}
+.community-topic-status{color:var(--muted);font-size:var(--type-meta);line-height:1.55;overflow-wrap:anywhere}
 .community-topic-panel>footer{display:flex;align-items:center;flex-wrap:wrap;gap:10px 16px}
-.community-topic-panel>footer>.button{min-height:44px}
-.community-topic-panel>footer>span{font-size:var(--type-small);color:var(--muted)}
+.community-topic-panel>footer>.button{min-height:var(--control-height,44px);padding:4px 14px;font-size:var(--type-small)}
+.community-topic-panel>footer>span{font-size:var(--type-meta);color:var(--muted)}
 .community-topic-panel a[aria-disabled=true]{opacity:.55;cursor:default}
 .community-topic-browser :is(summary,button,select,a):focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .community-feed-toolbar:has(.community-topic-browser[open]){flex-wrap:wrap}
 .community-feed-controls:has(.community-topic-browser[open]){flex-basis:100%;margin-inline-start:0}
 @media(max-width:520px){.community-topic-panel{padding:12px}.community-topic-browser>summary{max-width:100%}}
+/* Fine pointers get the compact control text; touch keeps 16px+ so iOS does not zoom the page. */
+@media(hover:hover) and (pointer:fine){.community-topic-panel .related-module-search>input[type=search],.community-topic-selection>select{font-size:var(--type-small)}}
+@media(pointer:coarse){.community-topic-panel>header>button,.community-topic-panel>footer>.button{min-height:44px}}
+/* On the full community page the module picker is a dropdown under its trigger, like LeetCode's
+   filter menus, so opening it no longer reflows the tabs, search and sort controls. */
+@media(min-width:768px){
+ main.community-page .community-topic-browser{position:relative}
+ main.community-page .community-topic-browser[open]{flex-basis:auto;width:auto}
+ main.community-page .community-topic-panel{position:absolute;inset-block-start:calc(100% + 6px);inset-inline-start:0;z-index:30;box-sizing:border-box;width:min(480px,calc(100vw - 32px));margin:0;background:var(--surface-overlay,var(--surface));box-shadow:var(--shadow-overlay)}
+}
+@media(min-width:768px) and (forced-colors:active){main.community-page .community-topic-panel{border-color:CanvasText}}
