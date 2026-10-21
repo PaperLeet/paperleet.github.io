@@ -1,31 +1,32 @@
 /* Profile learning history uses the same surfaces as the workspace and community. */
 .profile-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
-.profile-progress { display: grid; gap: 22px; min-width: 0; }
-.profile-progress .social-panel { border-radius: 12px; padding: 24px; }
+.profile-progress { display: grid; gap: 16px; min-width: 0; }
+.profile-progress .social-panel { border-radius: var(--radius-panel); padding: 24px; }
 .profile-progress h2 { margin: 0; font-size: var(--type-body); font-weight: 550; line-height: 1.5; }
 .practice-overview { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(220px, 1fr); gap: 20px; }
 .practice-overview .practice-solved { display: flex; align-items: center; justify-content: space-around; gap: 22px; padding: 24px 20px; }
 .practice-solved-ring { position: relative; flex: 0 1 180px; width: 180px; min-width: 140px; aspect-ratio: 1; }
-.practice-solved-ring > svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+/* The gauge opens at the bottom (300° sweep starting at 120°), like LeetCode's solved ring. */
+.practice-solved-ring > svg { width: 100%; height: 100%; transform: rotate(120deg); }
 .practice-solved-ring > svg circle { fill: none; stroke-width: 8; }
-.practice-ring-track { stroke: color-mix(in srgb, var(--green) 14%, var(--surface)); }
-.practice-ring-progress { stroke: var(--green); stroke-linecap: round; }
-.practice-solved-ring > div { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; padding-top: 6px; }
+.practice-ring-track { stroke: color-mix(in srgb, currentColor 20%, var(--surface)); }
+.practice-ring-progress { stroke: currentColor; }
+.practice-solved-ring > div { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; }
 .practice-solved-ring p { margin: 0 0 1px; line-height: 1.25; white-space: nowrap; }
 .practice-solved-ring p strong { font-size: 39px; font-weight: 650; letter-spacing: -1.4px; color: var(--text); }
 .practice-solved-ring p span { font-size: 17px; color: var(--text-secondary); margin-left: 3px; }
 .practice-solved-label { display: flex; align-items: center; gap: 4px; font-size: var(--type-body); }
 .practice-solved-label svg { color: var(--green); }
-.practice-solved-ring small { margin-top: 12px; color: var(--text-secondary); font-size: var(--type-small); }
+/* "N attempting" sits in the gauge's bottom opening, as on LeetCode, clear of the arc ends. */
+.practice-solved-ring small { position: absolute; left: 0; right: 0; bottom: 0; margin: 0; color: var(--text-secondary); font-size: var(--type-meta); line-height: 1.3; text-align: center; white-space: nowrap; }
 .practice-difficulties { display: grid; gap: 8px; flex: 1 1 95px; max-width: 124px; }
-.practice-difficulty { border-radius: 7px; padding: 8px 12px; background: var(--surface2); font-size: var(--type-body); }
+.practice-difficulty { border-radius: var(--control-radius); padding: 7px 12px; background: color-mix(in srgb, currentColor 5%, var(--surface2)); font-size: var(--type-small); text-align: center; }
 .practice-difficulty > span { font-weight: 550; }
-.practice-difficulty p { margin: 1px 0 0; color: var(--text-secondary); font-size: var(--type-body); }
-.practice-difficulty p strong { color: var(--text); font-size: var(--type-body); font-weight: 550; }
-.difficulty-E { color: var(--green); }
-.difficulty-M { color: var(--accent); }
-.difficulty-H { color: #eb7c82; }
-[data-theme="light"] .difficulty-H { color: #cb3e4e; }
+.practice-difficulty p { margin: 1px 0 0; color: var(--text-secondary); font-size: var(--type-meta); white-space: nowrap; }
+.practice-difficulty p strong { color: var(--text); font-size: var(--type-small); font-weight: 600; }
+.profile-progress .difficulty-E { color: var(--diff-easy); }
+.profile-progress .difficulty-M { color: var(--diff-medium); }
+.profile-progress .difficulty-H { color: var(--diff-hard); }
 .practice-totals h2 { color: var(--text-secondary); }
 .practice-total-main { display: flex; align-items: baseline; flex-wrap: wrap; gap: 9px; margin-top: 7px; }
 .practice-total-main strong { font-size: 34px; font-weight: 620; line-height: 1.5; }
@@ -36,7 +37,7 @@
 .practice-totals dd { margin: 0; font-size: var(--type-body); font-weight: 550; }
 .practice-totals dt i { width: 6px; height: 6px; border-radius: 50%; }
 .practice-totals dt .accepted { background: var(--green); }
-.practice-totals dt .failed { background: #e18287; }
+.practice-totals dt .failed { background: var(--red); }
 .practice-calendar { min-width: 0; }
 .practice-calendar-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; }
 .practice-calendar-heading h2 { font-size: var(--type-body); font-weight: 400; }
@@ -47,15 +48,16 @@
 .practice-calendar-summary b { color: var(--text); font-weight: 550; margin-left: 3px; }
 .practice-current-streak { display: inline-flex; align-items: center; gap: 3px; }
 .practice-current-streak > svg { color: var(--accent); }
-.practice-calendar-scroll { overflow-x: auto; padding: 2px 2px 7px; margin: 0 -2px; scrollbar-width: thin; }
-.practice-calendar-chart { min-width: 610px; display: grid; grid-template-columns: 29px minmax(0, 1fr); grid-template-rows: 20px auto; gap: 6px; }
-.practice-weekdays { display: grid; grid-column: 1; grid-row: 2; grid-template-rows: repeat(7, 1fr); gap: 4px; align-items: center; color: var(--text-secondary); font-size: var(--type-caption); line-height: 1; }
+.practice-calendar-scroll { position: relative; overflow-x: auto; padding: 2px 2px 7px; margin: 0 -2px; scrollbar-width: thin; }
+/* Thinner gaps at mid widths keep the cells square instead of shrinking to dots. */
+.practice-calendar-chart { --calendar-gap: clamp(2px, .28vw, 4px); min-width: 610px; display: grid; grid-template-columns: 29px minmax(0, 1fr); grid-template-rows: 20px auto; gap: 6px; }
+.practice-weekdays { display: grid; grid-column: 1; grid-row: 2; grid-template-rows: repeat(7, 1fr); gap: var(--calendar-gap); align-items: center; color: var(--text-secondary); font-size: var(--type-caption); line-height: 1; }
 .practice-weekdays span:nth-child(1) { grid-row: 2; }
 .practice-weekdays span:nth-child(2) { grid-row: 4; }
 .practice-weekdays span:nth-child(3) { grid-row: 6; }
-.practice-calendar-months { display: grid; grid-column: 2; grid-row: 1; grid-template-columns: repeat(var(--calendar-columns), minmax(0, 1fr)); gap: 4px; font-size: var(--type-meta); color: var(--text-secondary); white-space: nowrap; }
-.practice-calendar-grid { display: grid; grid-column: 2; grid-row: 2; grid-template-rows: repeat(7, 1fr); grid-template-columns: repeat(var(--calendar-columns), minmax(0, 1fr)); grid-auto-flow: column; gap: 4px; }
-.practice-day { display: block; width: 100%; aspect-ratio: 1; min-width: 0; padding: 0; margin: 0; border: 0; border-radius: 2.5px; background: var(--surface2); }
+.practice-calendar-months { display: grid; grid-column: 2; grid-row: 1; grid-template-columns: repeat(var(--calendar-columns), minmax(0, 1fr)); gap: var(--calendar-gap); font-size: var(--type-meta); color: var(--text-secondary); white-space: nowrap; }
+.practice-calendar-grid { display: grid; grid-column: 2; grid-row: 2; grid-template-rows: repeat(7, 1fr); grid-template-columns: repeat(var(--calendar-columns), minmax(0, 1fr)); grid-auto-flow: column; gap: var(--calendar-gap); }
+.practice-day { display: block; width: 100%; aspect-ratio: 1; min-width: 0; padding: 0; margin: 0; border: 0; border-radius: 2px; background: var(--surface2); }
 .practice-day.level-0 { background: var(--surface2); }
 .practice-day.level-1 { background: #175a43; }
 .practice-day.level-2 { background: #26825c; }
@@ -66,7 +68,7 @@
 [data-theme="light"] .practice-day.level-2 { background: #75d7a0; }
 [data-theme="light"] .practice-day.level-3 { background: #35ae72; }
 [data-theme="light"] .practice-day.level-4 { background: #187a50; }
-.practice-day.future { opacity: 0.35; }
+.practice-day.future { background: transparent; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--line) 50%, transparent); }
 .practice-day.outside { visibility: hidden; }
 .practice-day.selected { outline: 1px solid var(--text-secondary); outline-offset: 1px; }
 .practice-day:hover:not(.future):not(.outside), .practice-day:focus-visible { outline: 2px solid var(--text); outline-offset: 1px; }
@@ -89,7 +91,7 @@
 .practice-recent li { border-radius: 6px; }
 .practice-recent li:nth-child(odd) { background: color-mix(in srgb, var(--surface2) 65%, transparent); }
 .practice-recent li:hover { background: var(--surface2); }
-.practice-recent li a { display: flex; gap: 10px; align-items: center; padding: 13px 11px; font-size: var(--type-body); }
+.practice-recent li a { display: flex; gap: 10px; align-items: center; padding: 11px 12px; font-size: var(--type-small); }
 .practice-ac-check { display: flex; color: var(--green); flex-shrink: 0; }
 .practice-recent-title { min-width: 0; flex: 1; overflow-wrap: anywhere; }
 .practice-problem-number { color: var(--text-secondary); }
@@ -99,8 +101,14 @@
 .practice-recent-empty { display: flex; flex-direction: column; align-items: center; padding: 25px 20px 33px; color: var(--text-secondary); }
 .practice-recent-empty > svg { opacity: 0.55; }
 .practice-recent-empty p { margin: 9px 0 12px; font-size: var(--type-body); }
-.practice-private, .practice-loading { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 150px; font-size: var(--type-body); color: var(--text-secondary); }
+.practice-private { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 150px; font-size: var(--type-body); color: var(--text-secondary); }
 .practice-load-state .social-notice { margin-top: 0; }
+/* Loading placeholders match the final card sizes so the activity list does not jump. */
+.practice-skeleton { min-height: 256px; background: linear-gradient(90deg, var(--surface) 0, var(--surface2) 50%, var(--surface) 100%) 0 0 / 200% 100%; box-shadow: none; }
+.practice-skeleton-calendar { min-height: 392px; }
+.practice-skeleton-recent { min-height: 480px; }
+@media (prefers-reduced-motion: no-preference) { .practice-skeleton { animation: practice-shimmer 1.4s linear infinite; } }
+@keyframes practice-shimmer { to { background-position: -200% 0; } }
 .practice-storage-note { margin: 0; color: var(--text-secondary); font-size: var(--type-body); line-height: 1.7; padding: 10px 14px; border: 1px solid var(--line); border-radius: 7px; }
 @media (max-width: 1100px) and (min-width: 901px) {
   .practice-overview { grid-template-columns: minmax(0, 1.3fr) minmax(180px, 1fr); gap: 14px; }
@@ -111,7 +119,10 @@
   .profile-progress .practice-totals { padding: 20px 16px; }
 }
 @media (max-width: 600px) {
-  .profile-progress { gap: 16px; }
+  .practice-skeleton { min-height: 230px; }
+  .practice-overview .practice-skeleton + .practice-skeleton { min-height: 130px; }
+  .practice-skeleton-calendar { min-height: 380px; }
+  .practice-skeleton-recent { min-height: 320px; }
   .profile-progress .social-panel { padding: 18px; border-radius: 9px; }
   .practice-overview { grid-template-columns: 1fr; gap: 16px; }
   .practice-overview .practice-solved { padding: 20px 26px; }
@@ -127,7 +138,7 @@
   .practice-day-detail strong { flex-basis: 100%; }
   .profile-progress .practice-recent { padding: 0; }
   .practice-section-heading { padding: 18px 16px 15px; }
-  .practice-recent li a { flex-wrap: wrap; gap: 7px; font-size: var(--type-body); }
+  .practice-recent li a { flex-wrap: wrap; gap: 4px 7px; font-size: var(--type-small); }
   .practice-recent-title { flex-basis: calc(100% - 30px); }
   .practice-recent-difficulty { margin-left: 22px; }
   .practice-recent-arrow { margin-left: auto; }

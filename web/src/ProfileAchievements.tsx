@@ -7,6 +7,7 @@ import { AchievementMedal } from './AchievementMedal';
 import { readPublicAchievements, type PublicAchievements } from './accountAchievements';
 import { DateLabel, socialApi, useAccount } from './social';
 import './achievements.css';
+import './lc-profile.css';
 
 export default function ProfileAchievements({username,userId,isSelf,isPublic}: {username:string;userId:string;isSelf:boolean;isPublic:boolean}) {
   const {capabilities,loading} = useAccount();
@@ -48,10 +49,10 @@ export function ProfileAchievementShowcase({data,error,isSelf,isPublic,onRetry}:
     <header><div><h2 id="profile-achievements-title"><Award size={18} aria-hidden="true" />{t('学习勋章','Achievements')}{data?.visible && <span>{earned.length}</span>}</h2></div>{isSelf && <AppLink href="#/achievements?from=profile">{t('管理置顶','Manage featured')}<ArrowRight size={13} aria-hidden="true" /></AppLink>}</header>
     {error ? <p className="profile-achievement-empty" role="alert">{t('暂时无法加载勋章。','Could not load achievements.')} <button type="button" className="text-button" onClick={onRetry}>{t('重试','Retry')}</button></p> : !data ? <p className="profile-achievement-empty" role="status">{t('正在同步勋章…','Syncing achievements…')}</p> : !data.visible ? <p className="profile-achievement-empty"><LockKeyhole size={15} aria-hidden="true" />{t('学习勋章仅本人可见。','Learning achievements are private.')}</p> : <>
       {isSelf && !isPublic && <p className="profile-achievement-private"><LockKeyhole size={12} aria-hidden="true" />{t('仅自己可见 · 跟随学习进度隐私设置','Only visible to you · follows learning progress privacy')}</p>}
-      {pinned.length ? <ol className="profile-featured-medals" aria-label={t('置顶勋章','Featured achievements')}>{pinned.map(badge => <li key={badge.id} data-tier={badge.tier}><AchievementMedal badge={badge}/><div><span><Pin size={10} aria-hidden="true" />{t('置顶勋章','FEATURED')}</span><h3>{t(...badge.title)}</h3><p>{t(...badge.description)}</p><small>{t('解锁于','Unlocked')} <DateLabel value={badge.earned_at}/></small></div></li>)}</ol> : <p className="profile-achievement-empty">{earned.length ? (isSelf ? t('还没有置顶勋章，挑几枚代表你的研究旅程。','Choose a few achievements to represent your research journey.') : t('尚未设置置顶勋章。','No featured achievements yet.')) : (isSelf ? t('每一次完整通过，都会让第一枚勋章更近一点。','Every complete pass brings your first achievement closer.') : t('新的研究旅程，正等待第一枚勋章。','A new research journey awaits its first achievement.'))}</p>}
-      {!!earned.length && <details className="profile-achievement-collection" open={!pinned.length}><summary>{t(`查看全部 ${earned.length} 枚勋章`,`View all ${earned.length} achievements`)}</summary><div>{earned.map(award => {
+      {pinned.length ? <ol className="profile-featured-medals" aria-label={t('置顶勋章','Featured achievements')}>{pinned.map(badge => <li key={badge.id} data-tier={badge.tier}><AchievementMedal badge={badge}/><div><span><Pin size={10} aria-hidden="true" />{t('置顶勋章','FEATURED')}</span><h3>{t(...badge.title)}</h3><p>{t(...badge.description)}</p><small>{t('解锁于','Unlocked')} <DateLabel value={badge.earned_at}/></small></div></li>)}</ol> : (!earned.length || isSelf) && <p className="profile-achievement-empty">{earned.length ? t('还没有置顶勋章，挑几枚代表你的研究旅程。','Choose a few achievements to represent your research journey.') : (isSelf ? t('每一次完整通过，都会让第一枚勋章更近一点。','Every complete pass brings your first achievement closer.') : t('新的研究旅程，正等待第一枚勋章。','A new research journey awaits its first achievement.'))}</p>}
+      {!!earned.length && <details className="profile-achievement-collection" open={!pinned.length}><summary>{t(`全部 ${earned.length} 枚勋章`,`All ${earned.length} achievements`)}</summary><div>{earned.map(award => {
         const badge = achievementDefinitions.find(badge => badge.id === award.id)!;
-        return <article key={badge.id}><AchievementMedal badge={{...badge,unlocked:true}}/><div><h3>{t(...badge.title)}</h3><p>{t(...badge.description)}</p><small><DateLabel value={award.earned_at}/></small></div></article>;
+        return <article key={badge.id} title={t(...badge.description)}><AchievementMedal badge={{...badge,unlocked:true}}/><div><h3>{t(...badge.title)}</h3><p>{t(...badge.description)}</p><small><DateLabel value={award.earned_at}/></small></div></article>;
       })}</div></details>}
     </>}
   </section>;
