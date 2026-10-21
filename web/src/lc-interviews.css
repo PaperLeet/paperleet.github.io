@@ -1,0 +1,148 @@
+/* LeetCode layer for the interview hub. Imported last by the lazily loaded Interviews module, so
+   it settles density and table styling after the component sheets without touching global CSS. */
+
+/* Frequency meter: decorative, the adjacent counts remain the accessible source. */
+.interview-frequency{display:inline-block;flex:none;inline-size:72px;block-size:6px;margin-inline-start:10px;vertical-align:middle;border-radius:999px;background:color-mix(in srgb,var(--accent-fill,var(--accent)) 16%,var(--surface2));overflow:hidden}
+.interview-frequency>i{display:block;block-size:100%;border-radius:inherit;background:var(--accent-fill,var(--accent))}
+
+/* Concept rows: title, state, difficulty and time share one line; counts and source tools one more. */
+.interview-question-workbench .interview-ranking-copy{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;min-width:0}
+.interview-question-workbench .interview-ranking-copy>*{flex-basis:100%;min-width:0}
+.interview-question-workbench .interview-ranking-copy>:is(.interview-ranking-title,.interview-ranking-module-meta){flex-basis:auto;margin:0}
+.interview-question-workbench .interview-ranking-copy>.company-source-list{margin-top:2px}
+.interview-question-workbench .interview-ranking-copy>:is(.interview-ranking-latest,.interview-curated-goal){margin:0;font-size:var(--type-meta);line-height:1.55}
+.interview-question-workbench .interview-ranking-title>:is(a,b){color:var(--text);font-size:var(--type-small);font-weight:600;line-height:1.45}
+.interview-question-workbench .interview-ranking-title>a:hover{color:var(--accent)}
+.interview-question-workbench .interview-rank{padding-top:2px;font-size:var(--type-caption);font-variant-numeric:tabular-nums}
+.interview-question-workbench .interview-ranking-state{padding:1px 7px;border-radius:999px;font-size:var(--type-caption);line-height:1.6}
+.interview-question-workbench .interview-ranking-state.done{color:var(--green);background:color-mix(in srgb,var(--green) 12%,transparent)}
+.interview-question-workbench .interview-ranking-copy .practice-metadata{gap:6px}
+.interview-question-workbench .interview-company-tags .interview-company-source,.interview-question-workbench .interview-company-more>summary{min-height:28px;padding:2px 8px;border-radius:999px;font-size:var(--type-meta)}
+.interview-question-workbench .interview-ranking-list{border-radius:var(--radius-lg,12px)}
+.interview-question-workbench .interview-ranking-row:nth-child(even){background:color-mix(in srgb,var(--surface2) 55%,var(--surface))}
+.interview-question-workbench .interview-ranking-row:hover{background:var(--surface2)}
+.interview-ranking-actions>.interview-group-toggle{min-height:var(--control-height,40px);padding:4px 10px;font-size:var(--type-meta);white-space:nowrap}
+
+/* Ranking evidence: one toolbar line with counts, meter and source tools. */
+.interview-question-workbench .interview-source-preview{padding-top:2px}
+.interview-question-workbench .interview-source-toolbar{flex-wrap:wrap;gap:6px 12px;padding-top:8px;font-size:var(--type-meta);line-height:1.5}
+.interview-question-workbench .interview-source-toolbar>span{display:block;min-width:0}
+.interview-question-workbench .interview-source-toolbar>div{gap:6px}
+.interview-question-workbench .interview-source-toolbar :is(a,button){min-height:var(--control-height,40px);padding:4px 10px;font-size:var(--type-meta);line-height:1.5;white-space:nowrap}
+/* Narrower columns: actions move under the copy instead of squeezing it or wrapping 'Add to batch'. */
+@media(min-width:601px) and (max-width:1200px){.interview-question-workbench .interview-ranking-row{grid-template-columns:28px minmax(0,1fr)}.interview-question-workbench .interview-ranking-actions{grid-column:2/-1;justify-content:flex-start;max-width:none}.interview-question-workbench .interview-ranking-actions>.interview-curated-label{order:1;flex-basis:auto;margin-inline-start:auto}}
+@media(max-width:600px){.interview-question-workbench .interview-ranking-actions{max-width:none}}
+@media(pointer:coarse){.interview-question-workbench .interview-company-tags .interview-company-source,.interview-question-workbench .interview-company-more>summary{min-height:44px}}
+@media(forced-colors:active){.interview-frequency{border:1px solid CanvasText;background:Canvas}.interview-frequency>i{background:CanvasText}}
+
+/* An empty practice batch is one toolbar row; it expands into the full panel once concepts are added. */
+.interview-practice-group:not(:has(>ol)){display:flex;align-items:center;flex-wrap:wrap;gap:6px 14px;padding:8px 8px 8px 14px}
+.interview-practice-group:not(:has(>ol))>header{flex:0 1 auto}
+.interview-practice-group:not(:has(>ol))>header p,.interview-practice-group:not(:has(>ol)) .practice-group-fill>small{position:absolute;flex:none;width:1px;min-width:0;max-width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.interview-practice-group:not(:has(>ol)) h3{font-size:var(--type-small);font-weight:600}
+.interview-practice-group:not(:has(>ol))>.practice-group-feedback{flex:1 1 140px;margin:0}
+.interview-practice-group:not(:has(>ol)) .practice-group-status{font-size:var(--type-meta);margin:0}
+.interview-practice-group:not(:has(>ol))>.practice-group-fill{margin:0}
+.interview-practice-group:not(:has(>ol))>.practice-group-fill>.button{min-height:var(--control-height,40px);padding:4px 12px;font-size:var(--type-meta)}
+.interview-practice-group:not(:has(>ol))>.interview-budget-planner{margin:0;background:transparent}
+.interview-practice-group:not(:has(>ol))>.interview-budget-planner>summary{min-height:var(--control-height,40px);padding:4px 10px;gap:6px;font-size:var(--type-meta);color:var(--text-secondary)}
+.interview-practice-group:not(:has(>ol))>.interview-budget-planner[open],.interview-practice-group:not(:has(>ol))>p{flex-basis:100%}
+.interview-practice-group{position:relative;border-radius:var(--radius-lg,12px)}
+@media(pointer:coarse){.interview-practice-group:not(:has(>ol))>.interview-budget-planner>summary,.interview-practice-group:not(:has(>ol))>.practice-group-fill>.button{min-height:44px}}
+
+/* Section intros and helper copy use UI leading, not reading leading. */
+.interview-question-ranking>.interview-section-intro{margin:0}
+.interview-section-intro h2{font-size:var(--type-body);line-height:1.4}
+.interview-section-intro p{margin-top:4px;font-size:var(--type-meta);line-height:1.55}
+.interview-search-help{margin:6px 0 12px;font-size:var(--type-meta);line-height:1.55}
+
+/* Difficulty hue and pill tint come from the shared practice-metadata sheet; lists only make them denser. */
+.interview-hub :is(.interview-ranking-copy,.company-comparison-table) .practice-metadata>:is(.practice-metadata-difficulty,.practice-metadata-time){min-height:22px;padding:0 8px;border-radius:999px;font-size:var(--type-caption);line-height:1.6}
+.interview-hub :is(.interview-ranking-copy,.company-comparison-table) .practice-metadata>.practice-metadata-time{padding-inline:2px;border-color:transparent;background:transparent;color:var(--muted)}
+.company-comparison-table tbody th>.practice-metadata{display:flex;margin:4px 0 0}
+.company-comparison-table .company-comparison-row-practice>.interview-group-toggle{min-height:var(--control-height,40px);padding:2px 10px;font-size:var(--type-meta)}
+.company-comparison-learning-filters>button{min-height:var(--control-height,40px);padding:4px 10px;font-size:var(--type-small)}
+.company-comparison-learning progress{appearance:none;height:6px;border:0;border-radius:4px;overflow:hidden;background:var(--surface3,var(--line))}
+.company-comparison-learning progress::-webkit-progress-bar{background:var(--surface3,var(--line))}
+.company-comparison-learning progress::-webkit-progress-value{background:var(--green)}
+.company-comparison-learning progress::-moz-progress-bar{background:var(--green)}
+@media(pointer:coarse){.company-comparison-table .company-comparison-row-practice>.interview-group-toggle,.company-comparison-learning-filters>button{min-height:44px}}
+@media(forced-colors:active){.interview-hub :is(.interview-ranking-copy,.company-comparison-table) .practice-metadata>:is(.practice-metadata-difficulty,.practice-metadata-time){border-color:CanvasText}}
+.interview-question-workbench .interview-source-preview+.preparation-guide{border-top:0}
+.interview-question-workbench .interview-source-preview+.preparation-guide>summary{padding-top:0}
+
+/* Right rail: compact cards, pill kind filters and clamped resource descriptions. */
+.interview-sidebar{gap:12px}
+.interview-resource-panel,.interview-sharing-panel{padding:16px;border-radius:var(--radius-lg,12px)}
+.interview-resource-panel>h2{margin-top:6px;font-size:var(--type-small);line-height:1.4}
+.interview-resource-panel .resource-browser-kinds{gap:6px}
+.interview-resource-panel .resource-browser-kinds>button{flex:0 1 auto;justify-content:center;gap:6px;min-height:30px;padding:2px 10px;border-radius:999px;font-size:var(--type-meta);white-space:nowrap}
+.interview-resource-panel .resource-browser-kinds small{padding:0 6px;border-radius:999px;font-size:var(--type-caption)}
+.interview-resource-list>article{padding-top:14px;margin-top:14px}
+.interview-resource-list>article>a>b{margin-top:6px;font-size:var(--type-small);line-height:1.45}
+.interview-resource-list>article>a>p{margin:6px 0;font-size:var(--type-meta);line-height:1.55}
+.interview-resource-list>article>a>p:not(:has(.resource-search-match)){display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.interview-resource-panel .interview-resource-context{line-height:1.5}
+.interview-sharing-panel{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:10px}
+.interview-sharing-panel>svg{width:18px;height:18px}
+.interview-sharing-panel>h3{margin:0;font-size:var(--type-small);line-height:1.4}
+.interview-sharing-panel>.button{grid-column:1/-1;min-height:var(--control-height,40px)}
+.interview-page-tools{gap:8px}
+.interview-page-tools>.text-button,.interview-page-tools .interview-view-copy{min-height:var(--control-height,40px);padding:6px 10px;border:1px solid var(--line);border-radius:var(--control-radius,8px);background:var(--surface);color:var(--text-secondary);font-size:var(--type-meta)}
+.interview-page-tools>.text-button:hover,.interview-page-tools .interview-view-copy:hover{border-color:var(--text-secondary);background:var(--surface2);color:var(--text)}
+@media(pointer:coarse){.interview-resource-panel .resource-browser-kinds>button,.interview-sharing-panel>.button,.interview-page-tools>.text-button,.interview-page-tools .interview-view-copy{min-height:44px}}
+
+/* Summary loading reserves the shape of the concept list instead of a lone spinner. */
+.interview-loading.interview-loading-rows{display:grid;grid-template-columns:auto minmax(0,1fr);justify-content:start;align-items:center;gap:10px 8px;padding:12px 0 0;font-size:var(--type-meta)}
+.interview-skeleton{grid-column:1/-1;display:grid;overflow:hidden;border:1px solid var(--line);border-radius:var(--radius-lg,12px);background:var(--surface)}
+.interview-skeleton>i{display:block;height:84px;border-top:1px solid var(--line);background:linear-gradient(var(--surface3,var(--surface2)),var(--surface3,var(--surface2))) 56px 22px/38% 12px no-repeat,linear-gradient(var(--surface3,var(--surface2)),var(--surface3,var(--surface2))) 56px 46px/22% 10px no-repeat,linear-gradient(var(--surface3,var(--surface2)),var(--surface3,var(--surface2))) right 16px top 20px/120px 30px no-repeat}
+.interview-skeleton>i:first-child{border-top:0}
+@media(prefers-reduced-motion:no-preference){.interview-skeleton>i{animation:interview-skeleton-pulse 1.2s ease-in-out infinite alternate}}
+@keyframes interview-skeleton-pulse{to{opacity:.55}}
+
+/* Company rail (LeetCode problemset right rail): logo + name + report-count pills. */
+.interview-company-rail{padding:16px;border:1px solid var(--line);border-radius:var(--radius-lg,12px);background:var(--surface)}
+.interview-company-rail>h2{margin:0 0 10px;font-size:var(--type-small);font-weight:600;line-height:1.4}
+.interview-company-rail>div{display:flex;flex-wrap:wrap;gap:6px}
+.interview-company-chip{display:inline-flex;align-items:center;gap:6px;min-width:0;max-width:100%;min-height:30px;padding:2px 10px 2px 6px;border-radius:999px;background:var(--surface2);color:var(--text-secondary);font-size:var(--type-meta);line-height:1.4;text-decoration:none}
+.interview-company-chip>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.interview-company-chip>.organization-logo{border-radius:50%}
+.interview-company-chip>small{flex:none;min-width:20px;padding:0 6px;border-radius:999px;background:color-mix(in srgb,var(--accent-fill,var(--accent)) 16%,var(--surface));color:var(--accent);font-size:var(--type-caption);font-variant-numeric:tabular-nums;text-align:center}
+.interview-company-chip:hover{background:var(--surface3,var(--surface2));color:var(--text)}
+.interview-company-chip:focus-visible,.interview-company-rail-all:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.interview-company-rail-all{display:inline-flex;align-items:center;gap:4px;min-height:32px;margin-top:8px;color:var(--accent);font-size:var(--type-meta)}
+.interview-company-rail-all:hover{text-decoration:underline;text-underline-offset:3px}
+@media(pointer:coarse){.interview-company-chip,.interview-company-rail-all{min-height:44px}}
+@media(forced-colors:active){.interview-company-chip{border:1px solid CanvasText}}
+
+/* Logo tiles: white keeps brand marks legible; dark mode dims the tile so a grid of them does not glare. */
+.interview-hub{--interview-logo-tile:color-mix(in srgb,#fff 86%,var(--surface))}
+[data-theme="light"] .interview-hub{--interview-logo-tile:#fff}
+
+/* The short caveat stays beside the counts; the full method lives in the disclosure. */
+.interview-evidence-context>div{flex-wrap:wrap;column-gap:7px}
+.interview-evidence-context>div>small{display:inline-flex;align-items:center;gap:5px;margin-inline-start:3px;padding-inline-start:10px;border-inline-start:1px solid var(--line);color:var(--text-secondary);font-size:var(--type-caption);line-height:1.5}
+.interview-evidence-context>div>small>svg{flex:none}
+@media(max-width:600px){.interview-evidence-context>div>small{margin:0;padding:0;border:0}}
+
+/* Concepts tab: the first concept row should reach the fold, as on LeetCode's company pages. */
+.interview-hub:has(.interview-question-ranking) .interview-search-help{position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+/* With no linked reports the list follows the curriculum, so the contributor-ranking sentence would mislead. */
+.interview-question-ranking:has(>.interview-evidence-context):has(.interview-curated-context)>.interview-section-intro p{display:none}
+.interview-curated-context{grid-template-columns:auto minmax(0,1fr) auto;column-gap:10px;row-gap:4px;padding:12px 16px}
+.interview-curated-context>.interview-panel-kicker{grid-column:1;grid-row:1;margin:0}
+.interview-curated-context>h3{grid-column:2;grid-row:1;margin:0}
+.interview-curated-context>p{grid-column:1/3;margin:0}
+.interview-curated-context>.button{grid-column:3;grid-row:1/span 2}
+/* The sidebar already offers the same sharing action while it sits beside the list. */
+@media(min-width:801px){.interview-hub:has(.interview-sharing-panel) .interview-curated-context>.button{display:none}}
+@media(max-width:600px){.interview-curated-context{grid-template-columns:minmax(0,1fr)}.interview-curated-context>:is(.interview-panel-kicker,h3,p,.button){grid-column:1;grid-row:auto}}
+/* A one-line heading and the evidence counts share a row when both fit; anything longer wraps as before. */
+.interview-question-ranking{display:flex;flex-wrap:wrap;align-items:center;gap:10px 20px;padding-top:16px}
+.interview-question-ranking>*{flex:1 1 100%;min-width:0}
+.interview-question-ranking>.interview-section-intro{flex:0 1 auto}
+.interview-question-ranking>.interview-evidence-context{flex:1 1 auto;margin:0}
+/* One 10px rhythm between the workbench blocks above the list. */
+.interview-question-workbench>:is(.interview-curated-context,.interview-ranking-controls){margin-bottom:10px}
+.interview-question-workbench>.interview-ranking-resume,.interview-question-workbench>.interview-practice-group{margin-block:10px}
+.interview-question-workbench>.interview-ranking-result-bar{margin:10px 0 8px}

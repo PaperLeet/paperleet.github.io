@@ -2,3 +2,10 @@
 
 .external-practice-controls>.text-button{align-self:end;min-height:40px;padding:8px 12px;border:1px solid var(--line);border-radius:var(--control-radius)}
 @media(max-width:600px){.external-practice-controls label{min-width:0;flex-basis:100%}}
+/* Collapsed, the directory is one compact row whose whole width toggles it. */
+.external-company-practice{margin:12px 0;padding:0 14px;border-radius:var(--radius-lg,12px)}
+.external-company-practice[open]{padding-bottom:14px}
+.external-company-practice>summary{min-height:var(--control-height,40px);padding-block:8px;font-size:var(--type-small);font-weight:600}
+.external-company-practice>summary:hover{color:var(--accent)}
+.external-company-practice>summary:focus-visible{outline-offset:-2px;border-radius:var(--radius-sm,6px)}
+@media(pointer:coarse){.external-company-practice>summary{min-height:44px}}

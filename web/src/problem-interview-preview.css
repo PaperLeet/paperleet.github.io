@@ -14,7 +14,7 @@
 .problem-interview-actions>div{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .problem-interview-actions :is(a,button){display:inline-flex;align-items:center;gap:6px;min-height:44px;font-size:var(--type-small)}
 .problem-interview-actions>a{color:var(--accent)}
-.problem-interview-status{margin:0;font-size:var(--type-body);line-height:1.8;color:var(--text-secondary)}
+.problem-interview-status{margin:0;font-size:var(--type-body);line-height:1.6;color:var(--text-secondary)}
 .problem-company-evidence :is(button,a):focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 @media(pointer:coarse){.problem-company-evidence .problem-interview-toggle,.problem-interview-actions :is(a,button){min-height:44px}}
 @media(max-width:600px){.problem-company-evidence .problem-interview-panel{padding:12px}.problem-interview-actions{align-items:flex-start;flex-direction:column}}
