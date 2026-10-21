@@ -15,4 +15,16 @@
 .module-picker-links a:focus-visible{outline:2px solid var(--accent);outline-offset:-3px}
 .module-picker-empty{padding:12px 16px;color:var(--text-secondary);font-size:var(--type-small);line-height:1.7}
 .module-picker-empty>p{margin:0}.module-picker-empty>button{min-height:44px}
+/* LeetCode-style problem list drawer: opens from the toolbar's left edge with dense rows. */
+.workspace-toolbar-start .module-picker{left:0;right:auto;top:calc(100% + 6px);width:380px;border-radius:var(--control-radius);background:var(--surface-overlay,var(--surface));box-shadow:var(--shadow-overlay,0 12px 40px #00000026)}
+.workspace-toolbar-start .module-picker-heading{padding:10px 14px}
+.workspace-toolbar-start .module-picker-heading b{font-size:var(--type-small)}
+.workspace-toolbar-start .module-picker-links{padding:4px}
+.workspace-toolbar-start .module-picker-links a{gap:10px;padding:7px 10px;border-radius:var(--radius-sm)}
+.workspace-toolbar-start .module-picker-links b{font-size:var(--type-meta);line-height:1.5}
+.workspace-toolbar-start .module-picker-links small{margin-top:0;font-size:var(--type-caption)}
+.workspace-toolbar-start .module-picker-links a[aria-current="page"]{background:color-mix(in srgb,var(--text) 8%,transparent)}
+.workspace-toolbar-start .module-picker-search>input{font-size:var(--type-small)}
+/* Phones: anchor the drawer to the toolbar start so it spans the screen instead of starting after the back link. */
+@media(max-width:600px){.workspace-toolbar-start{position:relative}.workspace-toolbar-start .module-navigator{position:static}.workspace-toolbar-start .module-picker{left:0;right:auto;width:calc(100vw - 16px);max-width:none}}
 @media(pointer:coarse),(max-width:600px){.module-navigator>.icon-button,.module-navigator>.module-picker-trigger{min-height:44px;min-width:44px}.module-picker-search>button{width:44px;min-height:44px}.module-picker-links a{min-height:52px}.module-picker-links{max-height:min(360px,45dvh)}}

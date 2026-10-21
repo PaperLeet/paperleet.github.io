@@ -1,0 +1,347 @@
+/* LeetCode-style layer for the workspace surface; loaded right after leetcode-theme.css.
+   One neutral frame (header, toolbar and gutters share a layer), rounded panel cards on it,
+   compact 40px tab bands with a 2px indicator, and 32px controls on fine pointers. */
+
+:root {
+  --workspace-gutter: var(--bg);
+  --workspace-band-bg: color-mix(in srgb, var(--surface2) 55%, var(--surface));
+  --workspace-panel-border: color-mix(in srgb, var(--line) 60%, transparent);
+  --workspace-control: color-mix(in srgb, var(--text) 10%, transparent);
+  --workspace-control-hover: color-mix(in srgb, var(--text) 16%, transparent);
+  --workspace-ghost-hover: color-mix(in srgb, var(--text) 8%, transparent);
+  --workspace-chip: color-mix(in srgb, var(--text) 8%, transparent);
+}
+[data-theme="light"] {
+  --workspace-gutter: color-mix(in srgb, var(--text) 6%, var(--surface));
+  --workspace-panel-border: var(--line);
+  --workspace-control: var(--surface);
+  --workspace-control-hover: color-mix(in srgb, var(--text) 5%, var(--surface));
+  --workspace-ghost-hover: color-mix(in srgb, var(--text) 6%, transparent);
+  --workspace-chip: color-mix(in srgb, var(--text) 6%, transparent);
+}
+
+/* Frame ------------------------------------------------------------------------------------ */
+.workspace-view { --workspace-band: 40px; background: var(--workspace-gutter); }
+.workspace-view > .topbar { background: var(--workspace-gutter); border-bottom-color: transparent; box-shadow: none; }
+.workspace-view > .topbar .nav-inner > nav {
+  background:
+    linear-gradient(to right, var(--workspace-gutter) 35%, transparent) left / 28px 100% no-repeat local,
+    linear-gradient(to left, var(--workspace-gutter) 35%, transparent) right / 28px 100% no-repeat local,
+    linear-gradient(to right, color-mix(in srgb, var(--text) 12%, transparent), transparent) left / 10px 100% no-repeat scroll,
+    linear-gradient(to left, color-mix(in srgb, var(--text) 12%, transparent), transparent) right / 10px 100% no-repeat scroll;
+}
+
+/* Toolbar: problem navigation left, Run/Submit centred as a pair, view controls right. */
+.workspace-view .workspace-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 4px 12px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--type-meta);
+}
+.workspace-toolbar-start { display: flex; align-items: center; gap: 4px; min-width: 0; }
+.workspace-toolbar-start > .back-link {
+  display: block;
+  flex: 0 1 auto;
+  min-width: 48px;
+  max-width: 240px;
+  height: 32px;
+  padding: 0 8px;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: var(--type-meta);
+  font-weight: 500;
+  line-height: 32px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.workspace-toolbar-start > .back-link > svg { margin-right: 6px; vertical-align: -3px; }
+.workspace-toolbar-start > .back-link:hover { background: var(--workspace-ghost-hover); color: var(--text); }
+.workspace-toolbar-start > .toolbar-divider { flex: none; width: 1px; height: 16px; margin: 0 6px; background: var(--line); }
+.workspace-toolbar-start > b { flex: 0 1 auto; min-width: 0; overflow: hidden; color: var(--text); font-size: var(--type-meta); font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
+.workspace-toolbar-start > .problem-navigation { flex: none; gap: 2px; margin: 0; }
+.workspace-toolbar-start .module-navigator > .icon-button { width: 32px; height: 32px; min-width: 32px; min-height: 32px; padding: 0; border-radius: var(--radius-sm); color: var(--text-secondary); }
+.workspace-toolbar-start .module-navigator > .icon-button:hover:not(:disabled) { background: var(--workspace-ghost-hover); color: var(--text); }
+.workspace-toolbar-start .module-picker-trigger { min-height: 32px; padding: 0 8px; color: var(--text-secondary); font-size: var(--type-meta); }
+.workspace-toolbar-start .module-picker-trigger:hover, .workspace-toolbar-start .module-picker-trigger[aria-expanded="true"] { border-color: transparent; background: var(--workspace-ghost-hover); }
+.workspace-toolbar-start .module-nav-fallback select { width: 164px; max-width: 164px; min-height: 32px; text-overflow: ellipsis; font-size: var(--type-meta); }
+.workspace-toolbar-start > .module-batch-unavailable { flex: 0 1 auto; min-width: 0; max-width: 320px; font-size: var(--type-caption); line-height: 1.4; }
+.workspace-toolbar-start .problem-favorite-button { min-width: 32px; min-height: 32px; padding: 0 8px; border-color: transparent; background: transparent; }
+.workspace-toolbar-start .problem-favorite-button:hover:not(:disabled) { border-color: transparent; background: var(--workspace-ghost-hover); }
+/* Signed-in study-list practice shares the start column, so it stays on one compact line. */
+.workspace-toolbar-start > .study-list-practice-nav { flex: 0 1 auto; flex-wrap: nowrap; gap: 4px 8px; min-width: 0; overflow: hidden; font-size: var(--type-meta); white-space: nowrap; }
+.workspace-toolbar-start > .study-list-practice-nav small { display: none; }
+.workspace-toolbar-start > .study-list-practice-nav > a { min-height: 32px; }
+.workspace-toolbar-start > .study-list-practice-nav > a > span { max-width: 140px; }
+
+.workspace-view .workspace-toolbar > .workspace-run-controls { grid-column: 2; justify-self: center; gap: 8px; }
+.workspace-view .workspace-toolbar > .workspace-layout-menu { grid-column: 3; justify-self: end; }
+.workspace-view .workspace-run-state { max-width: 220px; font-size: var(--type-caption); }
+.workspace-view .workspace-run-controls .editor-run-actions { gap: 2px; }
+.workspace-view .workspace-run-controls .editor-run-actions > .run-button {
+  height: 32px;
+  min-height: 32px;
+  padding: 0 14px;
+  gap: 6px;
+  border: 0;
+  border-radius: var(--control-radius);
+  background: var(--workspace-control);
+  box-shadow: none;
+  color: var(--text);
+  font-size: var(--type-meta);
+  font-weight: 600;
+  filter: none;
+}
+.workspace-view .workspace-run-controls .editor-run-actions > .run-button:hover:not(:disabled) { border-color: transparent; background: var(--workspace-control-hover); filter: none; }
+/* Submit (or the only run action, which is the local edition's verdict) reads green like LeetCode's Submit. */
+.workspace-view .workspace-run-controls .editor-run-actions > .run-button:is(:not(.subtle), :only-child) { color: var(--green); }
+[data-theme="light"] .workspace-view .workspace-run-controls .editor-run-actions > .run-button { box-shadow: 0 0 0 1px var(--line); }
+.workspace-view .workspace-run-controls .editor-run-actions > .run-button:first-child:not(:only-child) { border-radius: var(--control-radius) 0 0 var(--control-radius); }
+.workspace-view .workspace-run-controls .editor-run-actions > .run-button:last-child:not(:only-child) { border-radius: 0 var(--control-radius) var(--control-radius) 0; }
+/* Shortcut hint on hover or keyboard focus; the alt text keeps it out of the button's accessible name. */
+.workspace-view .workspace-run-controls .run-button[aria-keyshortcuts] { position: relative; }
+.workspace-view .workspace-run-controls .run-button[aria-keyshortcuts]::after {
+  content: "⌘ / Ctrl + Enter";
+  content: "⌘ / Ctrl + Enter" / "";
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  z-index: 70;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-overlay);
+  box-shadow: var(--shadow-overlay);
+  color: var(--text-secondary);
+  font: 500 var(--type-caption)/1.4 var(--font-sans);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%);
+  transition: opacity .12s;
+}
+.workspace-view .workspace-run-controls .run-button[aria-keyshortcuts]:focus-visible:not(:disabled)::after { opacity: 1; }
+@media (hover: hover) and (pointer: fine) {
+  .workspace-view .workspace-run-controls .run-button[aria-keyshortcuts]:hover:not(:disabled)::after { opacity: 1; transition-delay: .4s; }
+}
+.workspace-view .workspace-run-controls .workspace-stop-button { min-height: 32px; padding: 0 10px; border: 0; border-radius: var(--control-radius); background: var(--workspace-control); color: var(--text-secondary); font-size: var(--type-meta); }
+.workspace-view .workspace-run-controls .workspace-stop-button:hover { background: color-mix(in srgb, var(--red) 14%, transparent); color: var(--red); }
+.workspace-view .workspace-layout-trigger { min-height: 32px; padding: 0 10px; gap: 6px; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--text-secondary); font-size: var(--type-meta); }
+.workspace-view .workspace-layout-trigger:hover, .workspace-view .workspace-layout-trigger[aria-expanded="true"] { background: var(--workspace-ghost-hover); color: var(--text); }
+
+/* Panels: rounded cards on the gutter; the splitter shows a full-height line on hover or drag. */
+.workspace-view .workspace { padding: 0 8px 8px; }
+.workspace-view .workspace > :is(.description-pane, .editor-pane) { border: 1px solid var(--workspace-panel-border); border-radius: var(--control-radius); background: var(--surface); box-shadow: none; }
+.workspace-view .workspace > .split-handle { position: relative; background: transparent; }
+.workspace-view .workspace > .split-handle::before { content: ""; position: absolute; top: 6px; bottom: 6px; left: 50%; width: 2px; border-radius: 2px; background: transparent; transform: translateX(-50%); transition: background-color .15s; }
+.workspace-view .workspace > .split-handle > .split-handle-grip { width: 2px; height: 24px; background: var(--line); opacity: 1; transition: opacity .15s; }
+.workspace-view .workspace > .split-handle:hover::before,
+.workspace-view .workspace > .split-handle:focus-visible::before,
+.workspace-view .workspace[data-dragging="true"] > .split-handle::before { background: var(--accent-fill); }
+.workspace-view .workspace > .split-handle:hover > .split-handle-grip,
+.workspace-view .workspace[data-dragging="true"] > .split-handle > .split-handle-grip { opacity: 0; }
+
+/* Tab bands: one 40px header tone, 14px labels, a 2px indicator and no filled block. */
+.workspace-view .workspace :is(.reading-tab-strip, .editor-header) { background: var(--workspace-band-bg); border-bottom: 1px solid var(--line); }
+.workspace-view .workspace .pane-tabs { --workspace-band: inherit; box-sizing: border-box; height: var(--workspace-band); min-height: var(--workspace-band); padding: 0 6px; gap: 0; align-items: stretch; border-bottom: 0; background: transparent; }
+.workspace-view .workspace .pane-tabs > [role="tab"] { position: relative; min-height: var(--workspace-band); padding: 0 10px; gap: 6px; border-radius: 0; background: transparent; color: var(--text-secondary); font-size: var(--type-meta); font-weight: 500; }
+.workspace-view .workspace .pane-tabs > [role="tab"]:hover { background: transparent; color: var(--text); }
+.workspace-view .workspace .pane-tabs > [role="tab"][aria-selected="true"] { background: transparent; color: var(--text); }
+.workspace-view .workspace .pane-tabs > [role="tab"] > svg { flex: none; color: var(--text-secondary); }
+.workspace-view .workspace .pane-tabs > [role="tab"][aria-selected="true"] > svg { color: var(--accent-fill); }
+.workspace-view .workspace .pane-tabs > [role="tab"]::after { content: ""; position: absolute; left: 10px; right: 10px; bottom: 0; height: 2px; border-radius: 2px 2px 0 0; background: transparent; }
+.workspace-view .workspace .pane-tabs > [role="tab"][aria-selected="true"]::after { background: var(--accent-fill); }
+.workspace-view .workspace .pane-tabs > [role="tab"]:focus-visible { outline: 2px solid var(--accent); outline-offset: -4px; border-radius: var(--radius-sm); }
+#reading-tab-notes > svg { width: 12px; height: 12px; }
+.workspace-view .workspace .editor-tab-filename { margin-left: 4px; color: var(--text-secondary); font: var(--type-caption)/1.5 var(--font-mono); }
+.workspace-view .workspace .editor-header > .editor-tools { height: var(--workspace-band); min-height: var(--workspace-band); padding: 0 2px; }
+
+/* The Result tab carries the latest outcome: green pass, red failure, grey when stale. */
+.workspace-view #reading-tab-result[data-state]::before { content: ""; order: 1; flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--text-secondary); }
+.workspace-view #reading-tab-result[data-state="passed"]::before { background: var(--green); }
+.workspace-view #reading-tab-result[data-state="failed"]::before { background: var(--red); }
+.workspace-view #reading-tab-result[data-state="running"]::before { background: var(--accent-fill); }
+.workspace-view .mobile-result-dot[data-state="passed"] { background: var(--green); }
+.workspace-view .mobile-result-dot[data-state="failed"] { background: var(--red); }
+.workspace-view .mobile-result-dot[data-state="stale"] { background: var(--text-secondary); }
+@media (prefers-reduced-motion: no-preference) {
+  .workspace-view #reading-tab-result[data-state="running"]::before, .workspace-view .mobile-result-dot[data-state="running"] { animation: lc-workspace-pulse 1.2s ease-in-out infinite; }
+  @keyframes lc-workspace-pulse { 50% { opacity: .3; } }
+}
+
+/* Editor header actions: icon buttons beside the file tabs. */
+.workspace-view .workspace .editor-header > .workspace-focus-toggle {
+  align-self: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  min-height: 32px;
+  margin: 0 6px 0 0;
+  padding: 0;
+  gap: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0;
+}
+.workspace-view .workspace .editor-header > .workspace-focus-toggle:hover { background: var(--workspace-ghost-hover); color: var(--text); }
+.workspace-view .workspace .editor-header > .workspace-focus-toggle[aria-pressed="true"] { background: color-mix(in srgb, var(--accent-fill) 16%, transparent); color: var(--accent); }
+.workspace-view .workspace .editor-header > .workspace-focus-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.workspace-view .workspace .editor-actions > summary { width: 32px; height: 32px; border: 0; color: var(--text-secondary); font-size: 0; letter-spacing: 0; }
+.workspace-view .workspace .editor-actions > summary::before {
+  content: "";
+  width: 18px;
+  height: 18px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='5' cy='12' r='2'/%3E%3Ccircle cx='12' cy='12' r='2'/%3E%3Ccircle cx='19' cy='12' r='2'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='5' cy='12' r='2'/%3E%3Ccircle cx='12' cy='12' r='2'/%3E%3Ccircle cx='19' cy='12' r='2'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.workspace-view .workspace .editor-actions > summary:hover, .workspace-view .workspace .editor-actions[open] > summary { border-color: transparent; background: var(--workspace-ghost-hover); color: var(--text); }
+.workspace-view .workspace .editor-actions > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+/* Description: heading, pill chips and one-line statistics directly under the title. */
+.workspace-view .workspace .description-scroll { padding: 20px; }
+.workspace-view .workspace .problem-heading { margin: 0 0 18px; }
+.workspace-view .workspace .problem-heading h1 { margin: 0; font-size: 1.5rem; font-weight: 600; letter-spacing: -.01em; line-height: 1.35; overflow-wrap: anywhere; }
+.workspace-view .workspace .heading-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 12px 0 14px; color: var(--text-secondary); font-size: var(--type-caption); }
+.workspace-view .workspace .heading-tags > :is(span, a) { display: inline-flex; align-items: center; gap: 4px; min-height: 24px; box-sizing: border-box; padding: 2px 10px; border-radius: 999px; background: var(--workspace-chip); color: var(--text-secondary); font-size: var(--type-caption); line-height: 1.5; }
+.workspace-view .workspace .heading-tags > a:hover { color: var(--text); }
+.workspace-view .workspace .heading-tags > .difficulty { background: color-mix(in srgb, currentColor 12%, transparent); color: var(--diff-medium); font-weight: 500; }
+.workspace-view .workspace .heading-tags > .difficulty.E { color: var(--diff-easy); }
+.workspace-view .workspace .heading-tags > .difficulty.H { color: var(--diff-hard); }
+.workspace-view .workspace .heading-tags > .accepted { margin-left: auto; padding: 0; background: none; color: var(--green); font-size: var(--type-meta); font-weight: 500; }
+.workspace-view .workspace .problem-heading > .problem-stats { display: flex; flex-wrap: wrap; gap: 2px 18px; margin: 0; padding: 0; border: 0; font-size: var(--type-caption); line-height: 1.6; }
+.workspace-view .workspace .problem-heading .problem-stats > div { flex-direction: row; align-items: baseline; gap: 6px; }
+.workspace-view .workspace .problem-heading .problem-stats dd { font-size: var(--type-meta); font-weight: 500; }
+.workspace-view .workspace .problem-heading > .stats-availability { margin: 0; padding: 0; border: 0; background: none; color: var(--text-secondary); font-size: var(--type-caption); }
+.workspace-view .workspace .problem-heading > .stats-availability > summary { display: inline-flex; min-height: 28px; }
+.workspace-view .workspace .problem-heading > .stats-availability[open] { padding: 4px 12px 10px; border: 1px solid var(--line); border-radius: var(--control-radius); }
+.workspace-view .workspace .problem-heading > .stats-availability > p { margin: 4px 0 10px; }
+.workspace-view .workspace .problem-heading > :not(h1, .heading-tags, .problem-stats, .stats-availability) { margin-top: 14px; }
+
+/* Reference and goal cards keep their structure with denser type. */
+.workspace-view .workspace .paper-card { margin: 0 0 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--control-radius); background: var(--surface); }
+.workspace-view .workspace .paper-card:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+.workspace-view .workspace .paper-card small { font-size: var(--type-caption); letter-spacing: .02em; }
+.workspace-view .workspace .paper-card strong { font-size: var(--type-small); line-height: 1.45; }
+.workspace-view .workspace .paper-card p { font-size: var(--type-meta); line-height: 1.5; }
+.workspace-view .workspace .module-scope-card { margin: 0 0 12px; padding: 14px 16px; border-radius: var(--control-radius); }
+.workspace-view .workspace .module-scope-card h3 { margin-bottom: 6px; font-size: var(--type-small); font-weight: 600; }
+.workspace-view .workspace .module-scope-card > p { font-size: var(--type-small); line-height: 1.7; }
+.workspace-view .workspace .module-scope-card .module-functions { margin-top: 10px; }
+.workspace-view .workspace .module-scope-card .module-functions > * { font-size: var(--type-meta); }
+
+/* Statement: a slightly denser default; the reader's own size and spacing preferences still win. */
+.workspace-view .workspace .prose { font-size: var(--type-control); line-height: 1.75; }
+.workspace-view .workspace .prose h1 { font-size: 1.25em; line-height: 1.4; }
+.workspace-view .workspace .prose h2 { margin-top: 28px; font-size: 1.125em; line-height: 1.45; }
+.workspace-view .workspace .prose h3 { font-size: 1em; }
+
+/* Description disclosures share one row style: same height, padding, type and right-aligned chevron. */
+#problem-reading-content :is(.preparation-guide, .reading-appearance-inline > details) { margin: 0 0 10px; border: 1px solid var(--line); border-radius: var(--control-radius); background: var(--surface); }
+#problem-reading-content .reading-appearance-inline { margin: 0; }
+#problem-reading-content .prose > .reading-outline { margin: 0 0 20px; }
+#problem-reading-content .prose > .reading-outline > summary { border-radius: var(--control-radius); box-shadow: 0 6px 10px -8px color-mix(in srgb, var(--text) 30%, transparent); }
+/* Stick flush under the tab band; the scroller's 20px padding would otherwise leave a gap of scrolled text. */
+@media (min-width: 851px) { #problem-reading-content .prose > .reading-outline { top: -20px; background: linear-gradient(var(--surface), var(--surface)) top / 100% 10px no-repeat; } }
+#problem-reading-content :is(.preparation-guide, .reading-appearance-inline > details, .prose > .reading-outline) > summary { box-sizing: border-box; min-height: 44px; padding: 8px 14px; gap: 8px; font-size: var(--type-small); font-weight: 500; line-height: 1.5; }
+#problem-reading-content .preparation-guide > summary b { font-size: var(--type-small); font-weight: 500; }
+#problem-reading-content :is(.preparation-guide > summary small, .reading-appearance summary > small, .reading-outline-count) { color: var(--text-secondary); font-size: var(--type-caption); }
+#problem-reading-content .reading-outline-title { font-weight: 500; }
+
+/* Result panel: the status line stays visible; secondary tools follow the verdict. */
+.workspace-view .workspace .workspace-result-panel { padding-top: 0; }
+.workspace-view .workspace .workspace-result-heading { position: sticky; top: 0; z-index: 4; margin: 0 -20px; padding: 12px 20px; background: var(--surface); }
+.workspace-view .workspace .workspace-result-heading > h2 { font-size: var(--type-small); font-weight: 600; }
+.workspace-view .workspace .workspace-result-heading > span { font-size: var(--type-meta); font-variant-numeric: tabular-nums; }
+#problem-results-content > .browser-judge-panel { margin: 12px -20px 0; padding: 12px 20px; }
+#problem-results-content > .judge-runtime-details { margin: 4px 0 0; padding-top: 6px; border-top: 1px solid var(--line); }
+/* Custom case joins the flat disclosure rows above it instead of being a separate card. */
+#problem-results-content > .custom-cases { margin: 4px 0 0; padding-top: 6px; padding-inline: 0; border-width: 1px 0 0; border-radius: 0; background: transparent; }
+#problem-results-content > .custom-cases > summary { margin-inline: 0; padding-inline: 0; border-radius: 0; font-size: var(--type-meta); }
+
+/* CodeMirror: dim gutter, hover-only folds, focus-only active line and a minimal top inset. */
+.workspace-view .workspace .editor-code-panel .code-editor { padding-top: 0; }
+.workspace-view .workspace .code-editor .cm-scroller { line-height: 1.55; }
+.workspace-view .workspace .code-editor .cm-content { padding-top: 8px; padding-bottom: 8px; }
+.workspace-view .workspace .code-editor .cm-gutters { color: color-mix(in srgb, var(--text-secondary) 72%, transparent); }
+.workspace-view .workspace .code-editor .cm-foldGutter .cm-gutterElement { opacity: 0; transition: opacity .15s; }
+.workspace-view .workspace .code-editor .cm-gutters:hover .cm-foldGutter .cm-gutterElement { opacity: .8; }
+@media (hover: none) { .workspace-view .workspace .code-editor .cm-foldGutter .cm-gutterElement { opacity: .8; } }
+.workspace-view .workspace .code-editor .cm-activeLineGutter { background: transparent; color: var(--text); }
+.workspace-view .workspace .code-editor .cm-editor:not(.cm-focused) .cm-activeLine { background: transparent; }
+.workspace-view .workspace .code-editor .cm-editor:not(.cm-focused) .cm-activeLineGutter { color: inherit; }
+.workspace-view .workspace .code-editor .cm-editor.cm-focused .cm-activeLine { background: color-mix(in srgb, var(--text) 5%, transparent); box-shadow: none; }
+
+/* The deferred editor's placeholder already matches CodeMirror's gutter and line metrics. */
+.workspace-view .workspace .editor-fallback { position: relative; background: var(--editor); }
+.workspace-view .workspace .editor-fallback > .feature-loading { position: absolute; top: 8px; right: 12px; z-index: 1; margin: 0; padding: 4px 8px; border-radius: var(--radius-sm); background: var(--surface2); font-size: var(--type-caption); }
+.workspace-view .workspace .editor-fallback > pre { padding: 8px 0 8px 52px; color: var(--text); font-family: var(--font-mono); line-height: 1.55; }
+.workspace-view .workspace .editor-fallback > textarea { padding: 8px 16px; border-radius: 0; background: var(--editor); font-family: var(--font-mono); line-height: 1.55; }
+
+/* Status footer: save state left, live caret position right. */
+.workspace-view .workspace .editor-status { min-height: 28px; padding: 4px 12px; border-top: 1px solid var(--line); border-bottom: 0; background: var(--surface); font-size: var(--type-caption); }
+.workspace-view .workspace .editor-status > .editor-cursor { flex: none; color: var(--text-secondary); font-variant-numeric: tabular-nums; opacity: 1; letter-spacing: 0; }
+.workspace-view .workspace .editor-status > .editor-cursor:not(:empty)::after { content: " · Python 3"; white-space: pre; }
+.workspace-view .workspace .editor-status > .editor-cursor:empty::after { content: "Python 3"; }
+
+/* Mid widths keep one toolbar row and one tab row. */
+@media (min-width: 851px) and (max-width: 1199px) {
+  .workspace-view .workspace-layout-trigger > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .workspace-toolbar-start > .back-link { max-width: 160px; }
+  .workspace-view .workspace-run-state { max-width: 140px; }
+}
+@media (min-width: 851px) and (max-width: 1100px) {
+  .workspace-toolbar-start > :is(b, .toolbar-divider) { display: none; }
+}
+@media (min-width: 851px) and (max-width: 1150px) {
+  .workspace-view .workspace .pane-tabs > [role="tab"]:not([aria-selected="true"], #reading-tab-notes) > svg { display: none; }
+  .workspace-view .workspace .pane-tabs > [role="tab"] { padding-inline: 9px; }
+}
+
+/* Phones and tablets: one compact toolbar row aligned with the panes. */
+@media (max-width: 850px) {
+  .workspace-view .workspace-toolbar { display: flex; flex-wrap: wrap; gap: 6px 8px; min-height: 52px; padding: 6px 8px; }
+  .workspace-toolbar-start { flex: 1 1 180px; }
+  .workspace-toolbar-start > :is(b, .toolbar-divider) { display: none; }
+  .workspace-toolbar-start > .back-link { max-width: 45%; }
+  .workspace-view .workspace-toolbar > .workspace-run-controls { order: 0; flex: 0 1 auto; flex-wrap: wrap; justify-content: flex-end; margin-left: auto; }
+  .workspace-view .workspace-run-controls .editor-run-actions > .run-button { height: 40px; min-height: 40px; }
+  .workspace-view .mobile-workspace-switch { margin: 0 8px 8px; }
+  .workspace-view .workspace.resizable-split { padding: 0 8px 8px; }
+  .workspace-view .workspace .description-scroll { padding: 16px; }
+  .workspace-view .workspace .workspace-result-panel { padding-top: 0; }
+  .workspace-view .workspace .workspace-result-heading { position: static; margin-inline: -16px; padding-inline: 16px; }
+  #problem-results-content > .browser-judge-panel { margin-inline: -16px; padding-inline: 16px; }
+}
+@media (max-width: 600px) {
+  .workspace-toolbar-start .module-shuffle { display: none; }
+  /* A run keeps the toolbar's row count: the spinner stands for the status text (still announced),
+     and a lone Run button gives its place to Stop. Run + Submit already sit on their own row. */
+  .workspace-view .workspace-run-state:has(> .spinner) { gap: 0; font-size: 0; }
+  .workspace-view .workspace-run-controls:has(> .workspace-stop-button) > .editor-run-actions:has(> .run-button:only-child) { display: none; }
+  .workspace-view .workspace .problem-heading h1 { font-size: 1.375rem; }
+}
+
+/* Touch keeps 44px targets. */
+@media (pointer: coarse) {
+  .workspace-view { --workspace-band: 44px; }
+  .workspace-toolbar-start > .back-link { height: 44px; line-height: 44px; }
+  .workspace-toolbar-start .module-navigator > .icon-button, .workspace-toolbar-start .problem-favorite-button { min-width: 44px; min-height: 44px; }
+  .workspace-view .workspace-run-controls .editor-run-actions > .run-button, .workspace-view .workspace-run-controls .workspace-stop-button, .workspace-view .workspace-layout-trigger { min-height: 44px; }
+  .workspace-view .workspace .editor-header > .workspace-focus-toggle, .workspace-view .workspace .editor-actions > summary { width: 44px; height: 40px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .workspace-view .workspace > .split-handle::before, .workspace-view .workspace > .split-handle > .split-handle-grip, .workspace-view .workspace .code-editor .cm-foldGutter .cm-gutterElement { transition: none; }
+}
+@media (forced-colors: active) {
+  .workspace-view .workspace .editor-actions > summary::before { forced-color-adjust: none; background: ButtonText; }
+  .workspace-view .workspace .pane-tabs > [role="tab"][aria-selected="true"]::after, .workspace-view .workspace > .split-handle:hover::before { background: Highlight; }
+  .workspace-view #reading-tab-result[data-state]::before { forced-color-adjust: none; background: CanvasText; }
+}
