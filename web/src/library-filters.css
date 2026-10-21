@@ -13,7 +13,7 @@
 /* One frameless LeetCode-style search row: field, Filters and Random share the control height. */
 .paper-library .library-toolbar { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px; padding: 0; border: 0; border-radius: 0; background: transparent; }
 .paper-library .library-toolbar .search { min-width: 0; height: var(--control-height); min-height: var(--control-height); background: var(--surface); border-color: var(--line); border-radius: var(--control-radius, 8px); }
-.paper-library .library-toolbar .search input { min-height: calc(var(--control-height) - 2px); font-size: var(--type-small); }
+.paper-library .library-toolbar .search input { min-height: calc(var(--control-height) - 2px); font-size: var(--type-control); }
 .paper-library .library-toolbar .search-clear { min-width: calc(var(--control-height) - 2px); min-height: calc(var(--control-height) - 2px); }
 .paper-library .library-filter-toggle { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 0 12px; min-height: var(--control-height); border: 1px solid var(--line); border-radius: var(--control-radius, 8px); color: var(--text-secondary); background: var(--surface); font-size: var(--type-small); }
 .paper-library .library-filter-toggle > span:not(.library-filter-icon) { padding: 0 5px; border-radius: 4px; font-variant-numeric: tabular-nums; background: var(--surface2); color: var(--text); }
@@ -22,7 +22,11 @@
 .paper-library .library-filter-panel[hidden] { display: none; }
 .paper-library .library-filter-panel .filter-bar { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0; }
 .paper-library .library-filter-panel .select-wrap { position: relative; display: flex; min-width: 0; min-height: var(--control-height); padding: 0; border: 1px solid var(--line); border-radius: var(--control-radius, 8px); background: var(--surface); }
-.paper-library .library-filter-panel .select-wrap select { width: 100%; min-width: 0; max-width: none; min-height: calc(var(--control-height) - 2px); padding: 4px 28px 4px 12px; border-radius: inherit; color: var(--text); font-size: var(--type-small); text-overflow: ellipsis; }
+.paper-library .library-filter-panel .select-wrap select { width: 100%; min-width: 0; max-width: none; min-height: calc(var(--control-height) - 2px); padding: 4px 28px 4px 12px; border-radius: inherit; color: var(--text); font-size: var(--type-control); text-overflow: ellipsis; }
+@media (hover: hover) and (pointer: fine) {
+  .paper-library .library-toolbar .search input,
+  .paper-library .library-filter-panel .select-wrap select { font-size: var(--type-small); }
+}
 .paper-library .library-filter-panel .select-wrap > svg { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; }
 .paper-library .library-filter-panel .select-wrap:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--control-focus); }
 .paper-library .library-filter-panel .select-wrap[data-active="true"] { border-color: var(--accent); }

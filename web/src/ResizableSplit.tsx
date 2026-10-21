@@ -197,7 +197,8 @@ export default function ResizableSplit({
     if (!current || current.pointerId !== event.pointerId) return;
     event.preventDefault();
     const coordinate = horizontal ? event.clientX : event.clientY;
-    const next = clamp(current.ratio + (coordinate - current.coordinate) / current.available, current.min, current.max);
+    const raw = clamp(current.ratio + (coordinate - current.coordinate) / current.available, current.min, current.max);
+    const next = Math.abs(raw - defaultRatio) < 0.012 ? clamp(defaultRatio, current.min, current.max) : raw;
     if (next === preferredRef.current) return;
     current.moved = true;
     updateRatio(next, false);

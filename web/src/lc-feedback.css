@@ -24,6 +24,11 @@
 /* The failing message reads like LeetCode's red runtime-error block; text is pulled toward --text to stay AA on the tint. */
 .workspace-test-results .report-workflow .feedback-diagnostic { margin:10px 0 0; padding:10px 14px; font-size:var(--type-meta); border:0; border-radius:var(--control-radius); background:color-mix(in srgb,var(--red) 8%,transparent); color:color-mix(in srgb,var(--red) 82%,var(--text)); line-height:1.7; }
 @media (forced-colors:active) { .workspace-test-results .report-workflow .feedback-diagnostic { border:1px solid CanvasText; } }
+.workspace-test-results .report-workflow .feedback-code-context { margin:12px 0 0; padding:8px 12px; border:1px solid var(--line); border-radius:var(--control-radius); background:var(--editor, var(--surface2)); font:var(--type-meta)/1.65 var(--font-mono); overflow-x:auto; }
+.workspace-test-results .report-workflow .feedback-code-context code { display:grid; min-width:max-content; }
+.workspace-test-results .report-workflow .feedback-code-context span { display:block; margin-inline:-12px; padding-inline:12px; }
+.workspace-test-results .report-workflow .feedback-code-context i { display:inline-block; min-width:2.5ch; margin-right:12px; color:var(--muted); font-style:normal; font-variant-numeric:tabular-nums; text-align:right; user-select:none; }
+.workspace-test-results .report-workflow .feedback-code-context span[data-active="true"] { background:color-mix(in srgb,var(--red) 10%,transparent); box-shadow:inset 2px 0 var(--red); color:var(--text); }
 .workspace-test-results .report-workflow .test-comparison { margin-top:14px; }
 
 /* Hosted pass state: the save/submit card follows the verdict and matches the feedback buttons. */
