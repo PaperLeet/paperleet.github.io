@@ -146,3 +146,4 @@
 .interview-question-workbench>:is(.interview-curated-context,.interview-ranking-controls){margin-bottom:10px}
 .interview-question-workbench>.interview-ranking-resume,.interview-question-workbench>.interview-practice-group{margin-block:10px}
 .interview-question-workbench>.interview-ranking-result-bar{margin:10px 0 8px}
+.interview-report-card .community-translation.is-failed{display:none}

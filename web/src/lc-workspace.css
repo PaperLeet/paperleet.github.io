@@ -22,14 +22,7 @@
 
 /* Frame ------------------------------------------------------------------------------------ */
 .workspace-view { --workspace-band: 40px; background: var(--workspace-gutter); }
-.workspace-view > .topbar { background: var(--workspace-gutter); border-bottom-color: transparent; box-shadow: none; }
-.workspace-view > .topbar .nav-inner > nav {
-  background:
-    linear-gradient(to right, var(--workspace-gutter) 35%, transparent) left / 28px 100% no-repeat local,
-    linear-gradient(to left, var(--workspace-gutter) 35%, transparent) right / 28px 100% no-repeat local,
-    linear-gradient(to right, color-mix(in srgb, var(--text) 12%, transparent), transparent) left / 10px 100% no-repeat scroll,
-    linear-gradient(to left, color-mix(in srgb, var(--text) 12%, transparent), transparent) right / 10px 100% no-repeat scroll;
-}
+.workspace-view > .topbar { --topbar-bg: var(--workspace-gutter); background: var(--workspace-gutter); border-bottom-color: transparent; box-shadow: none; }
 
 /* Toolbar: problem navigation left, Run/Submit centred as a pair, view controls right. */
 .workspace-view .workspace-toolbar {
@@ -216,9 +209,12 @@
 .workspace-view .workspace .heading-tags > .difficulty.E { color: var(--diff-easy); }
 .workspace-view .workspace .heading-tags > .difficulty.H { color: var(--diff-hard); }
 .workspace-view .workspace .heading-tags > .accepted { margin-left: auto; padding: 0; background: none; color: var(--green); font-size: var(--type-meta); font-weight: 500; }
-.workspace-view .workspace .problem-heading > .problem-stats { display: flex; flex-wrap: wrap; gap: 2px 18px; margin: 0; padding: 0; border: 0; font-size: var(--type-caption); line-height: 1.6; }
+.workspace-view .workspace .problem-heading > .problem-stats { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; margin: 0; padding: 0; border: 0; font-size: var(--type-caption); line-height: 1.5; }
+.workspace-view .workspace .problem-heading > .problem-stats > :is([data-stat="attempted_users"], [data-stat="solved_users"], [data-stat="failed_submissions"]) { display: none; }
+.workspace-view .workspace .problem-heading > .problem-stats > [data-stat="accepted_submissions"] { order: -1; }
+.workspace-view .workspace .problem-heading > .problem-stats > :is([data-stat="total_submissions"], [data-stat="acceptance_rate"]) { padding-left: 14px; border-left: 1px solid var(--line); }
 .workspace-view .workspace .problem-heading .problem-stats > div { flex-direction: row; align-items: baseline; gap: 6px; }
-.workspace-view .workspace .problem-heading .problem-stats dd { font-size: var(--type-meta); font-weight: 500; }
+.workspace-view .workspace .problem-heading .problem-stats dd { font-size: var(--type-meta); font-weight: 600; font-variant-numeric: tabular-nums; }
 .workspace-view .workspace .problem-heading > .stats-availability { margin: 0; padding: 0; border: 0; background: none; color: var(--text-secondary); font-size: var(--type-caption); }
 .workspace-view .workspace .problem-heading > .stats-availability > summary { display: inline-flex; min-height: 28px; }
 .workspace-view .workspace .problem-heading > .stats-availability[open] { padding: 4px 12px 10px; border: 1px solid var(--line); border-radius: var(--control-radius); }
@@ -242,6 +238,11 @@
 .workspace-view .workspace .prose h1 { font-size: 1.25em; line-height: 1.4; }
 .workspace-view .workspace .prose h2 { margin-top: 28px; font-size: 1.125em; line-height: 1.45; }
 .workspace-view .workspace .prose h3 { font-size: 1em; }
+.workspace-view .workspace .prose code:not(pre code) { padding: 1px 6px; border: 1px solid color-mix(in srgb, var(--line) 75%, transparent); border-radius: 5px; background: color-mix(in srgb, var(--text) 6%, transparent); font-size: .875em; }
+.workspace-view .workspace .prose .highlight { border-radius: var(--control-radius); border-color: color-mix(in srgb, var(--line) 80%, transparent); }
+.workspace-view .workspace .prose .highlight pre { padding: 12px 14px !important; font-size: var(--type-small); line-height: 1.6; }
+.workspace-view .workspace .prose blockquote { padding: 10px 14px; border-left: 3px solid color-mix(in srgb, var(--text) 24%, var(--line)); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; background: color-mix(in srgb, var(--text) 4%, var(--surface)); font-size: var(--type-small); }
+.workspace-view .workspace .lab-callout { padding: 12px 14px; border-radius: var(--control-radius); }
 
 /* Description disclosures share one row style: same height, padding, type and right-aligned chevron. */
 #problem-reading-content :is(.preparation-guide, .reading-appearance-inline > details) { margin: 0 0 10px; border: 1px solid var(--line); border-radius: var(--control-radius); background: var(--surface); }

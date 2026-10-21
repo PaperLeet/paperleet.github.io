@@ -7,7 +7,7 @@
 .prose > .reading-outline > summary::after { content: ''; width: 6px; height: 6px; margin-left: 3px; margin-bottom: 3px; border-right: 1.5px solid var(--muted); border-bottom: 1.5px solid var(--muted); transform: rotate(45deg); }
 .prose > .reading-outline[open] > summary { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
 .prose > .reading-outline[open] > summary::after { transform: rotate(225deg); margin-bottom: -3px; }
-.reading-outline-menu { position: absolute; top: calc(100% + 7px); left: 0; right: 0; display: flex; flex-direction: column; gap: 3px; max-height: min(360px, 55dvh); overflow-y: auto; padding: 6px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); box-shadow: 0 12px 32px #00000020; scrollbar-width: thin; }
+.reading-outline-menu { position: absolute; top: calc(100% + 7px); left: 0; right: 0; display: flex; flex-direction: column; gap: 3px; max-height: min(360px, 55dvh); overflow-y: auto; padding: 6px; border: 1px solid var(--line); border-radius: var(--control-radius, 8px); background: var(--surface-overlay, var(--surface)); box-shadow: var(--shadow-overlay, 0 12px 32px #00000020); scrollbar-width: thin; }
 .reading-outline-menu > button { display: flex; align-items: baseline; gap: 12px; padding: 10px 12px; min-height: 40px; width: 100%; text-align: left; font-size: var(--type-small); line-height: 1.7; border-radius: 6px; color: var(--text); }
 .reading-outline-menu > button:hover, .reading-outline-menu > button:focus-visible { background: var(--surface2); color: var(--accent); }
 .reading-outline-menu > button > span { flex: none; color: var(--muted); font-size: var(--type-caption); font-variant-numeric: tabular-nums; }

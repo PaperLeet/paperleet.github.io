@@ -76,7 +76,7 @@ const EditorTools=deferredFeature(()=>import('./EditorTools'),['',''],{loading:(
 const BrowserRunProgressBody=deferredFeature<import('react').ComponentProps<typeof import('./BrowserRunProgress').BrowserRunProgressBody>>(()=>import('./BrowserRunProgress').then(module=>({default:module.BrowserRunProgressBody})),['运行进度','run progress'],{loading:()=>null,failure:(_props,retry)=><FeatureRetry retry={retry}/>});
 const CommunitySubmissions=deferredFeature(()=>import('./CommunitySubmissions'),['累计提交','total submissions'],{loading:()=>null,failure:()=>null});
 const CompanyBridge=deferredFeature(()=>import('./LibraryCompanyEvidence'),['公司练习','company practice'],{loading:()=>null});
-const GroupChat=deferredFeature(()=>import('./GroupChat'),['群聊','group chat'],{loading:()=>null,failure:()=>null});
+const GroupChat=deferredFeature(()=>import('./GroupChat'),['群聊','group chat'],{loading:()=><span className="group-chat-placeholder" aria-hidden="true"/>,failure:()=>null});
 // Native primary links render immediately; this optional enhancement only scrolls their row.
 const MainNavigationVisibility=deferredFeature(()=>import('./MainNavigationVisibility'),['',''],{loading:()=>null,failure:()=>null});
 const panelIconPlaceholder=({size=14}:import('./WorkspacePanelIcon').WorkspacePanelIconProps)=><svg width={size} height={size} aria-hidden="true" focusable="false"/>;
@@ -182,7 +182,6 @@ function Workspace() {
   function showTests() {
     selectReadingTab("result");
   }
-  function openEditor() { focusEditor(); }
   const [details, setDetails] = useState<Record<string, Problem>>({});
   const [detailError, setDetailError] = useState("");
   const [detailRetry, setDetailRetry] = useState(0);
@@ -299,14 +298,13 @@ function Workspace() {
   useEffect(() => {
     setEditorFocus(previous => previous && previous.owner === practice.owner && previous.problem === problem?.id && previous.source === currentSource ? previous : undefined);
   }, [practice.owner, problem?.id, currentSource]);
-  function focusEditor(location?:SourceLocation) {
+  function focusEditor(location?:SourceLocation|unknown) {
     if(getId()!==id||!navigationIntent.isCurrent()||!problem||!practice.owns(practice.owner)||![problem.id,String(problem.number)].includes(routePath(id)))return;
     setRightTab("code");setMobilePane("code");
     navigationIntent.cancel();
     if(accountLoading||!practice.ready)return;
-    setEditorFocus({owner:practice.owner,problem:problem.id,href:window.location.href,source:currentSource,location,claimFocus:navigationIntent.create()});
+    setEditorFocus({owner:practice.owner,problem:problem.id,href:window.location.href,source:currentSource,location:location&&typeof location==="object"&&"line" in location?location as SourceLocation:undefined,claimFocus:navigationIntent.create()});
   }
-  function locateSource(location: SourceLocation) { focusEditor(location); }
   function editorFocused(request: EditorFocusRequest,focused=false) {
     if(focused&&editorFocus===request&&editorFocus.href===location.href&&practice.owns(editorFocus.owner)&&window.matchMedia("(max-width: 850px)").matches)
       document.querySelector(".mobile-workspace-switch")?.scrollIntoView({block:"start"});
@@ -722,7 +720,7 @@ function Workspace() {
           </div>
           <div className="mobile-workspace-switch" role="group" aria-label={t("练习视图", "Practice view")}>
             <button aria-pressed={mobilePane === "read"} aria-controls="problem-description-panel" onClick={() => selectReadingTab(tab)}><BookOpen size={16}/>{t('题面','Problem')}</button>
-            <button aria-pressed={mobilePane === "code"} aria-controls="problem-editor-panel" onClick={openEditor}><Code2 size={16}/>{t('编写代码','Write code')}{resultState&&<span aria-hidden="true" className="mobile-result-dot" data-state={resultState}/>}</button>
+            <button aria-pressed={mobilePane === "code"} aria-controls="problem-editor-panel" onClick={focusEditor}><Code2 size={16}/>{t('编写代码','Write code')}{resultState&&<span aria-hidden="true" className="mobile-result-dot" data-state={resultState}/>}</button>
           </div>
           <ResizableSplit
             as="main"
@@ -802,7 +800,7 @@ function Workspace() {
                   )
                 ) : (
                   <>
-                    <ProblemOverview problem={problem} prerequisite={problems.find(p=>p.id===problem.parent)} returnTo={libraryReturn} course={inCourse} notesUnlocked={notesUnlocked} stats={getProblemStats(problemStats,problem.id)} statsLoading={statsLoading} onCode={openEditor}/>
+                    <ProblemOverview problem={problem} prerequisite={problems.find(p=>p.id===problem.parent)} returnTo={libraryReturn} course={inCourse} notesUnlocked={notesUnlocked} stats={getProblemStats(problemStats,problem.id)} statsLoading={statsLoading} onCode={focusEditor}/>
                     {tab === "description" && <PreparationGuide key={problem.id} problemId={problem.id} onNotes={()=>selectReadingTab("notes")} notesUnlocked={notesUnlocked&&progressReady} onLab={()=>openLab("concept")}/>}
                     {tab === "explanation" && (
                       <Visuals key={problem.id} problem={problem} report={report} sourceState={reportSource} initialView="concept" />
@@ -841,10 +839,10 @@ function Workspace() {
                 )}
               </div>
               <RetainedReadingPane key={communityPaneScope+':solutions'} active={tab==="solution"} id="problem-solutions-panel" labelledBy="reading-tab-solution">
-                {accountLoading?<p role="status">{t('正在确认账号…','Checking account…')}</p>:<ProblemSolutionPanel topic={topicFromProblem(problem)} solution={problem.solution} communityAvailable={hostedAppAvailable} onCode={openEditor} practiceCode={{owner:practice.owner,problemId:problem.id,code:currentSource,ready:practice.ready&&!practice.loading&&!practice.error&&!practice.conflicts[problem.id]}}/>}
+                {accountLoading?<p role="status">{t('正在确认账号…','Checking account…')}</p>:<ProblemSolutionPanel topic={topicFromProblem(problem)} solution={problem.solution} communityAvailable={hostedAppAvailable} onCode={focusEditor} practiceCode={{owner:practice.owner,problemId:problem.id,code:currentSource,ready:practice.ready&&!practice.loading&&!practice.error&&!practice.conflicts[problem.id]}}/>}
               </RetainedReadingPane>
               {hostedAppAvailable&&<RetainedReadingPane key={communityPaneScope+':discussion'} active={tab==="discussion"} id="problem-discussion-panel" labelledBy="reading-tab-discussion">
-                {accountLoading?<p role="status">{t('正在确认账号…','Checking account…')}</p>:<ProblemDiscussions topic={topicFromProblem(problem)} onCode={openEditor}/>}
+                {accountLoading?<p role="status">{t('正在确认账号…','Checking account…')}</p>:<ProblemDiscussions topic={topicFromProblem(problem)} onCode={focusEditor}/>}
               </RetainedReadingPane>}
               <div className="description-scroll workspace-result-panel" id="problem-results-panel" role="tabpanel" aria-labelledby="reading-tab-result" tabIndex={0} hidden={tab !== "result"} key={`${practice.owner}:${problem.id}`}>
                 <div className="workspace-result-heading" role="status">
@@ -886,7 +884,7 @@ function Workspace() {
                   {!running && (runFailed || runCancelled) && <section className="report-workflow run-recovery" aria-label={t('继续验证', 'Continue verification')}>
                     <p>{t('重新运行会使用编辑器中的当前代码。', 'Retrying uses the current code in the editor.')}</p>
                     <div className="feedback-actions">
-                      <button className="button subtle" type="button" onClick={openEditor}><Code2 size={14} aria-hidden="true"/>{t('返回代码修改', 'Edit code')}</button>
+                      <button className="button subtle" type="button" onClick={focusEditor}><Code2 size={14} aria-hidden="true"/>{t('返回代码修改', 'Edit code')}</button>
                       <button className="button feedback-rerun" type="button" data-retry-run disabled={!canRetryRun} onClick={() => void run(retryMode)}><Play size={13} aria-hidden="true"/>{retryMode === 'browser' ? t('重新运行当前代码', 'Run current code again') : t('重新提交当前代码', 'Resubmit current code')}</button>
                     </div>
                   </section>}
@@ -964,7 +962,7 @@ function Workspace() {
                     </div>
                   )}
                   {!running&&!runFailed&&!runCancelled&&<WorkspaceTestResults key={`${practice.owner}:${problem.id}`} problem={problem} report={report} syntax={syntaxFailure} source={currentSource} sourceState={reportSource} canRun={canRun} running={running}
-                    onEdit={openEditor} onRun={()=>void run()} onLocate={practice.ready?locateSource:undefined}>
+                    onEdit={focusEditor} onRun={()=>void run()} onLocate={practice.ready?focusEditor:undefined}>
                     {hosted&&report?.runtime==='browser-numpy-wasm'&&<BrowserResultActions problem={problem} report={report} sourceState={reportSource} signedIn={!!user} online={online} ready={progressReady} conflict={!!practice.conflicts[problem.id]} syncError={!!practice.error} busy={running} onSignIn={signInToSubmit} onVerify={()=>void run('server',report)} onRefresh={()=>void refreshHealth()} onLab={()=>openLab('run')}/>}
                     {resultState==='passed'&&progressReady&&<InterviewPracticeNextStep course={inCourse&&!directLibrary} current={problem} problems={listPractice?practiceScope.problems:problems} scopeReady={companyReady} saved={learningSaved} next={nextProblem} returnTo={libraryReturn} onNotes={()=>selectReadingTab('notes')} onLab={()=>openLab('run')} onSolution={hostedAppAvailable?()=>selectReadingTab('solution'):undefined}/>}
                   </WorkspaceTestResults>}
@@ -1027,7 +1025,7 @@ function Workspace() {
                       </div>
                     </details>
                   </div>
-                  <button className="workspace-focus-toggle" aria-pressed={focusMode} title={t("专注写代码，按 Esc 返回分栏", "Focus on code; press Esc to restore both panels")} onClick={() => { if (!focusMode) openEditor(); setFocusMode(value => !value); }}><WorkspacePanelIcon name={focusMode ? "unfocus" : "focus"} size={15}/>{focusMode ? t("退出专注", "Exit focus") : t("专注模式", "Focus mode")}</button>
+                  <button className="workspace-focus-toggle" aria-pressed={focusMode} title={t("专注写代码，按 Esc 返回分栏", "Focus on code; press Esc to restore both panels")} onClick={() => { if (!focusMode) focusEditor(); setFocusMode(value => !value); }}><WorkspacePanelIcon name={focusMode ? "unfocus" : "focus"} size={15}/>{focusMode ? t("退出专注", "Exit focus") : t("专注模式", "Focus mode")}</button>
               </div>
               <div className="editor-history" id="editor-history-view" role="tabpanel" aria-labelledby="editor-tab-history" hidden={rightTab!=='history' || !user}>
                 {rightTab === 'history' && user && <SolutionHistory key={`${practice.owner}:${problem.id}`} owner={practice.owner} problem={problem} revision={submissionRevision} />}

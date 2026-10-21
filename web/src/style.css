@@ -767,7 +767,7 @@ h3 {
 }
 .mini-progress {
   height: 4px;
-  background: #303239;
+  background: var(--surface3);
   border-radius: 3px;
   overflow: hidden;
 }
@@ -3507,8 +3507,6 @@ h3 {
 .paper-row-progress > span { display: block; margin-bottom: 8px; }
 .paper-row-progress b { font-weight: 500; color: var(--text); }
 .paper-row-progress.done b { color: var(--green); }
-.paper-progress-bar { height: 4px; border-radius: 4px; background: var(--line); overflow: hidden; }
-.paper-progress-bar > span { display: block; height: 100%; background: var(--green); border-radius: inherit; }
 .module-total { display: flex; align-items: center; gap: 7px; margin-top: 17px; font-size: var(--type-body); color: var(--muted); }
 .module-total > b { margin-left: auto; color: var(--text); font-weight: 500; }
 .paper-library-link { display: inline-flex; color: var(--muted); margin-bottom: 25px; font-size: var(--type-body); }

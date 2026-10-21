@@ -1,5 +1,5 @@
 .community-card-interaction{min-width:0;container:post-interaction / inline-size}
-.post-card-counts.card-actions{display:flex;flex-wrap:wrap;gap:4px 2px;align-items:center;margin:10px 0 0 -10px;color:var(--text-secondary);font-size:var(--type-small)}
+.post-card-counts.card-actions{display:flex;flex-wrap:wrap;gap:4px 2px;align-items:center;margin:10px 0 0 -10px;color:var(--text-secondary);font-size:var(--type-meta)}
 .card-actions>button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:var(--control-height,40px);padding:4px 10px;border:0;border-radius:var(--control-radius,8px);background:transparent;color:var(--text-secondary);font:inherit;cursor:pointer;transition:background .15s,color .15s;scroll-margin-top:100px;scroll-margin-bottom:16px}
 .card-actions>button:hover,.card-actions>button[aria-expanded=true]{background:var(--surface2);color:var(--text)}
 .card-actions>button.is-liked{color:var(--red,#d44b69);background:color-mix(in srgb,var(--red,#d44b69) 9%,transparent)}
@@ -10,7 +10,7 @@
 .card-actions>.post-report-trigger:hover{background:var(--surface2);color:var(--text)}
 .card-actions-extras{margin-inline-start:auto;min-width:0;max-width:100%}
 .card-actions-extras:empty{display:none}
-.community-post-card .post-bookmark>button,.community-post-card .post-bookmark-signin{min-height:var(--control-height,40px);padding:4px 10px;border:0;border-radius:var(--control-radius,8px);font-size:var(--type-small)}
+.community-post-card .post-bookmark>button,.community-post-card .post-bookmark-signin{min-height:var(--control-height,40px);padding:4px 10px;border:0;border-radius:var(--control-radius,8px);font-size:var(--type-meta)}
 .community-post-card .post-bookmark>button:hover:not(:disabled),.community-post-card .post-bookmark-signin:hover{background:var(--surface2);color:var(--text)}
 .community-post-card .post-bookmark>button.active{color:var(--accent);background:color-mix(in srgb,var(--accent) 7%,transparent)}
 .community-post-card .card-actions-extras:has(.post-bookmark-recovery){flex-basis:100%;margin-inline-start:0}

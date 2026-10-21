@@ -9,9 +9,6 @@
 .paper-library .library-heading > .text-button:hover { color: var(--text); }
 .paper-library .library-heading > .library-progress { margin-left: auto; }
 
-/* Search bar reads as a framed panel rather than an edge-to-edge white strip on the page background. */
-.paper-library .library-toolbar { border: 1px solid var(--line); border-radius: 12px; }
-
 /* Paper rows: keep the number beside its title when the title wraps, and keep topic tags legible. */
 .paper-library .paper-info strong { flex-wrap: nowrap; }
 .paper-title-tags > span { padding: 1px 7px; border-radius: 999px; font-size: var(--type-caption); line-height: 1.45; }
@@ -29,8 +26,6 @@
 @media (max-width: 700px) {
   .paper-library .library-heading > .library-title { flex: 1 1 100%; margin-right: 0; }
   .paper-library .library-heading > .text-button { min-height: 40px; padding-inline: 10px; margin-left: -10px; margin-right: 10px; }
-  .daily-featured-row { padding: 10px 12px; }
-  .daily-featured-icon { width: 26px; height: 26px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -61,21 +56,6 @@
 /* Workspace: on editions without server submission, "Run tests" is the only action, so it carries the primary style. */
 .editor-run-actions > .run-button.subtle:only-child { border-color: transparent; background: var(--primary-bg); color: var(--primary-text); box-shadow: inset 0 1px 0 #ffffff26, 0 2px 4px #00000006; }
 .editor-run-actions > .run-button.subtle:only-child:hover:not(:disabled) { border-color: transparent; background: var(--primary-bg); filter: brightness(1.05); }
-
-/* Paper detail on phones: stack the hero actions at full width and fold the three facts into one divided strip. */
-@media (max-width: 600px) {
-  .paper-detail .paper-detail-actions { flex-direction: column; align-items: stretch; }
-  .paper-detail-actions > .paper-primary-action { flex: none; min-width: 0; }
-  .paper-detail-actions > .button { align-self: stretch; }
-  .paper-detail-actions .button { white-space: nowrap; }
-  .paper-at-a-glance { gap: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
-  .paper-at-a-glance > div { gap: 0; padding: 12px 12px 13px; border: 0; border-radius: 0; background: none; }
-  .paper-at-a-glance > div + div { border-left: 1px solid var(--line); }
-  .paper-at-a-glance > div > svg { display: none; }
-  .paper-at-a-glance span { font-size: var(--type-caption); line-height: 1.45; }
-  .paper-at-a-glance > div > span { display: flex; flex-direction: column; height: 100%; }
-  .paper-at-a-glance b { margin-top: auto; padding-top: 4px; }
-}
 
 /* Submission steps on phones: one vertical sequence joined by a thin rail instead of a 2×2 grid with stray arrows. */
 @media (max-width: 520px) {

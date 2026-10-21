@@ -8,9 +8,6 @@
 .workspace-result-heading > h2 { margin:0; font-size:var(--type-body); }
 .workspace-result-heading > span { margin-left:auto; color:var(--muted); font-size:var(--type-small); }
 .workspace-result-panel .workspace-test-results { padding:20px 0; }
-.workspace-result-panel .workspace-test-results .feedback-heading h3 { font-size:var(--type-body); }
-.workspace-result-panel .workspace-test-results .feedback-diagnostic,
-.workspace-result-panel .workspace-test-details > summary { font-size:var(--type-body); }
 .workspace-layout-menu { position:relative; flex:none; }
 .workspace-layout-trigger { display:flex; align-items:center; justify-content:center; gap:7px; padding:7px 10px; min-height:36px; border:1px solid var(--line); border-radius:7px; font-size:var(--type-small); background:var(--surface); color:var(--text-secondary); }
 .workspace-layout-trigger:hover, .workspace-layout-trigger[aria-expanded="true"] { color:var(--text); background:var(--surface2); }

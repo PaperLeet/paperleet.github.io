@@ -77,7 +77,7 @@
 .browser-draft-backups button { padding: 5px 8px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); color: var(--text); cursor: pointer; }
 .browser-draft-backups button:disabled { opacity: .5; cursor: default; }
 
-.reset-code-dialog { width: min(580px, calc(100vw - 32px)); max-height: calc(100dvh - 40px); box-sizing: border-box; overflow: auto; padding: 24px; border: 1px solid var(--line); border-radius: 12px; color: var(--text); background: var(--surface); box-shadow: 0 20px 70px #0004; }
+.reset-code-dialog { width: min(580px, calc(100vw - 32px)); max-height: calc(100dvh - 40px); box-sizing: border-box; overflow: auto; padding: 24px; border: 1px solid var(--line); border-radius: var(--radius-lg, 12px); color: var(--text); background: var(--surface-overlay, var(--surface)); box-shadow: var(--shadow-dialog, 0 20px 70px #0004); }
 .reset-code-dialog::backdrop { background: #0007; }
 .reset-code-dialog h2 { margin: 0 0 12px; font-size: 20px; line-height: 1.4; }
 .reset-code-dialog p { margin: 10px 0; font-size: var(--type-body); line-height: 1.7; color: var(--muted); }
