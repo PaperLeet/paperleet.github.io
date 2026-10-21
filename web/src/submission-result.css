@@ -26,7 +26,7 @@
 .submission-result-saved { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; margin-left: auto; white-space: nowrap; color: var(--muted); font-size: var(--type-meta); }
 .submission-result-problem { display: flex; align-items: center; gap: 14px; margin: 0 32px; padding: 19px 6px; border-bottom: 1px solid var(--line); }
 .submission-result-problem:hover { color: var(--result-color); }
-.submission-result-problem-icon { display: grid; place-items: center; width: 43px; height: 43px; border: 1px solid var(--line); border-radius: 11px; color: var(--muted); }
+.submission-result-problem-icon { display: grid; place-items: center; width: 43px; height: 43px; border: 1px solid var(--line); border-radius: var(--radius-lg); color: var(--muted); }
 .submission-result-problem > span:nth-child(2) { display: grid; min-width: 0; gap: 3px; }
 .submission-result-problem small { color: var(--muted); font-size: var(--type-meta); }
 .submission-result-problem strong { font-size: 17px; font-weight: 600; overflow-wrap: anywhere; }

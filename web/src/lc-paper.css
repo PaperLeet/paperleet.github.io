@@ -69,9 +69,6 @@
 .paper-detail .paper-module-card:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 
 .paper-detail .module-card-top { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; align-items: center; column-gap: 12px; padding: 0; }
-/* problem-favorites.css reserves 42px here for its own bookmark slot; the row's padding already does,
-   and this must win whichever chunk loaded first. */
-.paper-detail .paper-module-shell .module-card-top { padding-right: 0; }
 .paper-detail .module-card-top > .row-state { justify-content: center; padding: 0; }
 .paper-detail .module-card-top > .row-state.todo { opacity: .6; }
 .paper-detail .module-card-top > .row-state svg { width: 17px; height: 17px; }
@@ -200,6 +197,45 @@
 [data-theme="light"] .submissions-page .submission-pipeline > div > span { color: color-mix(in srgb, var(--accent) 88%, #000); }
 .submission-pipeline b { font-size: var(--type-small); font-weight: 500; }
 .submission-pipeline svg { color: var(--text-secondary); }
+/* Submission list and cards: LeetCode density (14-15px copy, 36px fields, quiet status pills). */
+.submission-columns { grid-template-columns: 264px minmax(0, 1fr); gap: 20px; }
+.submission-list { padding: 14px 12px; border-radius: var(--radius-panel); }
+.submission-list > .aside-title { align-items: center; padding: 0 4px 10px; }
+.submission-list > .aside-title h3 { font-size: var(--type-control); font-weight: 600; }
+.submission-list > .submission-muted { padding: 4px; font-size: var(--type-meta); line-height: 1.65; }
+.submission-list-item { gap: 6px 8px; padding: 10px 8px; border-radius: var(--radius-sm); }
+.submission-list-item strong { font-size: var(--type-small); line-height: 1.5; }
+.submission-list-item small { font-size: var(--type-caption); font-variant-numeric: tabular-nums; }
+.submission-status { padding: 1px 8px; border-radius: 999px; background: color-mix(in srgb, var(--accent-fill) 12%, transparent); font-size: var(--type-caption); font-weight: 500; line-height: 1.6; }
+.submission-status.published { background: color-mix(in srgb, var(--green) 12%, transparent); }
+.capabilities { margin: 16px 4px 0; padding-top: 14px; }
+.capabilities h4 { margin-bottom: 10px; font-size: var(--type-small); font-weight: 600; }
+.capabilities > div, .capabilities details { margin-bottom: 8px; font-size: var(--type-meta); }
+.submission-main { gap: 16px; }
+.submission-card { padding: 20px 24px; border-radius: var(--radius-panel); }
+.submission-card > h2, .submission-detail-heading h2 { font-size: var(--type-list-title); font-weight: 600; line-height: 1.45; }
+.submission-card .submission-muted { font-size: var(--type-small); line-height: 1.7; }
+.submission-card > .submission-muted { margin: 6px 0 16px; }
+.submission-form { gap: 16px; }
+.submission-form > label, .submission-form summary { gap: 6px; font-size: var(--type-small); }
+.submission-form input:not([type="checkbox"]), .submission-form textarea, .submission-form select { border-radius: var(--control-radius); background: var(--surface2); }
+.submission-form :is(input:not([type="checkbox"]), textarea, select):hover:not(:focus) { border-color: color-mix(in srgb, var(--text) 24%, var(--line)); }
+.submission-form :is(input:not([type="checkbox"]), textarea, select):focus { background: var(--surface); }
+/* The 15px labels must not cascade (font: inherit) into touch fields: iOS zooms on focus below 16px. */
+@media not all and (hover: hover) and (pointer: fine) {
+  .submission-form :is(input:not([type="checkbox"]), textarea, select) { font-size: var(--type-control); }
+}
+.submission-error { align-items: center; padding: 10px 14px; margin-bottom: 16px; border-radius: var(--control-radius); font-size: var(--type-small); line-height: 1.6; }
+.submission-error > svg { margin-top: 0; }
+.review-required { align-items: center; padding: 10px 14px; border-color: color-mix(in srgb, var(--accent-fill) 24%, var(--line)); border-radius: var(--control-radius); background: color-mix(in srgb, var(--accent-fill) 5%, var(--surface)); color: var(--text-secondary); font-size: var(--type-meta); line-height: 1.6; }
+.review-required svg { margin-top: 0; }
+@media (max-width: 1050px) {
+  .submission-columns { grid-template-columns: 224px minmax(0, 1fr); gap: 16px; }
+}
+@media (max-width: 760px) {
+  .submission-columns { grid-template-columns: minmax(0, 1fr); }
+  .submission-card { padding: 16px; }
+}
 @media (max-width: 760px) {
   .submissions-page { padding: 16px 16px 40px; }
   .submission-heading { align-items: flex-end; gap: 12px; }

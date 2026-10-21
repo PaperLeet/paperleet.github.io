@@ -111,7 +111,9 @@
 .daily-list-row[data-current]{background:color-mix(in srgb,var(--accent-fill) 8%,var(--surface));box-shadow:inset 2px 0 var(--accent-fill)}
 .daily-list-row:hover{background:var(--surface-hover)}
 .daily-list-row:hover>span:nth-child(2){color:var(--accent)}
-.daily-list-row>time{display:flex;align-items:center;gap:6px;font-size:var(--type-small);font-variant-numeric:tabular-nums}
+.daily-list-row>time{display:flex;align-items:center;gap:6px;font-size:var(--type-meta);font-variant-numeric:tabular-nums}
+/* Every cell in a row shares the 14px table size, like LeetCode's lists. */
+.daily-list-row .daily-level{font-size:var(--type-meta)}
 .daily-list-row time small{padding:0 6px;border-radius:999px;background:color-mix(in srgb,var(--accent-fill) 14%,transparent);color:var(--accent);font-size:var(--type-caption);line-height:1.5}
 [data-theme="light"] .daily-list-row time small{color:color-mix(in srgb,var(--accent) 88%,#000)}
 .daily-list-row time small:empty{display:none}

@@ -15,7 +15,6 @@
 .paper-library .library-heading h1 > span:not(.bilingual-text) { background: color-mix(in srgb, var(--text) 8%, transparent); color: var(--text-secondary); }
 .paper-library .library-heading > .text-button { min-height: calc(var(--control-height) - 4px); padding: 4px 10px; font-size: var(--type-meta); }
 .paper-library .library-progress { padding: 4px 10px; border-radius: 999px; font-size: var(--type-meta); }
-.paper-library .paper-categories button { min-height: var(--control-height); }
 
 /* Search row: no card around it (the frame moves to the filter panel it opens). */
 .paper-library .library-toolbar { border: 0; border-radius: 0; }
@@ -42,6 +41,7 @@
 .paper-library :is(.library-view-switch, .library-density) button { min-height: var(--library-segment-height); height: var(--library-segment-height); padding: 2px 10px; border-radius: var(--radius-sm); font-size: var(--type-small); }
 .paper-library .library-density button { width: auto; min-width: var(--library-segment-height); }
 .paper-library :is(.library-view-switch, .library-density) button[aria-pressed="true"] { color: var(--text); background: var(--surface); box-shadow: 0 1px 2px #0000001a, inset 0 0 0 1px var(--line); }
+[data-theme="dark"] .paper-library :is(.library-view-switch, .library-density) button[aria-pressed="true"] { background: var(--surface3); box-shadow: none; }
 .paper-library .library-view-switch button[aria-pressed="true"] > svg { color: var(--accent); }
 .paper-library .library-result-actions > .text-button { min-height: var(--control-height); padding: 4px 10px; font-size: var(--type-small); }
 
@@ -68,6 +68,12 @@
 .paper-library .table-head .library-column-sort { min-height: calc(var(--control-height) - 4px); margin-inline-start: -4px; font-size: var(--type-meta); }
 @media (min-width: 701px) {
   .paper-library .table-head > :nth-child(4) { white-space: nowrap; }
+}
+/* Phones: the last data column is narrow, so its heading stays on one line and grows leftwards over the
+   title column's free space, and the numbers right-align under it like LeetCode's mobile list. */
+@media (max-width: 700px) {
+  .paper-library .problem-list:not(:has(.library-exercise-companies)) .table-head > :nth-child(4) { justify-self: end; white-space: nowrap; text-align: end; }
+  .paper-library .problem-list:not(:has(.library-exercise-companies)) :is(.paper-row-progress, .problem-row > .difficulty) { justify-self: end; text-align: end; }
 }
 /* The row-actions marker keeps its icons on one line so it never stretches the heading. */
 .paper-library .table-head > .library-company-column-marker { display: flex; align-items: center; justify-content: flex-end; gap: 4px; min-width: 0; overflow: hidden; }

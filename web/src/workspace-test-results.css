@@ -16,6 +16,10 @@
 .workspace-test-results .report-workflow { margin:0; padding:0; border:0; border-radius:0; background:none; box-shadow:none; }
 .workspace-test-results .report-workflow .feedback-heading h3 { margin:0; font-size:var(--type-small); font-weight:600; line-height:1.6; }
 .workspace-test-results:has(> .result-head.success) .report-workflow .feedback-heading h3 { color:var(--text-secondary); font-weight:500; }
+/* Many failures: the case picker already names the selected test, so its duplicate title stays for screen readers only.
+   Run and changed-code states keep their visible heading (data-duplicate-title is unset then). */
+.workspace-test-results .report-workflow .feedback-heading[data-duplicate-title]:has(> .feedback-error-nav) > div:first-child { position:absolute; width:1px; height:1px; margin:-1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+.workspace-test-results .report-workflow .feedback-heading[data-duplicate-title]:has(> .feedback-error-nav) > .feedback-error-nav { flex:0 1 420px; width:420px; }
 .workspace-test-results .feedback-actions { margin-top:14px; gap:8px; }
 .workspace-test-results .feedback-location-note { margin:7px 0 0; font-size:var(--type-meta); line-height:1.7; }
 .workspace-test-results .feedback-actions > .button { min-height:var(--control-height); padding:6px 12px; font-size:var(--type-meta); border-radius:var(--control-radius); }

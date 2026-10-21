@@ -4,7 +4,7 @@
 /* Verdict metrics: "Runtime 129 ms · Environment Browser · WASM" under the coloured verdict. */
 .result-head-metrics { display:flex; flex-wrap:wrap; flex-basis:100%; gap:2px 20px; margin:4px 0 0; color:var(--text-secondary); font-size:var(--type-meta); line-height:1.6; }
 .result-head-metrics > div { display:flex; gap:6px; min-width:0; }
-.result-head-metrics dd { margin:0; color:var(--text); font-family:var(--font-mono); font-variant-numeric:tabular-nums; }
+.result-head-metrics dd { margin:0; color:var(--text); font-weight:500; font-variant-numeric:tabular-nums; }
 
 /* Case tabs: one pill per failure, red status dot, grey fill when selected. */
 /* Pills wrap like LeetCode's case row, so every case stays visible in a narrow pane. */

@@ -1,4 +1,4 @@
-.evolution{margin:0 0 24px;border:1px solid var(--line);border-radius:18px;background:var(--surface);overflow:hidden;container-type:inline-size}
+.evolution{margin:0 0 24px;border:1px solid var(--line);border-radius:var(--radius-panel,12px);background:var(--surface);overflow:hidden;container-type:inline-size}
 .evolution-heading{padding:22px 24px 16px;display:flex;gap:16px;align-items:start;justify-content:space-between}
 .evolution-heading>div>span{font-size:var(--type-meta);color:var(--accent)}
 .evolution-heading h3{font-size:1.3rem;line-height:1.4;margin:5px 0 0}
@@ -13,7 +13,7 @@
 .evolution-map>svg>path{fill:none;stroke:var(--line);stroke-width:2}
 .evolution-map>svg>path.is-active{stroke:var(--accent);stroke-dasharray:5 5}
 .evolution[data-playing=true] .evolution-map>svg>path.is-active{animation:evolution-flow .8s linear infinite}
-.evolution-node{position:relative;display:flex;flex-direction:column;justify-content:center;gap:2px;background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:10px;color:var(--muted);font-size:var(--type-small);line-height:1.35;text-align:center;min-width:0;overflow-wrap:anywhere}
+.evolution-node{position:relative;display:flex;flex-direction:column;justify-content:center;gap:2px;background:var(--surface2);border:1px solid var(--line);border-radius:var(--radius-lg);padding:10px;color:var(--muted);font-size:var(--type-small);line-height:1.35;text-align:center;min-width:0;overflow-wrap:anywhere}
 .evolution-node span{font-family:var(--font-mono);font-size:var(--type-caption);opacity:.75}
 .evolution-node[data-active=true]{color:var(--text);border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--surface))}
 .evolution-node.node-2{grid-row:2;grid-column:2}.evolution-node.node-3{grid-row:2;grid-column:1}
