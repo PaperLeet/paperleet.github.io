@@ -9,7 +9,3 @@ export function StateIcon({ state }: { state: string }) {
   </span>;
 }
 
-export function ProgressBar({ completed, total }: { completed: number; total: number }) {
-  return <div className="paper-progress-bar" aria-hidden="true"><span style={{ width: `${total ? completed / total * 100 : 0}%` }} /></div>;
-}
-
