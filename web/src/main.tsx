@@ -13,6 +13,7 @@ import "./library-filters.css";
 import "./visual-polish.css";
 import "./leetcode-theme.css";
 import "./lc-workspace.css";
+import "./lc-library.css";
 import { startPublicNavigation } from "./deployment";
 import { AppErrorBoundary } from "./AppErrorBoundary";
 import { finishAppStartup } from "./appRecovery";

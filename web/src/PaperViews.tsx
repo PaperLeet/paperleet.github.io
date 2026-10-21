@@ -15,6 +15,7 @@ import { paperCollections, papersInCollection } from "./paperCollections";
 import { eligibleUnattemptedProblems, pickRandomUnattemptedProblem } from "./randomProblem";
 import { recommendPractice } from "./practice-recommendation";
 import { deferredFeature,FeatureRetry } from './deferredFeature';
+import { hostedAppAvailable } from './deployment';
 import "./practice-journey.css";
 import { StateIcon } from "./PaperState";
 import { emptyLibraryFilters, libraryHref, libraryTags, sameLibraryTag, normalizeLibraryFilters, readLibraryRoute, sortLibraryPapers, withLibraryContext, type LibraryFilters } from './libraryNavigation';
@@ -60,7 +61,6 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
     setDensity(value);
     try { localStorage.setItem('paperleet.library.density.v1', value); } catch { /* Usable without storage. */ }
   }
-  const practice = { problems, saved };
   const selectedCollection = paperCollections.find((collection) => collection.id === collectionId);
   const course = selectedCollection?.kind === "course";
   const listedPapers = papersInCollection(papers, selectedCollection);
@@ -111,12 +111,10 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
     return ()=>window.removeEventListener('keydown',focusSearch);
   },[viewHref]);
   function changeSort(sort:import('./libraryNavigation').LibrarySort){
-    if(!currentView())return;
     change({sort});
   }
   function changeView(value:'papers'|'modules'){
-    if(!currentView()||(filters.view||'papers')===value)return;
-    change({view:value==='modules'?'modules':undefined},true);
+    if(value!==(filters.view||'papers'))change({view:value==='modules'?value:undefined},true);
   }
   function returnToResults(){
     if(waitingForStatus||!currentView())return;
@@ -127,7 +125,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
     returnToResults();
     change({page:next>1?next:undefined,page_size:nextSize===20?undefined:nextSize},true);
   }
-  const pagination={page,size,canAct:currentView,total:rowIds.length,modules:!!moduleView,listId,onPage:(page:number)=>paginate(page),onSize:(size:import('./libraryNavigation').LibraryPageSize)=>paginate(outOfRange?1:Math.floor(offset/size)+1,size),onReturnToResults:returnToResults};
+  const pagination={page,size,canAct:currentView,total:rowIds.length,modules:moduleView,listId,onPage:paginate,onSize:(size:import('./libraryNavigation').LibraryPageSize)=>paginate(outOfRange?1:Math.floor(offset/size)+1,size),onReturnToResults:returnToResults};
   useEffect(() => {
     if (waitingForStatus) return;
     let disposed = false, stop: (() => void) | undefined;
@@ -153,23 +151,23 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
   const hasFilters = !!company || !!query || diff !== "all" || state !== "all" || tag !== "all" || category !== "all";
   const nextInCollection = selectedCollection && progressReady && companyReady ? recommendPractice(filteredModules, saved, course) || filteredModules[0] : undefined;
   const nextState = nextInCollection && status(nextInCollection, saved[nextInCollection.id]);
+  // Course pages headline this count with a bar in their hero; the catalogue keeps it beside its title.
+  const solvedSummary = <div className="library-progress" style={{'--solved':solvedModules/(overviewModules.length||1)} as import('react').CSSProperties}><CheckCircle2 size={16} /><BilingualText zh="已通过模块" en="Modules solved" /><b>{companyReady?solvedModules:'—'} / {companyReady?overviewModules.length:'—'}</b></div>;
   return <main className={`home paper-library${selectedCollection ? " collection-page" : ""}`}>
     {selectedCollection ? <header className="collection-page-header">
       <AppLink className="back-link" href="#"><ArrowLeft size={15} aria-hidden="true" />{t("全部论文", "All papers")}</AppLink>
       <div className="collection-page-title-row">
-        <div className="collection-page-identity"><span className={`collection-page-mark collection-${selectedCollection.id}`} aria-hidden="true"><BookOpen size={25} /></span><div><h1>{t(selectedCollection.name, selectedCollection.name_en)}</h1><div className="collection-page-meta"><span>{course ? t("课程", "Course") : `${listedPapers.length} ${t("篇论文", "papers")}`}</span><span>{listedModules.length} {t("道题", "modules")}</span></div></div></div>
+        <div className="collection-page-identity"><span className={`collection-page-mark collection-${selectedCollection.id}`} aria-hidden="true"><BookOpen size={25} /></span><div><h1>{t(selectedCollection.name, selectedCollection.name_en)}</h1><div className="collection-page-meta"><span>{course ? t("课程", "Course") : `${listedPapers.length} ${t("篇论文", "papers")}`}</span><span>{listedModules.length} {t("道题", "modules")}</span></div>{solvedSummary}</div></div>
         {nextInCollection && <AppLink className="button collection-practice" href={withLibraryContext(nextInCollection.number, viewHref)}><Code2 size={16} aria-hidden="true" />{nextState === "done" ? t("回顾练习", course ? "Review course" : "Review collection") : nextState === "started" ? t("继续练习", "Resume practice") : t("开始练习", "Start practice")}<ArrowRight size={15} aria-hidden="true" /></AppLink>}
       </div>
-    </header> : <>
-    <LibraryCollections papers={papers} problems={problems} saved={saved} progressReady={progressReady}/>
-    </>}
+    </header> : <LibraryCollections papers={papers} problems={problems} saved={saved} progressReady={progressReady}/>}
     <div className="library-layout">
     <div className="library-main" ref={libraryMain} id="paper-library" data-density={density}>
     <header className="library-heading">
       <div className="library-title">{selectedCollection ? <h2>{course ? t("课程练习", "Course modules") : t("论文", "Papers")}</h2> : <h1><BilingualText zh="论文题库" en="Papers" /> <span>{listedPapers.length}</span></h1>}</div>
       <AppLink className="text-button" href="#/paper-registry">{t("论文库","Paper registry")}</AppLink>
-      <AppLink className="text-button" href="#/favorites">{t("收藏题目","Saved problems")}</AppLink>
-      <div className="library-progress"><CheckCircle2 size={16} /><BilingualText zh="已通过模块" en="Modules solved" /><b>{companyReady?solvedModules:'—'} / {companyReady?overviewModules.length:'—'}</b></div>
+      {hostedAppAvailable&&<AppLink className="text-button" href="#/favorites">{t("收藏题目","Saved problems")}</AppLink>}
+      {!selectedCollection&&solvedSummary}
     </header>
     {!course && <div className="library-category-browser" data-expanded={categoriesOpen}>
     <div className="paper-categories" id={categoriesId} aria-label={t("论文分类", "Paper categories")}>
@@ -208,10 +206,10 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
           </AppLink>
           <CompanyTools problem={module} route={route} returnTo={viewHref} companyScope={company?companyScope:undefined}/>
         </div>) : filtered.slice(offset,offset+size).map((paper,index) => {
-          const progress = paperProgress(paper, practice);
+          const progress = paperProgress(paper, {problems,saved});
           const matching = matchingPaperModules(paper,problems,query,diff);
           const showMatches = !!query.trim() || diff !== "all";
-          return <div className="paper-result-group" key={paper.id} role="listitem" aria-posinset={offset+index+1} aria-setsize={rowIds.length}><AppLink className="problem-row paper-table-grid" data-paper-id={paper.id} key={paper.id} href={withLibraryContext(`papers/${paper.id}`,viewHref)}>
+          return <div className="paper-result-group" key={paper.id} role="listitem" aria-posinset={offset+index+1} aria-setsize={rowIds.length}><AppLink className="problem-row paper-table-grid" data-paper-id={paper.id} href={withLibraryContext(`papers/${paper.id}`,viewHref)}>
             <StateIcon state={progress.state} />
             <div className="problem-info paper-info"><div className="paper-title-line"><strong><span>{paper.number}.</span><span className="library-row-title"><LibrarySearchMatch text={paper.short_title} query={query}/></span></strong><span className="paper-title-tags">{paper.tags.map(tag => <span key={tag}>{tag}</span>)}</span></div><small title={paper.title}><LibrarySearchMatch text={paper.title} query={query}/></small></div>
             <span className="paper-year">{paper.kind === "course" ? t("专题", "Course") : paper.year || "—"}</span>

@@ -35,10 +35,10 @@
  .library-interview-guide { padding:12px 14px; }
  .library-interview-guide header { flex-wrap:nowrap; gap:12px; }
  .library-interview-guide h2 { flex:1; min-width:0; }
- .library-interview-guide h2>button { width:100%; min-height:44px; }
+ .library-interview-guide h2>button { width:100%; min-height:var(--control-height,44px); }
  .library-interview-guide h2>button>span { min-width:0; overflow-wrap:anywhere; }
  .library-interview-guide h2>button>svg:last-child { margin-inline-start:auto; }
- .library-interview-guide header>a { box-sizing:border-box; flex:none; width:44px; height:44px; justify-content:center; border-radius:8px; background:var(--surface2); }
+ .library-interview-guide header>a { box-sizing:border-box; flex:none; width:var(--control-height,44px); height:var(--control-height,44px); justify-content:center; border-radius:8px; background:var(--surface2); }
  .library-interview-guide header>a>span { display:none; }
 }
-@media(pointer:coarse) { .library-interview-guide :is(a,button,select,summary) { min-height:44px; } }
+@media(pointer:coarse) { .library-interview-guide :is(a,button,select,summary) { min-height:var(--control-height,44px); } }

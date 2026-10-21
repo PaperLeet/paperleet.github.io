@@ -1,11 +1,13 @@
-.paper-library .problem-list{--library-actions-width:44px;--library-actions-inset:16px}
-.paper-library .problem-list:has([data-favorite-available=true]){--library-actions-width:92px}
+.paper-library .problem-list{--library-actions-width:var(--control-height);--library-actions-inset:16px}
+.paper-library .problem-list:has([data-favorite-available=true]){--library-actions-width:calc(var(--control-height) * 2 + 4px)}
 .paper-library .paper-result-group:has(>.library-exercise-companies){display:grid;grid-template-columns:minmax(0,1fr) calc(var(--library-actions-width) + var(--library-actions-inset))}
 .paper-library .paper-result-group:has(>.library-exercise-companies)>.problem-row{grid-area:1/1/2/-1}
 .paper-library .problem-list:has(.library-exercise-companies) .paper-table-grid{grid-template-columns:32px minmax(0,1fr) 64px 104px var(--library-actions-width)}
 .library-exercise-companies{display:contents}
-.library-exercise-company-trigger{z-index:1;display:grid;place-items:center;width:44px;min-height:44px;padding:0;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--muted)}
-.library-exercise-company-trigger:hover,.library-exercise-company-trigger[aria-expanded=true]{color:var(--accent);border-color:var(--accent);background:var(--surface2)}
+/* Row actions are quiet ghost icons until hovered or open, so the row reads as one line. */
+.library-exercise-company-trigger{z-index:1;display:grid;place-items:center;width:var(--control-height);min-height:var(--control-height);padding:0;border:1px solid transparent;border-radius:var(--control-radius,8px);background:transparent;color:var(--muted)}
+.library-exercise-company-trigger:hover{color:var(--accent);background:color-mix(in srgb,var(--text) 8%,transparent)}
+.library-exercise-company-trigger[aria-expanded=true]{color:var(--accent);border-color:var(--accent);background:var(--surface)}
 .library-exercise-company-panel{grid-column:1/-1;grid-row:2;min-width:0;margin:0 16px 16px;padding:16px;border:1px solid var(--line);border-radius:10px;background:var(--surface2);font-size:var(--type-small);line-height:1.7}
 .library-exercise-company-panel[hidden]{display:none}
 .library-exercise-company-panel>header{display:flex;align-items:center;justify-content:space-between;gap:12px}
@@ -23,7 +25,7 @@
 .library-exercise-company-panel>footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding-top:12px;margin-top:12px;border-top:1px solid var(--line);color:var(--muted)}
 .library-exercise-company-panel>footer button{display:inline-flex;align-items:center;gap:5px;min-height:44px;flex:none}
 .library-exercise-companies :is(button,a,select,h3):focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.library-company-column-marker{visibility:hidden;display:inline-flex;align-items:center;justify-content:flex-end;gap:4px}.library-favorite-column-marker{display:none}.library-source-column-marker{display:inline-grid;place-items:center;width:44px;flex:none}.problem-list:has([data-favorite-available=true]) .library-favorite-column-marker{display:inline-grid;place-items:center;width:44px;flex:none}
+.library-company-column-marker{visibility:hidden;display:inline-flex;align-items:center;justify-content:flex-end;gap:4px}.library-favorite-column-marker{display:none}.library-source-column-marker{display:inline-grid;place-items:center;width:var(--control-height);flex:none}.problem-list:has([data-favorite-available=true]) .library-favorite-column-marker{display:inline-grid;place-items:center;width:var(--control-height);flex:none}
 .problem-list:has(.library-exercise-companies) .library-company-column-marker{visibility:visible}
 @media(max-width:700px){.paper-library .problem-list{--library-actions-inset:12px}.paper-library .problem-list:has(.library-exercise-companies) .paper-table-grid{grid-template-columns:20px minmax(0,1fr) 66px var(--library-actions-width)}.library-exercise-company-panel{margin-inline:12px;padding:12px}.library-exercise-company-filter{min-width:0;flex-basis:100%}}
 
@@ -36,12 +38,14 @@
 .library-exercise-source-preview>footer{display:flex;justify-content:flex-end;margin-top:14px;padding-top:10px;border-top:1px solid var(--line)}
 .library-exercise-source-preview>footer button{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:6px 9px}
 @media(max-width:520px){.paper-library .problem-list{--library-actions-inset:9px}.library-exercise-source-actions{margin-left:0}.library-exercise-source-preview{padding:10px}}
+/* Phones: difficulty moves under the title so the row actions do not squeeze it into a narrow column. */
+@media(max-width:520px){.paper-library .problem-list:has(.library-exercise-companies) .paper-table-grid{grid-template-columns:18px minmax(0,1fr) var(--library-actions-width)}.paper-library .problem-list:has(.library-exercise-companies) .problem-row>.difficulty{grid-column:2;grid-row:2;justify-self:start;margin-top:-4px;font-size:var(--type-meta)}.paper-library .problem-list:has(.library-exercise-companies) .table-head>:nth-child(4){display:none}}
 
 .paper-library .paper-result-group:has(>.library-exercise-companies)>.problem-row>svg:last-child{visibility:hidden}
 .library-exercise-row-actions{grid-area:1/2;align-self:center;justify-self:start;z-index:1;display:flex;align-items:center;justify-content:flex-end;gap:4px;width:var(--library-actions-width);min-width:0}
-.library-exercise-row-actions :is(.problem-favorite-button,.library-exercise-favorite-retry){display:inline-flex;align-items:center;justify-content:center;flex:none;box-sizing:border-box;width:44px;min-width:44px;min-height:44px;padding:0;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--muted)}
-.library-exercise-row-actions .problem-favorite-control{flex:none;width:44px;max-width:44px;gap:0;position:relative}
+.library-exercise-row-actions :is(.problem-favorite-button,.library-exercise-favorite-retry){display:inline-flex;align-items:center;justify-content:center;flex:none;box-sizing:border-box;width:var(--control-height);min-width:var(--control-height);min-height:var(--control-height);padding:0;border:1px solid transparent;border-radius:var(--control-radius,8px);background:transparent;color:var(--muted)}
+.library-exercise-row-actions .problem-favorite-control{flex:none;width:var(--control-height);max-width:var(--control-height);gap:0;position:relative}
 .library-exercise-row-actions .favorite-retry-dot{position:absolute;top:0;right:3px;font-size:var(--type-meta)}
-.library-exercise-row-actions .problem-favorite-button[aria-pressed=true]{color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--surface))}
-.library-exercise-row-actions :is(.problem-favorite-button,.library-exercise-favorite-retry):hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
-.library-exercise-favorite-placeholder{display:block;flex:none;width:44px;height:44px;border-radius:8px;background:var(--surface2)}
+.library-exercise-row-actions .problem-favorite-button[aria-pressed=true]{color:var(--accent);background:transparent}
+.library-exercise-row-actions :is(.problem-favorite-button,.library-exercise-favorite-retry):hover:not(:disabled){border-color:transparent;color:var(--accent);background:color-mix(in srgb,var(--text) 8%,transparent)}
+.library-exercise-favorite-placeholder{display:block;flex:none;width:var(--control-height);height:var(--control-height);border-radius:var(--control-radius,8px);background:transparent}
