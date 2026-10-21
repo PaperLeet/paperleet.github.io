@@ -23,7 +23,11 @@
 @container solution-pane (max-width:520px) {
   .problem-solution-toolbar { gap:8px; margin-bottom:12px; }
   .problem-solution-tabs { flex:1 1 100%; }
-  .problem-solution-tabs>button { flex:1; min-width:0; padding-inline:8px; white-space:normal; overflow-wrap:anywhere; }
+  /* Content-sized tabs with compact labels keep both sources on one line in phone-width panes;
+     the labels still wrap if a pane is narrower than both of them. */
+  .problem-solution-tabs>button { flex:1 1 auto; min-width:0; padding-inline:6px; font-size:var(--type-meta); white-space:normal; overflow-wrap:anywhere; }
+  .problem-solution-tabs>button>svg { display:none; }
+  .problem-solution-tabs>button[aria-selected="true"]::after { left:6px; right:6px; }
   .problem-solution-code { margin-inline-start:auto; min-height:44px; }
 }
 

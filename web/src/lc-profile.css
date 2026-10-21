@@ -17,7 +17,6 @@
 .profile-community-summary dl > div { min-height: 36px; }
 .profile-community-summary dt { flex: 1 1 auto; min-width: 0; overflow: hidden; white-space: nowrap; font-size: var(--type-small); }
 .profile-community-summary dt svg { flex: none; }
-.profile-community-summary dl > div:nth-child(3) svg { color: var(--red); }
 .profile-community-summary dd { flex: none; min-width: 0; justify-content: flex-end; }
 .profile-community-summary dd button { min-width: 36px; min-height: 32px; margin-inline-end: -8px; justify-content: flex-end; }
 @media (pointer: coarse) {
@@ -75,12 +74,11 @@
 }
 
 /* Sign-in: one flat card; the email form shares the provider buttons' column edges. */
-.signin-layout { border-radius: var(--radius-panel); box-shadow: none; }
 .signin-methods .email-login-alternative { margin-top: 18px; }
 .email-login-compact .account-fineprint { margin-top: 12px; padding-top: 0; border-top: 0; }
 .signin-privacy { margin-top: 18px; }
 
-/* Provider buttons follow the theme (Google's neutral light and dark sign-in styles). */
+/* Provider buttons keep Google's neutral sign-in button colours (light base in community.css), as its branding rules require. */
 .organization-login-button { transition: background-color .15s, border-color .15s; }
 .organization-login-button:hover:not(:disabled) { background: #f8f9fa; }
 [data-theme="dark"] .organization-login-button { border-color: #8e918f; background: #131314; color: #e3e3e3; }

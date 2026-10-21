@@ -6,7 +6,9 @@
 .card-actions>button:focus-visible,.card-comments button:focus-visible,.card-comments a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .card-actions>button:disabled{cursor:default;opacity:.6}
 .card-actions .card-reposts{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;font-variant-numeric:tabular-nums}
-.card-actions>.post-report-trigger{min-height:var(--control-height,40px);padding:4px 10px;border-radius:var(--control-radius,8px);color:var(--text-secondary)}
+.card-actions>.post-report-trigger{min-height:var(--control-height,40px);padding:4px 10px;border-radius:var(--control-radius,8px);color:var(--text-secondary);font-size:inherit}
+/* Every action in the bar shares the bar's meta size (the share and report sheets default to the body-small size). */
+.card-actions>.discussion-share-compact{font-size:inherit}
 .card-actions>.post-report-trigger:hover{background:var(--surface2);color:var(--text)}
 .card-actions-extras{margin-inline-start:auto;min-width:0;max-width:100%}
 .card-actions-extras:empty{display:none}

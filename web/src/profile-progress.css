@@ -43,7 +43,8 @@
 .practice-calendar-heading h2 { font-size: var(--type-body); font-weight: 400; }
 .practice-calendar-heading h2 strong { font-size: 25px; font-weight: 620; margin-right: 4px; }
 .practice-calendar-heading h2 > span { color: var(--text-secondary); }
-.practice-year select { border: 1px solid var(--line); border-radius: 6px; color: var(--text); background: var(--surface2); padding: 7px 12px; font-size: var(--type-body); min-width: 80px; cursor: pointer; }
+.practice-year select { box-sizing: border-box; min-height: var(--control-height, 44px); border: 1px solid var(--line); border-radius: var(--control-radius, 8px); color: var(--text); background-color: var(--surface2); padding: 4px 28px 4px 12px; font-size: var(--type-control); min-width: 80px; cursor: pointer; }
+@media (hover: hover) and (pointer: fine) { .practice-year select { font-size: var(--type-small); } }
 .practice-calendar-summary { display: flex; flex-wrap: wrap; gap: 9px 20px; color: var(--text-secondary); font-size: var(--type-small); margin: 13px 0 23px; }
 .practice-calendar-summary b { color: var(--text); font-weight: 550; margin-left: 3px; }
 .practice-current-streak { display: inline-flex; align-items: center; gap: 3px; }

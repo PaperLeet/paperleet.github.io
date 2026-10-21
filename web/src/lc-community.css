@@ -24,6 +24,14 @@
 .discussion-post .post-reading-overview.is-detailed { margin: 0 0 4px; padding: 0; border: 0; color: var(--muted); font-size: var(--type-meta); }
 .discussion-post .post-reading-overview.is-detailed > p { position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
 .discussion-post .post-reading-overview.is-detailed li > svg { color: var(--muted); }
+/* A time-only estimate shares the row of the closed "Reading appearance" control instead of adding
+   its own line; while the appearance panel is open the estimate steps aside, so nothing moves.
+   Posts with an "On this page" outline keep two lines: the outline sits between the two. */
+@media (min-width: 641px) {
+  .discussion-post .discussion-reading:not(.has-outline):has(.discussion-reading-body > .reading-appearance-inline) { position: relative; }
+  .discussion-post .discussion-reading:not(.has-outline):has(.discussion-reading-body > .reading-appearance-inline) > .post-reading-overview.is-detailed:not(:has(li:not([data-reading-metric="time"]))) { position: absolute; inset-block-start: -8px; inset-inline-start: 0; display: flex; align-items: center; max-width: calc(100% - 220px); min-height: var(--control-height, 44px); }
+  .discussion-post .discussion-reading:not(.has-outline):has(.reading-appearance-inline > details[open]) > .post-reading-overview.is-detailed:not(:has(li:not([data-reading-metric="time"]))) { visibility: hidden; }
+}
 
 /* Post page: one uniform pill row that floats while the article scrolls. */
 .discussion-actions .post-bookmark > button,
@@ -62,9 +70,13 @@
   .discussion-post :is(a, button, summary, input, select, textarea, [tabindex]):not(.discussion-actions *) { scroll-margin-bottom: 80px; }
 }
 
+.discussion-actions > button .discussion-action-label { margin-left: 0; }
 @media (max-width: 640px) {
+  /* Phones: Like, Repost and the reply count become icon + count pills so the bar keeps to two rows;
+     the labels stay in each button's accessible name. */
+  .discussion-actions > button { padding-inline: 10px; }
   .discussion-actions > .post-report-trigger { min-width: var(--control-height, 44px); justify-content: center; }
-  .discussion-actions .post-report-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+  .discussion-actions :is(.post-report-label, .discussion-action-label) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
 }
 
 /* Post header: back link left, quiet copy-link and refresh pair right. */
@@ -83,7 +95,7 @@
 .discussion-reply-controls { gap: 6px 8px; margin-top: 10px; padding-bottom: 12px; }
 .discussion-reply-search { padding-top: 2px; }
 .reply-heading .discussion-share { margin-inline-start: auto; }
-.reply-heading .discussion-share :is(a, .discussion-copy) { color: var(--muted); font-size: var(--type-meta); }
+.reply-heading .discussion-share :is(a, .discussion-copy) { min-height: var(--control-height, 44px); color: var(--muted); font-size: var(--type-meta); }
 .reply-heading .discussion-share :is(a, .discussion-copy):hover { color: var(--accent); }
 
 /* Workspace pane: compact contribute button beside the "All solutions" link. */

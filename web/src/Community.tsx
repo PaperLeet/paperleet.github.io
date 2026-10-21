@@ -1139,7 +1139,6 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
             <div className="discussion-heading">
               <Category value={post.solution ? "solutions" : post.category} />
               <h1>{translation.title}</h1>
-              <TranslationNotice translation={translation}/>
               <div className="discussion-author">
                 <CommunityAuthor user={post.author}/>
                 <DateLabel value={post.created_at} />
@@ -1155,6 +1154,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
                   </button>
                 )}
               </div>
+              <TranslationNotice translation={translation}/>
             </div>
             {post.interview && <InterviewMeta details={post.interview} revealPractice={practiceReading.resumedPractice} revealRequest={practiceReading.notice?.request} returnTo={postHref(id)} browseFrom={returnTo} topics={topics} catalogLoading={catalogLoading} catalogError={catalogError} onRetryCatalog={reloadCatalog}/>}
             <PostTags post={post} returnTo={returnTo}/>
@@ -1171,7 +1171,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
                   size={16}
                   fill={post.viewer.liked ? "currentColor" : "none"}
                 />
-                {t("点赞", "Like")}
+                <span className="discussion-action-label">{t("点赞", "Like")}</span>
                 <span>{post.counts.likes}</span>
               </button>
               <button
@@ -1181,16 +1181,16 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
                 onClick={() => void react("repost")}
               >
                 <Repeat2 size={16} />
-                {post.viewer.reposted
+                <span className="discussion-action-label">{post.viewer.reposted
                   ? t("已转发", "Reposted")
-                  : t("转发", "Repost")}
+                  : t("转发", "Repost")}</span>
                 <span>{post.counts.reposts}</span>
               </button>
               <PostBookmark key={`${id}:${owner}`} postId={id} owner={owner} bookmarked={post.viewer.bookmarked}
                 enabled={capabilities?.community_bookmarks===true} returnTo={postHref(id,providedReturnTo,replyTarget)}
                 disabled={busy||loading||accountLoading||editingPost||!!editingReply} hidden={accountLoading} onBusyChange={setBusy} onAccountRefresh={refreshAccount}
                 onChange={bookmarked=>setPost(previous=>previous&&previous.id===id?{...previous,viewer:{...previous.viewer,bookmarked}}:previous)}/>
-              <button type="button" onClick={()=>{const heading=document.getElementById('discussion-replies-heading');heading?.focus({preventScroll:true});heading?.scrollIntoView({block:'start'});}}><MessageCircle size={15}/>{post.counts.replies} {t('条回复',post.counts.replies===1?'reply':'replies')}</button>
+              <button type="button" onClick={()=>{const heading=document.getElementById('discussion-replies-heading');heading?.focus({preventScroll:true});heading?.scrollIntoView({block:'start'});}}><MessageCircle size={15}/>{post.counts.replies} <span className="discussion-action-label">{t('条回复',post.counts.replies===1?'reply':'replies')}</span></button>
               <PostReport postId={post.id} postTitle={post.title} canAct={currentQuoteContext} returnTo={postHref(id,providedReturnTo,replyTarget)} own={post.viewer.can_edit||post.author.id===owner} disabled={busy||loading||editingPost||!!editingReply}/>
               {user&&<button type="button" className="discussion-post-quote" aria-label={t('引用正文到回复草稿','Quote post into reply draft')} disabled={repliesLocked||accountLoading||editingPost} onClick={event=>quotePost(event.currentTarget)}><Quote size={15} aria-hidden="true"/>{t('引用正文','Quote post')}</button>}
               {user?<button type="button" className="discussion-compose-action" disabled={repliesLocked} onClick={()=>focusReply()}><MessageCircle size={15}/>{t('写回复','Write a reply')}</button>:<AppLink className="discussion-compose-action" href={signInHref(postHref(id,providedReturnTo,replyTarget))}>{t('登录回复','Sign in to reply')}</AppLink>}

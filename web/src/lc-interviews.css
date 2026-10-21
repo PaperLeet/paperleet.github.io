@@ -31,7 +31,11 @@
 .interview-question-workbench .interview-source-toolbar :is(a,button){min-height:var(--control-height,40px);padding:4px 10px;font-size:var(--type-meta);line-height:1.5;white-space:nowrap}
 /* Narrower columns: actions move under the copy instead of squeezing it or wrapping 'Add to batch'. */
 @media(min-width:601px) and (max-width:1200px){.interview-question-workbench .interview-ranking-row{grid-template-columns:28px minmax(0,1fr)}.interview-question-workbench .interview-ranking-actions{grid-column:2/-1;justify-content:flex-start;max-width:none}.interview-question-workbench .interview-ranking-actions>.interview-curated-label{order:1;flex-basis:auto;margin-inline-start:auto}}
-@media(max-width:600px){.interview-question-workbench .interview-ranking-actions{max-width:none}}
+@media(max-width:600px){.interview-question-workbench .interview-ranking-actions{max-width:none}
+ /* Phones: the "Curated practice" tag rides at the end of the button rows instead of taking its own line,
+    and the row's self-study disclosure keeps just its label (about 50px less per concept). */
+ .interview-question-workbench .interview-ranking-actions>.interview-curated-label{order:1;flex-basis:auto;margin-inline-start:auto;text-align:end}
+ .interview-question-workbench .interview-ranking-row .preparation-guide>summary small{display:none}}
 @media(pointer:coarse){.interview-question-workbench .interview-company-tags .interview-company-source,.interview-question-workbench .interview-company-more>summary{min-height:44px}}
 @media(forced-colors:active){.interview-frequency{border:1px solid CanvasText;background:Canvas}.interview-frequency>i{background:CanvasText}}
 
@@ -136,6 +140,12 @@
 .interview-curated-context>.button{grid-column:3;grid-row:1/span 2}
 /* The sidebar already offers the same sharing action while it sits beside the list. */
 @media(min-width:801px){.interview-hub:has(.interview-sharing-panel) .interview-curated-context>.button{display:none}}
+/* The empty list repeats that sharing action; beside the rail it is the quieter outlined twin, so each view keeps one filled CTA.
+   An empty state's own main action (e.g. signing in to see saved experiences) stays filled. */
+@media(min-width:801px){
+ .interview-hub:has(.interview-sharing-panel) .interview-empty>.button:not(.subtle):not(.interview-empty-primary){border:1px solid color-mix(in srgb,var(--accent) 45%,var(--line));background:transparent;box-shadow:none;color:var(--accent)}
+ .interview-hub:has(.interview-sharing-panel) .interview-empty>.button:not(.subtle):not(.interview-empty-primary):hover{background:color-mix(in srgb,var(--accent) 8%,var(--surface));color:var(--accent)}
+}
 @media(max-width:600px){.interview-curated-context{grid-template-columns:minmax(0,1fr)}.interview-curated-context>:is(.interview-panel-kicker,h3,p,.button){grid-column:1;grid-row:auto}}
 /* A one-line heading and the evidence counts share a row when both fit; anything longer wraps as before. */
 .interview-question-ranking{display:flex;flex-wrap:wrap;align-items:center;gap:10px 20px;padding-top:16px}
@@ -147,3 +157,7 @@
 .interview-question-workbench>.interview-ranking-resume,.interview-question-workbench>.interview-practice-group{margin-block:10px}
 .interview-question-workbench>.interview-ranking-result-bar{margin:10px 0 8px}
 .interview-report-card .community-translation.is-failed{display:none}
+
+/* Row disclosure ("Interview self-study prompts") reads as row meta, a step below the concept title. */
+.interview-question-workbench .interview-ranking-row .preparation-guide>summary b{font-size:var(--type-meta)}
+.interview-question-workbench .interview-ranking-row .preparation-guide>summary small{font-size:var(--type-caption)}
