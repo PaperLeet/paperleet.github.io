@@ -5,7 +5,7 @@
   margin-bottom: 30px;
   padding: 26px 28px;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--radius-panel);
   background: var(--surface);
 }
 .journey-kicker { display: block; color: var(--muted); font-size: var(--type-small); letter-spacing: .03em; }

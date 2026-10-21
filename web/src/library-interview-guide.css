@@ -1,5 +1,5 @@
 .library-overview.has-interview-guide { position:static; }
-.library-interview-guide { padding:18px; border:1px solid var(--line); border-radius:12px; background:var(--surface); min-width:0; }
+.library-interview-guide { padding:18px; border:1px solid var(--line); border-radius:var(--radius-panel); background:var(--surface); min-width:0; }
 .library-interview-guide header { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; }
 .library-interview-guide h2 { display:flex; gap:8px; align-items:center; margin:0; font-size:var(--type-body); line-height:1.6; }
 .library-interview-guide h2>button { display:flex; align-items:center; gap:8px; min-height:40px; padding:0; background:transparent; border:0; color:var(--text); font:inherit; font-weight:600; text-align:start; cursor:pointer; }

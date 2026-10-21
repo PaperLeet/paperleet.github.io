@@ -6,7 +6,7 @@
 .paper-library .paper-result-group:has(>.library-company-row-tools)>.problem-row{min-height:48px;padding-top:12px;padding-bottom:4px}
 .paper-library .paper-result-group:has(>.library-company-row-tools)>.problem-row .paper-info small{display:none}
 .library-main[data-density="compact"] .paper-result-group:has(>.library-company-row-tools)>.problem-row{min-height:42px;padding-top:8px;padding-bottom:2px}
-.library-company-row-preview{margin:0 16px 14px 64px;padding:16px;border:1px solid var(--line);border-radius:10px;background:var(--surface2)}
+.library-company-row-preview{margin:0 16px 14px 64px;padding:16px;border:1px solid var(--line);border-radius:var(--control-radius,8px);background:var(--surface2)}
 .library-company-row-preview[hidden]{display:none}.library-company-row-preview>footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 16px;padding-top:14px;margin-top:14px;border-top:1px solid var(--line);font-size:var(--type-small)}
 .library-company-row-preview>footer>a{display:inline-flex;align-items:center;gap:6px;color:var(--accent)}.library-company-tools-error{padding:8px 16px;font-size:var(--type-small);color:var(--muted);line-height:1.7}
 @media(max-width:650px){.library-company-row-toolbar{padding-left:40px;gap:3px 8px}.library-company-row-preview{margin-left:12px;margin-right:12px;padding:12px}.library-company-row-counts{font-size:var(--type-meta)}}
