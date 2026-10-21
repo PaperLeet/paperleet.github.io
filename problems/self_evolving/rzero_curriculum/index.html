@@ -1,0 +1,153 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="R-Zero Pseudo-Labels and Curriculum Count majority answers, filter intermediate consistency and score against frozen pseudo-labels.">
+    <title>R-Zero: R-Zero Pseudo-Labels and Curriculum in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/self_evolving/rzero_curriculum/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/self_evolving/rzero_curriculum/">
+    <meta property="og:title" content="R-Zero: R-Zero Pseudo-Labels and Curriculum in Python | PaperLeet">
+    <meta property="og:description" content="R-Zero Pseudo-Labels and Curriculum Count majority answers, filter intermediate consistency and score against frozen pseudo-labels.">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="R-Zero: R-Zero Pseudo-Labels and Curriculum in Python | PaperLeet">
+    <meta name="twitter:description" content="R-Zero Pseudo-Labels and Curriculum Count majority answers, filter intermediate consistency and score against frozen pseudo-labels.">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      html { background: #f5f6fa; color: #252525; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #efeff1; }
+      .startup-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; font: 15px/1.65 system-ui, sans-serif; }
+      .startup-card { width: 100%; max-width: 440px; }
+      .startup-card h1 { font-size: 24px; margin: 12px 0; }
+      .startup-card p { margin: 12px 0; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; color: inherit; border: 1px solid currentColor; border-radius: 6px; padding: 8px 16px; background: transparent; cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-TWC2JsD3.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-BK9579w6.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>R-Zero Pseudo-Labels and Curriculum</h1><p><a href="/papers/r-zero/">R-Zero</a> · ICLR 2026 · Medium · 30 minutes</p><p>R-Zero Pseudo-Labels and Curriculum</p><p>Count majority answers, filter intermediate consistency and score against frozen pseudo-labels.</p><h2>Functions to implement</h2><ul><li><code>consensus(answers: Tensor, num_answers: int) -&gt; tuple[Tensor, Tensor]</code></li><li><code>curriculum_mask(consistency: Tensor, low: float=0.25, high: float=0.75) -&gt; Tensor</code></li><li><code>pseudo_rewards(answers: Tensor, labels: Tensor) -&gt; Tensor</code></li></ul><section aria-label="Problem description"><h1>108. R-Zero Pseudo-Labels and Curriculum</h1>
+<h2>1. Problem</h2>
+<p>Turn historical answer votes into frozen pseudo-labels, retain an informative consistency band, and reward fresh answers against those labels.</p>
+<p>Implement <code>consensus</code>, <code>curriculum_mask</code>, <code>pseudo_rewards</code>.</p>
+<h2>2. Core equations</h2>
+<p>$$
+\tilde y_i=\arg\max_c n_{ic},\quad p_i=\max_c n_{ic}/K,\quad m_i=\mathbf1[\ell\le p_i\le u],\quad r_{ij}=\mathbf1[a_{ij}=\tilde y_i].
+$$</p>
+<h2>3. From equations to code</h2>
+<p>Count along each question’s rollout axis. Votes [1,1,0,0] tie, so this exercise chooses 0 with consistency 0.5. Against frozen label 1, fresh answers [2,2,1] earn [0,0,1].</p>
+<h2>4. Exercise conventions</h2>
+<p>Smallest-ID tie breaking is a deterministic teaching convention. Include both 0.25 and 0.75. Do not refresh the label from fresh answers: that changes the training target. Answer equivalence is provided upstream.</p>
+<p>Finite CPU inputs, no mutation; float32/float64 scores, long IDs and bool masks. The APIs below define all shape, tie and gradient conventions.</p>
+<pre><code class="language-python">def consensus(answers: Tensor, num_answers: int) -&gt; tuple[Tensor, Tensor]:
+    """answers: long [B,K], B,K&gt;=1, IDs in [0,num_answers). Answer equivalence is supplied.
+    Return (labels: long [B], consistency: float64 [B]) on the input device.
+    Ties choose the smallest answer ID. Count ALL K answers. No mutation."""
+</code></pre>
+<pre><code class="language-python">def curriculum_mask(consistency: Tensor, low: float = .25, high: float = .75) -&gt; Tensor:
+    """Float [B], 0&lt;=low&lt;=high&lt;=1. Return bool [B], retaining BOTH boundary values."""
+</code></pre>
+<pre><code class="language-python">def pseudo_rewards(answers: Tensor, labels: Tensor) -&gt; Tensor:
+    """New long answers [B,K], frozen pseudo-labels [B]. Return float64 [B,K].
+    Match against the supplied OLD labels, never recompute a vote from new answers.
+    These are agreement rewards, not independent correctness verification."""
+</code></pre>
+<h2>5. Interactive figures and experiment</h2>
+<p>Open Explanation to step through the paper’s co-evolution loop: active model, frozen evaluator, feedback and filtering. Controls recompute the displayed teaching scores. The Lab trains a small categorical policy for 60 gradient steps at learning rate 0.5, starting from uniform logits, using your functions. It uses fixed feedback records and CPU float64; target probability must exceed 0.72 and improve by more than 0.3. This checks the local mechanism, not full LLM/VLM self-evolution or benchmark gains.</p>
+<h2>6. Run your implementation</h2>
+<p>Complete the functions in the Python editor on the right, then click <strong>Run tests</strong>. Inspect each failed check, update your implementation, and run again. Passing every required check marks the problem as solved and unlocks the notes.</p>
+<h2>7. Further questions</h2>
+<p>How could you detect a highly consistent but incorrect pseudo-label?</p>
+<p>Source: <a href="https://arxiv.org/abs/2508.05004">R-Zero: Self-Evolving Reasoning LLM from Zero Data</a>, Sections 2.3–2.4: majority-vote labels, informative band and solver rewards.</p></section><p><a href="https://arxiv.org/abs/2508.05004">Read paper · arXiv:2508.05004</a></p><h2>Related exercises</h2><ul><li><a href="/problems/self_evolving/rzero_rewards/">R-Zero Challenger Rewards</a></li><li><a href="/papers/r-zero/">All R-Zero exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>

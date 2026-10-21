@@ -72,6 +72,10 @@
   <url><loc>https://paperleet.com/papers/es-at-scale/</loc></url>
   <url><loc>https://paperleet.com/papers/visual-domain-prompt/</loc></url>
   <url><loc>https://paperleet.com/papers/neural-thickets/</loc></url>
+  <url><loc>https://paperleet.com/papers/r-zero/</loc></url>
+  <url><loc>https://paperleet.com/papers/g-zero/</loc></url>
+  <url><loc>https://paperleet.com/papers/visplay/</loc></url>
+  <url><loc>https://paperleet.com/papers/mm-zero/</loc></url>
   <url><loc>https://paperleet.com/problems/rl/gae/</loc></url>
   <url><loc>https://paperleet.com/problems/rl/ppo_clip/</loc></url>
   <url><loc>https://paperleet.com/problems/rl/dpo/</loc></url>
@@ -164,8 +168,16 @@
   <url><loc>https://paperleet.com/problems/optimization/es_at_scale/</loc></url>
   <url><loc>https://paperleet.com/problems/finetuning/visual_domain_prompt/</loc></url>
   <url><loc>https://paperleet.com/problems/finetuning/neural_thickets/</loc></url>
+  <url><loc>https://paperleet.com/problems/self_evolving/rzero_rewards/</loc></url>
+  <url><loc>https://paperleet.com/problems/self_evolving/rzero_curriculum/</loc></url>
+  <url><loc>https://paperleet.com/problems/self_evolving/gzero_hint/</loc></url>
+  <url><loc>https://paperleet.com/problems/self_evolving/gzero_pairs/</loc></url>
+  <url><loc>https://paperleet.com/problems/self_evolving/visplay_rewards/</loc></url>
+  <url><loc>https://paperleet.com/problems/self_evolving/mmzero_proposer/</loc></url>
+  <url><loc>https://paperleet.com/problems/self_evolving/mmzero_feedback/</loc></url>
   <url><loc>https://paperleet.com/collections/llm-basics/</loc></url>
   <url><loc>https://paperleet.com/collections/llm-frontier/</loc></url>
+  <url><loc>https://paperleet.com/collections/self-evolving/</loc></url>
   <url><loc>https://paperleet.com/collections/retrieval/</loc></url>
   <url><loc>https://paperleet.com/collections/rl/</loc></url>
   <url><loc>https://paperleet.com/collections/diffusion/</loc></url>
