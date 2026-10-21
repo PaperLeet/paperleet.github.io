@@ -53,7 +53,13 @@ export async function checkFailurePicker(server, Workflow, props) {
     await click(document.querySelector('.feedback-rerun'));assert.equal(runs,1,'An explicit run action still reaches the workspace');
     console.log('PASS direct failure picker: full failed-only list, run interruption, distant selection, arrows/count, verified line location, locale continuity, changed/running guards, new-report reset and retained editor/caret/scroll/source');
   } finally {
-    if(root)await act(async()=>root.unmount());dom.window.close();
+    // This fixture has only synchronous effect cleanup. Flush the unmount
+    // before closing JSDOM instead of waiting on an extra async act scope.
+    if(root){
+      act(()=>root.unmount());
+      assert.equal(dom.window.document.getElementById('root').childElementCount,0,'Unmount must clear the fixture before its DOM is closed');
+    }
+    dom.window.close();
     for(const [name,descriptor] of previous)if(descriptor)Object.defineProperty(globalThis,name,descriptor);else delete globalThis[name];
   }
 }
