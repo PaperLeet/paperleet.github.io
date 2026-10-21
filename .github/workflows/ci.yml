@@ -11,7 +11,9 @@ concurrency:
 jobs:
   native:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # Native cases retain their 600-second budget. Leave room for the complete
+    # growing frontend suite and both production builds on shared runners.
+    timeout-minutes: 45
     env:
       OMP_NUM_THREADS: '2'
       MKL_NUM_THREADS: '2'
