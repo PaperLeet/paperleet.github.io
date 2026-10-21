@@ -152,34 +152,18 @@ input, select, textarea { accent-color: var(--accent); }
 .paper-source-card .text-button { display: inline-flex; align-items: center; gap: 6px; font-size: var(--type-small); }
 
 /* Make the workspace feel like a single instrument, with distinct control bands. */
-.workspace-view .workspace-toolbar { min-height: 48px; padding-inline: 22px; gap: 10px; }
 .workspace-toolbar > b { font-weight: 500; }
 .workspace-focus-toggle { border-radius: 6px; min-height: 32px; }
-.workspace > .description-pane, .workspace > .editor-pane { border-color: var(--line); border-radius: 12px; box-shadow: var(--shadow-panel); }
-.workspace .pane-tabs { background: var(--surface); min-height: 46px; padding-inline: 10px; }
 .workspace .pane-tabs > button { font-size: var(--type-small); padding-inline: 12px; }
 .workspace .pane-tabs > button:not(.selected):hover { background: var(--surface2); color: var(--text); }
 .workspace .pane-tabs > button > svg { color: var(--muted); }
 .workspace .pane-tabs > button.selected > svg { color: var(--accent); }
 .workspace .pane-tabs > button.selected::after { height: 3px; border-radius: 3px 3px 0 0; }
-.workspace .description-scroll { padding: 28px; overscroll-behavior: contain; scrollbar-gutter: stable; }
-.problem-heading h1 { font-size: 26px; letter-spacing: -.035em; line-height: 1.45; }
-.heading-tags { gap: 7px; margin-top: 12px; }
+.workspace .description-scroll { overscroll-behavior: contain; scrollbar-gutter: stable; }
 .heading-tags > span { padding: 4px 8px; border-radius: 5px; font-size: var(--type-meta); }
-.workspace .paper-card { padding: 16px; border-color: var(--line); border-radius: 10px; background: var(--surface2); }
-.paper-card strong { line-height: 1.65; }
-.workspace .module-scope-card { padding: 20px; border-radius: 10px; border-color: var(--line); border-left: 3px solid var(--accent); background: color-mix(in srgb, var(--accent) 3%, var(--surface)); }
-.module-scope-card h3 { font-size: var(--type-body); }
-.module-scope-card p { font-size: var(--type-body); line-height: 1.8; }
-.workspace .prose { font-size: var(--type-body); line-height: 1.9; }
-.workspace .prose h1 { font-size: 23px; line-height: 1.5; }
-.workspace .prose h2 { font-size: var(--type-title); margin-top: 30px; line-height: 1.45; }
-.workspace .prose h3 { font-size: var(--type-lead); }
 .workspace .prose table { display: block; max-width: 100%; overflow-x: auto; font-size: var(--type-body); border-radius: 8px; }
 .workspace .prose pre { border-radius: 8px; }
-.workspace .editor-tools { min-height: 44px; padding-inline: 14px; background: var(--surface2); border-bottom: 1px solid var(--line); }
 .editor-font-size-select { border-radius: 5px; }
-.editor-status { padding-inline: 14px; font-size: var(--type-caption); min-height: 28px; }
 .editor-status > span:first-child { min-width: 0; gap: 6px; }
 .editor-status[data-state="saved"] > span:first-child > svg { color: var(--green); }
 .editor-status[data-state="warning"] > span:first-child { color: var(--red); }

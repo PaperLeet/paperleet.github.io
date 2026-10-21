@@ -34,7 +34,10 @@
 /* Reserve the tool row while its deferred controls load, so the list does not jump. */
 .paper-library .library-results:not(:has(> .library-result-actions))::before { content: ""; display: block; order: -1; flex: 1 1 100%; height: var(--control-height); }
 .paper-library .library-sort { min-height: var(--control-height); padding-inline: 10px 2px; border-radius: var(--control-radius); font-size: var(--type-small); }
-.paper-library .library-sort select { width: 100%; max-width: none; min-height: calc(var(--control-height) - 2px); padding-block: 2px; font-size: var(--type-small); }
+.paper-library .library-sort select { width: 100%; max-width: none; min-height: calc(var(--control-height) - 2px); padding-block: 2px; font-size: var(--type-control); }
+@media (hover: hover) and (pointer: fine) {
+  .paper-library .library-sort select { font-size: var(--type-small); }
+}
 .paper-library :is(.library-view-switch, .library-density) { padding: 2px; gap: 2px; border-radius: var(--control-radius); background: var(--surface2); }
 .paper-library :is(.library-view-switch, .library-density) button { min-height: var(--library-segment-height); height: var(--library-segment-height); padding: 2px 10px; border-radius: var(--radius-sm); font-size: var(--type-small); }
 .paper-library .library-density button { width: auto; min-width: var(--library-segment-height); }

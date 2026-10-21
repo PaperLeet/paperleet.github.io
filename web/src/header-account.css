@@ -1,14 +1,14 @@
 /* Keep navigation geometry stable across page, workspace and active states. */
 html { scrollbar-gutter:stable; }
-.app > .topbar { position:relative; z-index:60; }
+.app > .topbar { --topbar-bg:var(--surface); position:relative; z-index:60; }
 .topbar .nav-actions { gap:4px; }
 .topbar .nav-inner > nav {
   flex:1 1 auto; min-width:0; max-width:100%; gap:4px; overflow-x:auto;
   overscroll-behavior-x:contain; scroll-padding-inline:8px; scroll-behavior:auto;
   /* Local covers erase each edge shadow when that end is already visible. */
   background:
-    linear-gradient(to right,var(--surface) 35%,transparent) left / 28px 100% no-repeat local,
-    linear-gradient(to left,var(--surface) 35%,transparent) right / 28px 100% no-repeat local,
+    linear-gradient(to right,var(--topbar-bg) 35%,transparent) left / 28px 100% no-repeat local,
+    linear-gradient(to left,var(--topbar-bg) 35%,transparent) right / 28px 100% no-repeat local,
     linear-gradient(to right,color-mix(in srgb,var(--text) 12%,transparent),transparent) left / 10px 100% no-repeat scroll,
     linear-gradient(to left,color-mix(in srgb,var(--text) 12%,transparent),transparent) right / 10px 100% no-repeat scroll;
 }

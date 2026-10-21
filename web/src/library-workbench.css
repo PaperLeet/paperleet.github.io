@@ -125,17 +125,6 @@
 .difficulty-summary i { display: block; height: 100%; background: var(--difficulty-color); }
 
 /* Reading and editing share a precise control-band baseline. */
-.workspace-view .workspace-toolbar { min-height: 48px; }
-.workspace-view .workspace { padding-top: 0; }
-.workspace .pane-tabs { --workspace-band: 52px; }
-.workspace .pane-tabs > [role="tab"] { min-height: 52px; font-size: var(--type-body); }
-.workspace .pane-tabs > [role="tab"][aria-selected="true"] { background: var(--surface2); color: var(--text); }
-.workspace .pane-tabs > [role="tab"][aria-selected="true"] > svg { color: var(--accent); }
-.workspace .pane-tabs > [role="tab"]:focus-visible { outline-offset: -4px; border-radius: 5px; }
-.workspace .editor-tools { height: 52px; min-height: 52px; }
-.workspace .description-scroll { padding: 24px; }
-.workspace .problem-heading h1 { font-size: clamp(25px, 2vw, 30px); }
-.workspace .module-scope-card { padding: 17px 18px; }
 .workspace .editor-lab[hidden] { display: none; }
 .workspace .editor-code-panel { min-width: 0; }
 .workspace .pane-tabs { scrollbar-width: none; }
