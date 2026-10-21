@@ -12,8 +12,18 @@
 .affiliation-editor summary span { flex:none; color:var(--muted); font-size:var(--type-meta); }
 .affiliation-editor form { padding:0 14px 14px; }
 .affiliation-editor small { color:var(--muted); }
-.affiliation-history { margin-top:20px; text-align:left; }
-.affiliation-history h3 { font-size:var(--type-small); }
+.affiliation-history { margin-top:14px; text-align:left; border-top:1px solid var(--line); }
+.affiliation-history summary { display:flex; align-items:center; gap:8px; min-height:36px; color:var(--text-secondary); font-size:var(--type-small); cursor:pointer; list-style:none; }
+.affiliation-history summary::-webkit-details-marker { display:none; }
+.affiliation-history summary::after { content:""; width:6px; height:6px; margin:-3px 2px 0 auto; border:solid currentColor; border-width:0 1.5px 1.5px 0; transform:rotate(45deg); }
+.affiliation-history details[open] > summary::after { margin-top:3px; transform:rotate(-135deg); }
+.affiliation-history summary:hover { color:var(--text); }
+.affiliation-history summary:focus-visible { outline:2px solid var(--accent); outline-offset:2px; border-radius:var(--radius-xs); }
+.affiliation-history-count { min-width:20px; padding:0 6px; border-radius:10px; background:var(--surface2); color:var(--text-secondary); font-size:var(--type-caption); line-height:20px; text-align:center; }
+@media (pointer:coarse) { .affiliation-history summary { min-height:44px; } }
 .affiliation-history ul { list-style:none; padding:0; margin:0; }
-.affiliation-history li { display:grid; gap:5px; padding:12px 0; border-bottom:1px solid var(--line); overflow-wrap:anywhere; }
+.affiliation-history li { display:grid; gap:4px; padding:10px 0; border-bottom:1px solid var(--line); overflow-wrap:anywhere; }
+.affiliation-history li:last-child { border-bottom:0; }
 .affiliation-history li span,.affiliation-history small,.affiliation-history p { color:var(--muted); font-size:var(--type-meta); line-height:1.6; }
+.affiliation-history-date { white-space:nowrap; }
+.affiliation-history p { margin:4px 0 0; font-size:var(--type-caption); }

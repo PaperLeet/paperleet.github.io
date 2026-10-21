@@ -50,7 +50,7 @@ function AccountInboxBell({owner, notifications, messages, reviews}: {owner: str
   }}>
     <button type="button" className="inbox-bell-trigger" ref={trigger} aria-haspopup="dialog" aria-expanded={open} aria-controls={id} aria-label={label} title={label}
       onClick={() => setOpen(value => !value)} onKeyDown={event => { if (event.key === 'ArrowDown'&&!event.defaultPrevented&&!event.repeat&&!event.nativeEvent.isComposing&&event.nativeEvent.keyCode!==229&&!event.altKey&&!event.ctrlKey&&!event.metaKey&&!event.shiftKey) { event.preventDefault(); setOpen(true); } }}>
-      <Bell size={20}/>{unread > 0 && <span className="inbox-unread-dot" aria-hidden="true"/>}
+      <Bell size={20}/>{unread > 0 && <span className="inbox-unread-dot" aria-hidden="true">{unread > 99 ? '99+' : unread}</span>}
     </button>
     {open && <section className="inbox-popover" id={id} ref={panel} tabIndex={-1} role="dialog" aria-label={t('通知与私信', 'Notifications and messages')}>
       <button type="button" className="inbox-close" aria-label={t('关闭收件箱','Close inbox')} onClick={()=>{setOpen(false);trigger.current?.focus({preventScroll:true});}}><X size={17} aria-hidden="true"/></button>

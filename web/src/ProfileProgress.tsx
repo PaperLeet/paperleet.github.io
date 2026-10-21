@@ -1,5 +1,5 @@
 import AppLink from './AppLink';
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, KeyboardEvent } from "react";
 import { ArrowRight, Check, CheckCheck, Flame, LockKeyhole, RefreshCw } from "lucide-react";
 import { useI18n } from "./i18n";
@@ -8,6 +8,7 @@ import { activityLevel, browserTimezone, calendarCells, currentYear, emptyPracti
 import type { PracticeDay, ProfilePractice, ProfilePracticeResponse } from "./profile-progress";
 import { usePracticeInvalidation } from './usePracticeInvalidation';
 import "./profile-progress.css";
+import "./lc-profile.css";
 
 function difficultyLabel(difficulty: string, t: (zh: string, en: string) => string) {
   return ({ E: t("简单", "Easy"), M: t("中等", "Medium"), H: t("困难", "Hard") })[difficulty] || difficulty;
@@ -25,6 +26,12 @@ function PracticeCalendar({ data, year, setYear }: {
   const [selectedDate, setSelectedDate] = useState(calendar.end);
   const [hoverDate, setHoverDate] = useState<string>();
   const buttons = useRef(new Map<string, HTMLButtonElement>());
+  const scroller = useRef<HTMLDivElement>(null);
+  // Narrow screens open on the latest activity instead of January.
+  useLayoutEffect(() => {
+    const element = scroller.current, cell = buttons.current.get(calendar.end);
+    if (element && cell && element.scrollWidth > element.clientWidth) element.scrollLeft = Math.max(0, cell.offsetLeft + cell.offsetWidth - element.clientWidth + 24);
+  }, [calendar.end]);
   const selected = cells.find((cell) => cell.date === (hoverDate || selectedDate))?.day || emptyPracticeDay(calendar.end);
   const columns = cells.length / 7;
   const dateFormatter = useMemo(() => new Intl.DateTimeFormat(locale === "zh" ? "zh-CN" : "en", {
@@ -66,7 +73,7 @@ function PracticeCalendar({ data, year, setYear }: {
         <span>{t("最长连续", "Longest streak")} <b>{calendar.max_streak}</b> {t("天", "days")}</span>
         {year === currentYear(data.timezone) && <span className="practice-current-streak"><Flame size={14} /> {t("当前连续", "Current streak")} <b>{calendar.current_streak}</b> {t("天", "days")}</span>}
       </div>
-      <div className="practice-calendar-scroll" role="group" aria-label={t("每日提交记录，可使用方向键选择日期", "Daily submissions; use arrow keys to select a date")}>
+      <div ref={scroller} className="practice-calendar-scroll" role="group" aria-label={t("每日提交记录，可使用方向键选择日期", "Daily submissions; use arrow keys to select a date")}>
         <div className="practice-calendar-chart" style={{ "--calendar-columns": columns } as CSSProperties}>
           <div className="practice-weekdays" aria-hidden="true"><span>{t("一", "Mon")}</span><span>{t("三", "Wed")}</span><span>{t("五", "Fri")}</span></div>
           <div className="practice-calendar-months" aria-hidden="true">
@@ -106,13 +113,24 @@ function PracticeCalendar({ data, year, setYear }: {
 
 function ProgressSummary({ data }: { data: ProfilePractice }) {
   const { t } = useI18n();
-  const circumference = 2 * Math.PI * 73;
-  const percent = data.total_problems ? Math.min(1, data.solved / data.total_problems) : 0;
+  // LeetCode-style gauge: an arc open at the bottom, split by each difficulty's share of the
+  // catalogue; each segment shows its own track and the solved part in the difficulty colour.
+  const circumference = 2 * Math.PI * 73, gap = 4;
+  const groups = data.by_difficulty.filter((entry) => entry.total > 0);
+  const total = groups.reduce((sum, entry) => sum + entry.total, 0);
+  const usable = circumference * 300 / 360 - gap * Math.max(0, groups.length - 1);
+  let cursor = 0;
+  const arcs = groups.map((entry) => {
+    const length = total ? usable * entry.total / total : 0, start = cursor;
+    cursor += length + gap;
+    return { key: entry.difficulty, start, length, solved: length * Math.min(1, entry.solved / entry.total) };
+  });
+  const arc = (className: string, start: number, length: number, key: string) => length > 0 && <circle key={key} className={className} cx="85" cy="85" r="73" strokeDasharray={`${length} ${circumference}`} strokeDashoffset={-start} />;
   return (
     <div className="practice-overview">
       <section className="social-panel practice-solved" aria-label={t("解题进度", "Problem progress")}>
         <div className="practice-solved-ring">
-          <svg viewBox="0 0 170 170" aria-hidden="true"><circle className="practice-ring-track" cx="85" cy="85" r="73" /><circle className="practice-ring-progress" cx="85" cy="85" r="73" strokeDasharray={`${percent * circumference} ${circumference}`} /></svg>
+          <svg viewBox="0 0 170 170" aria-hidden="true">{!arcs.length && arc("practice-ring-track", 0, usable, "empty")}{arcs.map((item) => <g key={item.key} className={`difficulty-${item.key}`}>{arc("practice-ring-track", item.start, item.length, "track")}{arc("practice-ring-progress", item.start, item.solved, "solved")}</g>)}</svg>
           <div><p><strong>{data.solved}</strong><span>/{data.total_problems}</span></p><span className="practice-solved-label"><Check size={17} />{t("已完成", "Solved")}</span><small>{data.attempting} {t("题尝试中", "attempting")}</small></div>
         </div>
         <div className="practice-difficulties">
@@ -154,7 +172,13 @@ export default function ProfileProgress({ username, isSelf }: { username: string
     return () => { live = false; };
   }, [request, scope, username, year, timezone]);
   if (error) return <section className="social-panel practice-load-state"><SocialNotice error={error} /><button className="button subtle" onClick={() => setRevision((value) => value + 1)}><RefreshCw size={14} />{t("重试练习记录", "Retry practice history")}</button></section>;
-  if (!data) return <section className="social-panel practice-loading" aria-busy="true"><span className="spinner" />{t("正在加载练习记录…", "Loading practice history…")}</section>;
+  // Placeholders keep the final card sizes so the activity below does not jump when data arrives.
+  if (!data) return <div className="profile-progress practice-skeletons" aria-busy="true">
+    <span className="profile-sr-only" role="status">{t("正在加载练习记录…", "Loading practice history…")}</span>
+    <div className="practice-overview" aria-hidden="true"><div className="social-panel practice-skeleton" /><div className="social-panel practice-skeleton" /></div>
+    <div className="social-panel practice-skeleton practice-skeleton-calendar" aria-hidden="true" />
+    <div className="social-panel practice-skeleton practice-skeleton-recent" aria-hidden="true" />
+  </div>;
   if (!data.visible) return <section className="social-panel practice-private"><LockKeyhole size={19} /><span>{t("该用户的练习记录仅自己可见", "This member’s practice history is private")}</span></section>;
   return (
     <div className="profile-progress">
