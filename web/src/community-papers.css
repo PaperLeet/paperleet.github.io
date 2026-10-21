@@ -33,3 +33,12 @@
   .paper-preview-card.compact .paper-preview-cover { width:54px; }
   .paper-preview-title { font-size:var(--type-body); }
 }
+
+/* Feed rows show the paper as a one-line strip; the post page keeps the full preview. */
+.community-post-card .paper-preview-card.compact { display:block; padding:8px 12px; margin:10px 0 0; border-radius:var(--control-radius,8px); }
+.community-post-card .paper-preview-card.compact :is(.paper-preview-cover,.paper-preview-authors) { display:none; }
+.community-post-card .paper-preview-card.compact .paper-preview-copy { display:flex; flex-wrap:wrap; align-items:baseline; gap:2px 12px; min-width:0; }
+.community-post-card .paper-preview-card.compact .paper-preview-source { flex:none; margin:0; }
+.community-post-card .paper-preview-card.compact .paper-preview-title { flex:1 1 160px; min-width:0; font-size:var(--type-small); -webkit-line-clamp:1; overflow-wrap:anywhere; }
+.community-post-card .paper-preview-card.compact .paper-preview-links { flex:none; margin:0; gap:4px 12px; }
+.community-post-card .paper-preview-card.compact .paper-preview-unavailable { flex-basis:100%; margin:0; }

@@ -12,3 +12,16 @@
 .community-highlight-tools{display:flex;justify-content:flex-end;margin-top:8px}.community-highlight-tools button,.community-highlights>p button{display:inline-flex;align-items:center;gap:6px;min-height:36px}@media(pointer:coarse){.community-highlight-tools button,.community-highlights>p button{min-height:44px}}
 
 .community-highlight-context{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 10px;margin:8px 0;color:var(--muted);font-size:var(--type-control);line-height:1.65;overflow-wrap:anywhere}.community-highlight-kind{flex:none;border-radius:5px;background:var(--surface2);padding:2px 7px;color:var(--text);font-size:var(--type-small);font-weight:600}.community-highlight-context>a{color:var(--accent);text-decoration:none}.community-highlight-context>a:hover{text-decoration:underline}.admin-highlight-preview .community-highlight-context{margin:0}.admin-highlight-preview .community-highlight-kind{background:var(--surface)}
+
+/* One-line picks summary; opened content lines up with the title. */
+.community-highlights{padding:8px 16px;border-radius:var(--radius-lg,12px);margin-bottom:16px}
+.community-highlights>summary{min-height:var(--control-height,44px)}
+.community-highlights>summary>span{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:10px;row-gap:0}
+.community-highlights>summary b{font-size:var(--type-small);font-weight:600}
+.community-highlights>summary small{font-size:var(--type-meta);line-height:1.5}
+.community-highlights>summary>svg:last-child{color:var(--muted)}
+.community-highlights>:not(summary){margin-inline-start:28px}
+.community-highlights>p{margin-block:4px 8px;color:var(--text-secondary);font-size:var(--type-small)}
+.community-highlight-tools{margin-top:0}
+.community-highlight-tools button{font-size:var(--type-meta);color:var(--text-secondary)}.community-highlight-tools button:hover{color:var(--accent)}
+@media(max-width:640px){.community-highlights{padding:6px 12px}.community-highlights>summary small{display:none}.community-highlights>:not(summary){margin-inline-start:0}}

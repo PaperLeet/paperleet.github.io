@@ -280,14 +280,14 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
   return <div ref={card} className="community-card-interaction">
     <div className="post-card-counts card-actions">
       <button ref={toggle} type="button" onClick={expand} aria-expanded={open} aria-controls={regionId} disabled={accountLoading}>
-        <MessageCircle size={15}/><span>{post.counts.replies} {t('评论','comments')}</span>{open?<ChevronUp size={13}/>:<ChevronDown size={13}/>}
+        <MessageCircle size={15}/><span>{post.counts.replies} <span className="card-count-label">{t('评论',post.counts.replies===1?'comment':'comments')}</span></span>{open?<ChevronUp size={13}/>:<ChevronDown size={13}/>}
       </button>
       <button ref={likeControl} type="button" onClick={()=>void like(!post.viewer.liked)} className={post.viewer.liked?'is-liked':''} aria-pressed={!!post.viewer.liked} disabled={!!replyEdit||!!busy||loading||accountLoading||accountRecovery||pendingLike!==undefined}>
-        <Heart size={15} fill={post.viewer.liked?'currentColor':'none'}/><span>{post.counts.likes} {busy==='like'?t('确认中…','Confirming…'):t('赞','likes')}</span>
+        <Heart size={15} fill={post.viewer.liked?'currentColor':'none'}/><span>{post.counts.likes} {busy==='like'?t('确认中…','Confirming…'):<span className="card-count-label">{t('赞',post.counts.likes===1?'like':'likes')}</span>}</span>
       </button>
       <button type="button" onClick={writeComment} aria-controls={regionId} disabled={!!replyEdit||!!busy||accountLoading||accountRecovery}><PenLine size={15}/>{t('写评论','Write comment')}</button>
       <button type="button" className="card-post-quote" aria-label={t('引用正文到评论草稿','Quote post into comment draft')} title={t('将正文原文摘要加入评论草稿','Add a source-linked excerpt of the original post to your comment draft')} disabled={!!replyEdit||!!busy||accountLoading||accountRecovery} onClick={event=>quotePost(event.currentTarget)}><Quote size={15} aria-hidden="true"/><span>{t('引用正文','Quote post')}</span></button>
-      <span className="card-reposts"><Repeat2 size={13}/>{post.counts.reposts} {t('转发','reposts')}</span>
+      <span className="card-reposts"><Repeat2 size={14} aria-hidden="true"/>{post.counts.reposts} <span className="card-count-label">{t('转发',post.counts.reposts===1?'repost':'reposts')}</span></span>
       <PostReport postId={post.id} postTitle={post.title} canAct={()=>canShare()&&canAct?.()!==false} returnTo={href} own={post.viewer.can_edit||post.author.id===owner} disabled={accountLoading||!!replyEdit||!!busy}/>
       <DiscussionLink key={`post-share:${accountLoading}`} postId={post.id} returnTo={returnTo} compact name={post.title} disabled={accountLoading} canAct={canShare}/>
       {showActivity&&post.last_reply_at&&<span className="post-card-activity">{t('最近回复','Last reply')} <DateLabel value={post.last_reply_at}/></span>}
@@ -304,7 +304,7 @@ function CardActions({post:initial,returnTo,showActivity,owner,accountLoading,ch
       if(!(active instanceof HTMLElement)||!event.currentTarget.contains(active)||active.closest('.card-reply-form,input,textarea,select,[contenteditable]:not([contenteditable="false"])'))return;
       event.preventDefault();event.stopPropagation();dismissComments(active);
     }}>
-      <header><strong>{t('评论','Comments')}</strong><select className="card-comment-order" aria-label={t('评论排序','Sort comments')} aria-controls={regionId+'-list'} value={replies.order} disabled={replies.disabled||(detail?.replies.length||0)<2} onChange={event=>replies.chooseOrder(event.target.value as 'newest'|'oldest')}><option value="newest">{t('最新回复','Newest first')}</option><option value="oldest">{t('最早回复','Oldest first')}</option></select>{detail&&<ReplyAuthorFilter list={replies} disabled={!!busy} controls={regionId+'-list'} canAct={canFilterAuthor}/>}<ReplyAuthorJump list={replies} disabled={!!busy}/><span role="status">{!loading&&!loadError&&detail?t(`显示 ${replies.shown.length} / ${replies.total} 条`,`${replies.shown.length} of ${replies.total} shown`):''}</span><AppLink href={href}>{t('完整讨论','Full discussion')}</AppLink></header>
+      <header><strong>{t('评论','Comments')}</strong>{(detail?.replies.length||0)>1&&<select className="card-comment-order" aria-label={t('评论排序','Sort comments')} aria-controls={regionId+'-list'} value={replies.order} disabled={replies.disabled} onChange={event=>replies.chooseOrder(event.target.value as 'newest'|'oldest')}><option value="newest">{t('最新回复','Newest first')}</option><option value="oldest">{t('最早回复','Oldest first')}</option></select>}{detail&&<ReplyAuthorFilter list={replies} disabled={!!busy} controls={regionId+'-list'} canAct={canFilterAuthor}/>}<ReplyAuthorJump list={replies} disabled={!!busy}/><span role="status">{!loading&&!loadError&&detail?t(`显示 ${replies.shown.length} / ${replies.total} 条`,`${replies.shown.length} of ${replies.total} shown`):''}</span><AppLink href={href}>{t('完整讨论','Full discussion')}</AppLink></header>
       <ReplyReadingNotice list={replies}/><ReplyReadingReturn list={replies}/>
       {detail&&(detail.replies.length>0||replies.query)&&<CardCommentSearch title={post.title} list={replies} total={detail.replies.length} controls={regionId+'-list'} canAct={canShare} inputRef={commentSearch}/>}
       <div id={regionId+'-list'} className="card-comment-results" aria-busy={loading||undefined}>

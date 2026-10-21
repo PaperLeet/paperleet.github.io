@@ -9,6 +9,6 @@
 .discussion-link-error { flex:1 1 100%; color:var(--text-secondary); font-size:var(--type-small); line-height:1.6; overflow-wrap:anywhere; }
 @media(pointer:coarse) { .discussion-share a,.discussion-share .discussion-copy { min-height:44px; } }
 
-.discussion-share-compact .discussion-copy{min-height:44px;padding:6px 10px;border:0;border-radius:9px;background:transparent;color:var(--text-secondary);font:inherit;cursor:pointer;text-decoration:none;scroll-margin-top:100px}
+.discussion-share-compact .discussion-copy{min-height:var(--control-height,44px);padding:4px 10px;border:0;border-radius:var(--control-radius,8px);background:transparent;color:var(--text-secondary);font:inherit;cursor:pointer;text-decoration:none;scroll-margin-top:100px}
 .discussion-share-compact .discussion-copy:hover:not(:disabled){background:var(--surface2);color:var(--text);text-decoration:none}.discussion-share-compact .discussion-copy:disabled{cursor:default;opacity:.6}.discussion-share-compact .discussion-link-fallback{padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface2)}
 .card-actions>.discussion-share-compact:has(.discussion-link-fallback),.card-comment-links>.discussion-share-compact:has(.discussion-link-fallback){flex-basis:100%;width:100%}.discussion-share-compact .discussion-link-fallback input{max-width:100%}

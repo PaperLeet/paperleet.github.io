@@ -70,7 +70,7 @@ export function useCommunityTranslation(kind:'post'|'reply',source?:Source,disab
 export function TranslationNotice({translation}:{translation:ReturnType<typeof useCommunityTranslation>}){
  const {t}=useI18n();
  if(!translation.translated&&!translation.pending&&!translation.failed)return null;
- return <div className="community-translation" aria-live="polite">
+ return <div className={'community-translation'+(translation.translated||translation.pending?'':' is-failed')} aria-live="polite">
   {translation.translated?<><span>{translation.showing?t('机器翻译','Machine translated'):t('原文','Original')}</span><button type="button" onClick={translation.toggle}>{translation.showing?t('查看原文','View original'):t('查看翻译','View translation')}</button></>:
    translation.pending?<span>{t('正在翻译 · 当前为原文','Translating · Showing original')}</span>:<><span>{t('原文 · 翻译暂不可用','Original · Translation unavailable')}</span><button type="button" onClick={translation.retry}>{t('重试翻译','Retry translation')}</button></>}
  </div>;

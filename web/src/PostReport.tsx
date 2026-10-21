@@ -25,7 +25,7 @@ export default function PostReport({postId,returnTo,postTitle,own=false,disabled
  if(loading||capabilities?.community_reports!==true||own)return null;
  if(!user)return <AppLink className="post-report-trigger" href={signInHref(returnTo)} aria-disabled={disabled||undefined} onClick={event=>{
   if(disabled||canAct?.()===false||!controlIsActive(event.currentTarget)||event.currentTarget.closest('details:not([open]),dialog:not([open])'))event.preventDefault();
- }}><Flag size={14} aria-hidden="true"/>{t('举报','Report')}</AppLink>;
+ }}><Flag size={14} aria-hidden="true"/><span className="post-report-label">{t('举报','Report')}</span></AppLink>;
  return <ReportForm key={`${user.id}:${postId}`} owner={user.id} postId={postId} postTitle={postTitle} disabled={disabled} canAct={canAct}/>;
 }
 function ReportForm({owner,postId,postTitle,disabled,canAct}:{owner:string;postId:string;postTitle?:string;disabled:boolean;canAct?:()=>boolean}){
@@ -69,7 +69,7 @@ function ReportForm({owner,postId,postTitle,disabled,canAct}:{owner:string;postI
  const changed=!!command&&(command.reason!==reason||command.details!==details.trim());
  return <><button ref={trigger} type="button" className="post-report-trigger" disabled={disabled} aria-haspopup="dialog" aria-expanded={open} onClick={()=>{
   if(open||!canStart())return;origin.current=location.href;setOpen(true);void load();
- }}><Flag size={14} aria-hidden="true"/>{known?.reported?t('已举报','Reported'):t('举报','Report')}</button>
+ }}><Flag size={14} aria-hidden="true"/><span className="post-report-label">{known?.reported?t('已举报','Reported'):t('举报','Report')}</span></button>
  {open&&createPortal(<dialog ref={dialog} className="post-report-dialog" aria-labelledby={id} aria-describedby={id+'-privacy'} onCancel={event=>{event.preventDefault();close();}} onKeyDown={event=>{
   if(event.key==='Escape'&&(event.defaultPrevented||event.repeat||event.nativeEvent.isComposing||event.nativeEvent.keyCode===229||event.ctrlKey||event.metaKey||event.altKey||event.shiftKey)){event.preventDefault();event.stopPropagation();}
  }}>
