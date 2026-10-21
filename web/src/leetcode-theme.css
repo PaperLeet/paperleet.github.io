@@ -1,0 +1,126 @@
+/* LeetCode-style theme layer. Loaded last from main.tsx: it only swaps token values and settles
+   shared chrome, so earlier sheets keep working without being rewritten. */
+
+/* Dark (default) — neutral layered greys and the brand orange. */
+:root {
+  --bg: #1a1a1a;
+  --surface: #262626;
+  --surface2: #2f2f2f;
+  --surface3: #3a3a3a;
+  --surface-hover: var(--surface3);
+  --surface-overlay: #303030;
+  --line: #3d3d3d;
+  --text: #eff1f6;
+  --text-secondary: #a8a8ad;
+  --accent: #ffa116;
+  --accent-fill: #ffa116;
+  --primary-bg: #ffa116;
+  --primary-text: #1a1a1a;
+  --editor: #262626;
+  --green: #2cbb5d;
+  --success: var(--green);
+  --red: #ff5a75;
+  --danger: var(--red);
+  --error: var(--red);
+  --mono: var(--font-mono);
+
+  /* Difficulty: LeetCode hues, readable on the dark panels. */
+  --diff-easy: #00b8a3;
+  --diff-medium: #ffc01e;
+  --diff-hard: #ff375f;
+
+  /* Shape and elevation scale. */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --control-radius: 8px;
+  --radius-lg: 12px;
+  --radius-panel: 12px;
+  --shadow-overlay: 0 8px 24px #00000080, 0 0 0 1px #ffffff0d;
+  --shadow-dialog: 0 16px 48px #00000099;
+  --shadow: var(--shadow-dialog);
+
+  /* Density: 44px touch targets, LeetCode-like 36px controls on fine pointers. */
+  --control-height: 44px;
+  --topbar-height: 56px;
+}
+@media (hover: hover) and (pointer: fine) {
+  :root { --control-height: 36px; }
+}
+
+/* Light — white panels on a soft grey page; text tokens stay AA on white. */
+[data-theme="light"] {
+  --bg: #f7f8fa;
+  --surface: #fff;
+  --surface2: #f7f7f8;
+  --surface3: #efefef;
+  --surface-overlay: #fff;
+  --line: #e5e5e5;
+  --text: #262626;
+  --text-secondary: #5c5c5c;
+  --accent: #b35c00;
+  --accent-fill: #ffa116;
+  --editor: #fff;
+  --green: #12804c;
+  --red: #d92650;
+  --diff-easy: #007f73;
+  --diff-medium: #9a6700;
+  --diff-hard: #d1213f;
+  --shadow-overlay: 0 4px 16px #00000014, 0 0 0 1px #0000000a;
+  --shadow-dialog: 0 16px 48px #0000001f;
+}
+
+/* ------------------------------------------------------------------------------------------ */
+/* Shell layer: header, overlays, loading, canvas and scrolling. Component sheets own the base
+   look; these rules only settle values that several older sheets used to fight over.         */
+
+:root {
+  /* Header icon buttons, metrics and the sign-in CTA. */
+  --topbar-control: 32px;
+  /* Height of the sticky header, for page-level offsets. */
+  --topbar-offset: var(--topbar-height);
+  --scrollbar-thumb: color-mix(in srgb, var(--text) 24%, transparent);
+  /* Ghost hover that stays visible on any bar colour, including the workspace gutter. */
+  --topbar-ghost-hover: color-mix(in srgb, var(--text) 8%, transparent);
+  --tooltip-bg: #4a4a4a;
+  --tooltip-text: #eff1f6;
+}
+[data-theme="light"] {
+  --tooltip-bg: #262626;
+  --tooltip-text: #fff;
+}
+@media (pointer: coarse) {
+  :root { --topbar-control: 40px; }
+}
+@media (max-width: 860px) {
+  /* Two rows: identity and actions, then the scrolling navigation. */
+  :root { --topbar-offset: 89px; }
+}
+@media (max-width: 760px) {
+  :root { --topbar-control: 44px; }
+}
+/* LeetCode's editor keeps a single 48px bar above the panels. */
+.app.workspace-view { --topbar-height: 48px; }
+
+/* The canvas always follows --bg; the boot sheet's html[data-theme] colour must not win. */
+:root[data-theme] { background: var(--bg); }
+html { scrollbar-color: var(--scrollbar-thumb) transparent; }
+
+/* Page-level loading: centred in the page frame and revealed only when a load is slow. */
+.app > .feature-loading {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1480px;
+  min-height: calc(100dvh - var(--topbar-offset) - 80px);
+  margin-inline: auto;
+  justify-content: center;
+  font-size: var(--type-small);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .app > .feature-loading { animation: feature-loading-in .2s ease-out .35s both; }
+  @keyframes feature-loading-in { from { opacity: 0; } to { opacity: 1; } }
+}
+
+@media (forced-colors: active) {
+  .topbar .nav-inner > nav > .active::after { background: Highlight; }
+  .account-menu-panel, .toast, .group-chat-dialog { border: 1px solid CanvasText; }
+}

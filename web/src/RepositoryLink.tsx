@@ -3,7 +3,7 @@ import { deferredFeature } from './deferredFeature';
 import { useI18n } from "./i18n";
 
 const StarCount = deferredFeature(() => import('./RepositoryStarCount'), ['', ''], {
-  loading: () => '—', failure: () => '—',
+  loading: () => '\u00a0', failure: () => null,
 });
 
 export default function RepositoryLink() {

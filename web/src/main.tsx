@@ -11,6 +11,7 @@ import "./library-workbench.css";
 import "./control-surfaces.css";
 import "./library-filters.css";
 import "./visual-polish.css";
+import "./leetcode-theme.css";
 import { startPublicNavigation } from "./deployment";
 import { AppErrorBoundary } from "./AppErrorBoundary";
 import { finishAppStartup } from "./appRecovery";
