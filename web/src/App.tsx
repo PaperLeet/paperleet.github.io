@@ -51,7 +51,6 @@ import { useQueuedJudge } from "./useQueuedJudge";
 import { jobErrorText } from "./judgeJobMessages";
 import { reloadApp } from './appRecovery';
 import { useBrowserJudge } from "./useBrowserJudge";
-import { browserReason } from "./browserMessages";
 import { browserBudget } from './browserBudgets';
 import { topicIdFromRoute, topicFromProblem } from "./communityTopics";
 import { accountReturnHref, isAccountRoute, signInHref } from "./accountNavigation";
@@ -69,6 +68,8 @@ import { readPaperRegistryRoute,discussionPracticeReturn,readFavoriteRoute,libra
 import "./community.css";
 
 const BrowserLearningNotice=deferredFeature<Parameters<typeof import('./BrowserLearningNotice').BrowserLearningNotice>[0]>(()=>import('./BrowserLearningNotice').then(module=>({default:module.BrowserLearningNotice})),['学习进度提示','learning progress notice'],{loading:()=>null,failure:(_props,retry)=><span className="browser-learning-notice-recovery"><FeatureRetry retry={retry} label={['重试学习进度提示','Retry progress notice']}/></span>});
+function BrowserFailureFallback(){const {t}=useI18n();return <>{t("当前环境暂时无法运行测试","Tests cannot run in this environment")}</>;}
+const BrowserFailureMessage=deferredFeature<{reason:string}>(()=>import("./BrowserFailureMessage"),["运行错误","run error"],{loading:BrowserFailureFallback,failure:BrowserFailureFallback});
 const CatalogFeedback=deferredFeature(()=>import('./CatalogFeedback'),['题库','Catalog']);
 const ChallengePanels=deferredFeature(()=>import('./ChallengePanels'),['练习','practice']);
 const EditorTools=deferredFeature(()=>import('./EditorTools'),['',''],{loading:()=> <EditorToolsFallback/>,failure:(_props,retry)=><EditorToolsFallback retry={retry}/>});
@@ -867,7 +868,7 @@ function Workspace() {
                       ? <BrowserRunProgressFrame onStop={browser.stop}><BrowserRunProgressBody progress={browser.progress || { stage: browser.stage || 'loading' }}/></BrowserRunProgressFrame>
                       : <div role="status">{t("另一道题正在运行", "Another module is running")} <button onClick={browser.stop}>{t("停止运行", "Stop run")}</button></div>)}
                     {browser.active && browserHere && browserBudget(problem).total > 120_000 && <small>{t(`完整实验最多运行 ${browserBudget(problem).total / 60_000} 分钟；可随时停止。`, `The full experiment can take up to ${browserBudget(problem).total / 60_000} minutes. You can stop at any time.`)}</small>}
-                    {browser.reasons[problem.id] && <p role="status">{browserReason(browser.reasons[problem.id], locale === "en")} {t('可以修改后重试，或登录后提交到服务端。', 'Edit and retry, or sign in to submit on the server.')}</p>}
+                    {browser.reasons[problem.id] && <p role="status"><BrowserFailureMessage reason={browser.reasons[problem.id]}/> {t('可以修改后重试，或登录后提交到服务端。', 'Edit and retry, or sign in to submit on the server.')}</p>}
                     {(completedBrowserReport || browser.diagnostics[problem.id]) && <JudgeRuntimeDetails server={false} browserResult={completedBrowserReport}
                       calibration={report?.browser_run?.calibration ?? (report && report === browser.reports[problem.id] ? browser.calibrations[problem.id] : undefined)}
                       diagnostics={browser.diagnostics[problem.id]}

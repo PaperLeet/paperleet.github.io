@@ -1,12 +1,11 @@
 import type {Category,Paper,Problem} from './types';
 
-type Index={schema_version?:number;problems:Problem[];papers:Paper[];categories?:Category[]};
+export type Index={schema_version?:number;problems:Problem[];papers:Paper[];categories?:Category[]};
 const record=(value:unknown):value is Record<string,unknown>=>!!value&&typeof value==='object'&&!Array.isArray(value);
 const invalid=()=>new Error('Invalid catalog index');
 
 /** Expand only the source transport; callers keep the exact established Problem model. */
 export async function decodeCatalogIndex(value:unknown):Promise<Index>{
- if(Array.isArray(value))return {problems:value as Problem[],papers:[]};
  if(record(value)&&value.schema_version===4){
   const packed:unknown=JSON.parse(await decompress(value.payload));
   if(!record(packed)||!Array.isArray(packed.shapes)||packed.shapes.length>256)throw invalid();
@@ -30,19 +29,8 @@ export async function decodeCatalogIndex(value:unknown):Promise<Index>{
   for(const problem of index.problems){if(!record(problem)||typeof problem.id!=='string'||typeof problem.starter!=='string'||ids.has(problem.id))throw invalid();ids.add(problem.id);}
   return index as Index;
  }
- if(!record(value)||!Array.isArray(value.problems))throw invalid();
- if(value.schema_version===2||value.schema_version===undefined)return {...value,papers:Array.isArray(value.papers)?value.papers:[]} as Index;
- if(!Array.isArray(value.papers))throw invalid();
- if(value.schema_version!==3||!record(value.starters))throw invalid();
- const starters:unknown=JSON.parse(await decompress(value.starters));
- if(!record(starters)||Object.keys(starters).length!==value.problems.length)throw invalid();
- const seen=new Set<string>();
- const problems=value.problems.map((problem:unknown)=>{
-  if(!record(problem)||typeof problem.id!=='string'||!Object.hasOwn(starters,problem.id)||typeof starters[problem.id]!=='string'||seen.has(problem.id)||Object.hasOwn(problem,'starter'))throw invalid();
-  seen.add(problem.id);return {...problem,starter:starters[problem.id]} as Problem;
- });
- const {starters:_sources,...index}=value;
- return {...index,schema_version:2,problems} as Index;
+ // Current catalogs need no legacy source-map decoder in their initial bundle.
+ return (await import('./legacyCatalogIndex')).decodeLegacyCatalog(value,decompress);
 }
 
 async function decompress(source:unknown):Promise<string>{
