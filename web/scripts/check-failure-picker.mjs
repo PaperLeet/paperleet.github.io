@@ -44,8 +44,14 @@ export async function checkFailurePicker(server, Workflow, props) {
     assert(picker().disabled);assert([...document.querySelectorAll('.feedback-error-nav button')].every(node=>node.disabled));
     assert(!document.querySelector('.feedback-diagnostic'),'Old diagnostics stay hidden during a new run');
     current={...current,running:false,source:props.source,sourceState:'current',report:{...report,error:undefined,tests:report.tests.slice(0,2)}};await render();
-    assert.equal(picker().value,'test-0','A new report resets to its first failure');
-    current={...current,report:{...current.report,tests:[report.tests[0]]}};await render();assert(!picker(),'A single failure does not need a picker');
+    const tabs=()=>[...document.querySelectorAll('.feedback-case-tabs [role="tab"]')];
+    assert(!picker(),'A few failures use case tabs instead of the native picker');
+    assert.equal(tabs().find(tab=>tab.getAttribute('aria-selected')==='true').dataset.failure,'test-0','A new report resets to its first failure');
+    await act(async()=>{tabs()[0].focus();tabs()[0].dispatchEvent(new dom.window.KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true}));});
+    assert.equal(tabs()[1].getAttribute('aria-selected'),'true');assert.equal(document.activeElement,tabs()[1],'Arrow keys move focus and selection between case tabs');
+    assert.equal(document.querySelector('.feedback-diagnostic').textContent,'ValueError: failure 1');
+    await click(tabs()[0]);assert.equal(tabs()[0].getAttribute('aria-selected'),'true');assert.equal(tabs()[1].tabIndex,-1,'Only the selected case tab is in the tab order');
+    current={...current,report:{...current.report,tests:[report.tests[0]]}};await render();assert(!picker()&&!tabs().length,'A single failure does not need a picker');
     assert.equal(document.querySelector('textarea'),draft);assert(draft.value.endsWith('# unsent changes'));assert.equal(draft.selectionStart,2);assert.equal(draft.selectionEnd,8);assert.equal(draft.scrollTop,27);
     assert.equal(location.href,source);assert.deepEqual({...localStorage},{...stored,'paperleet.locale':'zh'});assert.equal(edits,0);assert.equal(runs,0);
     assert.deepEqual(report,before,'Selecting failures cannot mutate the report or grades');

@@ -7,6 +7,7 @@ import type { ReportSourceState } from "./reportSource";
 import { learnerTraceFrames, type SourceLocation } from "./sourceLocation";
 import FailureDiagnostic from './FailureDiagnostic';
 import { ReportTests,type TestDetailReveal } from "./ReportTests";
+import "./lc-feedback-report.css";
 
 export default function ReportView({
   report,
