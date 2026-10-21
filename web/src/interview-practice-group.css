@@ -30,7 +30,7 @@
 .interview-group-toggle[aria-pressed=true]{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 40%,var(--line));background:color-mix(in srgb,var(--accent) 6%,var(--surface))}
 .interview-group-toggle:disabled{opacity:.45;cursor:default}
 .interview-practice-group :is(button,a,h3):focus-visible{outline:2px solid var(--accent);outline-offset:3px}
-@media(max-width:600px){.practice-group-controls{flex-wrap:wrap;justify-content:flex-end;max-width:132px}.interview-practice-group{padding:14px 12px}.interview-practice-group>ol>li{gap:5px;padding:7px 5px}.practice-group-controls{gap:0}.interview-practice-group>footer{align-items:flex-start;flex-direction:column;gap:10px}.interview-practice-group>footer>.button{align-self:stretch;justify-content:center}.interview-ranking-actions{flex-wrap:wrap}.interview-group-toggle{flex-basis:100%}}
+@media(max-width:600px){.practice-group-controls{flex-wrap:wrap;justify-content:flex-end;max-width:132px}.interview-practice-group{padding:14px 12px}.interview-practice-group>ol>li{gap:5px;padding:7px 5px}.practice-group-controls{gap:0}.interview-practice-group>footer{align-items:flex-start;flex-direction:column;gap:10px}.interview-practice-group>footer>.button{align-self:stretch;justify-content:center}.interview-ranking-actions{flex-wrap:wrap}}
 @media(pointer:coarse){.practice-group-controls>button{width:44px;min-height:44px}.interview-practice-group>header>.text-button{min-width:44px}.interview-practice-group>header>.text-button,.interview-practice-group>footer>.button,.interview-group-toggle,.practice-group-unavailable>.text-button{min-height:44px}}
 @media(prefers-reduced-motion:no-preference){.interview-group-toggle,.practice-group-controls>button{transition:background .15s,color .15s,border-color .15s}}
 

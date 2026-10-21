@@ -1,6 +1,6 @@
 .interview-batch-save { margin-top:14px; padding:18px; border:1px solid var(--line); border-radius:10px; background:var(--surface2); min-width:0; }
 .interview-batch-save h4 { display:flex; align-items:center; gap:8px; margin:0; font-size:var(--type-body); line-height:1.6; }
-.interview-batch-save p,.interview-batch-save li { font-size:var(--type-small); line-height:1.8; color:var(--muted); overflow-wrap:anywhere; }
+.interview-batch-save p,.interview-batch-save li { font-size:var(--type-small); line-height:1.6; color:var(--muted); overflow-wrap:anywhere; }
 .interview-batch-save ol { margin:12px 0; padding-inline-start:24px; }
 .interview-batch-save form { display:grid; gap:12px; }
 .interview-batch-save label { display:grid; gap:6px; color:var(--muted); font-size:var(--type-small); }

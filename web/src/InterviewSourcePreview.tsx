@@ -13,9 +13,10 @@ import {InlinePostBody} from './InlineCommentBody';
 import {keepReadingTriggerVisible} from './readingViewport';
 import CommunityAuthor from './CommunityAuthor';
 import InterviewMeta from './InterviewMeta';
+import InterviewFrequency from './InterviewFrequency';
 import './interview-source-preview.css';
 
-type Props={concept:string;name:string;reports:number;contributors:number;sourceHref:string;returnTo:string;owner:string;accountLoading?:boolean;contextAvailable?:boolean;practice?:{href:string;number?:number};library?:{href:string;exercise?:LibraryExerciseSourceScope};returnId?:number;onReturnReady?:(id:number)=>void;onReturnPending?:(id:number)=>void;onReturnCancel?:(id:number)=>void};
+type Props={concept:string;name:string;reports:number;contributors:number;peak?:number;sourceHref:string;returnTo:string;owner:string;accountLoading?:boolean;contextAvailable?:boolean;practice?:{href:string;number?:number};library?:{href:string;exercise?:LibraryExerciseSourceScope};returnId?:number;onReturnReady?:(id:number)=>void;onReturnPending?:(id:number)=>void;onReturnCancel?:(id:number)=>void};
 const currentScope=()=>{const filters=readInterviewRoute(appLocation.hash);return filters?interviewHref(filters):undefined;};
 const inSourceScope=({library,practice,concept,sourceHref,returnTo}:Pick<Props,'library'|'practice'|'concept'|'sourceHref'|'returnTo'>)=>library?(library.exercise?(concept===library.exercise.concept&&libraryExercisePreviewScope(appLocation.hash,sourceHref,library.exercise)):libraryInterviewPreviewScope(appLocation.hash,sourceHref))===library.href:practice?interviewPracticePreviewScope(appLocation.hash,concept,practice.number)===practice.href:currentScope()===returnTo;
 
@@ -36,7 +37,7 @@ function SourcePreview(props:Props){
     if(props.returnId!==undefined)props.onReturnCancel?.(props.returnId);
   };
   return <section className="interview-source-preview interview-ranking-evidence">
-    <div className="interview-source-toolbar"><span>{t('榜单统计：','Ranking evidence: ')}<b>{props.contributors}</b> {t('位分享者','contributors')} · <b>{props.reports}</b> {t('篇面经','reports')}</span><div>
+    <div className="interview-source-toolbar"><span>{t('榜单统计：','Ranking evidence: ')}<b>{props.contributors}</b> {t('位分享者','contributors')} · <b>{props.reports}</b> {t('篇面经','reports')}{props.peak!==undefined&&<InterviewFrequency value={props.contributors} max={props.peak}/>}</span><div>
       {props.reports>0&&<button ref={toggle} type="button" className="interview-source-preview-toggle" aria-expanded={expanded} aria-controls={id} aria-label={expanded?t(`收起${props.name}的来源预览`,`Collapse source preview for ${props.name}`):t(`预览${props.name}的来源面经`,`Preview source experiences for ${props.name}`)} onClick={event=>{if(activeSourcePreview(event.currentTarget)&&inSourceScope(props))expanded?close():setView({open:true,returned:view.returned});}}>{expanded?<ChevronUp size={14} aria-hidden="true"/>:<ChevronDown size={14} aria-hidden="true"/>}{expanded?t('收起预览','Collapse preview'):t('预览来源','Preview sources')}</button>}
       <AppLink href={props.sourceHref}>{t(`查看 ${props.reports} 篇来源`,`Read ${props.reports} source ${props.reports===1?'report':'reports'}`)}<ArrowRight size={13} aria-hidden="true"/></AppLink>
     </div></div>
