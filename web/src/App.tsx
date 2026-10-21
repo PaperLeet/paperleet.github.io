@@ -515,6 +515,9 @@ function Workspace() {
   const workspaceSaveState = practice.error || (problem && practice.conflicts[problem.id]) ? "warning"
     : practice.loading || !practice.ready ? "loading"
     : practice.saving || practice.pending ? "saving" : "saved";
+  const backText = company?t("公司练习","Company practice"):directLibrary?t("题目列表","Exercise list"):courseCollection ? t(courseCollection.name,courseCollection.name_en) : sourcePostReturn||registryReturn ? backLabel : favoriteReturn ? t('收藏题目','Saved problems') : interviewReturn ? t('面经','Interviews') : selectedPaper
+    ? `${selectedPaper.number}. ${selectedPaper.short_title}`
+    : t("论文题库", "Papers");
   return (
     <PracticeProgressProvider owner={practice.owner} problems={problems} saved={learningSaved} ready={progressReady} failed={!!practice.error||learning.failed} retry={()=>{practice.retry();learning.retry();}}>
     <div className={`app ${problem ? "workspace-view" : ""}`} data-mobile-pane={mobilePane} data-focus-mode={focusMode || undefined}>
@@ -554,7 +557,47 @@ function Workspace() {
             <AppLink className={interviewPage ? "active" : ""} aria-current={interviewPage ? "page" : undefined} href="#/interviews"><BilingualText zh="面经" en="Interviews" /></AppLink>
             <MainNavigationVisibility />
           </nav>
+          {problem&&!loadError&&<div className="workspace-toolbar">
+            <div className="workspace-toolbar-start">
+            <AppLink
+              className="back-link"
+              href={listPractice?libraryReturn:courseCollection ? libraryReturn : sourcePostReturn||favoriteReturn||interviewReturn||registryReturn ? libraryReturn : selectedPaper ? withLibraryContext(`papers/${selectedPaper.id}`,libraryReturn) : libraryReturn || '#'}
+              title={backText}
+            >
+              <ArrowLeft size={15} />
+              {backText}
+            </AppLink>
+            {readFavoriteRoute(libraryReturn||'')?.list?<StudyListPracticeNavigation key={`${practice.owner}:${problem.id}`} problemId={problem.id} returnTo={libraryReturn!} problems={problems}/>:<ModuleNavigator key={`${practice.owner}:${problem.id}`} course={inCourse&&!directLibrary} current={problem} modules={listPractice?practiceScope.problems:siblingModules} allModules={problems} saved={learningSaved} ready={progressReady} scopeReady={companyReady&&(!directLibrary||scopeView?.filters.state==='all'||progressReady)} returnTo={libraryReturn} />}
+            <span className="toolbar-divider" />
+            <b title={problem.title}>
+              {problem.number}. {problem.title}
+            </b>
+            <ProblemFavoriteButton key={'favorite:'+problem.id} problemId={problem.id} returnTo={id}/>
+            </div>
+            <div className="workspace-run-controls">
+              {(running || !practice.ready || practice.loading || (!online && !browserAvailable)) && <span className="workspace-run-state" role="status">
+                {running ? <><span className="spinner" />{judge.active ? runStatus : browser.active ? t("运行中…", "Running…") : t("正在准备…", "Preparing…")}</> : !practice.ready || practice.loading ? t("正在准备工作区…", "Preparing workspace…") : t("判题服务未连接", "Judge offline")}
+              </span>}
+              {browser.active && <button className="workspace-stop-button" type="button" onClick={browser.stop}><X size={14}/>{t("停止","Stop")}</button>}
+              <div className="editor-run-actions">
+                {(browserAvailable || (!hosted && !publicSite)) && <button
+                  className="button subtle run-button" aria-keyshortcuts="Meta+Enter Control+Enter"
+                  disabled={running || !practice.ready}
+                  onClick={() => void run(browserAvailable ? 'browser' : 'server')}
+                ><Play size={15} fill="currentColor" />{t("运行测试", "Run tests")}</button>}
+                {hostedAppAvailable && <button
+                  className="button run-button"
+                  disabled={running || !practice.ready || (!!user && (!queueReady || !online || !!practice.conflicts[problem.id]))}
+                  onClick={() => user ? void run('server') : signInToSubmit()}
+                >{user ? t("提交", "Submit") : t("登录后提交", "Sign in to submit")}</button>}
+              </div>
+            </div>
+          </div>}
           <div className="nav-actions">
+            {problem&&!loadError&&<WorkspaceLayoutMenu onLayout={(ratio) => {
+              setFocusMode(false);
+              setLayoutRequest({horizontal:{ratio}});
+            }} />}
             <RepositoryLink />
             <GroupChat route={id} />
             <OnlinePresence />
@@ -677,47 +720,6 @@ function Workspace() {
       ) : (
         <>
           {company&&<CompanyTools company={company} days={companyDays} returnTo={practiceReturn||'#'} {...companyScope}/>}
-          <div className="workspace-toolbar">
-            <div className="workspace-toolbar-start">
-            <AppLink
-              className="back-link"
-              href={listPractice?libraryReturn:courseCollection ? libraryReturn : sourcePostReturn||favoriteReturn||interviewReturn||registryReturn ? libraryReturn : selectedPaper ? withLibraryContext(`papers/${selectedPaper.id}`,libraryReturn) : libraryReturn || '#'}
-            >
-              <ArrowLeft size={15} />
-              {company?t("公司练习","Company practice"):directLibrary?t("题目列表","Exercise list"):courseCollection ? t(courseCollection.name,courseCollection.name_en) : sourcePostReturn||registryReturn ? backLabel : favoriteReturn ? t('收藏题目','Saved problems') : interviewReturn ? t('面经','Interviews') : selectedPaper
-                ? `${selectedPaper.number}. ${selectedPaper.short_title}`
-                : t("论文题库", "Papers")}
-            </AppLink>
-            {readFavoriteRoute(libraryReturn||'')?.list?<StudyListPracticeNavigation key={`${practice.owner}:${problem.id}`} problemId={problem.id} returnTo={libraryReturn!} problems={problems}/>:<ModuleNavigator key={`${practice.owner}:${problem.id}`} course={inCourse&&!directLibrary} current={problem} modules={listPractice?practiceScope.problems:siblingModules} allModules={problems} saved={learningSaved} ready={progressReady} scopeReady={companyReady&&(!directLibrary||scopeView?.filters.state==='all'||progressReady)} returnTo={libraryReturn} />}
-            <span className="toolbar-divider" />
-            <b title={problem.title}>
-              {problem.number}. {problem.title}
-            </b>
-            <ProblemFavoriteButton key={'favorite:'+problem.id} problemId={problem.id} returnTo={id}/>
-            </div>
-            <div className="workspace-run-controls">
-              {(running || !practice.ready || practice.loading || (!online && !browserAvailable)) && <span className="workspace-run-state" role="status">
-                {running ? <><span className="spinner" />{judge.active ? runStatus : browser.active ? t("运行中…", "Running…") : t("正在准备…", "Preparing…")}</> : !practice.ready || practice.loading ? t("正在准备工作区…", "Preparing workspace…") : t("判题服务未连接", "Judge offline")}
-              </span>}
-              {browser.active && <button className="workspace-stop-button" type="button" onClick={browser.stop}><X size={14}/>{t("停止","Stop")}</button>}
-              <div className="editor-run-actions">
-                {(browserAvailable || (!hosted && !publicSite)) && <button
-                  className="button subtle run-button" aria-keyshortcuts="Meta+Enter Control+Enter"
-                  disabled={running || !practice.ready}
-                  onClick={() => void run(browserAvailable ? 'browser' : 'server')}
-                ><Play size={15} fill="currentColor" />{t("运行测试", "Run tests")}</button>}
-                {hostedAppAvailable && <button
-                  className="button run-button"
-                  disabled={running || !practice.ready || (!!user && (!queueReady || !online || !!practice.conflicts[problem.id]))}
-                  onClick={() => user ? void run('server') : signInToSubmit()}
-                >{user ? t("提交", "Submit") : t("登录后提交", "Sign in to submit")}</button>}
-              </div>
-            </div>
-            <WorkspaceLayoutMenu onLayout={(ratio) => {
-              setFocusMode(false);
-              setLayoutRequest({horizontal:{ratio}});
-            }} />
-          </div>
           <div className="mobile-workspace-switch" role="group" aria-label={t("练习视图", "Practice view")}>
             <button aria-pressed={mobilePane === "read"} aria-controls="problem-description-panel" onClick={() => selectReadingTab(tab)}><BookOpen size={16}/>{t('题面','Problem')}</button>
             <button aria-pressed={mobilePane === "code"} aria-controls="problem-editor-panel" onClick={focusEditor}><Code2 size={16}/>{t('编写代码','Write code')}{resultState&&<span aria-hidden="true" className="mobile-result-dot" data-state={resultState}/>}</button>

@@ -4,6 +4,8 @@
 
 :root {
   --workspace-gutter: var(--bg);
+  --workspace-pill: color-mix(in srgb, var(--text) 8%, var(--surface));
+  --workspace-pill-hover: color-mix(in srgb, var(--text) 14%, var(--surface));
   --workspace-band-bg: color-mix(in srgb, var(--surface2) 55%, var(--surface));
   --workspace-panel-border: color-mix(in srgb, var(--line) 60%, transparent);
   --workspace-control: color-mix(in srgb, var(--text) 10%, transparent);
@@ -23,8 +25,78 @@
 /* Frame ------------------------------------------------------------------------------------ */
 .workspace-view { --workspace-band: 40px; background: var(--workspace-gutter); }
 .workspace-view > .topbar { --topbar-bg: var(--workspace-gutter); background: var(--workspace-gutter); border-bottom-color: transparent; box-shadow: none; }
+.app.workspace-view > .topbar .nav-inner { max-width: none; padding-inline: 12px; }
 
-/* Toolbar: problem navigation left, Run/Submit centred as a pair, view controls right. */
+/* One header, like LeetCode's editor: brand mark and problem navigation left, Run/Submit centred on
+   the page, layout and account actions right. The toolbar's own box steps aside (display: contents)
+   so its groups share the header grid; the brand and the start group share the first column. The
+   side columns never shrink below their controls: when a run status widens the centre, Run/Submit
+   moves aside instead of overlapping the problem navigation. It starts where the panes split. */
+@media (min-width: 851px) {
+  .app.workspace-view > .topbar .nav-inner { display: grid; grid-template-columns: minmax(min-content, 1fr) auto minmax(min-content, 1fr); align-items: center; column-gap: 12px; }
+  .workspace-view > .topbar .nav-inner > .brand { grid-area: 1 / 1; justify-self: start; z-index: 1; }
+  .app.workspace-view > .topbar .brand-wordmark { display: none; }
+  .workspace-view > .topbar .nav-inner > .workspace-toolbar { display: contents; }
+  .workspace-view > .topbar .workspace-toolbar-start { grid-area: 1 / 1; margin-inline-start: 40px; }
+  .workspace-view > .topbar .workspace-toolbar > .workspace-run-controls { grid-area: 1 / 2; flex-wrap: nowrap; }
+  .workspace-view > .topbar .workspace-run-controls > .editor-run-actions { flex-wrap: nowrap; }
+  .workspace-view > .topbar .workspace-run-controls .run-button { flex: none; white-space: nowrap; }
+  .workspace-view > .topbar .nav-inner > .nav-actions { grid-area: 1 / 3; justify-self: end; min-width: 0; }
+  /* The site navigation leaves the editor bar (brand and back link lead home) but stays in the
+     landmark tree; keyboard focus reveals it as a floating bar under the brand. Focus left there by
+     a click (for example on Workspace before the route changed) keeps it hidden. A bar without the
+     toolbar (a failed catalog load) keeps its navigation, as do engines without :has(). */
+  .workspace-view > .topbar .nav-inner:has(> .workspace-toolbar) > nav:not(:has(:focus-visible)) { position: absolute; width: 1px; height: 1px; padding: 0; border: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .workspace-view > .topbar .nav-inner:has(> .workspace-toolbar) > nav:has(:focus-visible) { --topbar-bg: var(--surface-overlay); position: absolute; top: calc(100% + 4px); left: 8px; z-index: 80; height: 40px; padding: 0 4px; border: 1px solid var(--line); border-radius: var(--control-radius); background-color: var(--surface-overlay); box-shadow: var(--shadow-overlay); }
+  /* Layout joins the header's icon actions. */
+  .workspace-view > .topbar .workspace-layout-trigger { width: var(--topbar-control); padding: 0; }
+  .workspace-view > .topbar .workspace-layout-trigger > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .workspace-view > .topbar .workspace-layout-trigger > svg:last-child { display: none; }
+}
+/* The problem title yields to the controls: it takes its natural width for layout but adds nothing
+   to the first column's minimum, so a long title ellipsises instead of moving Run/Submit. */
+@supports (flex-basis: content) {
+  @media (min-width: 851px) {
+    .workspace-view > .topbar .workspace-toolbar-start > b { width: 0; flex-basis: content; }
+  }
+}
+/* Wide bars keep the back link's destination readable and let the problem title (also the page
+   heading) yield first; narrower bars show the back arrow alone (its label stays its name and title). */
+@media (min-width: 1280px) {
+  .workspace-view > .topbar .workspace-toolbar-start > .back-link { flex-shrink: 0; max-width: 200px; }
+}
+@media (min-width: 851px) and (max-width: 1279px) {
+  .workspace-view > .topbar .workspace-toolbar-start > .back-link { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 32px; min-width: 32px; padding: 0; font-size: 0; }
+  .workspace-view > .topbar .workspace-toolbar-start > .back-link > svg { margin: 0; }
+  /* A run keeps the centre narrow: the spinner stands for the status text (still announced, and the
+     Result tab shows the run in full). */
+  .workspace-view > .topbar .workspace-run-state { max-width: 140px; }
+  .workspace-view > .topbar .workspace-run-state:has(> .spinner) { gap: 0; font-size: 0; }
+}
+/* The narrowest editor bars keep Run/Submit on one line next to any status: Stop shows its icon
+   (its label stays its name), a status wraps to two short lines, and the repository link, which
+   LeetCode's editor bar does not carry, waits for the other pages. */
+@media (min-width: 851px) and (max-width: 1023px) {
+  .workspace-view > .topbar .workspace-run-controls > .workspace-stop-button { min-width: 32px; padding: 0; gap: 0; font-size: 0; }
+  .workspace-view > .topbar .workspace-run-state { max-width: 76px; }
+  .workspace-view > .topbar .nav-actions > .repository-link { display: none; }
+}
+/* Below the site header's own breakpoint the editor bar keeps its single row. */
+@media (min-width: 851px) and (max-width: 860px) {
+  .app.workspace-view > .topbar { height: var(--topbar-height); }
+  .workspace-view > .topbar .nav-inner > .brand { height: auto; }
+  .workspace-view > .topbar .nav-actions .nav-metric { display: none; }
+}
+@media (min-width: 851px) and (max-width: 1279px) and (pointer: coarse) {
+  .workspace-view > .topbar .workspace-toolbar-start > .back-link { width: 44px; min-width: 44px; }
+  .workspace-view > .topbar .workspace-run-controls > .workspace-stop-button { min-width: 44px; }
+}
+/* Phones and tablets keep the stacked bar: identity and actions, navigation, then the problem row. */
+@media (max-width: 850px) {
+  .workspace-view > .topbar .nav-inner > .workspace-toolbar { grid-column: 1 / -1; grid-row: 3; margin-inline: -12px; }
+}
+
+/* Toolbar: problem navigation left, Run/Submit centred as a pair. */
 .workspace-view .workspace-toolbar {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
@@ -72,9 +144,11 @@
 .workspace-toolbar-start > .study-list-practice-nav small { display: none; }
 .workspace-toolbar-start > .study-list-practice-nav > a { min-height: 32px; }
 .workspace-toolbar-start > .study-list-practice-nav > a > span { max-width: 140px; }
+/* Inside the header this <nav> must not inherit the site navigation's tab geometry. */
+.topbar .workspace-toolbar-start > .study-list-practice-nav { height: auto; color: inherit; }
+.topbar .workspace-toolbar-start > .study-list-practice-nav > a { height: auto; padding: 0; justify-content: flex-start; font-size: inherit; font-weight: inherit; }
 
 .workspace-view .workspace-toolbar > .workspace-run-controls { grid-column: 2; justify-self: center; gap: 8px; }
-.workspace-view .workspace-toolbar > .workspace-layout-menu { grid-column: 3; justify-self: end; }
 .workspace-view .workspace-run-state { max-width: 220px; font-size: var(--type-caption); }
 .workspace-view .workspace-run-controls .editor-run-actions { gap: 2px; }
 .workspace-view .workspace-run-controls .editor-run-actions > .run-button {
@@ -217,10 +291,12 @@
 .workspace-view .workspace .heading-tags > .difficulty.E { color: var(--diff-easy); }
 .workspace-view .workspace .heading-tags > .difficulty.H { color: var(--diff-hard); }
 .workspace-view .workspace .heading-tags > .accepted { margin-left: auto; padding: 0; background: none; color: var(--green); font-size: var(--type-meta); font-weight: 500; }
-.workspace-view .workspace .problem-heading > .problem-stats { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; margin: 0; padding: 0; border: 0; font-size: var(--type-caption); line-height: 1.5; }
+/* Every item carries a leading divider; the strip starts 14px early and clips, so the divider of
+   whichever item begins a line (first, or wrapped in a narrow pane) falls outside and is hidden. */
+.workspace-view .workspace .problem-heading > .problem-stats { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 15px; margin: 0; margin-inline-start: -14px; padding: 0; overflow: hidden; border: 0; font-size: var(--type-caption); line-height: 1.5; }
 .workspace-view .workspace .problem-heading > .problem-stats > :is([data-stat="attempted_users"], [data-stat="solved_users"], [data-stat="failed_submissions"]) { display: none; }
 .workspace-view .workspace .problem-heading > .problem-stats > [data-stat="accepted_submissions"] { order: -1; }
-.workspace-view .workspace .problem-heading > .problem-stats > :is([data-stat="total_submissions"], [data-stat="acceptance_rate"]) { padding-left: 14px; border-left: 1px solid var(--line); }
+.workspace-view .workspace .problem-heading > .problem-stats > div { margin-inline-start: -1px; padding-inline-start: 14px; border-inline-start: 1px solid var(--line); }
 .workspace-view .workspace .problem-heading .problem-stats > div { flex-direction: row; align-items: baseline; gap: 6px; }
 .workspace-view .workspace .problem-heading .problem-stats dd { font-size: var(--type-meta); font-weight: 600; font-variant-numeric: tabular-nums; }
 .workspace-view .workspace .problem-heading > .stats-availability { margin: 0; padding: 0; border: 0; background: none; color: var(--text-secondary); font-size: var(--type-caption); }
@@ -252,17 +328,73 @@
 .workspace-view .workspace .prose blockquote { padding: 10px 14px; border-left: 3px solid color-mix(in srgb, var(--text) 24%, var(--line)); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; background: color-mix(in srgb, var(--text) 4%, var(--surface)); font-size: var(--type-small); }
 .workspace-view .workspace .lab-callout { padding: 12px 14px; border-radius: var(--control-radius); }
 
-/* Description disclosures share one row style: same height, padding, type and right-aligned chevron. */
-#problem-reading-content :is(.preparation-guide, .reading-appearance-inline > details) { margin: 0 0 10px; border: 1px solid var(--line); border-radius: var(--control-radius); background: var(--surface); }
-#problem-reading-content .reading-appearance-inline { margin: 0; }
-#problem-reading-content .prose > .reading-outline { margin: 0 0 20px; }
-#problem-reading-content .prose > .reading-outline > summary { border-radius: var(--control-radius); box-shadow: 0 6px 10px -8px color-mix(in srgb, var(--text) 30%, transparent); }
-/* Stick flush under the tab band; the scroller's 20px padding would otherwise leave a gap of scrolled text. */
-@media (min-width: 851px) { #problem-reading-content .prose > .reading-outline { top: -20px; background: linear-gradient(var(--surface), var(--surface)) top / 100% 10px no-repeat; } }
-#problem-reading-content :is(.preparation-guide, .reading-appearance-inline > details, .prose > .reading-outline) > summary { box-sizing: border-box; min-height: 44px; padding: 8px 14px; gap: 8px; font-size: var(--type-small); font-weight: 500; line-height: 1.5; }
-#problem-reading-content .preparation-guide > summary b { font-size: var(--type-small); font-weight: 500; }
-#problem-reading-content :is(.preparation-guide > summary small, .reading-appearance summary > small, .reading-outline-count) { color: var(--text-secondary); font-size: var(--type-caption); }
-#problem-reading-content .reading-outline-title { font-weight: 500; }
+/* Description tools: the study prompts, reading appearance and section outline sit in one row of quiet
+   pills between the goal and the statement, like LeetCode's Topics / Companies / Hint chips. Floats let
+   the guide (before the statement) and the statement's own tools share that row; an opened guide or
+   appearance panel becomes a full-width card, and the outline keeps its sticky menu at the row's end. */
+#problem-reading-content > .preparation-guide:not([open]),
+#problem-reading-content .prose > :is(.reading-appearance-inline, .reading-outline) { float: left; margin: 0 8px 16px 0; border: 0; background: transparent; }
+#problem-reading-content .prose > .reading-outline { float: right; margin-right: 0; }
+#problem-reading-content .prose > :not(.reading-appearance-inline, .reading-outline),
+#problem-reading-content > .notice { clear: both; }
+#problem-reading-content .reading-appearance-inline > details:not([open]) { border: 0; background: transparent; }
+#problem-reading-content :is(.preparation-guide:not([open]), .reading-appearance-inline > details:not([open]), .prose > .reading-outline) > summary {
+  display: inline-flex; align-items: center; gap: 6px; box-sizing: border-box; min-height: 28px; padding: 0 10px;
+  border: 0; border-radius: 999px; background: var(--workspace-pill); box-shadow: none;
+  color: var(--text-secondary); font-size: var(--type-caption); font-weight: 500; line-height: 1.5; white-space: nowrap;
+}
+#problem-reading-content :is(.preparation-guide:not([open]), .reading-appearance-inline > details:not([open]), .prose > .reading-outline) > summary:hover,
+#problem-reading-content .prose > .reading-outline[open] > summary { background: var(--workspace-pill-hover); color: var(--text); }
+#problem-reading-content :is(.preparation-guide:not([open]), .reading-appearance-inline > details:not([open]), .prose > .reading-outline) > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 999px; }
+#problem-reading-content .preparation-guide:not([open]) > summary > span { flex-wrap: nowrap; gap: 6px; }
+#problem-reading-content .preparation-guide:not([open]) > summary b { font-size: inherit; font-weight: inherit; }
+#problem-reading-content .preparation-guide:not([open]) > summary small { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+#problem-reading-content :is(.preparation-guide:not([open]), .reading-appearance-inline > details:not([open])) > summary > svg:last-child { display: none; }
+#problem-reading-content :is(.preparation-guide, .reading-appearance-inline > details) > summary svg { width: 14px; height: 14px; color: inherit; }
+/* The outline pill: a list glyph, the label, and its section menu aligned to the pill's end. */
+#problem-reading-content .prose > .reading-outline { container-type: scroll-state; }
+#problem-reading-content .prose > .reading-outline > summary::after { display: none; }
+#problem-reading-content .prose > .reading-outline > summary::before { content: ""; flex: none; width: 14px; height: 14px; background: currentColor; -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01'/%3E%3C/svg%3E") center / contain no-repeat; }
+#problem-reading-content .reading-outline-title { font-weight: inherit; color: inherit; }
+#problem-reading-content .reading-outline-count { margin-left: 0; color: inherit; font-size: inherit; opacity: .75; }
+#problem-reading-content .reading-outline-count::before { content: "· "; content: "· " / ""; }
+#problem-reading-content .reading-outline-menu { top: calc(100% + 6px); left: auto; right: 0; width: min(360px, calc(100vw - 48px)); }
+@media (min-width: 851px) { #problem-reading-content .prose > .reading-outline { top: -12px; } }
+/* While the pill sticks, a ring of the pane colour keeps the statement text from touching it; where
+   scroll-state queries exist, the stuck pill also lifts with the overlay shadow. */
+#problem-reading-content .prose > .reading-outline > summary:not([hidden]) { box-shadow: 0 0 0 4px var(--surface); }
+@container scroll-state(stuck: top) { #problem-reading-content .prose > .reading-outline > summary:not([hidden]) { box-shadow: 0 0 0 4px var(--surface), var(--shadow-overlay); } }
+/* An opened guide or appearance panel spans the row as a card. */
+#problem-reading-content > .preparation-guide[open],
+#problem-reading-content .reading-appearance-inline > details[open] { margin: 0 0 16px; border: 1px solid var(--line); border-radius: var(--control-radius); background: var(--surface); }
+#problem-reading-content .prose > .reading-appearance-inline:has(> details[open]) { float: none; clear: both; margin-right: 0; }
+#problem-reading-content :is(.preparation-guide[open], .reading-appearance-inline > details[open]) > summary { box-sizing: border-box; min-height: 40px; padding: 8px 14px; gap: 8px; font-size: var(--type-small); font-weight: 500; line-height: 1.5; }
+#problem-reading-content .preparation-guide[open] > summary b { font-size: var(--type-small); font-weight: 500; }
+#problem-reading-content :is(.preparation-guide > summary small, .reading-appearance summary > small) { font-size: var(--type-caption); }
+#problem-reading-content .preparation-guide > summary small { color: var(--text-secondary); }
+@media (pointer: coarse) {
+  #problem-reading-content :is(.preparation-guide:not([open]), .reading-appearance-inline > details:not([open]), .prose > .reading-outline) > summary { min-height: var(--control-height); padding-inline: 12px; }
+}
+/* Split panes keep the row on one line: up to 1365px the outline drops its section count, and up to
+   1279px the appearance pill shows its icon alone (names stay for assistive tech, and the pill keeps
+   a tooltip). Phones make both of them icon pills. */
+@media (min-width: 851px) and (max-width: 1365px) {
+  #problem-reading-content .prose > .reading-outline > summary > .reading-outline-count { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+}
+@media (min-width: 851px) and (max-width: 1279px), (max-width: 600px) {
+  #problem-reading-content .reading-appearance-inline > details:not([open]) > summary { justify-content: center; min-width: 32px; padding-inline: 9px; }
+  #problem-reading-content .reading-appearance-inline > details:not([open]) > summary > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+}
+@media (max-width: 600px) {
+  #problem-reading-content .prose > details.reading-outline > summary { justify-content: center; min-width: 32px; padding-inline: 9px; }
+  #problem-reading-content .prose > .reading-outline > summary > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+}
+@media (pointer: coarse) and (min-width: 851px) and (max-width: 1279px), (pointer: coarse) and (max-width: 600px) {
+  #problem-reading-content .reading-appearance-inline > details:not([open]) > summary { min-width: var(--control-height); }
+}
+@media (max-width: 600px) and (pointer: coarse) {
+  #problem-reading-content .prose > details.reading-outline > summary { min-width: var(--control-height); }
+}
 
 /* Result panel: the status line stays visible; secondary tools follow the verdict. */
 .workspace-view .workspace .workspace-result-panel { padding-top: 0; }
@@ -300,13 +432,8 @@
 .workspace-view .workspace .editor-status > .editor-cursor:not(:empty)::after { content: " · Python 3"; white-space: pre; }
 .workspace-view .workspace .editor-status > .editor-cursor:empty::after { content: "Python 3"; }
 
-/* Mid widths keep one toolbar row and one tab row. */
-@media (min-width: 851px) and (max-width: 1199px) {
-  .workspace-view .workspace-layout-trigger > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-  .workspace-toolbar-start > .back-link { max-width: 160px; }
-  .workspace-view .workspace-run-state { max-width: 140px; }
-}
-@media (min-width: 851px) and (max-width: 1100px) {
+/* Mid widths keep one header row and one tab row. */
+@media (min-width: 851px) and (max-width: 1279px) {
   .workspace-toolbar-start > :is(b, .toolbar-divider) { display: none; }
 }
 @media (min-width: 851px) and (max-width: 1150px) {
@@ -350,7 +477,9 @@
   .workspace-view .workspace > .split-handle::before, .workspace-view .workspace > .split-handle > .split-handle-grip, .workspace-view .workspace .code-editor .cm-foldGutter .cm-gutterElement { transition: none; }
 }
 @media (forced-colors: active) {
-  .workspace-view .workspace .editor-actions > summary::before { forced-color-adjust: none; background: ButtonText; }
+  .workspace-view .workspace .editor-actions > summary::before, #problem-reading-content .prose > .reading-outline > summary::before { forced-color-adjust: none; background: ButtonText; }
+  #problem-reading-content :is(.preparation-guide:not([open]), .reading-appearance-inline > details:not([open]), .prose > .reading-outline) > summary { border: 1px solid ButtonText; }
+  .workspace-view > .topbar .nav-inner:has(> .workspace-toolbar) > nav:has(:focus-visible) { border-color: CanvasText; }
   .workspace-view .workspace .pane-tabs > [role="tab"][aria-selected="true"]::after, .workspace-view .workspace > .split-handle:hover::before { background: Highlight; }
   .workspace-view #reading-tab-result[data-state]::before { forced-color-adjust: none; background: CanvasText; }
 }
