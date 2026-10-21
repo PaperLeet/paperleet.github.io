@@ -106,7 +106,7 @@ function ModuleNavigation({current,modules:paperModules,allModules,saved,ready,r
    const others=modules.filter(module=>module.id!==current.id),next=(ready?pickRandomUnattemptedProblem(others,saved):undefined)||others[Math.floor(Math.random()*others.length)];
    if(next)appLocation.hash=withLibraryContext(next.number,returnTo).slice(1);
   }}><Shuffle size={15}/></button>}
-  {open&&<nav className="module-picker" id={popupId} aria-label={heading}>
+  {open&&<div className="module-picker" role="navigation" id={popupId} aria-label={heading}>
    <div className="module-picker-heading"><b>{heading}</b><span>{ready?`${solved} / ${batch?.total||scoped?.total||core.length} ${batch?t('本组练习已通过','batch modules solved'):scoped?t('路径模块已通过','path modules solved'):t('核心模块已通过','core modules solved')}`:t('正在加载进度…','Loading progress…')}</span></div>
    {!!batch?.missing&&<p className="module-batch-note" role="status">{t(`${batch.missing} 道练习暂不可用，当前顺序保留。`,`${batch.missing} modules are unavailable. The remaining order is preserved.`)}</p>}
    {searchable&&<div className="module-picker-tools">
@@ -129,6 +129,6 @@ function ModuleNavigation({current,modules:paperModules,allModules,saved,ready,r
     </AppLink>;
    })}</div>
    {!visible.length&&<div className="module-picker-empty"><p>{t('当前题单没有匹配题目。','No matching modules in this list.')}</p><button type="button" className="text-button" onClick={clear}>{t('查看全部题目','Show all modules')}</button></div>}
-  </nav>}
+  </div>}
  </div>;
 }

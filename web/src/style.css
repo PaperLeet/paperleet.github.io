@@ -179,15 +179,15 @@ h3 {
   margin-top: 2px;
   margin-left: 2px;
 }
-.topbar nav {
+.topbar .nav-inner > nav {
   display: flex;
   height: 100%;
   gap: 4px;
   align-items: center;
   color: var(--text-secondary);
 }
-.topbar nav a,
-.topbar nav button {
+.topbar .nav-inner > nav a,
+.topbar .nav-inner > nav button {
   height: 100%;
   display: flex;
   align-items: center;
@@ -197,10 +197,10 @@ h3 {
   font-weight:
     500;
 }
-.topbar nav .active {
+.topbar .nav-inner > nav .active {
   color: var(--text);
 }
-.topbar nav .active:after {
+.topbar .nav-inner > nav .active:after {
   content: "";
   position: absolute;
   bottom: 0;
@@ -3474,7 +3474,7 @@ h3 {
   .topbar .brand > span:nth-child(2) {
     display: none;
   }
-  .topbar nav button:first-of-type {
+  .topbar .nav-inner > nav button:first-of-type {
     display: none;
   }
   .description-pane > .pane-tabs {
@@ -3629,9 +3629,9 @@ html { scrollbar-gutter: stable; }
   .brand { grid-column: 1; grid-row: 1; justify-self: start; height: 48px; font-size: 20px; }
   .topbar .brand > span:nth-child(2) { display: inline; }
   .nav-actions { grid-column: 2; grid-row: 1; }
-  .topbar nav { grid-column: 1 / -1; grid-row: 2; height: 40px; min-width: 0; overflow-x: auto; scrollbar-width: none; }
-  .topbar nav a, .topbar nav button { flex-shrink: 0; white-space: nowrap; padding: 0 10px; }
-  .topbar nav button:first-of-type { display: flex; }
+  .topbar .nav-inner > nav { grid-column: 1 / -1; grid-row: 2; height: 40px; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+  .topbar .nav-inner > nav a, .topbar .nav-inner > nav button { flex-shrink: 0; white-space: nowrap; padding: 0 10px; }
+  .topbar .nav-inner > nav button:first-of-type { display: flex; }
   .topbar .continue-link { min-width: 86px; }
 }
 @media (max-width: 520px) {
@@ -3816,15 +3816,13 @@ html { scrollbar-gutter: stable; }
 .publishing-rules p { margin: 8px 0; }
 
 /* Reserve translated control widths so changing language does not move the UI. */
-.topbar nav { flex-shrink: 0; }
-.topbar nav a, .topbar nav button { justify-content: center; white-space: nowrap; }
+.topbar .nav-inner > nav { flex-shrink: 0; }
+.topbar .nav-inner > nav a, .topbar .nav-inner > nav button { justify-content: center; white-space: nowrap; }
 .topbar .language-toggle { width: 70px; justify-content: center; gap: 4px; padding: 7px 6px; flex-shrink: 0; }
 .language-toggle > span { width: 22px; text-align: center; font-weight: 600; }
 .language-toggle > span.selected { font-weight: 600; }
-.topbar .sign-in-nav { width: 78px; }
 @media (max-width: 600px) {
   .topbar .language-toggle { width: 62px; }
-  .topbar .sign-in-nav { width: 60px; padding: 5px; }
 }
 @media (max-width: 480px) {
   .topbar .brand > span:nth-child(2) { display: none; }

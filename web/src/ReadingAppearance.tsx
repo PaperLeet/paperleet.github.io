@@ -44,6 +44,6 @@ export default function ReadingAppearance({mode='inline',target,scope='',control
   if(mode!=='inline'||!panelActive()||event.key!=='Escape'||event.defaultPrevented||event.repeat||event.ctrlKey||event.metaKey||event.altKey||event.shiftKey||event.nativeEvent.isComposing||event.keyCode===229)return;
   event.preventDefault();event.stopPropagation();details.current!.open=false;pending.current=undefined;intent.cancel();details.current?.querySelector('summary')?.focus({preventScroll:true});
  }}>
-  {mode==='settings'?<><div className="reading-appearance-heading"><Type size={17} aria-hidden="true"/><span>{t('阅读外观','Reading appearance')}</span></div>{fields}</>:<details ref={details}><summary onClick={event=>{if(!current())event.preventDefault();}}><Type size={16} aria-hidden="true"/><span>{t('阅读外观','Reading appearance')}</span>{preferences.size!=='default'&&<small>{preferences.size}px</small>}<ChevronDown size={15} aria-hidden="true"/></summary>{fields}</details>}
+  {mode==='settings'?<><div className="reading-appearance-heading"><Type size={17} aria-hidden="true"/><span>{t('阅读外观','Reading appearance')}</span></div>{fields}</>:<details ref={details}><summary title={t('阅读外观','Reading appearance')} onClick={event=>{if(!current())event.preventDefault();}}><Type size={16} aria-hidden="true"/><span>{t('阅读外观','Reading appearance')}</span>{preferences.size!=='default'&&<small>{preferences.size}px</small>}<ChevronDown size={15} aria-hidden="true"/></summary>{fields}</details>}
  </div>;
 }

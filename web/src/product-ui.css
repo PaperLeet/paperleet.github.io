@@ -26,7 +26,7 @@ input, select, textarea { accent-color: var(--accent); }
 .app > .topbar { border-color: var(--line); flex-shrink: 0; }
 .app:not(.workspace-view) > .topbar { position: sticky; top: 0; z-index: 40; }
 .nav-inner { max-width: 1480px; padding-inline: var(--page-gutter); gap: 24px; }
-.topbar nav .active::after { height: 2px; border-radius: 2px 2px 0 0; }
+.topbar .nav-inner > nav .active::after { height: 2px; border-radius: 2px 2px 0 0; }
 .settings-entry { width: 36px; height: 36px; color: var(--muted); border: 1px solid transparent; }
 .settings-entry[aria-current="page"] { color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--surface)); border-color: color-mix(in srgb, var(--accent) 25%, var(--line)); }
 .profile-workspace-settings { display: inline-flex; align-items: center; gap: 7px; margin-top: 5px; font-size: var(--type-body); color: var(--accent); }
@@ -184,7 +184,7 @@ input, select, textarea { accent-color: var(--accent); }
 /* Feedback follows the action; motion never competes with editing or reading. */
 @media (prefers-reduced-motion: no-preference) {
   .achievements-page, .settings-page, .home.paper-detail { animation: page-settle .24s ease-out both; }
-  .topbar nav .active::after { animation: nav-settle .18s ease-out both; transform-origin: center; }
+  .topbar .nav-inner > nav .active::after { animation: nav-settle .18s ease-out both; transform-origin: center; }
   .settings-choice > button:active, .icon-button:active:not(:disabled) { transform: scale(.95); }
 }
 @media (hover: hover) {

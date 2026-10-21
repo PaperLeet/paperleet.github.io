@@ -32,7 +32,7 @@
 .preparation-handbook-scope > button:hover:not(:disabled) { color:var(--text); border-color:var(--accent); }
 .preparation-handbook-scope > small { flex:1 1 220px; margin-left:4px; color:var(--muted); font-size:var(--type-meta); line-height:1.7; }
 .preparation-guide-selector { display:flex; align-items:center; flex-wrap:wrap; gap:12px; padding:12px 14px; border:1px solid var(--line); border-radius:8px; background:var(--surface); font-size:var(--type-small); color:var(--muted); }
-.preparation-guide-selector select { flex:1; min-width:0; max-width:100%; padding:7px 9px; color:var(--text); background:var(--surface2); border:1px solid var(--line); border-radius:5px; font-size:var(--type-small); }
+.preparation-guide-selector select { flex:1; min-width:0; max-width:100%; min-height:var(--control-height); padding:0 10px; color:var(--text); background:var(--surface2); border:1px solid var(--line); border-radius:var(--control-radius); font-size:var(--type-small); }
 .preparation-guide-catalog-notice { color:var(--muted); font-size:var(--type-small); line-height:1.85; }
 .preparation-guide-catalog-notice button { margin-left:8px; font-size:var(--type-small); }
 #preparation-handbook-heading { scroll-margin-top:120px; }
