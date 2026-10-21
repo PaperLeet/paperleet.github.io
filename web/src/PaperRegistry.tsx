@@ -6,6 +6,7 @@ import type {Category,Paper,Problem} from './types';
 import {searchPaperRegistry} from './paperRegistrySearch';
 import {readPaperRegistryRoute,paperRegistryHref,sortLibraryPapers,withLibraryContext,type PaperRegistryView} from './libraryNavigation';
 import {watchRegistryPosition,type RegistryPositionNotice} from './registryPosition';
+import NumberedPages from './NumberedPages';
 import './paper-registry.css';
 
 export const registryPageSize=20;
@@ -54,7 +55,7 @@ export default function PaperRegistry({papers,problems,categories=[],route='pape
      {(paper.summary||paper.summary_en)&&<p className="paper-registry-summary">{locale==='en'?paper.summary_en||paper.summary:paper.summary||paper.summary_en}</p>}
      <div className="paper-registry-links"><AppLink className="paper-registry-source" href={paper.url} target="_blank" rel="noopener noreferrer">{paper.arxiv?`arXiv:${paper.arxiv}`:t('原文','Source')}<ArrowUpRight size={15} aria-hidden="true"/></AppLink>{paper.module_ids.flatMap(id=>{const problem=byId.get(id);return problem?[<AppLink key={id} href={withLibraryContext(problem.number,href)}>#{problem.number} {locale==='en'?problem.translations?.en?.title||problem.title:problem.title}</AppLink>]:[];})}{!paper.module_ids.some(id=>byId.has(id))&&<span className="paper-registry-missing">{t('练习信息暂不可用','Exercise information is unavailable')}</span>}</div>
     </li>)}</ol>}
-    {entries.length>registryPageSize&&<nav className="paper-registry-pager" aria-label={t('论文库翻页','Paper registry pages')}><button type="button" disabled={page<=1} onClick={()=>turn(page-1)}>{t('上一页','Previous')}</button><span>{t(`第 ${page} / ${last} 页`,`Page ${page} of ${last}`)}</span><button type="button" disabled={page>=last||page>=501} onClick={()=>turn(page+1)}>{t('下一页','Next')}</button></nav>}
+    {entries.length>registryPageSize&&<nav className="paper-registry-pager" aria-label={t('论文库翻页','Paper registry pages')}><button type="button" disabled={page<=1} onClick={()=>turn(page-1)}>{t('上一页','Previous')}</button><NumberedPages page={page} pages={Math.min(last,501)} totalPages={last} onChange={turn}/><button type="button" disabled={page>=last||page>=501} onClick={()=>turn(page+1)}>{t('下一页','Next')}</button></nav>}
    </>}
   </>}
  </main>;

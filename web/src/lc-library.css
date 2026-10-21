@@ -1,0 +1,108 @@
+/* LeetCode-style layer for the library surface; loaded right after leetcode-theme.css.
+   It settles rules from shared sheets the library does not own (control-surfaces, visual-polish,
+   product-ui, style.css); the library's own sheets carry the rest directly. */
+
+/* Segmented controls draw a 1px frame and a 2px inset, so their buttons are 6px shorter than a
+   field on fine pointers and keep the full touch target on coarse ones. */
+.paper-library { --library-segment-height: var(--control-height); }
+@media (hover: hover) and (pointer: fine) {
+  .paper-library { --library-segment-height: calc(var(--control-height) - 6px); }
+}
+
+/* Heading: secondary destinations are quiet ghost links beside the title. */
+.paper-library .library-heading { min-height: 0; margin-bottom: 12px; }
+.paper-library .library-heading h1 { font-size: 24px; }
+.paper-library .library-heading h1 > span:not(.bilingual-text) { background: color-mix(in srgb, var(--text) 8%, transparent); color: var(--text-secondary); }
+.paper-library .library-heading > .text-button { min-height: calc(var(--control-height) - 4px); padding: 4px 10px; font-size: var(--type-meta); }
+.paper-library .library-progress { padding: 4px 10px; border-radius: 999px; font-size: var(--type-meta); }
+.paper-library .paper-categories button { min-height: var(--control-height); }
+
+/* Search row: no card around it (the frame moves to the filter panel it opens). */
+.paper-library .library-toolbar { border: 0; border-radius: 0; }
+.paper-library .library-toolbar :is(.random-problem, .library-filter-toggle) { min-height: var(--control-height); }
+
+/* Result band: the two wrapper boxes dissolve so the tools, count and quick pager flow as one
+   wrapping row of equal-height controls (each keeps its own box, role and label). */
+.paper-library .library-results { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; min-height: 0; padding: 12px 0; font-size: var(--type-meta); }
+.paper-library :is(.library-results > .library-result-actions, .library-results-navigation) { display: contents; }
+.paper-library .library-result-actions > .library-view-switch { order: 0; flex: none; margin: 0; }
+.paper-library .library-result-actions > .library-sort { order: 1; flex: 1 1 150px; }
+.paper-library .library-result-actions > .library-density { order: 2; flex: none; }
+.paper-library .library-results-navigation > .library-result-summary { order: 3; flex: 1 1 200px; min-width: 0; color: var(--text-secondary); font-size: var(--type-meta); line-height: 1.6; }
+.paper-library .library-result-actions > .library-reset-filters { order: 4; }
+.paper-library .library-results-navigation > .library-pagination-compact { order: 5; flex: 1 1 100%; margin: 0; justify-content: flex-start; }
+/* Reserve the tool row while its deferred controls load, so the list does not jump. */
+.paper-library .library-results:not(:has(> .library-result-actions))::before { content: ""; display: block; order: -1; flex: 1 1 100%; height: var(--control-height); }
+.paper-library .library-sort { min-height: var(--control-height); padding-inline: 10px 2px; border-radius: var(--control-radius); font-size: var(--type-small); }
+.paper-library .library-sort select { width: 100%; max-width: none; min-height: calc(var(--control-height) - 2px); padding-block: 2px; font-size: var(--type-small); }
+.paper-library :is(.library-view-switch, .library-density) { padding: 2px; gap: 2px; border-radius: var(--control-radius); background: var(--surface2); }
+.paper-library :is(.library-view-switch, .library-density) button { min-height: var(--library-segment-height); height: var(--library-segment-height); padding: 2px 10px; border-radius: var(--radius-sm); font-size: var(--type-small); }
+.paper-library .library-density button { width: auto; min-width: var(--library-segment-height); }
+.paper-library :is(.library-view-switch, .library-density) button[aria-pressed="true"] { color: var(--text); background: var(--surface); box-shadow: 0 1px 2px #0000001a, inset 0 0 0 1px var(--line); }
+.paper-library .library-view-switch button[aria-pressed="true"] > svg { color: var(--accent); }
+.paper-library .library-result-actions > .text-button { min-height: var(--control-height); padding: 4px 10px; font-size: var(--type-small); }
+
+/* Desktop: view switch, result count and list tools share one LeetCode-style row; the full pager
+   below the list is the visible one while the quick pager stays mounted for scripts and tests. */
+@media (min-width: 861px) {
+  .paper-library .library-results { min-height: calc(var(--control-height) + 24px); }
+  .paper-library .library-results-navigation > .library-result-summary { order: 1; flex: 1 1 0; min-width: 120px; margin-inline-start: 4px; }
+  .paper-library .library-result-actions > .library-reset-filters { order: 2; }
+  .paper-library .library-result-actions > .library-sort { order: 3; flex: none; }
+  .paper-library .library-result-actions > .library-density { order: 4; }
+  .paper-library .library-sort select { width: auto; max-width: 200px; }
+  .paper-library .library-results-navigation > .library-pagination-compact { display: none; }
+  .paper-library .library-results:not(:has(> .library-result-actions))::before { flex: none; width: 0; }
+  .paper-library .library-density-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .paper-library .library-density button { width: var(--library-segment-height); padding: 0; }
+}
+
+/* Table: 8px frame, left-aligned single-line headings over their values, header pinned under the bar. */
+.paper-library .table-head { height: auto; min-height: 42px; border-radius: var(--control-radius) var(--control-radius) 0 0; font-size: var(--type-meta); }
+.paper-library .problem-rows { border-radius: 0 0 var(--control-radius) var(--control-radius); }
+.paper-library .paper-result-group:last-child > .problem-row { border-end-start-radius: var(--control-radius); border-end-end-radius: var(--control-radius); }
+.paper-library :is(.paper-year, .paper-row-progress, .table-head > span:nth-child(4)) { text-align: start; }
+.paper-library .table-head .library-column-sort { min-height: calc(var(--control-height) - 4px); margin-inline-start: -4px; font-size: var(--type-meta); }
+@media (min-width: 701px) {
+  .paper-library .table-head > :nth-child(4) { white-space: nowrap; }
+}
+/* The row-actions marker keeps its icons on one line so it never stretches the heading. */
+.paper-library .table-head > .library-company-column-marker { display: flex; align-items: center; justify-content: flex-end; gap: 4px; min-width: 0; overflow: hidden; }
+@media (min-width: 861px) {
+  .paper-library .table-head { position: sticky; top: var(--topbar-height, 56px); z-index: 3; box-shadow: 0 1px 0 var(--line); }
+  /* Keyboard focus never lands under the bar plus the pinned header. */
+  .paper-library .problem-rows :is(a, button) { scroll-margin-top: calc(var(--topbar-height, 56px) + 54px); }
+}
+
+/* Rows: blank status until a problem is started, difficulty in the shared hues. */
+.paper-library .row-state.todo > svg { visibility: hidden; }
+.paper-library .paper-year { font-size: var(--type-meta); }
+.paper-library .paper-row-progress { font-size: var(--type-small); }
+.paper-library .problem-row > .difficulty { color: var(--diff-medium); font-size: var(--type-small); font-weight: 500; }
+.paper-library .problem-row > .difficulty.E { color: var(--diff-easy); }
+.paper-library .problem-row > .difficulty.H { color: var(--diff-hard); }
+
+@media (max-width: 520px) {
+  .paper-library .library-result-actions > .library-view-switch { flex: 1 1 100%; }
+  .paper-library .library-view-switch button { flex: 1; }
+  .paper-library .library-results:not(:has(> .library-result-actions))::before { height: calc(var(--control-height) * 2 + 8px); }
+  /* Phones keep the count short enough to share a line with Reset; the range is on the pagers. */
+  .paper-library .library-results-navigation .library-visible-range { display: none; }
+}
+/* Course pages have no Papers/Exercises switch, so their tools share a row with the count. */
+@media (max-width: 860px) {
+  .paper-library:not(:has(.library-category-browser)) .library-results:not(:has(> .library-result-actions))::before { flex: 1 1 150px; }
+}
+@media (max-width: 520px) {
+  .paper-library:not(:has(.library-category-browser)) .library-results:not(:has(> .library-result-actions))::before { flex-basis: 100%; height: var(--control-height); }
+}
+
+/* The collections placeholder matches the loaded section so nothing below it moves. */
+.library-collections-placeholder { height: 286px; border-radius: var(--radius-lg); }
+@media (max-width: 700px) {
+  .library-collections-placeholder { height: 280px; }
+}
+
+@media (forced-colors: active) {
+  .paper-library .table-head { box-shadow: none; }
+}
