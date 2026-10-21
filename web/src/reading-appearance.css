@@ -37,3 +37,11 @@ html[data-reading-spacing="relaxed"] .prose,html[data-reading-spacing="relaxed"]
 @media(forced-colors:active){.reading-appearance button[aria-pressed="true"]{border-color:Highlight;color:Highlight}}
 
 .reading-appearance button[aria-disabled="true"]{color:var(--muted);cursor:default;opacity:.7}
+
+/* Post pages: a quiet right-aligned text control while closed, the full panel once opened. */
+.discussion-post .reading-appearance-inline{display:flex;justify-content:flex-end;margin:-8px 0 8px}
+.discussion-post .reading-appearance-inline>details:not([open]){border-color:transparent;background:transparent}
+.discussion-post .reading-appearance-inline>details:not([open])>summary{min-height:var(--control-height,44px);padding:4px 8px;border-radius:var(--control-radius,8px);color:var(--text-secondary);font-size:var(--type-meta)}
+.discussion-post .reading-appearance-inline>details:not([open])>summary:hover{background:var(--surface2);color:var(--text)}
+.discussion-post .reading-appearance-inline>details:not([open])>summary>svg:last-child{margin-inline-start:2px}
+.discussion-post .reading-appearance-inline>details[open]{flex:1 1 100%}

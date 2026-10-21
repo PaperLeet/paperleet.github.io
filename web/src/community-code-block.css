@@ -1,13 +1,14 @@
-.community-code-block { margin:16px 0; min-width:0; max-width:100%; border:1px solid var(--line); border-radius:6px; overflow:hidden; }
-.community-code-block .community-code-header { display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background:var(--surface2); font:var(--type-small)/1.5 var(--font-sans); }
+.community-code-block { margin:16px 0; min-width:0; max-width:100%; border:1px solid var(--line); border-radius:var(--control-radius,8px); overflow:hidden; }
+.community-code-block .community-code-header { display:flex; align-items:center; justify-content:space-between; min-height:36px; padding:2px 8px 2px 12px; background:var(--surface2); font:var(--type-meta)/1.5 var(--font-sans); }
 .community-code-block .community-code-header>span { min-width:0; overflow-wrap:anywhere; }
 .community-code-header .community-code-actions button { display:inline-flex; align-items:center; gap:5px; flex:none; border:0; background:transparent; cursor:pointer; font:inherit; }
 .community-code-block .highlight { margin:0; border:0; border-radius:0; }
 .community-prose .community-code-block pre { margin:0; border:0; border-radius:0; }
 .community-code-block .community-code-header { flex-wrap:wrap; gap:4px 12px; font-family:var(--font-sans); }
 .community-code-block .community-code-header>span { font-family:var(--font-mono); }
-.community-code-actions { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:4px 12px; margin-left:auto; }
-.community-code-header .community-code-actions button { min-height:40px; padding:6px; border-radius:5px; font-size:var(--type-small); color:var(--text-secondary); }
+.community-code-actions { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:2px 6px; margin-left:auto; }
+.community-code-header .community-code-actions button { min-height:var(--control-height,40px); padding:4px 6px; border-radius:var(--radius-sm,6px); font-size:var(--type-meta); color:var(--text-secondary); }
+@media(hover:hover) and (pointer:fine) { .community-code-header .community-code-actions button { min-height:32px; } }
 .community-code-header .community-code-actions button:hover,.community-code-header .community-code-actions button[aria-pressed="true"] { background:var(--surface); color:var(--accent); }
 .community-code-header .community-code-actions button[aria-disabled="true"] { cursor:wait; }
 .community-code-block :is(button,textarea):focus-visible { outline:2px solid var(--accent); outline-offset:2px; }

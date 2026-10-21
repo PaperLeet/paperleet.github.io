@@ -1,5 +1,5 @@
 .community-topic-browser{min-width:0;max-width:100%;color:var(--text)}
-.community-topic-browser>summary{display:flex;align-items:center;gap:8px;min-height:44px;max-width:280px;padding:8px 12px;border:1px solid var(--line);border-radius:8px;cursor:pointer;list-style:none;background:var(--surface);font-size:var(--type-small)}
+.community-topic-browser>summary{display:flex;align-items:center;gap:8px;min-height:var(--control-height,44px);box-sizing:border-box;max-width:280px;padding:4px 12px;border:1px solid var(--line);border-radius:var(--control-radius,8px);cursor:pointer;list-style:none;background:var(--surface);font-size:var(--type-small)}
 .community-topic-browser>summary::-webkit-details-marker{display:none}
 .community-topic-browser>summary>span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .community-topic-browser>summary>svg{flex:none;color:var(--muted)}
