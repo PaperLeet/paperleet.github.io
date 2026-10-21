@@ -30,14 +30,26 @@
       }
     </script>
     <style>
-      html { background: #f5f6fa; color: #252525; }
-      html[data-theme="dark"] { background: #1a1a1a; color: #efeff1; }
-      .startup-screen { min-height: 100vh; display: grid; place-items: center; padding: 24px; box-sizing: border-box; font: 15px/1.65 system-ui, sans-serif; }
-      .startup-card { width: 100%; max-width: 440px; }
-      .startup-card h1 { font-size: 24px; margin: 12px 0; }
-      .startup-card p { margin: 12px 0; }
-      .startup-card a, .startup-card button { display: inline-block; font: inherit; color: inherit; border: 1px solid currentColor; border-radius: 6px; padding: 8px 16px; background: transparent; cursor: pointer; text-decoration: none; }
+      /* Boot colours match the theme tokens so the swap to the real shell does not jump. */
+      html { background: #f7f8fa; color: #262626; --startup-bar: #fff; --startup-line: #e5e5e5; --startup-muted: #5c5c5c; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #eff1f6; --startup-bar: #262626; --startup-line: #3d3d3d; --startup-muted: #a8a8ad; }
+      body { margin: 0; }
+      .startup-screen { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; box-sizing: border-box; font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Helvetica, Arial, sans-serif; }
+      .startup-bar { display: flex; align-items: center; gap: 8px; height: 56px; padding: 0 calc(max(0px, (100% - 1480px) / 2) + clamp(16px, 2.8vw, 40px)); box-sizing: border-box; border-bottom: 1px solid var(--startup-line); background: var(--startup-bar); font-size: 20px; font-weight: 700; letter-spacing: -.4px; }
+      .startup-card { box-sizing: border-box; width: 100%; max-width: 440px; margin: auto; padding: 24px; text-align: center; }
+      .startup-spinner { display: inline-block; width: 20px; height: 20px; box-sizing: border-box; border: 2px solid #8883; border-top-color: #ffa116; border-radius: 50%; animation: startup-spin .7s linear infinite; }
+      .startup-card:has(#startup-retry:not([hidden])) .startup-spinner { display: none; }
+      .startup-card h1 { margin: 12px 0 4px; font-size: 16px; font-weight: 600; }
+      .startup-card p { margin: 4px 0 12px; color: var(--startup-muted); font-size: 14px; }
+      .startup-card .startup-brand { color: inherit; font-size: 20px; font-weight: 700; }
+      .startup-card h1 .startup-english { font-size: 14px; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; font-size: 14px; font-weight: 600; color: inherit; border: 1px solid var(--startup-line); border-radius: 8px; padding: 6px 14px; background: var(--startup-bar); cursor: pointer; text-decoration: none; }
       .startup-card [hidden] { display: none; }
+      @keyframes startup-spin { to { transform: rotate(360deg); } }
+      @media (prefers-reduced-motion: reduce) { .startup-spinner { animation-duration: 2s; } }
+      /* Phones and tablets: the identity row plus the space the scrolling navigation will take. */
+      @media (max-width: 860px) { .startup-bar { height: 89px; padding: 0 24px 40px; } }
+      @media (max-width: 760px) { .startup-bar { padding-inline: 12px; font-size: 0; } }
     </style>
     <script>
       // Apply a validated preference before the page paints or the app loads.
@@ -109,10 +121,10 @@
         document.addEventListener('paperleet:ready', finish);
       })();
     </script>
-    <script type="module" crossorigin="" src="/assets/index-Br3GU1W2.js"></script>
+    <script type="module" crossorigin="" src="/assets/index-BpBB7VKd.js"></script>
     <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
     <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
-    <link rel="stylesheet" crossorigin="" href="/assets/index-D8SymdUV.css">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-V0I58JnC.css">
   <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
   <body>
     <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>Kimi K3</h1><p>Kimi K3: Open Frontier Intelligence</p><p class="source">Kimi Team · arXiv 2026</p><p><a href="https://arxiv.org/abs/2607.24653v2">Read paper · arXiv:2607.24653v2</a></p><p>Implement Kimi K3's core mechanisms for sequence mixing, depth aggregation, and bounded activations: KDA, Block AttnRes, and SiTU-GLU.</p><h2>What you will implement</h2><p>Independently implement bounded decay and delta-rule recurrence, attention over residual blocks, and SiTU gating; recreate the report's decay and activation curves.</p><ul class="catalog-grid"><li><a href="/problems/architecture/kimi_kda/">33. Kimi K3: Bounded Decay and Delta Memory</a><p>Implement channel-wise retention and delta-rule writes, then read the updated recurrent memory.</p><p>Implement bounded_decay and recurrent_kda only; projections, convolutions, output gates and GPU kernels are outside this exercise.</p></li><li><a href="/problems/architecture/block_attention_residual/">34. Kimi K3: Block Attention Residuals</a><p>Assemble depth sources, select earlier representations with a learned query, and aggregate original values.</p><p>Implement assemble_sources and depth_attention; the full Transformer, block accumulation and layer projections are external.</p></li><li><a href="/problems/architecture/situ_glu/">35. SiTU-GLU Smooth Bounded Activation</a><p>Smoothly cap both activation branches while retaining local SwiGLU behavior.</p><p>Implement softcap and SiTU-GLU on projected tensors; MoE routing and the full FFN are outside this module.</p></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
