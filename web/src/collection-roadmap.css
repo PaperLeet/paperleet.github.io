@@ -1,0 +1,105 @@
+/* Collection roadmap: fixed-geometry canvas plus a small selection panel. Lineage colors: dark by default, redefined for light;
+   the -text tokens color the From/To labels, darker in light so caption text reaches 4.5:1 on white. */
+.collection-roadmap { --roadmap-from: #22d3ee; --roadmap-to: #f472b6; --roadmap-from-text: #22d3ee; --roadmap-to-text: #f472b6; --roadmap-glow: #a78bfa; --roadmap-started: #fbbf24; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 16px; }
+[data-theme="light"] .collection-roadmap { --roadmap-from: #0891b2; --roadmap-to: #db2777; --roadmap-from-text: #0e7490; --roadmap-to-text: #be185d; --roadmap-glow: #7c3aed; --roadmap-started: #d97706; }
+.roadmap-canvas-scroll { flex: 0 1 auto; min-width: 0; max-width: 100%; overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; }
+.roadmap-canvas { position: relative; }
+.roadmap-canvas > svg { position: absolute; inset: 0; overflow: visible; pointer-events: none; }
+.roadmap-year { fill: var(--text-secondary); font-size: var(--type-caption); font-variant-numeric: tabular-nums; }
+
+/* Edges stay neutral and still when idle. A selection colors its incoming ('from') edges cyan and outgoing ('to') edges pink, and
+   lighter dashes flow down them from the upstream paper to the downstream one. */
+.roadmap-edge { fill: none; stroke: var(--text-secondary); stroke-opacity: .55; stroke-width: 1.5; transition: opacity .16s, stroke .16s; }
+.roadmap-edge[data-lit] { stroke-opacity: 1; stroke-width: 2.5; }
+.roadmap-edge[data-dir="from"] { stroke: var(--roadmap-from); }
+.roadmap-edge[data-dir="to"] { stroke: var(--roadmap-to); }
+.roadmap-arrow path { fill: var(--text-secondary); fill-opacity: .55; }
+.roadmap-arrow.from path { fill: var(--roadmap-from); fill-opacity: 1; }
+.roadmap-arrow.to path { fill: var(--roadmap-to); fill-opacity: 1; }
+.roadmap-flow { fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: 2 10; animation: roadmap-flow .9s linear infinite; }
+.roadmap-flow[data-dir="from"] { stroke: color-mix(in srgb, var(--roadmap-from) 35%, #fff); }
+.roadmap-flow[data-dir="to"] { stroke: color-mix(in srgb, var(--roadmap-to) 35%, #fff); }
+@keyframes roadmap-flow { to { stroke-dashoffset: -24; } }
+
+/* Nodes: done green, started yellow, todo neutral, missing dashed and flat; lit neighbors take their edge's color. */
+.roadmap-node { position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; padding: 6px; border: 2px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--text); font: inherit; font-size: var(--type-caption); font-weight: 600; line-height: 1.25; cursor: pointer; transition: opacity .16s, background-color .16s, box-shadow .16s; }
+.roadmap-node-title { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.roadmap-node-bar { display: block; width: 66%; height: 5px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.roadmap-node-bar > span { display: block; height: 100%; border-radius: inherit; background: var(--roadmap-started); }
+.roadmap-node[data-state="done"] { border-color: var(--green); }
+.roadmap-node[data-state="done"] .roadmap-node-bar > span { background: var(--green); }
+.roadmap-node[data-state="started"] { border-color: var(--roadmap-started); }
+.roadmap-node[data-state="missing"] { background: var(--surface2); border: 1.5px dashed color-mix(in srgb, var(--text-secondary) 55%, transparent); color: var(--text-secondary); }
+.roadmap-node[data-lineage="from"] { border-color: var(--roadmap-from); }
+.roadmap-node[data-lineage="to"] { border-color: var(--roadmap-to); }
+.roadmap-node[data-dimmed], .roadmap-edge[data-dimmed], .roadmap-start[data-dimmed] { opacity: .25; }
+.roadmap-node[data-dimmed]:focus-visible { opacity: 1; }
+@media (hover: hover) {
+  /* Fill color only, so hover never clears the selected node's gradient layers. */
+  .roadmap-node:hover { background-color: var(--surface2); }
+  .roadmap-node[data-state="missing"]:hover { background-color: var(--surface3); }
+}
+/* Selected: border from cyan (top) to pink (bottom) under a violet glow. It follows every state, lineage and hover rule of equal
+   or lower specificity, so solved, in progress, missing (1.5px dashes made 2px solid) and hovered nodes all show it. */
+.roadmap-node[aria-pressed="true"] { border: 2px solid transparent; background: linear-gradient(var(--surface), var(--surface)) padding-box, linear-gradient(var(--roadmap-from), var(--roadmap-to)) border-box; box-shadow: 0 0 14px color-mix(in srgb, var(--roadmap-glow) 60%, transparent); }
+/* Start tag: 22px spectrum pill (START_TAG) 6px above its node, or ending at its anchor left of a node that arrows arrive at;
+   it fades with its node when a selection dims it. */
+.roadmap-start { position: absolute; transform: translate(-50%, calc(-100% - 6px)); padding: 1px 10px; border-radius: 999px; background: linear-gradient(90deg, #f87171, #fb923c, #facc15, #4ade80, #22d3ee, #60a5fa, #a78bfa); color: #111827; font-size: var(--type-caption); font-weight: 700; line-height: 20px; white-space: nowrap; pointer-events: none; transition: opacity .16s; }
+.roadmap-start[data-side="left"] { transform: translate(-100%, -50%); }
+
+/* Panel: beside the canvas when the column has room, taking the 200-320px left over (222px at a 1280px viewport), otherwise
+   wrapped under it (never squeezing the canvas). Beside the canvas, sticky keeps it in view below the site header. No bottom
+   offset: wrapped (column under ~890px with the 674px canvases) the 350-890px card panel would float up over the graph and hide
+   the selection's neighbors, so it stays in flow there. It is the size container of the card's narrow layout. */
+.roadmap-panel { position: sticky; top: calc(var(--topbar-offset, 56px) + 16px); flex: 1 1 200px; max-width: 320px; min-width: 0; container-type: inline-size; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); font-size: var(--type-meta); line-height: 1.55; overflow-wrap: anywhere; }
+.roadmap-panel h3 { margin: 0; font-size: var(--type-list-title); line-height: 1.35; }
+.roadmap-meta { margin: 2px 0 10px; color: var(--text-secondary); font-size: var(--type-caption); }
+.roadmap-sentence { margin: 0 0 10px; }
+.roadmap-links { margin: 0 0 10px; }
+.roadmap-links > p { margin: 0 0 2px; color: var(--text-secondary); font-size: var(--type-caption); }
+.roadmap-links[data-dir="from"] > p { color: var(--roadmap-from-text); }
+.roadmap-links[data-dir="to"] > p { color: var(--roadmap-to-text); }
+.roadmap-links > ul { margin: 0; padding: 0; list-style: none; }
+.roadmap-links li { position: relative; padding-left: 14px; }
+.roadmap-links li + li { margin-top: 4px; }
+/* Each relation sentence starts with a dot in its direction's color, centered on the first line. */
+.roadmap-links li::before { content: ""; position: absolute; left: 2px; top: calc(.775em - 3px); width: 6px; height: 6px; border-radius: 50%; }
+.roadmap-links[data-dir="from"] li::before { background: var(--roadmap-from); }
+.roadmap-links[data-dir="to"] li::before { background: var(--roadmap-to); }
+.roadmap-missing { margin: 0 0 10px; color: var(--text-secondary); }
+.roadmap-panel .roadmap-action { min-height: 36px; padding: 6px 12px; font-size: var(--type-meta); text-decoration: none; }
+/* The compact community card with its links under the cover, roadmap-scoped (community pages keep theirs; one class more specific
+   at every width): an 84px cover with Paper page and Open PDF below it leaves the title up to 4 lines at meta size and the authors up to 3. */
+.roadmap-panel .paper-preview-card.compact { grid-template-columns: 84px minmax(0, 1fr); gap: 10px; padding: 10px; }
+.roadmap-panel .paper-preview-card.compact .paper-preview-cover { width: 84px; }
+.roadmap-panel .paper-preview-card.compact .paper-preview-title { font-size: var(--type-meta); -webkit-line-clamp: 4; }
+.roadmap-panel .paper-preview-card.compact .paper-preview-authors { -webkit-line-clamp: 3; }
+/* A panel under 260px (container queries read the content box: 2x16px padding and 2x1px border less, so under 226px) stacks the
+   cover row (the cover, the links to its right) above the text; a row too narrow for both (panel under ~232px) narrows the cover,
+   never the one-line links (75px in English at a 1280px viewport). Same selectors as above and later, so they win when narrow. */
+@container (max-width: 225px) {
+  .roadmap-panel .paper-preview-card.compact { grid-template-columns: 1fr; }
+  .roadmap-panel .paper-preview-card.compact .paper-preview-side { flex-direction: row; }
+}
+@media (max-width: 850px) {
+  .roadmap-panel { flex: 1 1 100%; max-width: none; }
+}
+@media (max-height: 600px) {
+  /* Short or zoomed viewports: a floating panel would hide most of the graph and the focused node. */
+  .roadmap-panel { position: static; }
+}
+@media (forced-colors: active) {
+  .roadmap-node[data-state] { border-color: CanvasText; }
+  .roadmap-node[data-state="missing"] { border-color: GrayText; }
+  .roadmap-node-bar { outline: 1px solid CanvasText; }
+  .roadmap-node-bar > span { forced-color-adjust: none; background: CanvasText; }
+  .roadmap-node[aria-pressed="true"] { outline: 3px solid Highlight; outline-offset: 2px; }
+  .roadmap-links[data-dir] li::before { forced-color-adjust: none; background: CanvasText; }
+  .roadmap-edge[data-dir] { stroke: Highlight; }
+  .roadmap-arrow.from path, .roadmap-arrow.to path { fill: Highlight; }
+  .roadmap-flow { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .roadmap-node, .roadmap-edge, .roadmap-start { transition: none; }
+  .roadmap-flow { display: none; }
+}

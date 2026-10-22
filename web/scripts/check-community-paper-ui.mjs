@@ -10,6 +10,7 @@ try {
   const { default: Card } = await server.ssrLoadModule('/src/PaperPreviewCard.tsx');
   const { default: Field } = await server.ssrLoadModule('/src/PaperLinkField.tsx');
   const { LocaleProvider } = await server.ssrLoadModule('/src/i18n.tsx');
+  const { apiUrl } = await server.ssrLoadModule('/src/apiClient.ts');
   const render = await localizedRenderer(server, 'en');
   const first = 'https://arxiv.org/abs/1706.03762';
   const second = 'https://arxiv.org/abs/2210.02747';
@@ -24,6 +25,25 @@ try {
   assert(!html.includes('<script>') && !html.includes('<iframe') && !html.includes('evil.example') && !html.includes('Invalid Date'),
     'Metadata is text, invalid dates are omitted, and an untrusted thumbnail never becomes a request');
   assert.equal((html.match(/href="https:\/\/arxiv.org\//g) || []).length, 4);
+  assert(!html.includes('<img'), 'Without a valid API thumbnail or a local thumbnail the cover is the PDF placeholder');
+  // Layout: by default the cover sits beside the copy, which ends with the links; linksUnderCover (roadmap cards) stacks the cover
+  // and the links in .paper-preview-side and leaves the copy everything else.
+  const card = markup => new JSDOM(markup).window.document.querySelector('aside.paper-preview-card');
+  const shape = element => [...element.children].map(child => child.localName + '.' + child.className);
+  const underHtml = render(React.createElement(Card, { url: first, paper, linksUnderCover: true })), plain = card(html), under = card(underHtml);
+  assert.deepEqual(shape(plain), ['a.paper-preview-cover', 'div.paper-preview-copy'], 'Without linksUnderCover the cover sits beside the copy');
+  assert.equal(shape(plain.querySelector('.paper-preview-copy')).at(-1), 'div.paper-preview-links', 'Without linksUnderCover the links end the copy');
+  assert.deepEqual(shape(under), ['div.paper-preview-side', 'div.paper-preview-copy'], 'With linksUnderCover the side column comes before the copy');
+  assert.deepEqual(shape(under.querySelector('.paper-preview-side')), ['a.paper-preview-cover', 'div.paper-preview-links'], 'The links follow the cover');
+  assert.deepEqual(shape(under.querySelector('.paper-preview-copy')), shape(plain.querySelector('.paper-preview-copy')).slice(0, -1), 'The copy keeps everything but the links');
+  assert.deepEqual([...under.querySelectorAll('.paper-preview-links a')].map(link => [link.textContent, link.getAttribute('href')]), [['Paper page', first], ['Open PDF', 'https://arxiv.org/pdf/1706.03762']]);
+  assert.equal((underHtml.match(/href="https:\/\/arxiv.org\//g) || []).length, 4, 'Both layouts keep the four arXiv links');
+  // A local thumbnail (roadmap covers) is used only when the validated preview has no API thumbnail.
+  const apiThumbnail = `/api/community/papers/thumbnails/${'a'.repeat(64)}.png`, local = './roadmap-thumbnails/1706.03762.webp';
+  const sources = markup => [...markup.matchAll(/<img [^>]*src="([^"]*)"/g)].map(match => match[1]);
+  assert.deepEqual(sources(render(React.createElement(Card, { url: first, paper: { ...paper, thumbnail_url: apiThumbnail }, thumbnail: local }))), [apiUrl(apiThumbnail)], 'The API thumbnail wins over the local one');
+  assert.deepEqual(sources(render(React.createElement(Card, { url: first, paper, thumbnail: local }))), [local], 'A local thumbnail alone renders, also beside a rejected API thumbnail');
+  assert.deepEqual(sources(render(React.createElement(Card, { url: first, paper: { ...paper, thumbnail_url: apiThumbnail } }))), [apiUrl(apiThumbnail)], 'Without the prop the API thumbnail renders as before');
   assert.equal(render(React.createElement(Card, { url: 'javascript:alert(1)', paper })), '');
   const fallback = render(React.createElement(Card, { url: first, paper: { ...paper, url: 'https://evil.example' } }));
   assert(fallback.includes('Paper details are unavailable') && !fallback.includes('evil.example'),
@@ -81,7 +101,7 @@ try {
     }
     dom.window.close();
   }
-  console.log('PASS paper UI: escaped metadata, safe link fallback, capability fallback, debounced requests, abort and stale-response protection');
+  console.log('PASS paper UI: escaped metadata, safe link fallback, API thumbnail before a local one, links in the copy or under the cover, capability fallback, debounced requests, abort and stale-response protection');
 } finally {
   await server.close();
 }
