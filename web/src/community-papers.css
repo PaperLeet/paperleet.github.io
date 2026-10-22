@@ -21,6 +21,9 @@
 .paper-preview-abstract { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
 .paper-preview-links { display:flex; flex-wrap:wrap; gap:8px 16px; margin-top:10px; }
 .paper-preview-links a { display:inline-flex; align-items:center; gap:5px; font-size:var(--type-meta); color:var(--accent); }
+.paper-preview-side { display:flex; flex-direction:column; align-items:flex-start; gap:8px; min-width:0; }
+.paper-preview-side .paper-preview-links { flex-direction:column; gap:6px; margin-top:0; }
+.paper-preview-side .paper-preview-links a { gap:3px; font-size:var(--type-caption); white-space:nowrap; }
 .paper-preview-card.compact { grid-template-columns:72px minmax(0,1fr); gap:14px; margin:12px 0; padding:12px; }
 .paper-preview-card.compact .paper-preview-cover { width:72px; }
 .paper-preview-card.compact .paper-preview-title { font-size:var(--type-body); -webkit-line-clamp:2; }

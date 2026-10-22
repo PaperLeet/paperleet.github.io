@@ -7,7 +7,7 @@ export const isExerciseSort=(value:unknown):value is ExerciseSort=>typeof value=
 export type LibrarySort = 'default' | 'newest' | 'oldest' | 'title' | ExerciseSort;
 export type LibraryPageSize = 20 | 50 | 100;
 export type PaperRegistryView={query:string;category:string;sort:LibrarySort;page:number};
-export type LibraryFilters = { query: string; category: string; tag: string; difficulty: string; runtime: string; state: string; sort?: LibrarySort; view?:'modules'; company?:string; company_days?:string; page?:number; page_size?:LibraryPageSize };
+export type LibraryFilters = { query: string; category: string; tag: string; difficulty: string; runtime: string; state: string; sort?: LibrarySort; view?:'modules'|'roadmap'; company?:string; company_days?:string; page?:number; page_size?:LibraryPageSize };
 export const emptyLibraryFilters = (): LibraryFilters => ({ query: '', category: 'all', tag: 'all', difficulty: 'all', runtime: 'all', state: 'all' });
 export const routePath = (route: string) => route.split('?')[0];
 const practicePath = /^(?:[1-9]\d*|(?:foundations|rl|architecture|diffusion|finetuning|optimization|representation|world_models|retrieval|self_evolving)\/[a-z0-9_-]+|papers\/[a-z0-9_-]+)$/;
@@ -51,7 +51,8 @@ export function readLibraryRoute(route: string): { collectionId?: string; filter
   if(company!==null&&!/^[a-z][a-z0-9-]{0,39}$/.test(company)||days!==null&&(!company||!['30','90','365','all'].includes(days)))return;
   const companyScope=company?{company,...(days&&days!=='365'?{company_days:days}:{})}:{};
   const view=value.params.get('view');
-  if(view!==null&&!['papers','modules'].includes(view))return;
+  if(view!==null&&!['papers','modules','roadmap'].includes(view))return;
+  if(view==='roadmap'){if(!collectionId||value.params.size!==1||!paperCollections.find(item=>item.id===collectionId)?.roadmap)return;return{collectionId,filters:{...emptyLibraryFilters(),view}};}
   const sort = value.params.get('sort');
   if (sort && !['default', 'newest', 'oldest', 'title'].includes(sort)&&!isExerciseSort(sort)) return;
   if(isExerciseSort(sort)&&(view!=='modules'||company||paperCollections.find(item=>item.id===collectionId)?.kind==='course'))return;
@@ -110,6 +111,7 @@ export function sortLibraryPapers(papers: Paper[], sort: LibrarySort = 'default'
 export function normalizeLibraryFilters(filters: LibraryFilters, papers: Paper[]): LibraryFilters {
   const category = filters.category === 'all' || papers.some(paper => paper.category === filters.category) ? filters.category : 'all';
   const tag = filters.tag === 'all' || papers.some(paper => (category === 'all' || paper.category === category) && paper.tags.some(tag => sameLibraryTag(tag, filters.tag))) ? filters.tag : 'all';
+  if(filters.view==='roadmap')return{...emptyLibraryFilters(),view:'roadmap'};
   const {company,company_days,...rest}=filters;
   if(isExerciseSort(rest.sort)&&(rest.view!=='modules'||company))delete rest.sort;
   return { ...rest, category, tag, runtime: 'all',...(company?{company,...(company_days&&company_days!=='365'?{company_days}:{})}:{}) };

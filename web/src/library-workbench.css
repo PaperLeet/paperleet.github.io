@@ -49,6 +49,10 @@
 .paper-library .library-heading h1 { letter-spacing: -.035em; }
 /* product-ui.css gives every toolbar a panel shadow; the library search row stays flat. */
 .paper-library .library-toolbar { box-shadow: none; }
+.paper-library .paper-categories-divider { flex: none; align-self: center; width: 1px; height: 24px; margin-inline: 4px; background: var(--line); }
+/* The chip has no count to fill the width BilingualText reserves for the longer language, so its label is centered. */
+.paper-library .roadmap-chip .bilingual-text { justify-items: center; }
+.paper-library .collection-roadmap-placeholder { min-height: 740px; }
 .library-density { display: flex; padding: 2px; gap: 2px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
 .library-density button { display: grid; place-items: center; width: 28px; height: 26px; color: var(--muted); border-radius: 4px; }
 .library-density button:hover { background: var(--surface2); color: var(--text); }
