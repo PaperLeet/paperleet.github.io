@@ -1,0 +1,79 @@
+id: network_biology/community_modules
+number: 119
+title: 社区发现与候选生物学模块
+title_en: Community Detection and Candidate Biological Modules
+paper_id: hierarchical-modularity
+paper:
+  title: Hierarchical organization of modularity in metabolic networks
+  authors: E. Ravasz, A. L. Somera, D. A. Mongru, Z. N. Oltvai and A.-L. Barabási
+  venue: Science 297(5586), 1551–1555 (2002)
+  url: https://doi.org/10.1126/science.1073374
+  doi: 10.1126/science.1073374
+  anchors:
+  - 'Modular organization of cellular (metabolic) networks: densely connected topological modules; this exercise implements generic greedy modularity maximization, not the paper''s own module-identification procedure'
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: modularity
+  signature: 'modularity(nodes: list[str], edges: list[tuple[str, str]], communities: list[list[str]], resolution: float = 1.0) -> float'
+- name: greedy_modularity_communities
+  signature: 'greedy_modularity_communities(nodes: list[str], edges: list[tuple[str, str]], resolution: float = 1.0) -> list[list[str]]'
+module:
+  goal: 用模块度衡量图的划分，用确定性的贪心算法找出候选模块，并理解结果依赖算法与分辨率参数，不等于已验证的通路。
+  goal_en: Score a graph partition with modularity, find candidate modules with a deterministic greedy algorithm, and understand that results depend on the algorithm and its resolution parameter and are not validated pathways.
+  scope: 无向简单图上的 Newman 模块度（含分辨率参数）与贪心凝聚式社区发现，含明确的并列与停止规则；不实现 Louvain、层次聚类或统计检验。
+  scope_en: Newman modularity (with a resolution parameter) and greedy agglomerative community detection on a simple undirected graph, with explicit tie and stopping rules; Louvain, hierarchical clustering and statistical tests are not implemented.
+  required_functions:
+  - modularity
+  - greedy_modularity_communities
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: Python str node names, float modularity
+  device: CPU; pure Python standard library, no randomness, no network access or dataset download
+  contract: 'Simple undirected graph with the network_biology/degree_distribution conventions (unique str nodes, self-loops and repeated edges ignored, ValueError for duplicate nodes or unknown endpoints). modularity: Q = sum_c [L_c/m - resolution*(D_c/2m)^2], 0.0 if m = 0, ValueError unless communities are nonempty, disjoint and cover every node once. greedy_modularity_communities: start from singletons, repeatedly merge the edge-connected pair with the largest gain e_ab/m - resolution*D_a*D_b/(2m^2); stop when the best gain rounded to 12 decimals is not strictly positive; ties go to the smallest pair of smallest-member names (a < b). Output communities are sorted lists ordered by size descending, ties by first member.'
+estimated_minutes: 30
+tests:
+  T0: 1
+  T1: 2
+  T2: 6
+  T3: 1
+t3_budget_s: 10
+tags:
+- Network Biology
+- Community Detection
+- Modularity
+viz:
+- toy_experiment
+browser:
+  backend: numpy-wasm
+sources_verified: '2026-10-20'
+verified_sources:
+  checked_at: '2026-10-20'
+  links:
+  - https://arxiv.org/abs/cond-mat/0209244
+  - https://experts.umn.edu/en/publications/hierarchical-organization-of-modularity-in-metabolic-networks/
+toy:
+  kind: teaching_adaptation
+  source: https://doi.org/10.1126/science.1073374
+  anchor: Modules as densely connected parts of cellular networks
+  adaptation: Synthetic network of three 4-node modules, two bridge edges and one isolated node, swept over resolution values; no metabolic data, no hierarchy and no claim that detected modules are pathways.
+mutants:
+- id: m1_degree_term_not_squared
+  bug: 模块度中度和项没有平方。
+- id: m2_internal_edges_doubled
+  bug: 社区内部边数没有除以 2，每条边被数了两次。
+- id: m3_gain_ignores_resolution
+  bug: 贪心合并增益忽略 resolution 参数。
+- id: m4_merge_zero_gain
+  bug: 增益恰好为零时也继续合并。
+- id: m5_tie_largest_pair
+  bug: 增益并列时选择名称最大的一对。
+- id: m6_unsorted_output
+  bug: 输出社区没有按大小和最小成员排序。
+- id: m7_modularity_ignores_resolution
+  bug: modularity 忽略 resolution 参数。
+- id: m8_no_partition_check
+  bug: 不检查 communities 是否恰好划分所有节点。

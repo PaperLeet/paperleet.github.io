@@ -1,5 +1,7 @@
 """Public numbering survives filesystem order and keeps old workspace aliases usable."""
 import json
+import base64
+import gzip
 import os
 from pathlib import Path
 import subprocess
@@ -9,7 +11,7 @@ import pytest
 import yaml
 
 from paperleet.catalog import problem, problems
-from paperleet.export import export_catalog, vizdata, web_readme
+from paperleet.export import compact_index_v5, export_catalog, vizdata, web_readme
 from paperleet.judge.runner import run_batch
 from paperleet.paper_catalog import paper_catalog, module_scope, source_key
 
@@ -102,6 +104,61 @@ def test_nonstandard_statement_is_preserved():
     assert web_readme(statement) == statement
 
 
+def unpack_v5(compact):
+    assert compact["schema_version"] == 5
+    assert compact["payload"]["encoding"] == "gzip-base64"
+    raw = gzip.decompress(base64.b64decode(compact["payload"]["data"]))
+    assert len(raw) == compact["payload"]["bytes"]
+    packed = json.loads(raw)
+    assert len(packed["strings"]) == len(set(packed["strings"]))
+    assert packed["strings"] == sorted(packed["strings"], key=lambda text: text[::-1])
+
+    def unpack(value):
+        if isinstance(value, list):
+            return [unpack(item) for item in value]
+        if isinstance(value, dict):
+            assert len(value) == 1
+            tag, items = next(iter(value.items()))
+            if tag == "s":
+                assert type(items) is int and 0 <= items < len(packed["strings"])
+                return packed["strings"][items]
+            keys = packed["shapes"][int(tag)]
+            assert keys == sorted(keys) and len(keys) == len(items)
+            return dict(zip(keys, map(unpack, items)))
+        assert not isinstance(value, str), "All v5 string leaves use the string table"
+        return value
+
+    return unpack(packed["tree"])
+
+
+def test_v5_preserves_unicode_empty_strings_line_endings_and_value_types():
+    text = "中文 🧬 café e\u0301\n\tline two\r\nlast\r\u2028\u0000\"\\"
+    index = {
+        "schema_version": 2,
+        "problems": [{"id": "demo/unicode", "starter": text, "nested": {
+            "s": "a real field named s", "0": "a numeric field name", "🧬": "",
+        }}],
+        "papers": [],
+        "values": ["", text, text, 0, -7, 1.25, True, False, None, [], {}],
+    }
+    before = json.dumps(index, ensure_ascii=False)
+    compact = compact_index_v5(index)
+    assert unpack_v5(compact) == index
+    assert json.dumps(index, ensure_ascii=False) == before, "Packing cannot mutate source records"
+    assert compact_index_v5(index) == compact, "Repeated exports are byte-for-byte deterministic"
+
+    def reordered(value):
+        if isinstance(value, dict):
+            return {key: reordered(value[key]) for key in reversed(value)}
+        if isinstance(value, list):
+            return [reordered(item) for item in value]
+        return value
+
+    assert compact_index_v5(reordered(index)) == compact, "Dict insertion order is not transport state"
+    for value in ["", [], {}, [0, False, None]]:
+        assert unpack_v5(compact_index_v5(value)) == value
+
+
 def test_split_index_omits_heavy_content_and_links_immutable_details(tmp_path, monkeypatch):
     import hashlib
     monkeypatch.setenv("PAPERLEET_ROOT", str(tmp_path))
@@ -153,11 +210,15 @@ def test_split_index_omits_heavy_content_and_links_immutable_details(tmp_path, m
             return dict(zip(packed["shapes"][int(shape)], map(unpack, items)))
         return value
     assert unpack(packed["tree"]) == index
+    v5_path = full_path.parent / "index-v5.json"
+    assert unpack_v5(json.loads(v5_path.read_text())) == index
+    v5_before = v5_path.read_bytes()
     latest_before = latest_path.read_bytes()
     before = compact_path.read_bytes()
     export_catalog()
     assert compact_path.read_bytes() == before, "The source transport is reproducible"
     assert latest_path.read_bytes() == latest_before, "The complete compact transport is reproducible"
+    assert v5_path.read_bytes() == v5_before, "The string-table transport is reproducible"
     (folder / "solution.py").write_text("updated reference source")
     export_catalog()
     updated = json.loads(index_path.read_text())["problems"][0]
@@ -244,6 +305,9 @@ def test_maintained_catalog_can_export_complete_bilingual_packages(tmp_path, mon
         assert entry["readme"] and entry["starter"] and entry["solution"] and entry["notes"]
         assert entry["translations"]["en"]["readme"] and entry["translations"]["en"]["notes"]
     assert {module for card in exported["papers"] for module in card["curated_module_ids"]} <= {entry["id"] for entry in exported["problems"]}
+    data_dir = tmp_path / "web" / "public" / "data"
+    index = json.loads((data_dir / "index.json").read_text())
+    assert unpack_v5(json.loads((data_dir / "index-v5.json").read_text())) == index
 
 
 def test_arxiv_source_versions_share_identity():

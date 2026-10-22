@@ -1,0 +1,80 @@
+id: network_biology/shortest_paths
+number: 117
+title: 最短路径与网络邻近性
+title_en: Shortest Paths and Network Proximity
+paper_id: incomplete-interactome
+paper:
+  title: Uncovering disease-disease relationships through the incomplete interactome
+  authors: Jörg Menche, Amitabh Sharma, Maksim Kitsak, Susan Dina Ghiassian, Marc Vidal, Joseph Loscalzo and Albert-László Barabási
+  venue: Science 347(6224), 1257601 (2015)
+  url: https://doi.org/10.1126/science.1257601
+  doi: 10.1126/science.1257601
+  anchors:
+  - 'Network location of disease modules in the interactome and its relation to pathobiological similarity; this exercise implements only unweighted shortest-path distance, not the paper''s module-separation measure'
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: distances_from
+  signature: 'distances_from(nodes: list[str], edges: list[tuple[str, str]], source: str) -> dict[str, int]'
+- name: shortest_path_length
+  signature: 'shortest_path_length(nodes: list[str], edges: list[tuple[str, str]], source: str, target: str) -> int | None'
+- name: shortest_path
+  signature: 'shortest_path(nodes: list[str], edges: list[tuple[str, str]], source: str, target: str) -> list[str] | None'
+module:
+  goal: 在无权互作网络中计算最短路径长度和具体路径，处理不可达目标与并列路径，并把路径长度理解为邻近性假设而非功能证明。
+  goal_en: Compute shortest-path lengths and concrete paths in an unweighted interaction network, handle unreachable targets and tied paths, and read path length as a proximity hypothesis rather than proof of function.
+  scope: 无权无向图上的单源距离、两点距离和字典序最小的最短路径；不实现加权最短路径或论文中的模块分离度量。
+  scope_en: Single-source distances, pairwise distance and the lexicographically smallest shortest path on an unweighted undirected graph; weighted paths and the paper's module-separation measure are not implemented.
+  required_functions:
+  - distances_from
+  - shortest_path_length
+  - shortest_path
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: Python str node names, int distances
+  device: CPU; pure Python standard library, no network access or dataset download
+  contract: 'Unweighted simple undirected graph with the network_biology/degree_distribution conventions: unique str nodes, self-loops and repeated edges ignored, ValueError for duplicate nodes or unknown endpoints. Every edge has length 1. distances_from omits unreachable nodes and maps source to 0. shortest_path_length returns None for an unreachable target and 0 when source == target. shortest_path returns None when unreachable, [source] when source == target, and otherwise the lexicographically smallest list of node names among all shortest paths. An unknown source or target raises ValueError.'
+estimated_minutes: 20
+tests:
+  T0: 1
+  T1: 2
+  T2: 5
+  T3: 1
+t3_budget_s: 10
+tags:
+- Network Biology
+- Shortest Paths
+- Network Proximity
+viz:
+- toy_experiment
+browser:
+  backend: numpy-wasm
+sources_verified: '2026-10-20'
+verified_sources:
+  checked_at: '2026-10-20'
+  links:
+  - https://pubmed.ncbi.nlm.nih.gov/25700523/
+  - https://research.ceu.edu/en/publications/uncovering-disease-disease-relationships-through-the-incomplete-i/
+toy:
+  kind: teaching_adaptation
+  source: https://doi.org/10.1126/science.1257601
+  anchor: Network location and distance in the interactome
+  adaptation: Synthetic 10-node graph with a tie, an unreachable pair and one added shortcut edge; no interactome data, no disease genes and no claim that path length predicts function.
+mutants:
+- id: m1_unreachable_zero
+  bug: 不可达目标返回 0 而不是 None。
+- id: m2_length_counts_nodes
+  bug: 把路径上的节点数当作长度，比边数多一。
+- id: m3_largest_neighbor_first
+  bug: 并列最短路径时倾向字典序最大的邻居。
+- id: m4_directed_edges
+  bug: 把边当作有向边，只记录 u 到 v。
+- id: m5_empty_self_path
+  bug: 起点等于终点时返回空路径。
+- id: m6_reversed_path
+  bug: 路径没有反转，返回从终点到起点的顺序。
+- id: m7_unknown_target_silent
+  bug: 目标节点不在图中时静默返回 None 而不是抛出 ValueError。

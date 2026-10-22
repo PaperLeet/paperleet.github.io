@@ -1,0 +1,78 @@
+id: network_biology/hubs_centrality
+number: 115
+title: 枢纽蛋白识别：度中心性与介数中心性
+title_en: 'Hub Identification: Degree and Betweenness Centrality'
+paper_id: network-biology
+paper:
+  title: 'Network biology: understanding the cell''s functional organization'
+  authors: Albert-László Barabási and Zoltán N. Oltvai
+  venue: Nature Reviews Genetics 5(2), 101–113 (2004)
+  url: https://doi.org/10.1038/nrg1272
+  doi: 10.1038/nrg1272
+  anchors:
+  - 'Box 1 (Network measures): basic descriptors used to compare cellular networks'
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: degree_centrality
+  signature: 'degree_centrality(nodes: list[str], edges: list[tuple[str, str]]) -> dict[str, float]'
+- name: betweenness_centrality
+  signature: 'betweenness_centrality(nodes: list[str], edges: list[tuple[str, str]]) -> dict[str, float]'
+- name: rank_hubs
+  signature: 'rank_hubs(scores: dict[str, float], k: int) -> list[str]'
+module:
+  goal: 计算度中心性与介数中心性，用明确的并列规则选出候选枢纽，并理解两种排名为何会不同。
+  goal_en: Compute degree and betweenness centrality, choose candidate hubs with an explicit tie rule, and see why the two rankings can differ.
+  scope: 简单无向图上的归一化度中心性、基于最短路径计数的归一化介数中心性和确定性的 Top-k 排名；图中心性不等于生物学必需性。
+  scope_en: Normalized degree centrality, shortest-path-count betweenness and a deterministic top-k ranking on a simple undirected graph; graph centrality is not biological essentiality.
+  required_functions:
+  - degree_centrality
+  - betweenness_centrality
+  - rank_hubs
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: Python str node names, float scores
+  device: CPU; pure Python standard library, no network access or dataset download
+  contract: 'Simple undirected graph with the network_biology/degree_distribution conventions: unique str nodes, self-loops ignored, each unordered pair counted once, ValueError for duplicate nodes or unknown endpoints. degree_centrality = distinct neighbors/(N-1), all 0.0 when N=1, {} when N=0. betweenness_centrality sums sigma_st(v)/sigma_st over unordered connected pairs {s,t} not containing v, divided by (N-1)(N-2)/2; unconnected pairs contribute nothing; all 0.0 when N<3. rank_hubs sorts by descending score rounded to 12 decimals, ties by ascending node name; k=0 gives [], k>len gives all, k<0 raises ValueError.'
+estimated_minutes: 25
+tests:
+  T0: 1
+  T1: 2
+  T2: 6
+  T3: 1
+t3_budget_s: 10
+tags:
+- Network Biology
+- Centrality
+- Hub Proteins
+viz:
+- toy_experiment
+browser:
+  backend: numpy-wasm
+sources_verified: '2026-10-20'
+verified_sources:
+  checked_at: '2026-10-20'
+  links:
+  - https://research.ceu.edu/en/publications/network-biology-understanding-the-cells-functional-organization/
+  - https://www.barabasi.com/media/pub_imports/files/147.pdf
+toy:
+  kind: teaching_adaptation
+  source: https://doi.org/10.1038/nrg1272
+  anchor: Network measures as descriptors of cellular networks
+  adaptation: Synthetic 9-node two-module graph joined through one connector node; centralities are computed on the toy graph only, with no interactome data and no claim about essentiality.
+mutants:
+- id: m1_degree_denominator
+  bug: 度中心性分母用 N 而不是 N-1。
+- id: m2_betweenness_scale
+  bug: 介数归一化少了因子 2，等于把无序点对当作有序点对。
+- id: m3_tie_order_reversed
+  bug: 并列时按节点名降序排列。
+- id: m4_no_rounding
+  bug: 比较分数时不做舍入，浮点误差会打破本应相等的并列。
+- id: m5_endpoints_counted
+  bug: 把路径两端点也计入介数。
+- id: m6_ignore_path_counts
+  bug: 只要在某条最短路径上就计 1，忽略最短路径条数。

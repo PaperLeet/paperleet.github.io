@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "reviewed_on": "2026-10-20",
+  "reviewed_on": "2026-10-22",
   "modules": [
     {
       "id": "architecture/attention",
@@ -6617,6 +6617,410 @@
           "hint": {
             "zh": "区分固定观测记录上的局部更新和生成新数据的完整循环；需要独立测试集、真实标签检查与多轮实验。",
             "en": "Distinguish a local update on fixed observations from the full loop that generates fresh data. Use held-out evaluation, independent label checks and multiple training rounds."
+          }
+        }
+      ]
+    },
+    {
+      "id": "network_biology/degree_distribution",
+      "source": "problems/network_biology/degree_distribution/README.md",
+      "functions": [
+        "node_degrees",
+        "degree_distribution"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "节点的度与整个网络的度分布分别回答什么问题？孤立节点应该出现在哪里？",
+            "en": "What do node degree and the network degree distribution each describe, and where do isolated nodes appear?"
+          },
+          "hint": {
+            "zh": "度是不同邻居的数量；P(k) 是度恰好为 k 的节点数除以全部节点数。孤立节点的度为 0，分布必须保留从 0 到最大度的所有整数键。",
+            "en": "Degree counts distinct neighbors; P(k) is the fraction of all nodes whose degree equals k. Isolated nodes have degree zero, and the distribution includes every integer key from zero through the maximum degree."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "怎样构造邻居集合，才能同时正确处理反向重复边、自环和未知节点？",
+            "en": "How would you build neighbor sets while handling reversed duplicates, self-loops and unknown nodes correctly?"
+          },
+          "hint": {
+            "zh": "先为每个合法节点建立空集合并检查重名；逐边验证两个端点后再忽略自环，无向边要写入两个邻居集合。空图的两个函数都返回空字典。",
+            "en": "Initialize an empty set for every node and reject duplicate names. Validate both endpoints before ignoring a self-loop, and add each undirected edge in both directions. Both functions return an empty dictionary for an empty graph."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何用一条新增边和几个重复输入验证度数、分布的分母及归一化？",
+            "en": "How can one new edge and several duplicate inputs test degrees, the distribution denominator and normalization?"
+          },
+          "hint": {
+            "zh": "在两个不同且尚未相邻的节点间加边，两端度数各增加 1，总度增加 2。重复边、反向边和合法自环不改变结果；非空图的 P(k) 总和应为 1。",
+            "en": "Adding an edge between distinct non-neighbors increases each endpoint degree by one and the total degree by two. Duplicates, reversed edges and valid self-loops do not change the result. P(k) sums to one for a nonempty graph."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "graph-model-choice",
+          "question": {
+            "zh": "如果原始记录包含蛋白自相互作用或重复实验，本题为什么仍不把它们累加到节点度？",
+            "en": "Why does this exercise not add self-interactions or repeated experimental records to node degree?"
+          },
+          "hint": {
+            "zh": "接口定义的是简单无向图：重复记录合并为同一邻居，自环被忽略。若要研究相互作用次数或权重，需要先改变图模型及函数约定，不能直接把记录条数当成邻居数。",
+            "en": "The interface defines a simple undirected graph: repeated records identify the same neighbor, and self-loops are ignored. Studying interaction counts or weights requires a different graph model and contract; record count is not distinct-neighbor count."
+          }
+        },
+        {
+          "id": "degree-tail-evidence",
+          "question": {
+            "zh": "实验中出现少数高连接节点，是否足以把这个网络称为无标度网络？",
+            "en": "Does seeing a few highly connected nodes in the experiment establish that the network is scale-free?"
+          },
+          "hint": {
+            "zh": "度分布直方图描述当前合成图。判断幂律需要拟合、比较其他分布并考虑样本和测量偏差；本题只计算 P(k)，没有完成这些统计步骤。",
+            "en": "The histogram describes the current synthetic graph. Establishing a power law requires fitting, comparison with alternative distributions and attention to sampling and measurement bias. This exercise computes P(k) without performing those statistical steps."
+          }
+        }
+      ]
+    },
+    {
+      "id": "network_biology/hubs_centrality",
+      "source": "problems/network_biology/hubs_centrality/README.md",
+      "functions": [
+        "degree_centrality",
+        "betweenness_centrality",
+        "rank_hubs"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "为什么连接两个模块的节点可能度数很低，却有最高的介数中心性？",
+            "en": "Why can a connector between two modules have low degree but the highest betweenness centrality?"
+          },
+          "hint": {
+            "zh": "度中心性数直接邻居，分母为 N−1；介数统计其他节点对的最短路径经过该节点的份额。示例中的 X 只有两个邻居，却连接两个模块，介数为 16/28。",
+            "en": "Degree centrality counts direct neighbors and divides by N−1. Betweenness measures the share of shortest paths between other node pairs passing through the node. In the example, X has only two neighbors but connects the modules and has betweenness 16/28."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "计算介数时，怎样处理多条并列最短路径、路径端点和最终排名的浮点并列？",
+            "en": "How should betweenness handle tied shortest paths, path endpoints and floating-point ties in the final ranking?"
+          },
+          "hint": {
+            "zh": "每个无序节点对贡献 sigma_st(v)/sigma_st，只计内部节点；归一化使用全部 N 个节点，N<3 时全为零。排名先把分数舍入到 12 位小数，再按分数降序、名称升序排序。",
+            "en": "Each unordered pair contributes sigma_st(v)/sigma_st for interior nodes only. Normalize using the full node count N; all betweenness scores are zero when N<3. Rank by scores rounded to 12 decimals in descending order, then by ascending node name."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样用菱形图和很小的图，发现把路径份额当成 1 或归一化少一倍的错误？",
+            "en": "How can a diamond graph and very small graphs expose counting a path share as one or missing a normalization factor?"
+          },
+          "hint": {
+            "zh": "菱形图中，两个中间节点各分到同一端点对的 1/2 贡献，端点不获此贡献。另查空图、单点、两点、断开分量，以及分数只差 10^-13 时的名称并列规则。",
+            "en": "In a diamond, each of the two intermediate nodes receives one half of the contribution for the opposite endpoint pair; those endpoints receive none from that pair. Also check empty, one-node, two-node and disconnected graphs, plus name ties when scores differ by only 10^-13."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "disconnected-normalization",
+          "question": {
+            "zh": "向图中加入一个完全孤立的节点，已有节点的归一化中心性是否一定不变？",
+            "en": "Does adding a completely isolated node necessarily leave existing normalized centralities unchanged?"
+          },
+          "hint": {
+            "zh": "原有邻居与连通节点对之间的路径都没有改变，但本题两个归一化分母都依赖全图 N。区分未归一化的计数与最终分数，不要擅自改成各连通分量内部归一化。",
+            "en": "Existing neighbors and paths between connected pairs are unchanged, but both normalization denominators depend on the full graph size N. Separate raw counts from normalized scores, and do not silently normalize within each component."
+          }
+        },
+        {
+          "id": "shortcut-interpretation",
+          "question": {
+            "zh": "给两个模块增加一条绕过 X 的捷径后，X 的度中心性和介数分别可能怎样变化？",
+            "en": "After adding a shortcut between the two modules that bypasses X, how can its degree and betweenness change?"
+          },
+          "hint": {
+            "zh": "若捷径不与 X 相连，X 的邻居数不变；部分最短路径会绕开它，使示例中的介数降低。分数变化描述网络结构，判断蛋白是否必需或具有因果作用仍需要独立实验。",
+            "en": "If the shortcut does not touch X, its neighbor count stays fixed. Some shortest paths bypass it, lowering its betweenness in the example. These scores describe graph structure; protein essentiality or causal importance requires independent experiments."
+          }
+        }
+      ]
+    },
+    {
+      "id": "network_biology/connected_components",
+      "source": "problems/network_biology/connected_components/README.md",
+      "functions": [
+        "connected_components",
+        "largest_component",
+        "largest_component_fraction"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "连通分量的“极大”是什么意思？最大分量占比的分母应包括哪些节点？",
+            "en": "What does maximal mean for a connected component, and which nodes belong in the denominator of the largest-component fraction?"
+          },
+          "hint": {
+            "zh": "从分量中任一点出发，能到达的节点都必须在该分量中；各分量不重叠并覆盖全部节点。孤立节点也是单点分量，最大分量占比的分母是全部节点数。",
+            "en": "A component includes every node reachable from any of its members. Components are disjoint and cover all nodes. An isolated node is a singleton component, and the largest-component fraction divides by the total node count."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "遍历结束后，怎样同时保证分量成员、分量之间的顺序和最大分量选择是确定的？",
+            "en": "After traversal, how do you make member order, component order and the choice of largest component deterministic?"
+          },
+          "hint": {
+            "zh": "为每个尚未访问的节点启动 BFS 或 DFS，保留孤立节点。每个分量内按名称排序，再按大小降序、最小成员升序排列；空图返回空分量列表，最大分量为空列表、占比为 0。",
+            "en": "Start BFS or DFS from each unvisited node, retaining isolated nodes. Sort members by name, then components by descending size and ascending smallest member. For an empty graph, return no components, an empty largest component and fraction zero."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "除了和示例结果一致，还能用哪些结构性质及一次删边验证连通分量？",
+            "en": "Beyond matching the example, which structural properties and one edge deletion can validate connected components?"
+          },
+          "hint": {
+            "zh": "每个节点应恰好出现一次，任何边的两个端点应落在同一分量。删除连接两个模块的唯一桥边应把一个分量拆成两个；删掉三角形中的一条边则不一定拆开。",
+            "en": "Each node must appear exactly once, and both endpoints of every edge must belong to the same component. Removing the only bridge between two modules splits one component into two; removing one edge of a triangle need not disconnect it."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "equal-size-components",
+          "question": {
+            "zh": "若有两个同样大的最大分量，改变输入节点顺序会不会改变 largest_component 的结果？",
+            "en": "If two components tie for largest size, should reordering the input nodes change largest_component?"
+          },
+          "hint": {
+            "zh": "结果由最小成员的字符串顺序决定，而不是遍历发现顺序。构造两个等大的分量，分别打乱 nodes 和 edges，检查成员排序、分量排序和最大分量占比。",
+            "en": "The smallest member name determines the tie, independently of discovery order. Build equal-size components and permute nodes and edges separately, checking member order, component order and the largest-component fraction."
+          }
+        },
+        {
+          "id": "missing-interactions",
+          "question": {
+            "zh": "两个蛋白处在不同连通分量，能据此断言它们在细胞中彼此独立吗？",
+            "en": "Can proteins in different connected components be assumed biologically independent?"
+          },
+          "hint": {
+            "zh": "这里只能说明当前图中没有记录到连接路径。未测得的互作、条件特异的联系或图外机制都可能连接它们；解释分量时需要同时考虑数据来源和覆盖范围。",
+            "en": "The result says there is no recorded path in this graph. Unmeasured interactions, condition-specific links or mechanisms outside the graph may connect them. Interpret components together with the source and coverage of the interaction data."
+          }
+        }
+      ]
+    },
+    {
+      "id": "network_biology/shortest_paths",
+      "source": "problems/network_biology/shortest_paths/README.md",
+      "functions": [
+        "distances_from",
+        "shortest_path_length",
+        "shortest_path"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "本题的路径长度数的是边还是节点？不可达目标与起点本身在三个接口中如何表示？",
+            "en": "Does path length count edges or nodes, and how do the three interfaces represent unreachable targets and the source itself?"
+          },
+          "hint": {
+            "zh": "每条边长 1，所以 BFS 按距离逐层访问。单源字典包含 source:0 并省略不可达节点；两点接口对不可达目标返回 None，对相同起终点返回 0 和 [source]。",
+            "en": "Every edge has length one, so BFS visits nodes by distance. The single-source map includes source:0 and omits unreachable nodes. The pairwise interfaces return None for unreachable targets, and zero and [source] when source equals target."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "有多条等长最短路径时，怎样让父节点记录恢复出字典序最小的完整路径？",
+            "en": "When shortest paths tie in length, how can parent records reconstruct the lexicographically smallest complete path?"
+          },
+          "hint": {
+            "zh": "使用 FIFO 队列，邻居按字符串升序展开，并在首次发现时记录父节点。回溯得到的是终点到起点的链，返回前要反转；未知 source 或 target 要抛出 ValueError。",
+            "en": "Use a FIFO queue, expand neighbors in ascending string order and record the parent on first discovery. Backtracking produces a target-to-source chain, so reverse it before returning. Unknown source or target names raise ValueError."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样区分最短距离算对了与并列路径选择也算对了？",
+            "en": "How can you distinguish correct distances from correct tie-breaking between shortest paths?"
+          },
+          "hint": {
+            "zh": "构造两条等长路径，直接比较完整节点列表，再打乱边和节点输入。逐条检查返回路径上的边，确认长度等于节点数减一，并另测不可达、自路径和反向查询的距离。",
+            "en": "Create two equal-length paths and compare the full returned node list, then permute nodes and edges. Check every returned edge and that distance equals path-node count minus one. Test unreachable targets, self-paths and reverse-query distances separately."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "weighted-extension",
+          "question": {
+            "zh": "如果互作边带有置信度，能把本题的 BFS 结果直接解释为最可信的路径吗？",
+            "en": "If interactions have confidence scores, can the BFS result be interpreted directly as the most reliable path?"
+          },
+          "hint": {
+            "zh": "本题只最小化边数。必须先定义如何把置信度转成代价、怎样累加路径代价，再选择适合权重条件的算法；权重信息不属于当前接口。",
+            "en": "This exercise minimizes edge count only. First define how confidence becomes an edge cost and how costs combine along a path, then choose an algorithm suited to those weights. The current interface does not include weights."
+          }
+        },
+        {
+          "id": "proximity-evidence",
+          "question": {
+            "zh": "新增一条互作边缩短了两个蛋白的距离，这能支持什么结论，又还需要什么信息？",
+            "en": "If one added interaction shortens the distance between two proteins, what does that establish and what further information is needed?"
+          },
+          "hint": {
+            "zh": "它说明当前图的最短路径发生了变化，可作为邻近性假设的依据。功能或疾病关系还依赖互作质量、覆盖范围和其他证据；这里也没有实现论文中的疾病模块分离度量。",
+            "en": "It establishes a change in this graph’s shortest path and can motivate a proximity hypothesis. Functional or disease relationships also depend on interaction quality, coverage and other evidence. The exercise does not implement the paper’s disease-module separation measure."
+          }
+        }
+      ]
+    },
+    {
+      "id": "network_biology/feed_forward_loops",
+      "source": "problems/network_biology/feed_forward_loops/README.md",
+      "functions": [
+        "find_feed_forward_loops"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "前馈环的三个节点分别扮演什么角色？为什么一个有向三角形不一定是前馈环？",
+            "en": "What roles do the three nodes of a feed-forward loop play, and why is a directed triangle not always a feed-forward loop?"
+          },
+          "hint": {
+            "zh": "三元组 (x,y,z) 要满足 x→y、y→z、x→z，三个节点互异。方向决定顶层调控者、中间节点和目标；x→y→z→x 的有向环缺少所需的直接前馈边。",
+            "en": "The ordered triple (x,y,z) requires x→y, y→z and x→z with distinct nodes. Directions assign regulator, intermediate and target roles. A directed cycle x→y→z→x lacks the required direct feed-forward edge."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "怎样区分 induced=True 与 False，并避免把不同的合法角色分配合并成同一个结果？",
+            "en": "How do induced=True and False differ, and how do you avoid collapsing distinct valid role assignments into one result?"
+          },
+          "hint": {
+            "zh": "从有向邻居集合找共同目标，返回有序角色三元组并按字符串排序。诱导模式还要排除 y→x、z→x、z→y；非诱导模式允许额外边，同一节点集合可能产生多个三元组。",
+            "en": "Find common targets using directed neighbor sets, retain ordered role triples and sort them as string tuples. Induced matching also excludes y→x, z→x and z→y. Non-induced matching allows extra edges, so a node set can yield multiple triples."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何用链、有向环以及新增反向边，分别检查漏边、方向和诱导匹配错误？",
+            "en": "How can a chain, a directed cycle and an added reverse edge expose missing-edge, direction and induced-matching errors?"
+          },
+          "hint": {
+            "zh": "链与有向三环都应返回空列表。完整前馈环加入 z→y 后，非诱导模式出现两个角色分配，诱导模式不再匹配；再查重复边、自环和输入顺序不影响结果。",
+            "en": "A chain and a directed three-cycle both return no triples. Adding z→y to a full feed-forward loop creates two role assignments in non-induced mode and rejects the triple set in induced mode. Also check duplicates, self-loops and input-order independence."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "degree-preserving-control",
+          "question": {
+            "zh": "随机化实验为什么交换两条边的目标，而不是任意重新连边？哪些量应该保持不变？",
+            "en": "Why does the randomization swap the targets of two edges rather than reconnect edges arbitrarily, and what should remain fixed?"
+          },
+          "hint": {
+            "zh": "把 a→b、c→d 换成 a→d、c→b，会保持每个节点的出度和入度；产生自环或重复边的交换要拒绝。这样比较的是相同度约束下的前馈环计数。",
+            "en": "Replacing a→b and c→d with a→d and c→b preserves every node’s out-degree and in-degree. Reject swaps that create self-loops or duplicate edges. The comparison then measures feed-forward-loop counts under the same degree constraints."
+          }
+        },
+        {
+          "id": "motif-versus-count",
+          "question": {
+            "zh": "找到前馈环，或看到计数超过随机化均值，就已经证明它是有功能的网络模体吗？",
+            "en": "Does finding a feed-forward loop, or a count above the randomized mean, prove a functional network motif?"
+          },
+          "hint": {
+            "zh": "检测器返回结构匹配；显著富集需要合适的随机对照与统计分析，而功能还需要调控符号、动态或实验。这里的合成网络与 200 次随机化只提供计数比较。",
+            "en": "The detector returns structural matches. Significant enrichment requires suitable randomized controls and statistical analysis; function additionally needs regulatory signs, dynamics or experiments. The synthetic network and 200 randomizations here provide a count comparison."
+          }
+        }
+      ]
+    },
+    {
+      "id": "network_biology/community_modules",
+      "source": "problems/network_biology/community_modules/README.md",
+      "functions": [
+        "modularity",
+        "greedy_modularity_communities"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "模块度中的内部边数和度和分别如何计数？resolution 在公式中调节哪一项？",
+            "en": "How are internal edges and degree sums counted in modularity, and which term does resolution change?"
+          },
+          "hint": {
+            "zh": "L_c 把社区内每条无向边计一次，D_c 是成员在全图中的度之和。Q 对各社区累加 L_c/m−resolution×(D_c/2m)^2；分辨率乘在期望连接项上，m=0 时返回 0。",
+            "en": "L_c counts each internal undirected edge once; D_c sums members’ degrees in the full graph. Sum L_c/m−resolution×(D_c/2m)^2 over communities. Resolution scales the expected-connectivity term, and Q is zero when m=0."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "每轮合并怎样处理候选社区对、12 位舍入、并列和零增益停止？",
+            "en": "How should each merge handle candidate pairs, 12-decimal rounding, ties and stopping at zero gain?"
+          },
+          "hint": {
+            "zh": "只考虑有边相连的社区对。先将增益舍入到 12 位，再取最大者，并列时比较双方最小成员组成的升序名称对；最佳舍入增益不为正就停止，孤立节点保持单独社区。",
+            "en": "Consider only edge-connected community pairs. Round gains to 12 decimals before maximizing; break ties by the ascending pair of their smallest member names. Stop when the best rounded gain is not positive, leaving isolated nodes as singleton communities."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样同时验证模块度公式、划分合法性和贪心算法的分辨率行为？",
+            "en": "How can you check the modularity formula, partition validity and the greedy algorithm’s resolution behavior together?"
+          },
+          "hint": {
+            "zh": "两组三角形用一条桥边相连时，分别成社区的 Q 为 5/14（resolution=1）。再测重复成员、漏节点、空社区，及无边图；对两组四点团改变分辨率，观察合并、分开和单点结果。",
+            "en": "Two triangles joined by one bridge have Q=5/14 when kept separate at resolution=1. Test duplicate members, omitted nodes, empty communities and edgeless graphs. Vary resolution on two four-node cliques to observe merged, separate and singleton outcomes."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "greedy-optimum",
+          "question": {
+            "zh": "每次都选最大正增益，是否保证最终划分达到所有可能划分中的最高模块度？",
+            "en": "Does choosing the largest positive gain at every step guarantee the best modularity over all possible partitions?"
+          },
+          "hint": {
+            "zh": "贪心过程只比较当前可合并的社区对，不能撤销早先合并。小图可以枚举所有划分作对照；某个教学图上达到最优，不构成对任意图的全局最优保证。",
+            "en": "The greedy procedure compares currently available merges and cannot undo an earlier merge. Enumerate all partitions for a small-graph comparison. Reaching the optimum on one teaching graph does not establish a global guarantee for arbitrary graphs."
+          }
+        },
+        {
+          "id": "resolution-and-biology",
+          "question": {
+            "zh": "改变 resolution 后社区数变了，怎样判断这是算法行为还是生物功能发生变化？",
+            "en": "If changing resolution changes the number of communities, how do you separate algorithm behavior from a change in biological function?"
+          },
+          "hint": {
+            "zh": "数据和边没有变化，变化来自质量目标中期望连接项的权重及相应合并选择。所得社区是候选结构模块；把它们解释成通路或复合物，需要注释、复现与实验依据。",
+            "en": "The nodes and edges are unchanged; the expected-connectivity weight and resulting merge choices changed. The output consists of candidate structural modules. Interpreting them as pathways or complexes requires annotation, replication and experimental evidence."
           }
         }
       ]

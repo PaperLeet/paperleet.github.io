@@ -6,21 +6,33 @@ const invalid=()=>new Error('Invalid catalog index');
 
 /** Expand only the source transport; callers keep the exact established Problem model. */
 export async function decodeCatalogIndex(value:unknown):Promise<Index>{
- if(record(value)&&value.schema_version===4){
+ if(record(value)&&(value.schema_version===4||value.schema_version===5)){
+  const dictionary=value.schema_version===5;
   const packed:unknown=JSON.parse(await decompress(value.payload));
   if(!record(packed)||!Array.isArray(packed.shapes)||packed.shapes.length>256)throw invalid();
   const shapes=packed.shapes;
   if(shapes.some(keys=>!Array.isArray(keys)||keys.length>256||keys.some(key=>typeof key!=='string')||new Set(keys).size!==keys.length))throw invalid();
-  let nodes=0;
+  const table=dictionary?packed.strings:[];
+  if(!Array.isArray(table)||table.length>100000||table.some(text=>typeof text!=='string'))throw invalid();
+  const strings:string[]=table;
+  let nodes=0,characters=0;
+  const text=(value:string)=>{characters+=value.length;if(characters>2*1024*1024)throw invalid();return value;};
   function unpack(item:unknown,depth=0):unknown{
    if(depth>32||++nodes>100000)throw invalid();
    if(Array.isArray(item))return item.map(child=>unpack(child,depth+1));
    if(record(item)){
-    const entries=Object.entries(item);if(entries.length!==1||!/^\d+$/.test(entries[0][0]))throw invalid();
-    const [key,values]=entries[0],keys=shapes[Number(key)];
+    const entries=Object.entries(item);if(entries.length!==1)throw invalid();
+    const [key,values]=entries[0];
+    if(dictionary&&key==='s'){
+     if(!Number.isSafeInteger(values)||Number(values)<0||Number(values)>=strings.length)throw invalid();
+     return text(strings[Number(values)]);
+    }
+    if(!/^\d+$/.test(key))throw invalid();
+    const keys=shapes[Number(key)];
     if(!Array.isArray(keys)||!Array.isArray(values)||keys.length!==values.length)throw invalid();
-    return Object.fromEntries(keys.map((field,index)=>[field,unpack(values[index],depth+1)]));
+    return Object.fromEntries(keys.map((field,index)=>[text(field),unpack(values[index],depth+1)]));
    }
+   if(typeof item==='string'){if(dictionary)throw invalid();return text(item);}
    return item;
   }
   const index=unpack(packed.tree);
@@ -50,8 +62,10 @@ async function decompress(source:unknown):Promise<string>{
 
 export async function loadCatalogIndex(base:string,fetcher:typeof fetch=fetch):Promise<Index>{
  const compact=typeof DecompressionStream==='function';
- let response=await fetcher(`${base}data/${compact?'index-v4':'index'}.json`,{cache:'no-cache'});
- if(compact&&(response.status===404||response.status===410))response=await fetcher(`${base}data/index.json`,{cache:'no-cache'});
- if(!response.ok)throw Error('Catalog unavailable');
- return decodeCatalogIndex(await response.json());
+ for(const name of compact?['index-v5','index-v4','index']:['index']){
+  const response=await fetcher(`${base}data/${name}.json`,{cache:'no-cache'});
+  if(response.ok)return decodeCatalogIndex(await response.json());
+  if(response.status!==404&&response.status!==410)throw Error('Catalog unavailable');
+ }
+ throw Error('Catalog unavailable');
 }

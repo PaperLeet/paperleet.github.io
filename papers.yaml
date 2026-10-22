@@ -949,3 +949,86 @@ papers:
     module_ids:
     - self_evolving/mmzero_proposer
     - self_evolving/mmzero_feedback
+  - id: hierarchical-modularity
+    number: 78
+    category: network-biology
+    short_title: Hierarchical Modularity
+    year: 2002
+    tags:
+    - Network Biology
+    - Community Detection
+    - Modularity
+    summary: 通过模块度与贪心社区发现理解代谢网络中的模块化组织。
+    summary_en: Study modular organization in metabolic networks through modularity scoring and greedy community detection.
+    scope: 实现模块度计算与确定性贪心社区发现；练习范围不复现论文中的完整层次结构或真实代谢网络结果。
+    scope_en: Implement modularity scoring and deterministic greedy community detection; this exercise does not reproduce the
+      paper's full hierarchy or results on real metabolic networks.
+    module_ids:
+    - network_biology/community_modules
+  - id: network-biology
+    number: 79
+    category: network-biology
+    short_title: Network Biology
+    year: 2004
+    tags:
+    - Network Biology
+    - Cellular Networks
+    - Network Topology
+    summary: 使用图结构与网络测量描述细胞网络的功能组织。
+    summary_en: Use graph structure and network measures to describe the functional organization of cellular networks.
+    scope: 包含连通分量、最大连通分量、节点中心性与候选枢纽排名；图结构指标不等于生物学功能或必需性的实验证据。
+    scope_en: Covers connected components, largest components, node centrality and candidate-hub ranking; graph metrics are
+      not experimental evidence of biological function or essentiality.
+    module_ids:
+    - network_biology/connected_components
+    - network_biology/hubs_centrality
+  - id: scale-free-networks
+    number: 80
+    category: network-biology
+    short_title: Scale-Free Networks in Cell Biology
+    year: 2005
+    tags:
+    - Network Biology
+    - Degree Distribution
+    - Graph Representation
+    summary: 计算生物互作网络的节点度与度分布，理解网络拓扑描述符。
+    summary_en: Compute node degrees and degree distributions in biological interaction networks and understand these topological
+      descriptors.
+    scope: 实现简单无向图的节点度与度分布；合成网络练习不证明真实生物网络服从无标度分布。
+    scope_en: Implement node degrees and degree distributions on simple undirected graphs; synthetic-network exercises do not
+      establish that real biological networks are scale-free.
+    module_ids:
+    - network_biology/degree_distribution
+  - id: network-motifs
+    number: 81
+    category: network-biology
+    short_title: Network Motifs
+    year: 2002
+    tags:
+    - Network Biology
+    - Network Motifs
+    - Gene Regulatory Networks
+    summary: 在有向调控网络中识别前馈环，并理解网络模体的结构定义。
+    summary_en: Identify feed-forward loops in directed regulatory networks and understand the structural definition of network
+      motifs.
+    scope: 实现前馈环子图匹配；计数比较不等于统计显著性检验，也不证明调控功能。
+    scope_en: Implement feed-forward-loop subgraph matching; count comparisons are not statistical significance tests and do
+      not prove regulatory function.
+    module_ids:
+    - network_biology/feed_forward_loops
+  - id: incomplete-interactome
+    number: 82
+    category: network-biology
+    short_title: Incomplete Interactome
+    year: 2015
+    tags:
+    - Network Biology
+    - Network Medicine
+    - Shortest Paths
+    summary: 使用无权最短路径研究互作网络中的节点邻近性。
+    summary_en: Use unweighted shortest paths to study node proximity in interaction networks.
+    scope: 实现单源距离、两点最短路径长度与具体最短路径；不复现论文的疾病模块分离度量或真实疾病关联分析。
+    scope_en: Implement single-source distances, pairwise shortest-path lengths and explicit shortest paths; this does not reproduce
+      the paper's disease-module separation measure or real disease-association analysis.
+    module_ids:
+    - network_biology/shortest_paths

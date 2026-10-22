@@ -32,7 +32,7 @@ try {
   for (const [i, bundle] of bundles.entries()) {
     assert.equal(bundle.problem, pilots[i].id);
     assert.equal(bundle.harness, fs.readFileSync('../paperleet/browser/harness.py', 'utf8'));
-    const adapter = pilots[i].id === 'diffusion/schedules' ? 'schedules_numpy.py' : 'numpy_autograd.py';
+    const adapter = pilots[i].browser_judge.backend === 'numpy-wasm' ? 'schedules_numpy.py' : 'numpy_autograd.py';
     assert.equal(bundle.adapter, fs.readFileSync(`../paperleet/browser/${adapter}`, 'utf8'));
     assert.equal(bundle.files['paperleet/common/asserts.py'], fs.readFileSync('../paperleet/common/asserts.py', 'utf8'));
     assert.equal(bundle.files['paperleet/common/comparisons.py'], fs.readFileSync('../paperleet/common/comparisons.py', 'utf8'));

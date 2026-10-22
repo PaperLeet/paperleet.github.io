@@ -1130,6 +1130,25 @@
         "ml",
         "research"
       ]
+    },
+    {
+      "id": "network-biology",
+      "name": "网络生物学",
+      "name_en": "Network Biology",
+      "description": "从互作图的度分布走到中心性、连通性、最短路径、前馈环和社区，练习可复现的网络分析。",
+      "description_en": "Study degree distributions, centrality, connectivity, shortest paths, feed-forward loops and communities through reproducible network analysis.",
+      "modules": [
+        "network_biology/degree_distribution",
+        "network_biology/hubs_centrality",
+        "network_biology/connected_components",
+        "network_biology/shortest_paths",
+        "network_biology/feed_forward_loops",
+        "network_biology/community_modules"
+      ],
+      "roles": [
+        "ml",
+        "research"
+      ]
     }
   ]
 }
