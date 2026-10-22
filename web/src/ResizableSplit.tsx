@@ -18,7 +18,10 @@ type ResizableSplitProps = {
   /** An explicit layout action. Ordinary renders and resizing retain the user's preference. */
   layout?: { ratio: number };
   secondCollapsed?: boolean;
-  children: [ReactNode, ReactNode];
+  /** Reports whether a horizontal split has stacked its panes below `collapseAt`. */
+  onCollapse?: (collapsed: boolean) => void;
+  /** A function as the second pane receives this component, so a nested split needs no second deferred load. */
+  children: [ReactNode, ReactNode | ((split: typeof ResizableSplit) => ReactNode)];
 };
 
 const handleSize = 8;
@@ -71,6 +74,7 @@ export default function ResizableSplit({
   collapseAt,
   layout,
   secondCollapsed = false,
+  onCollapse,
   children,
 }: ResizableSplitProps) {
   const defaultRatio = Number.isFinite(initial) ? clamp(initial, 0.01, 0.99) : 0.5;
@@ -120,11 +124,14 @@ export default function ResizableSplit({
       return;
     }
     const media = window.matchMedia(`(max-width: ${collapseAt}px)`);
-    const update = () => setCollapsed(media.matches);
+    const update = () => {
+      setCollapsed(media.matches);
+      onCollapse?.(media.matches);
+    };
     update();
     media.addEventListener("change", update);
     return () => media.removeEventListener("change", update);
-  }, [horizontal, collapseAt]);
+  }, [horizontal, collapseAt, onCollapse]);
 
   useEffect(() => {
     if (collapsed) finishDrag();
@@ -264,7 +271,7 @@ export default function ResizableSplit({
       >
         <span className="split-handle-grip" aria-hidden="true" />
       </div>
-      {children[1]}
+      {typeof children[1] === "function" ? children[1](ResizableSplit) : children[1]}
     </Container>
   );
 }

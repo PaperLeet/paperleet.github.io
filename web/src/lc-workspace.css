@@ -205,24 +205,37 @@
 .workspace-view .workspace-layout-trigger { min-height: 32px; padding: 0 10px; gap: 6px; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--text-secondary); font-size: var(--type-meta); }
 .workspace-view .workspace-layout-trigger:hover, .workspace-view .workspace-layout-trigger[aria-expanded="true"] { background: var(--workspace-ghost-hover); color: var(--text); }
 
-/* Panels: rounded cards on the gutter; the splitter shows a full-height line on hover or drag. */
+/* Panels: rounded cards on the gutter; the splitter shows a full-height line on hover or drag.
+   The right column holds two cards like LeetCode's editor page: code above, the console below. */
 .workspace-view .workspace { padding: 0 8px 8px; }
-.workspace-view .workspace > :is(.description-pane, .editor-pane) { border: 1px solid var(--workspace-panel-border); border-radius: var(--control-radius); background: var(--surface); box-shadow: none; transition: border-color .15s; }
-.workspace-view .workspace[data-dragging="true"] > :is(.description-pane, .editor-pane) { border-color: color-mix(in srgb, var(--accent-fill) 32%, var(--workspace-panel-border)); }
-.workspace-view .workspace > .split-handle { position: relative; background: transparent; }
-.workspace-view .workspace > .split-handle::before { content: ""; position: absolute; top: 6px; bottom: 6px; left: 50%; width: 2px; border-radius: 2px; background: transparent; transform: translateX(-50%); transition: background-color .15s; }
-.workspace-view .workspace > .split-handle > .split-handle-grip { width: 2px; height: 24px; background: var(--line); opacity: 1; transition: opacity .15s; }
-.workspace-view .workspace > .split-handle:hover::before,
-.workspace-view .workspace > .split-handle:focus-visible::before,
-.workspace-view .workspace[data-dragging="true"] > .split-handle::before { background: var(--accent-fill); }
-.workspace-view .workspace > .split-handle:hover > .split-handle-grip,
-.workspace-view .workspace[data-dragging="true"] > .split-handle > .split-handle-grip { opacity: 0; }
-.workspace-view .workspace > .split-handle::after { content: attr(aria-valuetext); content: attr(aria-valuetext) / ""; position: absolute; top: 50%; left: 50%; z-index: 30; padding: 3px 8px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface-overlay); box-shadow: var(--shadow-overlay); color: var(--text); font: 600 var(--type-caption)/1.35 var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; opacity: 0; pointer-events: none; transform: translate(-50%, -50%) scale(.96); transition: opacity .12s, transform .12s; }
-.workspace-view .workspace > .split-handle:focus-visible::after,
-.workspace-view .workspace[data-dragging="true"] > .split-handle::after { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+.workspace-view .workspace > .editor-pane { border: 0; border-radius: 0; background: transparent; }
+.workspace-view .workspace > .description-pane,
+.workspace-view .workspace :is(.editor-card, .workspace-console) { border: 1px solid var(--workspace-panel-border); border-radius: var(--control-radius); background: var(--surface); box-shadow: none; transition: border-color .15s; }
+.workspace-view .workspace[data-dragging="true"] > .description-pane,
+.workspace-view .workspace[data-dragging="true"] > .editor-pane :is(.editor-card, .workspace-console),
+.workspace-view .editor-console-split[data-dragging="true"] > :is(.editor-card, .workspace-console) { border-color: color-mix(in srgb, var(--accent-fill) 32%, var(--workspace-panel-border)); }
+.workspace-view .editor-card { display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: hidden; }
+.workspace-view .editor-console-split { flex: 1; }
+/* A collapsed console keeps its tab band; phones have no console and give the code card the column. */
+.workspace-view .editor-console-split[data-second-collapsed] { grid-template-rows: minmax(0, 1fr) auto; }
+.workspace-view .editor-console-split[data-second-collapsed] > .workspace-console { margin-top: 8px; }
+.workspace-view :is(.workspace, .editor-console-split) > .split-handle { position: relative; background: transparent; }
+.workspace-view :is(.workspace, .editor-console-split) > .split-handle::before { content: ""; position: absolute; top: 6px; bottom: 6px; left: 50%; width: 2px; border-radius: 2px; background: transparent; transform: translateX(-50%); transition: background-color .15s; }
+.workspace-view .editor-console-split > .split-handle::before { inset: 50% 6px auto; width: auto; height: 2px; transform: translateY(-50%); }
+.workspace-view :is(.workspace, .editor-console-split) > .split-handle > .split-handle-grip { width: 2px; height: 24px; background: var(--line); opacity: 1; transition: opacity .15s; }
+.workspace-view .editor-console-split > .split-handle > .split-handle-grip { width: 24px; height: 2px; }
+.workspace-view :is(.workspace, .editor-console-split) > .split-handle:hover::before,
+.workspace-view :is(.workspace, .editor-console-split) > .split-handle:focus-visible::before,
+.workspace-view :is(.workspace, .editor-console-split)[data-dragging="true"] > .split-handle::before { background: var(--accent-fill); }
+.workspace-view :is(.workspace, .editor-console-split) > .split-handle:hover > .split-handle-grip,
+.workspace-view :is(.workspace, .editor-console-split)[data-dragging="true"] > .split-handle > .split-handle-grip { opacity: 0; }
+.workspace-view :is(.workspace, .editor-console-split) > .split-handle::after { content: attr(aria-valuetext); content: attr(aria-valuetext) / ""; position: absolute; top: 50%; left: 50%; z-index: 30; padding: 3px 8px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface-overlay); box-shadow: var(--shadow-overlay); color: var(--text); font: 600 var(--type-caption)/1.35 var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; opacity: 0; pointer-events: none; transform: translate(-50%, -50%) scale(.96); transition: opacity .12s, transform .12s; }
+.workspace-view :is(.workspace, .editor-console-split) > .split-handle:focus-visible::after,
+.workspace-view :is(.workspace, .editor-console-split)[data-dragging="true"] > .split-handle::after { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 @media (prefers-reduced-motion: reduce) {
-  .workspace-view .workspace > :is(.description-pane, .editor-pane),
-  .workspace-view .workspace > .split-handle::after { transition: none; }
+  .workspace-view .workspace > .description-pane,
+  .workspace-view .workspace :is(.editor-card, .workspace-console),
+  .workspace-view :is(.workspace, .editor-console-split) > .split-handle::after { transition: none; }
 }
 
 /* Tab bands: one 40px header tone, 14px labels, a 2px indicator and no filled block. */
@@ -240,16 +253,16 @@
 .workspace-view .workspace .editor-tab-filename { margin-left: 4px; color: var(--text-secondary); font: var(--type-caption)/1.5 var(--font-mono); }
 .workspace-view .workspace .editor-header > .editor-tools { height: var(--workspace-band); min-height: var(--workspace-band); padding: 0 2px; }
 
-/* The Result tab carries the latest outcome: green pass, red failure, grey when stale. */
-.workspace-view #reading-tab-result[data-state]::before { content: ""; order: 1; flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--text-secondary); }
-.workspace-view #reading-tab-result[data-state="passed"]::before { background: var(--green); }
-.workspace-view #reading-tab-result[data-state="failed"]::before { background: var(--red); }
-.workspace-view #reading-tab-result[data-state="running"]::before { background: var(--accent-fill); }
+/* The Result tab (Test Result in the console) carries the latest outcome: green pass, red failure, grey when stale. */
+.workspace-view :is(#reading-tab-result, #console-tab-result)[data-state]::before { content: ""; order: 1; flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--text-secondary); }
+.workspace-view :is(#reading-tab-result, #console-tab-result)[data-state="passed"]::before { background: var(--green); }
+.workspace-view :is(#reading-tab-result, #console-tab-result)[data-state="failed"]::before { background: var(--red); }
+.workspace-view :is(#reading-tab-result, #console-tab-result)[data-state="running"]::before { background: var(--accent-fill); }
 .workspace-view .mobile-result-dot[data-state="passed"] { background: var(--green); }
 .workspace-view .mobile-result-dot[data-state="failed"] { background: var(--red); }
 .workspace-view .mobile-result-dot[data-state="stale"] { background: var(--text-secondary); }
 @media (prefers-reduced-motion: no-preference) {
-  .workspace-view #reading-tab-result[data-state="running"]::before, .workspace-view .mobile-result-dot[data-state="running"] { animation: lc-workspace-pulse 1.2s ease-in-out infinite; }
+  .workspace-view :is(#reading-tab-result, #console-tab-result)[data-state="running"]::before, .workspace-view .mobile-result-dot[data-state="running"] { animation: lc-workspace-pulse 1.2s ease-in-out infinite; }
   @keyframes lc-workspace-pulse { 50% { opacity: .3; } }
 }
 
@@ -411,6 +424,40 @@
 #problem-results-content > .custom-cases { margin: 4px 0 0; padding-top: 6px; padding-inline: 0; border-width: 1px 0 0; border-radius: 0; background: transparent; }
 #problem-results-content > .custom-cases > summary { margin-inline: 0; padding-inline: 0; border-radius: 0; font-size: var(--type-meta); }
 
+/* Console: a LeetCode-style card under the code with Testcase and Test Result tabs (WorkspaceConsole).
+   It shares the card frame and tab band above; collapsing leaves only the band. */
+.workspace-console { display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: hidden; }
+.workspace-console > .console-header { display: flex; flex: none; align-items: stretch; min-width: 0; background: var(--workspace-band-bg); border-bottom: 1px solid var(--line); }
+.workspace-console:not([data-open]) > .console-header { border-bottom-color: transparent; }
+.workspace-view .workspace-console:not([data-open]) .pane-tabs > [role="tab"]::after { background: transparent; }
+.console-header > .console-tabs { flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.console-toggle { display: inline-flex; flex: none; align-self: center; align-items: center; gap: 4px; min-height: 28px; margin: 0 6px 0 0; padding: 0 8px; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--text-secondary); font-size: var(--type-meta); font-weight: 500; cursor: pointer; }
+.console-toggle:hover { background: var(--workspace-ghost-hover); color: var(--text); }
+.console-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.workspace-console > [role="tabpanel"] { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+.workspace-console > [role="tabpanel"][hidden] { display: none; }
+.workspace-console > [role="tabpanel"]:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+/* Testcase: the custom-case form sits directly in the panel instead of inside a disclosure card. */
+#problem-testcase-panel { padding: 12px 16px 16px; }
+#problem-testcase-panel > .custom-cases { margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; }
+#problem-testcase-panel > .custom-cases > p:first-child { margin-top: 0; }
+
+/* Test Result leads with the verdict, as on LeetCode. The tab names the panel and the verdict, progress and notices
+   carry the run state, so the status line is only announced (it stays a live region for screen readers). */
+.workspace-view .workspace-console > .workspace-result-panel { padding: 12px 16px 16px; }
+.workspace-view .workspace-console .workspace-result-heading { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.workspace-view .workspace-console #problem-results-content > :first-child { margin-top: 0; }
+.workspace-view .workspace-console #problem-results-content > .browser-judge-panel { margin-inline: -16px; padding-inline: 16px; }
+.workspace-view .workspace-console .workspace-test-results { padding-top: 0; }
+
+@media (pointer: coarse) {
+  .console-toggle { min-height: 40px; }
+}
+@media (forced-colors: active) {
+  .workspace-console > .console-header { border-bottom: 1px solid CanvasText; }
+}
+
 /* CodeMirror: dim gutter, hover-only folds, focus-only active line and a minimal top inset. */
 .workspace-view .workspace .editor-code-panel .code-editor { padding-top: 0; }
 .workspace-view .workspace .code-editor .cm-scroller { line-height: 1.55; }
@@ -485,6 +532,6 @@
   .workspace-view .workspace .editor-actions > summary::before, #problem-reading-content .prose > .reading-outline > summary::before { forced-color-adjust: none; background: ButtonText; }
   #problem-reading-content :is(.preparation-guide:not([open]), .reading-appearance-inline > details:not([open]), .prose > .reading-outline) > summary { border: 1px solid ButtonText; }
   .workspace-view > .topbar .nav-inner:has(> .workspace-toolbar) > nav:has(:focus-visible) { border-color: CanvasText; }
-  .workspace-view .workspace .pane-tabs > [role="tab"][aria-selected="true"]::after, .workspace-view .workspace > .split-handle:hover::before { background: Highlight; }
-  .workspace-view #reading-tab-result[data-state]::before { forced-color-adjust: none; background: CanvasText; }
+  .workspace-view .workspace .pane-tabs > [role="tab"][aria-selected="true"]::after, .workspace-view :is(.workspace, .editor-console-split) > .split-handle:hover::before { background: Highlight; }
+  .workspace-view :is(#reading-tab-result, #console-tab-result)[data-state]::before { forced-color-adjust: none; background: CanvasText; }
 }

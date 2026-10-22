@@ -56,6 +56,7 @@ import { topicIdFromRoute, topicFromProblem } from "./communityTopics";
 import { accountReturnHref, isAccountRoute, signInHref } from "./accountNavigation";
 import { publicSite, hostedEdition, hostedAppHref, hostedAppAvailable } from "./deployment";
 import { type ExperimentView } from "./experimentResults";
+import type { ConsoleTab } from "./WorkspaceConsole";
 import { useReportSource } from "./ReportSourceNotice";
 import { useWorkspaceShortcuts } from "./useWorkspaceShortcuts";
 import { matchesBrowserSubmission } from './browserVerification';
@@ -81,6 +82,8 @@ const GroupChat=deferredFeature(()=>import('./GroupChat'),['群聊','group chat'
 const MainNavigationVisibility=deferredFeature(()=>import('./MainNavigationVisibility'),['',''],{loading:()=>null,failure:()=>null});
 const panelIconPlaceholder=({size=14}:import('./WorkspacePanelIcon').WorkspacePanelIconProps)=><svg width={size} height={size} aria-hidden="true" focusable="false"/>;
 const WorkspacePanelIcon=deferredFeature(()=>import('./WorkspacePanelIcon'),['',''],{loading:panelIconPlaceholder,failure:panelIconPlaceholder});
+const WorkspaceConsole=deferredFeature(()=>import('./WorkspaceConsole'),['控制台','console'],{loading:()=>null});
+const WorkspaceAccessNotice=deferredFeature(()=>import('./WorkspaceAccessNotice'),['工作区提示','workspace notice'],{loading:()=>null});
 type Theme = "light" | "dark";
 function initialTheme(): Theme {
   try {
@@ -105,6 +108,13 @@ function initialEditorFontSize() {
     // The editor remains usable when browser storage is unavailable.
   }
   return 16;
+}
+function initialConsoleOpen() {
+  try {
+    return localStorage.getItem("paperleet.layout.console.open") !== "false";
+  } catch {
+    return true;
+  }
 }
 function getId() {
   return decodeProblemHash(appLocation.hash);
@@ -155,6 +165,11 @@ function Workspace() {
   const [mobilePane, setMobilePane] = useState<"read" | "code">("read");
   const [focusMode, setFocusMode] = useState(false);
   const [layoutRequest, setLayoutRequest] = useState<{horizontal:{ratio:number}}>();
+  // Wide screens show results in the console under the editor; stacked panes keep the Result reading tab.
+  const [narrow, setNarrow] = useState(() => window.matchMedia("(max-width: 850px)").matches);
+  const [dock, setDock] = useState<{tab:ConsoleTab; open:boolean}>(() => ({tab:"testcase", open:initialConsoleOpen()}));
+  // A Result tab chosen on stacked panes reopens in the console once the panes sit side by side.
+  if (!narrow && tab === "result") { setTab("description"); setDock({tab:"result", open:true}); }
   const [runNotice, setRunNotice] = useState<{owner:string; problem:string; message:string; stopped?:boolean}>();
   const [latestRun, setLatestRun] = useState<{owner:string; problem:string; mode:"browser" | "server"}>();
   const lastServerProblem = useRef<string | undefined>(undefined);
@@ -170,13 +185,14 @@ function Workspace() {
   function selectReadingTab(nextTab: string,focus=false) {
     if(getId()!==id||!navigationIntent.isCurrent())return;
     if(nextTab==='result'&&resultNotice?.problem===problem?.id&&resultNotice?.runId===report?.run_id)setResultNotice(undefined);
-    const claim=navigationIntent.create();
-    setTab(nextTab); setMobilePane("read"); setFocusMode(false);
+    const claim=navigationIntent.create(),docked=nextTab==="result"&&!narrow;
+    if(docked)setDock({tab:"result",open:true});
+    else {setTab(nextTab); setMobilePane("read"); setFocusMode(false);}
     requestAnimationFrame(() => {
       if(!claim())return;
-      if(focus)document.getElementById(`reading-tab-${nextTab}`)?.focus({preventScroll:true});
+      if(focus)document.getElementById(`${docked?"console":"reading"}-tab-${nextTab}`)?.focus({preventScroll:true});
       if(nextTab!=="solution"&&nextTab!=="discussion")document.getElementById(nextTab === "result" ? "problem-results-panel" : "problem-reading-content")?.scrollTo(0, 0);
-      if (window.matchMedia("(max-width: 850px)").matches && document.querySelector(".mobile-workspace-switch")) window.scrollTo(0, 0);
+      if (narrow && document.querySelector(".mobile-workspace-switch")) window.scrollTo(0, 0);
     });
   }
   function showTests() {
@@ -306,7 +322,7 @@ function Workspace() {
     setEditorFocus({owner:practice.owner,problem:problem.id,href:window.location.href,source:currentSource,location:location&&typeof location==="object"&&"line" in location?location as SourceLocation:undefined,claimFocus:navigationIntent.create()});
   }
   function editorFocused(request: EditorFocusRequest,focused=false) {
-    if(focused&&editorFocus===request&&editorFocus.href===location.href&&practice.owns(editorFocus.owner)&&window.matchMedia("(max-width: 850px)").matches)
+    if(focused&&editorFocus===request&&editorFocus.href===location.href&&practice.owns(editorFocus.owner)&&narrow)
       document.querySelector(".mobile-workspace-switch")?.scrollIntoView({block:"start"});
     setEditorFocus(previous => previous === request ? undefined : previous);
   }
@@ -503,7 +519,7 @@ function Workspace() {
   }
   const tabs = [
     ["description", t("题目", "Description")],
-    ["result", t("结果", "Result")],
+    ...(narrow?[["result", t("结果", "Result")]]:[]),
     ["explanation", t("讲解", "Explanation")],
     ["lab", t("实验", "Lab")],
     ["notes", t("坑点", "Notes")],
@@ -518,6 +534,69 @@ function Workspace() {
   const backText = company?t("公司练习","Company practice"):directLibrary?t("题目列表","Exercise list"):courseCollection ? t(courseCollection.name,courseCollection.name_en) : sourcePostReturn||registryReturn ? backLabel : favoriteReturn ? t('收藏题目','Saved problems') : interviewReturn ? t('面经','Interviews') : selectedPaper
     ? `${selectedPaper.number}. ${selectedPaper.short_title}`
     : t("论文题库", "Papers");
+  // One results panel and one custom-case form: the console holds them on wide screens, the Result tab on narrow ones.
+  const customCases = problem && <ChallengePanels key={`custom:${practice.owner}:${problem.id}`} problem={problem} source={currentSource} ready={practice.ready&&!practice.loading} busy={running&&!customBusy} onBusyChange={setCustomBusy} docked={!narrow}/>;
+  const resultsPanel = problem && (
+    <div className="description-scroll workspace-result-panel" id="problem-results-panel" role="tabpanel" aria-labelledby={narrow ? "reading-tab-result" : "console-tab-result"} tabIndex={0} hidden={narrow ? tab !== "result" : dock.tab !== "result" || !dock.open} key={`${practice.owner}:${problem.id}`}>
+      <div className="workspace-result-heading" role="status">
+        <WorkspacePanelIcon name="terminal" size={17}/><h2>{t("结果", "Result")}</h2>
+        <span>{running ? t("运行中…", "Running…") : browserRunStopped ? t("已停止", "Stopped") : runCancelled ? t("已取消", "Cancelled") : runFailed ? t("运行未完成", "Run incomplete") : hasCurrentSyntaxError ? t("语法错误", "Syntax error") : reportSource === "changed" || syntaxFailure ? t("代码已修改", "Code changed") : report && reportSource !== "current" ? t("上次运行", "Previous run") : report ? `${report.tests.filter(test => test.passed).length} / ${report.tests.length}` : t("等待运行", "Ready to run")}</span>
+      </div>
+      <div id="problem-results-content">
+        {currentRunNotice && <div className="practice-notice" role="alert">{currentRunNotice}</div>}
+        {preparingRun && !browser.active && !judge.active && <p className="practice-notice" role="status">{t("正在准备运行…", "Preparing your run…")}</p>}
+        {problem.browser_judge && (browser.active || browser.reasons[problem.id]) && <div className="browser-judge-panel">
+          {browser.active && (browserHere
+            ? <BrowserRunProgressFrame onStop={browser.stop}><BrowserRunProgressBody progress={browser.progress || { stage: browser.stage || 'loading' }}/></BrowserRunProgressFrame>
+            : <div role="status">{t("另一道题正在运行", "Another module is running")} <button onClick={browser.stop}>{t("停止运行", "Stop run")}</button></div>)}
+          {browser.active && browserHere && browserBudget(problem).total > 120_000 && <small>{t(`完整实验最多运行 ${browserBudget(problem).total / 60_000} 分钟；可随时停止。`, `The full experiment can take up to ${browserBudget(problem).total / 60_000} minutes. You can stop at any time.`)}</small>}
+          {browser.reasons[problem.id] && <p role="status"><BrowserFailureMessage reason={browser.reasons[problem.id]}/> {t('可以修改后重试，或登录后提交到服务端。', 'Edit and retry, or sign in to submit on the server.')}</p>}
+        </div>}
+        {judge.waiting && <QueueAdmissionNotice waiting={judge.waiting} changed={queuedHere && judge.waiting.source !== currentSource} href={!queuedHere && judge.pending ? withLibraryContext(judge.pending.problem,libraryReturn) : undefined} onStop={() => { judge.stopWaiting(); }} onDownload={() => download(`paperleet-submission.py`,judge.waiting!.source)} />}
+        {judge.active && !judge.waiting && <div className="practice-notice judge-queue-notice" role="status">
+          <span><b>{queuedHere ? runStatus : t("另一道题正在排队或判题", "Another module has a queued or running job")}</b><br />
+            {t("可以继续编辑；本次判题使用提交时的代码。刷新后可继续查看任务。", "You can keep editing. This run uses the submitted code; refresh to reconnect.")}</span>
+          {!queuedHere && <AppLink href={`#/${judge.pending?.problem}`}>{t("查看任务", "View job")}</AppLink>}
+          {judge.job?.status === "queued" && <button onClick={() => void judge.cancel()}>{t("取消排队", "Leave queue")}</button>}
+        </div>}
+        {judgeError && <div className="practice-notice" role="alert">
+          <span>{jobErrorText(judgeError, locale)}{judge.reloadRequired && editorRecoveryReason && <small>{editorRecoveryReason}</small>}</span>
+          {judge.reloadRequired && <button disabled={!!editorRecoveryReason} onClick={() => {
+            if (!editorRecoveryReason && practice.owns(practice.owner)) reloadApp();
+          }}>{t('刷新并恢复草稿', 'Reload and restore draft')}</button>}
+        </div>}
+        {practice.error && <div className="practice-notice" role="alert">
+          <span>{practice.error}</span>
+          <button disabled={practice.saving} onClick={practice.retry}>
+            {browserWorkspace ? t('重试本机保存','Retry saving progress') : t("重试同步", "Retry sync")}
+          </button>
+        </div>}
+        {runCancelled && <div className="practice-notice" role="status">{browserRunStopped
+          ? t('运行已停止，本次未产生新结果。代码仍保留，可以重新运行。', 'Run stopped. No new result was produced. Your code is preserved and you can run it again.')
+          : t("已取消排队，本次提交未执行。", "Removed from the queue. This submission was not executed.")}</div>}
+        {!running && (runFailed || runCancelled) && <section className="report-workflow run-recovery" aria-label={t('继续验证', 'Continue verification')}>
+          <p>{t('重新运行会使用编辑器中的当前代码。', 'Retrying uses the current code in the editor.')}</p>
+          <div className="feedback-actions">
+            <button className="button subtle" type="button" onClick={focusEditor}><Code2 size={14} aria-hidden="true"/>{t('返回代码修改', 'Edit code')}</button>
+            <button className="button feedback-rerun" type="button" data-retry-run disabled={!canRetryRun} onClick={() => void run(retryMode)}><Play size={13} aria-hidden="true"/>{retryMode === 'browser' ? t('重新运行当前代码', 'Run current code again') : t('重新提交当前代码', 'Resubmit current code')}</button>
+          </div>
+        </section>}
+        {(practice.conflicts[problem.id] || (!health && healthError) || (hosted && !browserAvailable && (!user || !online))) &&
+          <WorkspaceAccessNotice conflict={!!practice.conflicts[problem.id]} local={browserWorkspace} saving={practice.saving} health={!!health} signedIn={!!user} testAuth={testAuth}
+            signIn={signInHref(id)} onResolve={keep => practice.resolveConflict(problem.id, keep)} onRefresh={() => void refreshHealth()}/>}
+        {!running&&!runFailed&&!runCancelled&&<WorkspaceTestResults key={`${practice.owner}:${problem.id}`} problem={problem} report={report} syntax={syntaxFailure} source={currentSource} sourceState={reportSource} canRun={canRun} running={running}
+          onEdit={focusEditor} onRun={()=>void run()} onLocate={practice.ready?focusEditor:undefined}>
+          {hosted&&report?.runtime==='browser-numpy-wasm'&&<BrowserResultActions problem={problem} report={report} sourceState={reportSource} signedIn={!!user} online={online} ready={progressReady} conflict={!!practice.conflicts[problem.id]} syncError={!!practice.error} busy={running} onSignIn={signInToSubmit} onVerify={()=>void run('server',report)} onRefresh={()=>void refreshHealth()} onLab={()=>openLab('run')}/>}
+          {resultState==='passed'&&progressReady&&<InterviewPracticeNextStep course={inCourse&&!directLibrary} current={problem} problems={listPractice?practiceScope.problems:problems} scopeReady={companyReady} saved={learningSaved} next={nextProblem} returnTo={libraryReturn} onNotes={()=>selectReadingTab('notes')} onLab={()=>openLab('run')} onSolution={hostedAppAvailable?()=>selectReadingTab('solution'):undefined}/>}
+        </WorkspaceTestResults>}
+        {(completedBrowserReport || browser.diagnostics[problem.id]) && <JudgeRuntimeDetails server={false} browserResult={completedBrowserReport}
+          calibration={report?.browser_run?.calibration ?? (report && report === browser.reports[problem.id] ? browser.calibrations[problem.id] : undefined)}
+          diagnostics={browser.diagnostics[problem.id]}
+          measurement={report?.browser_run?.measurements ?? (report && report === browser.reports[problem.id] ? browser.measurements[problem.id] : undefined)}/>}
+        {narrow&&customCases}
+      </div>
+    </div>
+  );
   return (
     <PracticeProgressProvider owner={practice.owner} problems={problems} saved={learningSaved} ready={progressReady} failed={!!practice.error||learning.failed} retry={()=>{practice.retry();learning.retry();}}>
     <div className={`app ${problem ? "workspace-view" : ""}`} data-mobile-pane={mobilePane} data-focus-mode={focusMode || undefined}>
@@ -733,6 +812,7 @@ function Workspace() {
             minFirst={320}
             minSecond={360}
             collapseAt={850}
+            onCollapse={setNarrow}
             layout={layoutRequest?.horizontal}
             label={t("调整题面与代码区宽度", "Resize description and code panels")}
             resetLabel={t("拖动或使用方向键调整，双击或按 Enter 恢复默认", "Drag or use arrow keys to resize; double-click or press Enter to reset")}
@@ -846,137 +926,23 @@ function Workspace() {
               {hostedAppAvailable&&<RetainedReadingPane key={communityPaneScope+':discussion'} active={tab==="discussion"} id="problem-discussion-panel" labelledBy="reading-tab-discussion">
                 {accountLoading?<p role="status">{t('正在确认账号…','Checking account…')}</p>:<ProblemDiscussions topic={topicFromProblem(problem)} onCode={focusEditor}/>}
               </RetainedReadingPane>}
-              <div className="description-scroll workspace-result-panel" id="problem-results-panel" role="tabpanel" aria-labelledby="reading-tab-result" tabIndex={0} hidden={tab !== "result"} key={`${practice.owner}:${problem.id}`}>
-                <div className="workspace-result-heading" role="status">
-                  <WorkspacePanelIcon name="terminal" size={17}/><h2>{t("结果", "Result")}</h2>
-                  <span>{running ? t("运行中…", "Running…") : browserRunStopped ? t("已停止", "Stopped") : runCancelled ? t("已取消", "Cancelled") : runFailed ? t("运行未完成", "Run incomplete") : hasCurrentSyntaxError ? t("语法错误", "Syntax error") : reportSource === "changed" || syntaxFailure ? t("代码已修改", "Code changed") : report && reportSource !== "current" ? t("上次运行", "Previous run") : report ? `${report.tests.filter(test => test.passed).length} / ${report.tests.length}` : t("等待运行", "Ready to run")}</span>
-                </div>
-                <div id="problem-results-content">
-                  {currentRunNotice && <div className="practice-notice" role="alert">{currentRunNotice}</div>}
-                  {preparingRun && !browser.active && !judge.active && <p className="practice-notice" role="status">{t("正在准备运行…", "Preparing your run…")}</p>}
-                  {problem.browser_judge && (browser.active || browser.reasons[problem.id]) && <div className="browser-judge-panel">
-                    {browser.active && (browserHere
-                      ? <BrowserRunProgressFrame onStop={browser.stop}><BrowserRunProgressBody progress={browser.progress || { stage: browser.stage || 'loading' }}/></BrowserRunProgressFrame>
-                      : <div role="status">{t("另一道题正在运行", "Another module is running")} <button onClick={browser.stop}>{t("停止运行", "Stop run")}</button></div>)}
-                    {browser.active && browserHere && browserBudget(problem).total > 120_000 && <small>{t(`完整实验最多运行 ${browserBudget(problem).total / 60_000} 分钟；可随时停止。`, `The full experiment can take up to ${browserBudget(problem).total / 60_000} minutes. You can stop at any time.`)}</small>}
-                    {browser.reasons[problem.id] && <p role="status"><BrowserFailureMessage reason={browser.reasons[problem.id]}/> {t('可以修改后重试，或登录后提交到服务端。', 'Edit and retry, or sign in to submit on the server.')}</p>}
-                  </div>}
-                  {judge.waiting && <QueueAdmissionNotice waiting={judge.waiting} changed={queuedHere && judge.waiting.source !== currentSource} href={!queuedHere && judge.pending ? withLibraryContext(judge.pending.problem,libraryReturn) : undefined} onStop={() => { judge.stopWaiting(); }} onDownload={() => download(`paperleet-submission.py`,judge.waiting!.source)} />}
-                  {judge.active && !judge.waiting && <div className="practice-notice judge-queue-notice" role="status">
-                    <span><b>{queuedHere ? runStatus : t("另一道题正在排队或判题", "Another module has a queued or running job")}</b><br />
-                      {t("可以继续编辑；本次判题使用提交时的代码。刷新后可继续查看任务。", "You can keep editing. This run uses the submitted code; refresh to reconnect.")}</span>
-                    {!queuedHere && <AppLink href={`#/${judge.pending?.problem}`}>{t("查看任务", "View job")}</AppLink>}
-                    {judge.job?.status === "queued" && <button onClick={() => void judge.cancel()}>{t("取消排队", "Leave queue")}</button>}
-                  </div>}
-                  {judgeError && <div className="practice-notice" role="alert">
-                    <span>{jobErrorText(judgeError, locale)}{judge.reloadRequired && editorRecoveryReason && <small>{editorRecoveryReason}</small>}</span>
-                    {judge.reloadRequired && <button disabled={!!editorRecoveryReason} onClick={() => {
-                      if (!editorRecoveryReason && practice.owns(practice.owner)) reloadApp();
-                    }}>{t('刷新并恢复草稿', 'Reload and restore draft')}</button>}
-                  </div>}
-                  {practice.error && <div className="practice-notice" role="alert">
-                    <span>{practice.error}</span>
-                    <button disabled={practice.saving} onClick={practice.retry}>
-                      {browserWorkspace ? t('重试本机保存','Retry saving progress') : t("重试同步", "Retry sync")}
-                    </button>
-                  </div>}
-                  {runCancelled && <div className="practice-notice" role="status">{browserRunStopped
-                    ? t('运行已停止，本次未产生新结果。代码仍保留，可以重新运行。', 'Run stopped. No new result was produced. Your code is preserved and you can run it again.')
-                    : t("已取消排队，本次提交未执行。", "Removed from the queue. This submission was not executed.")}</div>}
-                  {!running && (runFailed || runCancelled) && <section className="report-workflow run-recovery" aria-label={t('继续验证', 'Continue verification')}>
-                    <p>{t('重新运行会使用编辑器中的当前代码。', 'Retrying uses the current code in the editor.')}</p>
-                    <div className="feedback-actions">
-                      <button className="button subtle" type="button" onClick={focusEditor}><Code2 size={14} aria-hidden="true"/>{t('返回代码修改', 'Edit code')}</button>
-                      <button className="button feedback-rerun" type="button" data-retry-run disabled={!canRetryRun} onClick={() => void run(retryMode)}><Play size={13} aria-hidden="true"/>{retryMode === 'browser' ? t('重新运行当前代码', 'Run current code again') : t('重新提交当前代码', 'Resubmit current code')}</button>
-                    </div>
-                  </section>}
-                  {(practice.conflicts[problem.id] ||
-                    (!health && healthError) ||
-                    (hosted && !browserAvailable && (!user || !online))) && (
-                    <div className="practice-notice" role="status">
-                      {practice.conflicts[problem.id] ? (
-                        <>
-                          <span>
-                            {t(
-                              browserWorkspace ? "另一标签页更新了这道题的草稿。请选择保留当前代码或使用另一版本；也可先下载当前代码。" : "其他设备更新了这道题的草稿。选择保留哪个版本；当前代码尚未覆盖服务器。",
-                              browserWorkspace ? "Another tab updated this draft. Keep your current code or use the other version; you can download your current code first." : "Another device updated this draft. Choose which version to keep; your current code has not overwritten the server.",
-                            )}
-                          </span>
-                          <button
-                            disabled={practice.saving}
-                            onClick={() =>
-                              practice.resolveConflict(problem.id, false)
-                            }
-                          >
-                            {browserWorkspace ? t('使用另一版本','Use the other version') : t("使用服务器版本", "Use server draft")}
-                          </button>
-                          <button
-                            disabled={practice.saving}
-                            onClick={() =>
-                              practice.resolveConflict(problem.id, true)
-                            }
-                          >
-                            {t("保留当前版本", "Keep this draft")}
-                          </button>
-                        </>
-                      ) : !health ? (
-                        <>
-                          <span>
-                            {t(
-                              "无法确认服务配置，工作区尚未加载。",
-                              "Service configuration is unavailable. Your workspace has not been loaded.",
-                            )}
-                          </span>
-                          <button onClick={() => void refreshHealth()}>
-                            {t("重试", "Retry")}
-                          </button>
-                        </>
-                      ) : !user ? (
-                        <>
-                          <span>
-                            {testAuth
-                              ? t(
-                                  "使用管理员提供的内测账号和访问码登录后，即可运行测试。",
-                                  "Sign in with your administrator-issued test account and access code to run tests.",
-                                )
-                              : t(
-                                  "验证学校或公司邮箱并登录后，即可使用在线判题。",
-                                  "Verify your school or company email and sign in to use online judging.",
-                                )}
-                          </span>
-                          <AppLink href={signInHref(id)}>
-                            {t("登录以运行", "Sign in to run")}
-                          </AppLink>
-                        </>
-                      ) : (
-                        <>
-                          <span>
-                            {t(
-                              "判题沙箱尚未就绪，请稍后重试。草稿仍会同步。",
-                              "The judge sandbox is not ready. Please try again shortly; your drafts will still sync.",
-                            )}
-                          </span>
-                          <button onClick={() => void refreshHealth()}>
-                            {t("刷新状态", "Refresh status")}
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  )}
-                  {!running&&!runFailed&&!runCancelled&&<WorkspaceTestResults key={`${practice.owner}:${problem.id}`} problem={problem} report={report} syntax={syntaxFailure} source={currentSource} sourceState={reportSource} canRun={canRun} running={running}
-                    onEdit={focusEditor} onRun={()=>void run()} onLocate={practice.ready?focusEditor:undefined}>
-                    {hosted&&report?.runtime==='browser-numpy-wasm'&&<BrowserResultActions problem={problem} report={report} sourceState={reportSource} signedIn={!!user} online={online} ready={progressReady} conflict={!!practice.conflicts[problem.id]} syncError={!!practice.error} busy={running} onSignIn={signInToSubmit} onVerify={()=>void run('server',report)} onRefresh={()=>void refreshHealth()} onLab={()=>openLab('run')}/>}
-                    {resultState==='passed'&&progressReady&&<InterviewPracticeNextStep course={inCourse&&!directLibrary} current={problem} problems={listPractice?practiceScope.problems:problems} scopeReady={companyReady} saved={learningSaved} next={nextProblem} returnTo={libraryReturn} onNotes={()=>selectReadingTab('notes')} onLab={()=>openLab('run')} onSolution={hostedAppAvailable?()=>selectReadingTab('solution'):undefined}/>}
-                  </WorkspaceTestResults>}
-                  {(completedBrowserReport || browser.diagnostics[problem.id]) && <JudgeRuntimeDetails server={false} browserResult={completedBrowserReport}
-                    calibration={report?.browser_run?.calibration ?? (report && report === browser.reports[problem.id] ? browser.calibrations[problem.id] : undefined)}
-                    diagnostics={browser.diagnostics[problem.id]}
-                    measurement={report?.browser_run?.measurements ?? (report && report === browser.reports[problem.id] ? browser.measurements[problem.id] : undefined)}/>}
-                  <ChallengePanels key={`custom:${practice.owner}:${problem.id}`} problem={problem} source={currentSource} ready={practice.ready&&!practice.loading} busy={running&&!customBusy} onBusyChange={setCustomBusy}/>
-                  </div>
-                  </div>
+              {narrow&&resultsPanel}
             </section>
-            <section className="editor-pane" id="problem-editor-panel">
+            {Split => <section className="editor-pane" id="problem-editor-panel">
+              <Split
+                axis="vertical"
+                className="editor-console-split"
+                storageKey="paperleet.layout.console.v1"
+                initial={0.6}
+                minFirst={160}
+                minSecond={120}
+                secondCollapsed={narrow || !dock.open}
+                label={t("调整代码区与控制台高度", "Resize code and console panels")}
+                resetLabel={t("拖动或使用方向键调整，双击或按 Enter 恢复默认", "Drag or use arrow keys to resize; double-click or press Enter to reset")}
+                firstId="problem-code-card"
+                secondId="workspace-console"
+              >
+              <div className="editor-card" id="problem-code-card">
               <div className="editor-header">
               <div className="pane-tabs editor-tabs" role="tablist" aria-label={t('工作区视图','Workspace view')} onKeyDown={navigateTabs}>
                 <button
@@ -1082,7 +1048,10 @@ function Workspace() {
                   </div>
 
               </div>
-            </section>
+              </div>
+              {!narrow && <WorkspaceConsole dock={dock} onDock={setDock} resultState={resultState} testcase={customCases}>{resultsPanel}</WorkspaceConsole>}
+              </Split>
+            </section>}
           </ResizableSplit>
         </>
       )}

@@ -15,7 +15,9 @@ globalThis.requestAnimationFrame = callback => setTimeout(callback,0);
 globalThis.cancelAnimationFrame = clearTimeout;
 globalThis.ResizeObserver = class { observe() {} disconnect() {} };
 globalThis.fetch = async url => { throw Error(`Unexpected network request: ${url}`); };
-window.matchMedia = () => ({matches:false,addEventListener(){},removeEventListener(){}});
+// Stacked panes (≤850px) follow fixture.narrow; App and the split listen for changes like a real media query.
+const mediaListeners = new Set();
+window.matchMedia = query => ({get matches(){return query.includes('max-width: 850px')&&!!globalThis.__paperleetWorkspaceActionTest?.narrow;},addEventListener(_type,listener){mediaListeners.add(listener);},removeEventListener(_type,listener){mediaListeners.delete(listener);}});
 window.scrollTo = () => {};
 window.HTMLDialogElement.prototype.showModal=function(){this.setAttribute('open','');};window.HTMLDialogElement.prototype.close=function(){this.removeAttribute('open');};
 window.HTMLElement.prototype.scrollTo = function(x,y) { this.scrollLeft=x;this.scrollTop=y; };
@@ -110,24 +112,33 @@ try {
   const click=async element=>{assert(element,'Expected an interactive control');await act(async()=>element.dispatchEvent(new window.MouseEvent('click',{bubbles:true,cancelable:true})));};
   const change=async mutate=>act(async()=>{mutate();notify();});
   const settle=async predicate=>{for(let i=0;i<150&&!predicate();i++)await act(async()=>new Promise(resolve=>setTimeout(resolve,20)));assert(predicate(),'Workspace did not settle; detail loads: '+calls.detailsLoads+'; '+document.querySelector('.workspace-test-details')?.textContent.slice(0,700));};
-  const resultSelected=()=>find('#reading-tab-result')?.getAttribute('aria-selected')==='true';
+  // Wide screens show results in the console's Test Result tab; stacked panes keep the Result reading tab.
+  const resultSelected=()=>find(fixture.narrow?'#reading-tab-result':'#console-tab-result')?.getAttribute('aria-selected')==='true';
+  const setNarrow=async narrow=>{fixture.narrow=narrow;await act(async()=>{for(const listener of [...mediaListeners])listener();});};
   const assertInline=message=>{assert.equal(location.hash,'#/1',message);assert.equal(find('#problem-editor-panel textarea'),editor,'Result changes must preserve the mounted editor');assert.equal(calls.editorMounts,1);};
   const finishBrowser=async outcome=>act(async()=>{fixture.browser.active=false;fixture.browser.problem=undefined;if(outcome.report)fixture.browser.reports={[problem.id]:outcome.report};if(outcome.failure)fixture.browser.syntaxErrors={[problem.id]:outcome.failure};notify();runResolve(outcome);runResolve=undefined;runReject=undefined;});
   const finishSubmission=async report=>act(async()=>{fixture.judge.active=false;fixture.judge.pending=undefined;fixture.judge.job={status:'completed'};fixture.onServerReport(report,fixture.practice.owner);notify();});
   await act(async()=>root.render(React.createElement(App)));
-  await settle(()=>find('#problem-editor-panel textarea'));
+  await settle(()=>find('#problem-editor-panel textarea')&&find('#problem-results-panel')&&find('#problem-testcase-panel .custom-cases'));
   const editor=find('#problem-editor-panel textarea');editor.getClientRects=()=>[new window.DOMRect(0,0,500,600)];
-  find('#problem-results-panel').getClientRects=()=>find('#problem-results-panel').hidden||find('.app').dataset.focusMode||fixture.narrow&&find('.app').dataset.mobilePane==='code'?[]:[new window.DOMRect(0,0,500,600)];
+  // The results panel remounts when it moves between the console and the narrow Result tab, so its rects live on the prototype.
+  const elementRects=window.Element.prototype.getClientRects;
+  window.Element.prototype.getClientRects=function(){if(this.id!=='problem-results-panel')return elementRects.call(this);const app=find('.app');return this.closest('[hidden]')||fixture.narrow&&(app.dataset.focusMode||app.dataset.mobilePane==='code')?[]:[new window.DOMRect(0,0,500,600)];};
   assert(find('.workspace-toolbar').contains(action('Run tests')));
   assert(find('.workspace-toolbar').contains(action('Submit')));
   assert.equal(find('#reading-tab-description').getAttribute('aria-selected'),'true');
   assert(find('article[data-statement-execution="browser"]'),'The actual App passes execution context to the deferred statement renderer');
-  assert.equal(find('#reading-tab-result').textContent.trim(),'Result');
-  assert.equal(find('#reading-tab-result').getAttribute('aria-controls'),'problem-results-panel');
-  assert.equal(find('#problem-results-panel').getAttribute('aria-labelledby'),'reading-tab-result');
-  assert(find('#problem-description-panel').contains(find('#problem-results-panel')),'Results belong to the left reading pane');
-  assert(!find('#problem-editor-panel').contains(find('#problem-results-panel')),'The code pane has no result drawer');
+  assert.equal(find('#reading-tab-result'),null,'Wide screens have no Result reading tab');
+  assert.equal(find('#console-tab-result').textContent.trim(),'Test Result');
+  assert.equal(find('#console-tab-result').getAttribute('aria-controls'),'problem-results-panel');
+  assert.equal(find('#problem-results-panel').getAttribute('aria-labelledby'),'console-tab-result');
+  assert(find('#workspace-console').contains(find('#problem-results-panel'))&&find('#problem-editor-panel').contains(find('#workspace-console')),'Results belong to the console under the editor');
+  assert(!find('#problem-description-panel').contains(find('#problem-results-panel')),'The reading pane keeps the statement beside the console');
+  assert.equal(find('#console-tab-testcase').getAttribute('aria-selected'),'true','The console opens on Testcase');
+  assert.equal(find('#problem-testcase-panel .custom-cases').tagName,'DIV','Testcase shows the custom-case form directly rather than as a disclosure');
+  assert.equal(find('.console-toggle').getAttribute('aria-expanded'),'true');
   assert.equal(document.querySelectorAll('#problem-results-panel').length,1,'There is one result surface');
+  assert.equal(document.querySelectorAll('.custom-cases').length,1,'There is one custom-case form');
   assert.equal(find('.editor-bottom'),null,'The actions must not leave a second footer below the editor');
   assert.equal(document.querySelectorAll('.mobile-workspace-switch').length,1,'Mobile has one unambiguous pane switch');
   assert(find('#problem-results-panel').hidden);
@@ -148,6 +159,7 @@ try {
   const moduleTrigger=find('.module-picker-trigger');assert(moduleTrigger,'The actual App mounts its real module navigator');await act(async()=>moduleTrigger.focus());await click(moduleTrigger);const currentModule=find('.module-picker a[aria-current=page]');assert(currentModule);await act(async()=>currentModule.focus());await click(currentModule);assert(!find('.module-picker'));assert.equal(document.activeElement,moduleTrigger);assertInline('Selecting the current module is local to the actual App');assert.equal(editor.value,source);assert.equal(editor.selectionStart,4);assert.equal(editor.selectionEnd,13);assert.equal(editor.scrollTop,41);console.log('PASS actual App current-module selection: real navigator closes with trigger focus and retains exact route,mounted editor,unsent source,selection and scroll without judging');
   await click(find('.workspace-focus-toggle'));
   await settle(()=>find('.app').dataset.focusMode==='true');
+  assert(find('#problem-editor-panel').contains(find('#workspace-console')),'Focus mode keeps the console under the editor');
   const layoutTrigger=find('.workspace-layout-trigger');await act(async()=>layoutTrigger.focus());await click(layoutTrigger);
   const readingPreset=find('.workspace-layout-options button');await act(async()=>readingPreset.focus());
   for(const options of [{isComposing:true},{keyCode:229},{repeat:true},{altKey:true},{ctrlKey:true},{metaKey:true},{shiftKey:true}]){
@@ -186,9 +198,9 @@ try {
 
   await click(action('Run tests'));
   assert.deepEqual(calls.runs,[{id:problem.id,source}]);
-  assert(resultSelected(),'Starting tests selects Result beside Description');
-  assert(!find('#problem-results-panel').hidden&&find('#problem-reading-content').hidden);
-  assert(find('#problem-results-panel .browser-run-progress'),'Browser progress appears inside the left Result tab');
+  assert(resultSelected(),'Starting tests selects Test Result in the console');
+  assert(!find('#problem-results-panel').hidden&&!find('#problem-reading-content').hidden,'The statement stays beside the console while tests run');
+  assert(find('#problem-results-panel .browser-run-progress'),'Browser progress appears inside the console Test Result tab');
   assertInline('Starting browser tests keeps the current problem URL');
   assert(action('Run tests').disabled&&action('Submit').disabled,'The moved controls still prevent overlapping runs');
   assert(find('.workspace-toolbar').contains(action('Stop')));
@@ -210,7 +222,7 @@ try {
   assert.equal(find('.run-recovery'),null,'A new run clears the stopped recovery card');
   await finishBrowser({type:'result',report});
   await settle(()=>find('.workspace-test-results > .result-head h3')?.textContent==='Tests passed');
-  assert(resultSelected()&&!find('#problem-results-panel').hidden,'Successful tests stay in the left Result tab');
+  assert(resultSelected()&&!find('#problem-results-panel').hidden,'Successful tests stay in the console Test Result tab');
   assertInline('Successful browser tests keep the current problem URL');
   assert.equal(find('.console'),null,'The obsolete second result summary is removed');
   const detail=find('.workspace-test-details');assert(detail&&!detail.open);
@@ -226,14 +238,20 @@ try {
   const detailedReport=find('#problem-results-panel .report-view');
   const passedFilter=find('.test-outcome-switch').querySelectorAll('button')[2];await click(passedFilter);
   assert.equal(passedFilter.getAttribute('aria-pressed'),'true');
-  await click(find('#reading-tab-description'));
-  assert(find('#problem-results-panel').hidden&&!find('#problem-reading-content').hidden);
-  await click(find('#reading-tab-result'));
-  assert(!find('#problem-results-panel').hidden);
+  await click(find('#reading-tab-explanation'));await click(find('#reading-tab-description'));
+  assert(!find('#problem-results-panel').hidden,'Reading tabs leave the console result in place');
+  await click(find('#console-tab-testcase'));
+  assert(find('#problem-results-panel').hidden&&!find('#problem-testcase-panel').hidden);
+  await click(find('.console-toggle'));
+  assert(find('#problem-testcase-panel').hidden&&find('#problem-results-panel').hidden&&find('.console-toggle').getAttribute('aria-expanded')==='false','Collapsing leaves only the console tab band');
+  assert.equal(find('.editor-console-split').dataset.secondCollapsed,'true');assert.equal(localStorage.getItem('paperleet.layout.console.open'),'false','The collapsed console is remembered');
+  await click(find('#console-tab-result'));
+  assert(!find('#problem-results-panel').hidden&&find('.console-toggle').getAttribute('aria-expanded')==='true','Choosing a console tab expands the console');
+  assert.equal(localStorage.getItem('paperleet.layout.console.open'),'true');
   assert.equal(find('#problem-editor-panel textarea'),editor);
   assert.equal(editor.value,source);
   assert.equal(editor.selectionStart,4);assert.equal(editor.selectionEnd,13);assert.equal(editor.scrollTop,41);
-  assert.equal(find('#problem-results-panel .report-view'),detailedReport,'Switching reading tabs preserves the existing report and selected test filter');
+  assert.equal(find('#problem-results-panel .report-view'),detailedReport,'Switching console tabs and collapsing preserve the existing report and selected test filter');
   assert.equal(passedFilter.getAttribute('aria-pressed'),'true');
   assertInline('Changing reading tabs never navigates away from the problem');
 
@@ -252,12 +270,12 @@ try {
   const editedSource=source.replace('* 2','* 3');await change(()=>{fixture.practice.saved={[problem.id]:{code:editedSource}};});
   await settle(()=>!find('.report-workflow .source-location-button'));
   assert.equal(editor.value,editedSource,'Returning from results never restores an older run over new code');
-  await click(find('#reading-tab-description'));
+  await click(find('#console-tab-testcase'));
   await change(()=>{fixture.practice.error='Draft synchronization failed';});
-  assert(resultSelected()&&!find('#problem-results-panel').hidden,'A new save error is visible in the left Result tab');
+  assert(resultSelected()&&!find('#problem-results-panel').hidden,'A new save error is visible in the console Test Result tab');
   assert(find('#problem-results-panel').textContent.includes('Draft synchronization failed'));
   await change(()=>{fixture.practice.error='';fixture.browser.reports={};});
-  await click(find('#reading-tab-description'));
+  await click(find('#console-tab-testcase'));
   await click(action('Submit'));
   assert.deepEqual(calls.submits,[{id:problem.id,source:editedSource}],'Top Submit still sends the current code to server judging');
   assert.equal(calls.flushes,1,'Hosted drafts flush before server submission');
@@ -269,21 +287,21 @@ try {
   await change(()=>{fixture.judge.job={status:'running'};});
   assert(find('#problem-results-panel .judge-queue-notice').textContent.includes('Running tests…'));
   const accepted={...report,runtime:'server',source_sha256:createHash('sha256').update(editedSource).digest('hex'),run_id:'a'.repeat(32)};
-  await click(find('#reading-tab-description'));
+  await click(find('#console-tab-testcase'));
   await act(async()=>new Promise(resolve=>setTimeout(resolve,0)));
-  const chosenDescription=find('#problem-reading-content'),chosenArticle=chosenDescription.querySelector('article');chosenDescription.scrollTop=247;find('#reading-tab-description').focus();
+  const chosenDescription=find('#problem-reading-content'),chosenArticle=chosenDescription.querySelector('article');chosenDescription.scrollTop=247;find('#console-tab-testcase').focus();
   await finishSubmission(accepted);
   await settle(()=>find('.workspace-test-results > .result-head h3')?.textContent==='Accepted');
-  assert(!resultSelected()&&find('#reading-tab-description').getAttribute('aria-selected')==='true','Server completion respects the reader tab selected after submission');
-  assert(chosenDescription===find('#problem-reading-content')&&chosenArticle===find('#problem-reading-content article'));assert.equal(chosenDescription.scrollTop,247);assert(document.activeElement===find('#reading-tab-description'));
+  assert(!resultSelected()&&find('#console-tab-testcase').getAttribute('aria-selected')==='true','Server completion respects the console tab selected after submission');
+  assert(chosenDescription===find('#problem-reading-content')&&chosenArticle===find('#problem-reading-content article'));assert.equal(chosenDescription.scrollTop,247);assert(document.activeElement===find('#console-tab-testcase'));
   const completeNotice=find('.submission-completion-notice');assert(completeNotice&&completeNotice.textContent.includes('Submission complete'));assert.equal(completeNotice.querySelector('a').getAttribute('href'),'#/submission/'+accepted.run_id);
   const runsBeforeNotice=calls.runs.length;const noticeChord=new window.KeyboardEvent('keydown',{key:'Enter',ctrlKey:true,bubbles:true,cancelable:true});await act(async()=>{completeNotice.querySelector('a').focus();completeNotice.querySelector('a').dispatchEvent(noticeChord);});assert(!noticeChord.defaultPrevented&&calls.runs.length===runsBeforeNotice,'The completion link keeps native modified activation rather than rerunning code');
-  await click(completeNotice.querySelector('a'));await settle(()=>document.activeElement===find('#reading-tab-result'));assert(resultSelected(),'The explicit notification action opens the completed authoritative report');assert(!find('.submission-completion-notice'));assert.equal(location.hash,'#/1');
+  await click(completeNotice.querySelector('a'));await settle(()=>document.activeElement===find('#console-tab-result'));assert(resultSelected(),'The explicit notification action opens the completed authoritative report');assert(!find('.submission-completion-notice'));assert.equal(location.hash,'#/1');
   assert.equal(calls.appliedReports.at(-1).report,accepted,'Server completion still saves the authoritative report');
   assertInline('Successful server submission must not redirect to a submission page');
   assert.equal(editor.value,editedSource);
 
-  await click(find('#reading-tab-description'));
+  await click(find('#console-tab-testcase'));
   await click(action('Submit'));
   const serverFailed={...accepted,run_id:'b'.repeat(32),summary:{T0:[0,1]},tests:[{id:'output',layer:'T0',passed:false,message:'Server output mismatch'}]};
   const pendingEdit=editedSource.replace('* 3','* 4');
@@ -293,13 +311,15 @@ try {
   await finishSubmission(serverFailed);
   assert.equal(find('#problem-results-panel').scrollTop,390,'Completion updates a visible report without resetting its reader scroll');
   await settle(()=>find('#problem-results-panel .feedback-diagnostic')?.textContent.includes('Server output mismatch'));
-  assert(resultSelected(),'Failed server completion appears in the inline Result tab');
+  assert(resultSelected(),'Failed server completion appears in the console Test Result tab');
   assertInline('Failed server submission must not redirect to a submission page');
   assert.equal(editor.value,pendingEdit,'A queued result cannot overwrite edits made after submitting');
   assert.equal(editor.selectionStart,6);assert.equal(editor.selectionEnd,15);assert.equal(editor.scrollTop,63);
   assert(!find('.submission-completion-notice'),'Visible Result completion does not add a redundant notification');
   // Stored Result selection does not mean its panel is visible on a narrow code pane.
-  fixture.narrow=true;await click(action('Submit'));await click(find('.mobile-workspace-switch button:last-child'));editor.focus();editor.setSelectionRange(5,14,'backward');editor.scrollTop=71;
+  await setNarrow(true);assert(find('#problem-description-panel').contains(find('#problem-results-panel'))&&!find('#workspace-console'),'Stacked panes move results back to the Result reading tab');
+  assert(editor===find('#problem-editor-panel textarea')&&calls.editorMounts===1,'Changing layout keeps the mounted editor');
+  await click(action('Submit'));await click(find('.mobile-workspace-switch button:last-child'));editor.focus();editor.setSelectionRange(5,14,'backward');editor.scrollTop=71;
   const mobileAccepted={...accepted,source_sha256:createHash('sha256').update(pendingEdit).digest('hex'),run_id:'c'.repeat(32)};
   await finishSubmission(mobileAccepted);await settle(()=>find('.submission-completion-notice'));
   assert.equal(find('.app').dataset.mobilePane,'code');assert(document.activeElement===editor,'Completion arrival never takes focus');assert(resultSelected(),'The stored Result selection is retained while the code pane stays active');
@@ -312,10 +332,11 @@ try {
   await click(savedAction);assert.deepEqual(nativeSaved,{prevented:false,href:'#/submission/'+mobileAgain.run_id},'A newer report keeps the old completion action bound to its immutable original record');assert.equal(find('.app').dataset.mobilePane,'code');assert.equal(location.hash,'#/1');
   await click(action('Submit'));await click(find('.mobile-workspace-switch button:last-child'));editor.focus();const newestCompletion={...mobileAccepted,run_id:'f'.repeat(32)};await finishSubmission(newestCompletion);await settle(()=>find('.submission-completion-notice'));
   await change(()=>{fixture.account.loading=true;});assert(!find('.submission-completion-notice'),'Account checking immediately hides the private result action');await change(()=>{fixture.account.loading=false;});await settle(()=>find('.submission-completion-notice'));
-  const inlineAction=find('.submission-completion-notice a');await act(async()=>inlineAction.focus());await click(inlineAction);await settle(()=>document.activeElement===find('#reading-tab-result'));assert.equal(find('.app').dataset.mobilePane,'read');assert(!find('.submission-completion-notice'));assert(editor===find('#problem-editor-panel textarea')&&editor.value===pendingEdit);assert.equal(editor.selectionStart,5);assert.equal(editor.selectionEnd,14);assert.equal(location.hash,'#/1');fixture.narrow=false;
+  const inlineAction=find('.submission-completion-notice a');await act(async()=>inlineAction.focus());await click(inlineAction);await settle(()=>document.activeElement===find('#reading-tab-result'));assert.equal(find('.app').dataset.mobilePane,'read');assert(!find('.submission-completion-notice'));assert(editor===find('#problem-editor-panel textarea')&&editor.value===pendingEdit);assert.equal(editor.selectionStart,5);assert.equal(editor.selectionEnd,14);assert.equal(location.hash,'#/1');
+  await setNarrow(false);assert(resultSelected()&&!find('#problem-results-panel').hidden&&find('#reading-tab-description').getAttribute('aria-selected')==='true','Widening hands a selected Result tab to the console');
 
 
-  await click(find('#reading-tab-description'));
+  await click(find('#console-tab-testcase'));
   await click(action('Submit'));
   await change(()=>{fixture.judge.active=false;fixture.judge.pending=undefined;fixture.judge.job=undefined;fixture.judge.error='Server submission could not start. Your draft is preserved; try again.';});
   assert(resultSelected()&&find('#problem-results-panel [role="alert"]').textContent.includes('Server submission could not start'));
@@ -343,7 +364,7 @@ try {
   assert(!find('#problem-results-panel').textContent.includes('This submission was not executed'),'A stale server cancellation cannot replace a fresh browser pass');
   assertInline('Browser success after cancelling a server submission remains inline');
   await change(()=>{fixture.judge.error='';fixture.judge.submitError='Fixture submit connection failed';});
-  await click(find('#reading-tab-description'));
+  await click(find('#console-tab-testcase'));
   await click(action('Submit'));
   assert(resultSelected()&&find('#problem-results-panel').textContent.includes('Fixture submit connection failed'),'Thrown submit failures are displayed inline');
   assertInline('Thrown submit errors stay on the current problem');
