@@ -88,10 +88,11 @@ const mocks = {
     export {default as JudgeRuntimeDetails} from '/src/JudgeRuntimeDetails.tsx';
     export {default as WorkspaceLayoutMenu} from '/src/WorkspaceLayoutMenu.tsx';
     export {default as ReadingTabControls} from '/src/ReadingTabControls.tsx';
+    export {ModuleNavigator} from '/src/ModuleNavigator.tsx';
     export function PythonEditor({value,onChange,label,readOnly,focusRequest,onFocusHandled}){useEffect(()=>{globalThis.__paperleetWorkspaceActionTest.calls.editorMounts++;},[]);useEffect(()=>{if(focusRequest){globalThis.__paperleetWorkspaceActionTest.calls.focusRequests.push(focusRequest);const focused=!focusRequest.claimFocus||focusRequest.claimFocus();if(focused)document.querySelector('#problem-editor-panel textarea')?.focus();onFocusHandled?.(focusRequest,focused);}},[focusRequest]);return React.createElement('textarea',{'aria-label':label,value,readOnly,onChange:event=>onChange(event.target.value)});}
     export const Prose=({content,statementExecution})=>React.createElement('article',{'data-statement-execution':statementExecution},content);
     export const ReportView=({report})=>React.createElement('div',{'data-report':true},report ? 'Report available' : 'No report');
-    ${['PreparationGuide','InterviewPracticeNextStep','Interviews','ProblemCompanyTags','Community','UserProfile','Account','SolutionHistory','SubmissionResultPage','Submissions','Visuals','QueueAdmissionNotice','ModuleNavigator','ResetCodeButton','BrowserDraftBackups','SettingsPage','AchievementObserver','BrowserResultActions','ReportWorkflow','OnlinePresence','ArtifactCharts'].map(name=>`export const ${name}=()=>null;`).join('\n')}`,
+    ${['PreparationGuide','InterviewPracticeNextStep','Interviews','ProblemCompanyTags','Community','UserProfile','Account','SolutionHistory','SubmissionResultPage','Submissions','Visuals','QueueAdmissionNotice','ResetCodeButton','BrowserDraftBackups','SettingsPage','AchievementObserver','BrowserResultActions','ReportWorkflow','OnlinePresence','ArtifactCharts'].map(name=>`export const ${name}=()=>null;`).join('\n')}`,
 };
 mocks['/src/ReportView.tsx']=mocks['./ReportView'];
 const server = await createServer({
@@ -144,6 +145,7 @@ try {
   const source='def attention(x):\n    return x * 2 # private draft\n';
   await change(()=>{fixture.practice.saved={[problem.id]:{code:source}};});
   editor.focus();editor.setSelectionRange(4,13);editor.scrollTop=41;
+  const moduleTrigger=find('.module-picker-trigger');assert(moduleTrigger,'The actual App mounts its real module navigator');await act(async()=>moduleTrigger.focus());await click(moduleTrigger);const currentModule=find('.module-picker a[aria-current=page]');assert(currentModule);await act(async()=>currentModule.focus());await click(currentModule);assert(!find('.module-picker'));assert.equal(document.activeElement,moduleTrigger);assertInline('Selecting the current module is local to the actual App');assert.equal(editor.value,source);assert.equal(editor.selectionStart,4);assert.equal(editor.selectionEnd,13);assert.equal(editor.scrollTop,41);console.log('PASS actual App current-module selection: real navigator closes with trigger focus and retains exact route,mounted editor,unsent source,selection and scroll without judging');
   await click(find('.workspace-focus-toggle'));
   await settle(()=>find('.app').dataset.focusMode==='true');
   const layoutTrigger=find('.workspace-layout-trigger');await act(async()=>layoutTrigger.focus());await click(layoutTrigger);

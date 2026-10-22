@@ -17,7 +17,6 @@ button:disabled { cursor: default; }
 .journey-completion-track { height: 4px; overflow: hidden; border-radius: 9px; background: var(--surface3); }
 .journey-completion-track > span { display: block; height: 100%; border-radius: inherit; background: var(--green); }
 .journey-completion .journey-progress { display: block; margin-top: 7px; font-variant-numeric: tabular-nums; }
-.library-main { scroll-margin-top: 20px; }
 .library-toolbar { padding: 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
 .library-toolbar .search { border-radius: 8px; transition: border-color .15s, box-shadow .15s; }
 .library-toolbar .search:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 12%, transparent); }
@@ -155,7 +154,7 @@ button:disabled { cursor: default; }
 /* Collection progress stays visible without competing with its main topic. */
 .collection-card { height: 216px; }
 .collection-copy p { max-width: 260px; }
-.collection-learning-progress { position: absolute; left: 24px; right: 24px; bottom: 16px; z-index: 2; color: #ffffffe6; font-size: var(--type-meta); }
+.collection-learning-progress { position: absolute; left: 24px; right: 24px; bottom: 16px; z-index: 2; color: #fff; font-size: var(--type-meta); }
 .collection-learning-progress > div { height: 3px; margin-top: 6px; border-radius: 4px; overflow: hidden; background: #ffffff30; }
 .collection-learning-progress i { display: block; height: 100%; background: #ffffffd9; border-radius: inherit; }
 .collection-art { bottom: -4px; opacity: .5; }
@@ -164,7 +163,7 @@ button:disabled { cursor: default; }
 .module-navigator { position: relative; gap: 5px; }
 .module-picker-trigger { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 4px 8px; border: 1px solid transparent; border-radius: 6px; font-size: var(--type-small); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .module-picker-trigger:hover, .module-picker-trigger[aria-expanded="true"] { background: var(--surface); border-color: var(--line); color: var(--text); }
-.module-picker { position: absolute; top: calc(100% + 9px); right: 0; z-index: 40; width: 360px; max-width: calc(100vw - 24px); border: 1px solid var(--line); border-radius: 12px; background: var(--surface); box-shadow: 0 12px 40px #00000026; overflow: hidden; }
+.module-picker { position: absolute; top: calc(100% + 9px); right: 0; z-index: 40; width: 360px; max-width: calc(100vw - 24px); border: 1px solid var(--line); border-radius: var(--control-radius, 8px); background: var(--surface-overlay, var(--surface)); box-shadow: var(--shadow-overlay, 0 12px 40px #00000026); overflow: hidden; }
 .module-picker-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 15px 16px; border-bottom: 1px solid var(--line); background: var(--surface2); }
 .module-picker-heading b { color: var(--text); font-size: var(--type-body); font-weight: 600; }
 .module-picker-heading > span { color: var(--muted); font-size: var(--type-meta); }
@@ -191,7 +190,7 @@ button:disabled { cursor: default; }
 .test-outcome-switch button { display: inline-flex; align-items: center; gap: 6px; min-height: 31px; padding: 5px 9px; border-radius: 5px; font-size: var(--type-small); color: var(--muted); white-space: nowrap; }
 .test-outcome-switch button:hover { color: var(--text); }
 .test-outcome-switch button[aria-pressed="true"] { color: var(--text); background: var(--surface); box-shadow: 0 1px 4px #0000000a; font-weight: 600; }
-.test-outcome-switch button:nth-child(2)[aria-pressed="true"] { color: var(--chart-5); }
+.test-outcome-switch button:nth-child(2)[aria-pressed="true"] { color: var(--red); }
 .test-outcome-switch button:nth-child(3)[aria-pressed="true"] { color: var(--green); }
 .test-outcome-switch button > span { font-size: var(--type-caption); font-variant-numeric: tabular-nums; opacity: .8; }
 .test-layer-filter { display: inline-flex; align-items: center; gap: 5px; color: var(--muted); padding: 3px 7px; min-height: 36px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); }
@@ -200,8 +199,8 @@ button:disabled { cursor: default; }
 .report-test-actions .text-button { display: inline-flex; align-items: center; gap: 4px; font-size: var(--type-meta); }
 .report-tests .test-detail { margin-bottom: 9px; border-radius: 8px; overflow: hidden; }
 .report-tests .test-detail > summary { min-height: 45px; padding: 12px; }
-.report-tests .test-detail.failed { border-color: color-mix(in srgb, var(--chart-5) 22%, var(--line)); }
-.report-tests .test-detail.failed > summary { background: color-mix(in srgb, var(--chart-5) 4%, var(--surface)); }
+.report-tests .test-detail.failed { border-color: color-mix(in srgb, var(--red) 22%, var(--line)); }
+.report-tests .test-detail.failed > summary { background: color-mix(in srgb, var(--red) 4%, var(--surface)); }
 .report-tests .test-detail[open] > summary { border-bottom: 1px solid var(--line); }
 .report-tests .test-detail > summary > span { min-width: 0; font-size: var(--type-small); }
 .test-filter-empty { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 30px 16px; margin-top: 2px; border: 1px dashed var(--line); border-radius: 8px; color: var(--muted); font-size: var(--type-body); }
@@ -230,7 +229,7 @@ button:disabled { cursor: default; }
 .stats-availability .problem-stats { margin-bottom: 0; padding-bottom: 0; border: 0; }
 .route-not-found { max-width: 680px; padding: 64px 24px; margin: 32px auto; display: flex; flex-direction: column; align-items: center; gap: 18px; text-align: center; }
 .route-not-found > svg { color: var(--accent); }
-.route-not-found h1 { font-size: clamp(23px, 4vw, 30px); }
+.route-not-found h1 { font-size: clamp(24px, 4vw, 28px); font-weight: 650; letter-spacing: -.03em; }
 .route-not-found p { color: var(--muted); line-height: 1.8; max-width: 490px; }
 .route-not-found code { max-width: 100%; padding: 8px 12px; border-radius: 6px; color: var(--muted); background: var(--surface2); overflow-wrap: anywhere; font-size: var(--type-small); }
 @media (max-width: 600px) {

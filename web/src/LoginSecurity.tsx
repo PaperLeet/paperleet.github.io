@@ -47,7 +47,7 @@ function LoginChallenge({ sitekey, onToken }: { sitekey: string; onToken(token: 
   }, [sitekey, locale, attempt]);
   return <div className="login-security" aria-label={t('安全校验', 'Security check')}>
     <div ref={element} />
-    {failed && <p role="status">{t('安全校验未完成，请重试并允许 Cloudflare 校验加载。', 'Security check unavailable. Allow the Cloudflare check to load and try again.')} <button type="button" className="button" onClick={() => setAttempt(value => value + 1)}>{t('重试', 'Retry')}</button></p>}
+    {failed && <p role="status">{t('安全校验未完成，请重试并允许 Cloudflare 校验加载。', 'Security check unavailable. Allow the Cloudflare check to load and try again.')} <button type="button" className="button subtle" onClick={() => setAttempt(value => value + 1)}>{t('重试', 'Retry')}</button></p>}
   </div>;
 }
 

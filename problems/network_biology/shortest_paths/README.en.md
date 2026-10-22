@@ -1,6 +1,6 @@
 # Shortest Paths and Network Proximity
 
-Uses the graph conventions of *Biological Interaction Networks: Node Degree and Degree Distribution* (exercise 93). You compute how many interaction steps separate two proteins and which path realizes it.
+Uses the graph conventions of *Biological Interaction Networks: Node Degree and Degree Distribution* (`network_biology/degree_distribution`). You compute how many interaction steps separate two proteins and which path realizes it.
 
 ## Task and conventions
 
@@ -44,4 +44,3 @@ T0 checks the return types. T1 checks the documented toy network and compares ps
 ## References
 
 - Menche J, Sharma A, Kitsak M, Ghiassian SD, Vidal M, Loscalzo J, Barabasi AL. [Uncovering disease-disease relationships through the incomplete interactome](https://doi.org/10.1126/science.1257601). *Science* 347(6224), 1257601 (2015). Background on the network location of disease modules; this exercise does not implement its separation measure.
-- Literature dataset record: `docs/research/network_biology_literature.json`, id 42.

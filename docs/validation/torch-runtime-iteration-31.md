@@ -111,7 +111,7 @@ Four fresh CPU processes per variant/preload condition show namespace medians
 namespace import still leaves zipfile unloaded. Earlier cold samples, including
 a123.9ms baseline outlier, are retained separately from the refined phase.
 
-[Core evidence](../../packages/stridetorch/benchmarks/results/iteration-31.json)
+[Core evidence](../../packages/torchwasm/benchmarks/results/iteration-31.json)
 and its receipt archive preserve all source/proof phases, native contracts,
 profiles, kernel selection,48 import/performance children and bounded-cache
 measurements. Full application catalog/exported-WASM/frontend integration and
@@ -149,7 +149,7 @@ unconditional hooks;no manual visual QA is claimed.
 The application wheel/sdist are rebuilt after the backend catalog change and
 match all46 core/resource hashes and current server/catalog bytes. Source library
 hashes remain the same as the refined core/NumPy-only/Chrome/performance proofs.
-[Application evidence](../../packages/stridetorch/benchmarks/results/iteration-31-integration.json)
+[Application evidence](../../packages/torchwasm/benchmarks/results/iteration-31-integration.json)
 and its229-file archive retain original/follow-up frontend contexts,all process
 receipts,exports and complete real VM results. Main adoption uses a non-force
 push;remote Quality,actual Pages and live-byte checks are separate gates. Exact main source b3b56a19 subsequently passed all remote and live gates below.
@@ -166,7 +166,7 @@ Catalog-workbench/library-navigation checks and both complete builds pass again.
 Latest default and hosted Pages builds retain three initial JS assets:
 404162 raw/130579 gzip and405564 raw/131014 gzip bytes,within original budgets.
 
-[Final synchronization evidence](../../packages/stridetorch/benchmarks/results/iteration-31-main-sync.json)
+[Final synchronization evidence](../../packages/torchwasm/benchmarks/results/iteration-31-main-sync.json)
 and its13-file archive preserve the guard,merge scope,static React review,
 unchanged mathematical inputs and actual check/build receipts. The original full
 Python/native/WASM proof remains applicable;no case,test or budget is removed.
@@ -188,7 +188,7 @@ all158 immutable payloads byte-for-byte. Both profiles expose0.31.0 and the
 expected Apache-2.0 license/NOTICE. All46 source resources and161 exported
 files are verified against the pinned Git commit, not the newer0.32 worktree.
 
-[Remote adoption evidence](../../packages/stridetorch/benchmarks/results/iteration-31-remote-adoption.json)
+[Remote adoption evidence](../../packages/torchwasm/benchmarks/results/iteration-31-remote-adoption.json)
 and its17-file archive retain source/export hashes, actual job/step results,
 all three successful download receipts and live resource evidence. Remote runner
 durations are budget gates; no cross-run performance improvement is inferred.

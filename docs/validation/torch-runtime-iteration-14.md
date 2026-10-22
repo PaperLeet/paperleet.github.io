@@ -93,7 +93,7 @@ or resolved cause of process variation is claimed.
 
 Full samples, frozen source/resource/harness hashes, source/test material and
 verified reconstruction patches are in
-[iteration-14-prototype.json](../../packages/stridetorch/benchmarks/results/iteration-14-prototype.json).
+[iteration-14-prototype.json](../../packages/torchwasm/benchmarks/results/iteration-14-prototype.json).
 Local frozen artifacts and logs remain in
 `paperleet-wasm-evaluation-20261015/torch-iteration-14`.
 
@@ -152,7 +152,7 @@ that old baseline has incorrect extreme-value semantics. The affine chain is
 about 3%/1% faster than 0.13 in this series. These figures are CPU-only and use
 process means of the two per-process medians; they are not browser claims.
 
-The [IEEE phase archive](../../packages/stridetorch/benchmarks/results/iteration-14-ieee-prototype.json)
+The [IEEE phase archive](../../packages/torchwasm/benchmarks/results/iteration-14-ieee-prototype.json)
 retains all 72 new CPU reports alongside the previous 64, strict native and
 portable test sources, gate receipts and benchmark sources. Verified patches
 reconstruct the granular and earlier refined phase from the batched candidate;
@@ -239,11 +239,11 @@ reverse peak allocation. Where-chain final-release bytes also match; its normal
 retained snapshot differs by280 bytes. These are CPython tracemalloc snapshots,
 not RSS or browser heap measurements.
 
-The [complete preintegration archive](../../packages/stridetorch/benchmarks/results/iteration-14-preintegration.json)
+The [complete preintegration archive](../../packages/torchwasm/benchmarks/results/iteration-14-preintegration.json)
 contains every sample and followup, source/test/harness material, notices, native
 and distribution receipt references, browser versions and exact-source
 reconstruction links. The
-[numerical-order record](../../packages/stridetorch/benchmarks/results/iteration-14-numerical-order.json)
+[numerical-order record](../../packages/torchwasm/benchmarks/results/iteration-14-numerical-order.json)
 bridges this source back to all earlier35-file phases, with each reconstruction
 verified by SHA-256.
 
@@ -316,10 +316,10 @@ primary gains/costs are not stable causal claims. Timer-floor zeros are retained
 without inventing ratios. No cross-engine causal speedup or general-device
 latency promise is made.
 
-[Final combined local samples and reconstruction](../../packages/stridetorch/benchmarks/results/iteration-14.json)
+[Final combined local samples and reconstruction](../../packages/torchwasm/benchmarks/results/iteration-14.json)
 retain every primary/followup sample, test/harness source, source/resource digest
 and distribution identity. The
-[combined validation record](../../packages/stridetorch/benchmarks/results/iteration-14-combined-validation.json)
+[combined validation record](../../packages/torchwasm/benchmarks/results/iteration-14-combined-validation.json)
 contains the entire77-module WASM result, native checks and Chrome contracts.
 
 Latest fetched main `09fac92fd270b9028643f609a5965067e1a2a411` only updates six
@@ -382,7 +382,7 @@ passes189 contracts. Wheel/sdist hashes, all35 module bytes and Apache-2.0
 resources are verified again. Two explicit oracle cases accept both observed
 native sign conventions, while four negative cases prove incorrect classes or
 nonzero values still fail. Numerical runtime assets and performance samples are
-unchanged. See the [portable-oracle record](../../packages/stridetorch/benchmarks/results/iteration-14-portability.json).
+unchanged. See the [portable-oracle record](../../packages/torchwasm/benchmarks/results/iteration-14-portability.json).
 New Linux CI remains pending.
 
 Portable-oracle correction commit `de4490c9f4fa3825c0fdd9a66d8a569665f92d0d`

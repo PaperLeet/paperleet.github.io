@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "reviewed_on": "2026-10-19",
+  "reviewed_on": "2026-10-22",
   "modules": [
     {
       "id": "architecture/attention",
@@ -5945,6 +5945,1082 @@
           "hint": {
             "zh": "在 0<p<1、q=1-p 时，展开平方可得 E[(Y-c)^2]=(x-c)^2+Var(Y)=(x-c)^2+x^2*p/q。保持激活均值没有消除损失中的方差项，也不能推出经过任意非线性网络后的输出均值不变。这是固定输入上的解析比较，不是泛化改善的保证。",
             "en": "For 0<p<1 and q=1-p, expanding the square gives E[(Y-c)^2]=(x-c)^2+Var(Y)=(x-c)^2+x^2*p/q. Preserving the activation mean leaves a variance term in the loss and does not preserve the output mean through arbitrary nonlinear networks. This fixed-input identity is not a generalization guarantee."
+          }
+        }
+      ]
+    },
+    {
+      "id": "optimization/es_at_scale",
+      "source": "problems/optimization/es_at_scale/README.md",
+      "functions": [
+        "reward_zscores",
+        "es_step"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "为什么 ES 的探索发生在参数空间？更新需要哪些信息？",
+            "en": "Why does ES explore in parameter space, and which observations determine an update?"
+          },
+          "hint": {
+            "zh": "比较扰动权重后获得的整段奖励与固定权重下的 token 采样；本题只使用奖励和已知方向。",
+            "en": "Compare complete-response rewards under perturbed weights with token sampling under fixed weights; this exercise needs rewards and known directions."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "怎样广播候选权重并处理相同奖励？为什么不再除以 sigma？",
+            "en": "How do candidate weights broadcast, what happens for equal rewards, and why is there no extra division by sigma?"
+          },
+          "hint": {
+            "zh": "总体标准差设置正下界，只归约候选轴；alpha 已包含尺度约定，输出不保留梯度图。",
+            "en": "Floor the population standard deviation and reduce only the population axis. Alpha already includes the scale convention; outputs carry no gradient graph."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "复制所有候选一次，或者对奖励取负，应该分别发生什么？",
+            "en": "What should happen if every candidate is duplicated or every reward is negated?"
+          },
+          "hint": {
+            "zh": "复制不改变均值更新，取负反转方向；单个候选和常数奖励检验退化行为。",
+            "en": "Replication preserves the mean update, while reward negation reverses its direction. Singleton and constant populations check degeneracy."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "reward-scale",
+          "question": {
+            "zh": "奖励乘以正数再加常数时，更新方向一定不变吗？",
+            "en": "Does multiplying rewards by a positive number and adding a constant always preserve the update?"
+          },
+          "hint": {
+            "zh": "先在标准差大于 eps 时推导中心化与缩放的抵消。若标准差触及固定下限，缩放会改变权重大小；负数缩放还会翻转方向。",
+            "en": "First derive cancellation when the standard deviation exceeds eps. A fixed floor changes weight magnitudes when it becomes active; a negative multiplier also reverses the direction."
+          }
+        },
+        {
+          "id": "noise-scale",
+          "question": {
+            "zh": "改变 sigma 后，为什么不能只把它当作代码里遗漏的除数？",
+            "en": "Why is changing sigma more than inserting a missing divisor into this update?"
+          },
+          "hint": {
+            "zh": "sigma 决定实际评估的候选模型，因此会改变奖励。调用方传入未缩放的 epsilon，本题 alpha 已吸收逆 sigma 因子；候选评估和更新步长是两个需要分别检查的环节。",
+            "en": "Sigma changes the evaluated candidate models and therefore their rewards. The caller supplies unscaled epsilon and this exercise absorbs inverse sigma into alpha. Check candidate evaluation and update step size separately."
+          }
+        }
+      ]
+    },
+    {
+      "id": "finetuning/visual_domain_prompt",
+      "source": "problems/finetuning/visual_domain_prompt/README.md",
+      "functions": [
+        "apply_prompts",
+        "homeostatic_factor",
+        "homeostatic_penalty"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "冻结骨干后，视觉提示靠什么改变预测？域专用和域无关提示如何分工？",
+            "en": "How can visual prompts change predictions with a frozen backbone, and how do the two prompt roles differ?"
+          },
+          "hint": {
+            "zh": "输入画布仍可学习；域无关提示通过历史敏感性约束保持信息，本题不实现完整教师流程。",
+            "en": "The input canvas remains trainable. Historical sensitivity constrains the domain-agnostic prompt; the complete teacher pipeline is outside scope."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "稳态因子应在哪个轴累积？哪些张量必须断开梯度？",
+            "en": "Along which axis do homeostatic factors accumulate, and which tensors must be detached?"
+          },
+          "hint": {
+            "zh": "逐域计算重要性除以平方位移加 xi，再对历史域求和；历史记录、锚点和因子冻结。",
+            "en": "Normalize importance by squared displacement plus xi within each domain, then sum history. Freeze historical records, anchors and factors."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样用解析梯度和双像素实验区分平均错误与多余的二分之一？",
+            "en": "How can analytic gradients and the two-pixel experiment expose averaging or an extra one-half?"
+          },
+          "hint": {
+            "zh": "正则梯度是两倍强度乘因子乘位移；独立最优点为第一坐标 1/(1+8*strength)。",
+            "en": "The penalty gradient is twice strength times factor times displacement. The independent first-coordinate optimum is 1/(1+8*strength)."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "importance-movement",
+          "question": {
+            "zh": "同样的重要度下，历史变化更小的提示坐标为什么约束更强？",
+            "en": "With equal importance, why is a prompt coordinate with less historical movement constrained more strongly?"
+          },
+          "hint": {
+            "zh": "逐坐标检查 eta/(delta²+xi)。平方让正负变化对称，xi 保证零变化时仍有限；这种系数依赖已提供的历史重要度，并不重新估计 Fisher。",
+            "en": "Inspect eta/(delta²+xi) coordinate by coordinate. Squaring makes movement signs symmetric and xi keeps zero movement finite. This coefficient uses supplied historical importance rather than re-estimating a Fisher matrix."
+          }
+        },
+        {
+          "id": "domain-count",
+          "question": {
+            "zh": "历史记录重复一遍后，稳态因子和当前提示的梯度怎样变化？",
+            "en": "What happens to the homeostatic factor and current-prompt gradient if every historical record is duplicated?"
+          },
+          "hint": {
+            "zh": "因子按域求和，因此翻倍；在当前提示、锚点和强度固定时，惩罚梯度也翻倍。历史、锚点与因子保持冻结，只有当前提示接收梯度。",
+            "en": "Factors sum across domains, so they double. At fixed current prompt, anchor and strength, the penalty gradient also doubles. History, anchor and factors stay frozen; only the current prompt receives gradients."
+          }
+        }
+      ]
+    },
+    {
+      "id": "finetuning/neural_thickets",
+      "source": "problems/finetuning/neural_thickets/README.md",
+      "functions": [
+        "perturb_candidates",
+        "select_experts",
+        "majority_vote"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "RandOpt 为什么保留多个专家？它和 ES 合并方向的区别是什么？",
+            "en": "Why does RandOpt retain several experts, and how does this differ from ES direction averaging?"
+          },
+          "hint": {
+            "zh": "RandOpt 在预测答案上集成，ES 更新一个参数中心；保留专家也带来额外推理成本。",
+            "en": "RandOpt ensembles predicted answers, whereas ES updates one parameter center. Retaining experts also adds inference cost."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "候选尺度、专家索引和逐样本投票分别沿哪个维度处理？",
+            "en": "Which dimensions handle candidate scales, expert indices and per-sample voting?"
+          },
+          "hint": {
+            "zh": "从相同基座独立扰动；按选择集分数筛选索引，对选中专家轴计票，不能平均类别编号。",
+            "en": "Perturb a common base independently, select indices by selection-set scores, and count along the selected-expert axis; do not average class IDs."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何验证未选专家不影响结果，并避免测试标签泄漏到筛选过程？",
+            "en": "How do you verify rejected experts cannot affect results and prevent test-label leakage into selection?"
+          },
+          "hint": {
+            "zh": "改变未选专家预测应保持结果；选择集与测试集分离，另测两种并列值约定和空样本。",
+            "en": "Changing rejected predictions must preserve outputs. Separate selection/test data, then test both tie conventions and an empty sample batch."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "search-selection",
+          "question": {
+            "zh": "随机候选越多，选择集最高分越高，就能断定测试性能更好吗？",
+            "en": "If searching more random candidates raises the best selection-set score, does that establish better test performance?"
+          },
+          "hint": {
+            "zh": "更多尝试也会提高对选择集噪声的过拟合机会。固定选择规则后，用未参与专家筛选和参数选择的数据评估；最终测试标签不能用于挑选 K 或扰动尺度。",
+            "en": "More trials also increase opportunities to fit selection-set noise. Evaluate a fixed selection rule on data excluded from expert and hyperparameter selection; final test labels must not choose K or perturbation scales."
+          }
+        },
+        {
+          "id": "correlated-experts",
+          "question": {
+            "zh": "多个高分专家犯完全相同的错时，多数投票还能改善什么？",
+            "en": "What can majority voting improve when several high-scoring experts make exactly the same errors?"
+          },
+          "hint": {
+            "zh": "先构造所有专家预测相同的情况，此时投票等于单个预测。收益取决于错误差异和每个样本的票数，而不仅是各自的平均准确率；保留更多专家还会增加推理成本。",
+            "en": "Start with identical expert predictions: voting then equals a single prediction. Gains depend on error diversity and per-sample votes, not only individual average accuracy; retaining more experts also increases inference cost."
+          }
+        }
+      ]
+    },
+    {
+      "id": "self_evolving/rzero_rewards",
+      "source": "problems/self_evolving/rzero_rewards/README.md",
+      "functions": [
+        "uncertainty_reward",
+        "challenger_rewards"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "这一步在论文的自演化循环中承担什么作用？",
+            "en": "What role does this step play in the paper’s co-evolution loop?"
+          },
+          "hint": {
+            "zh": "让出题者偏好 Solver 尚未稳定掌握的问题，同时惩罚重复模板。输入已完成答案归一化、题目聚类和格式检查。",
+            "en": "Train a challenger toward uncertain solver responses while penalizing repeated question templates. Answer normalization, clustering and format checks are supplied."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "实现时最容易混淆的归一化、分组或梯度约定是什么？",
+            "en": "Which normalization, grouping or gradient convention is easiest to confuse?"
+          },
+          "hint": {
+            "zh": "先算三角形不确定性奖励，再按整个批次计算聚类占比，最后截断并应用格式门控。例如 p=0.5，四题中两题同类，奖励为 0.5；若格式失败则为 0。",
+            "en": "Compute triangular uncertainty, then the cluster share over the whole batch, then floor at zero and gate by format. With p=0.5 and two duplicates in a batch of four, reward is 0.5; invalid format returns zero."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样构造一个可手算的小例子检查这个机制？",
+            "en": "How would you construct a hand-computable check for this mechanism?"
+          },
+          "hint": {
+            "zh": "一致率不是正确率；所有人给出同一个错误答案也会得到 p=1。格式无效的行仍属于本题规定的聚类分母。观测奖励必须脱离计算图。",
+            "en": "Agreement is not accuracy: unanimous wrong answers still give p=1. Invalid rows remain in this exercise’s clustering denominator. Observed rewards are detached."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "为什么最难的题不一定最有训练价值？",
+            "en": "Why is the hardest question not necessarily the most useful training question?"
+          },
+          "hint": {
+            "zh": "一致率不是正确率；所有人给出同一个错误答案也会得到 p=1。格式无效的行仍属于本题规定的聚类分母。观测奖励必须脱离计算图。",
+            "en": "Agreement is not accuracy: unanimous wrong answers still give p=1. Invalid rows remain in this exercise’s clustering denominator. Observed rewards are detached."
+          }
+        },
+        {
+          "id": "full-loop-evaluation",
+          "question": {
+            "zh": "教学策略的目标概率提高，能否说明完整模型在新任务上变强？",
+            "en": "Does improved target probability in the toy policy establish better full-model generalization?"
+          },
+          "hint": {
+            "zh": "区分固定观测记录上的局部更新和生成新数据的完整循环；需要独立测试集、真实标签检查与多轮实验。",
+            "en": "Distinguish a local update on fixed observations from the full loop that generates fresh data. Use held-out evaluation, independent label checks and multiple training rounds."
+          }
+        }
+      ]
+    },
+    {
+      "id": "self_evolving/rzero_curriculum",
+      "source": "problems/self_evolving/rzero_curriculum/README.md",
+      "functions": [
+        "consensus",
+        "curriculum_mask",
+        "pseudo_rewards"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "这一步在论文的自演化循环中承担什么作用？",
+            "en": "What role does this step play in the paper’s co-evolution loop?"
+          },
+          "hint": {
+            "zh": "将历史回答投票转换为固定伪标签，只保留信息量适中的题，再为新回答构造训练奖励。",
+            "en": "Turn historical answer votes into frozen pseudo-labels, retain an informative consistency band, and reward fresh answers against those labels."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "实现时最容易混淆的归一化、分组或梯度约定是什么？",
+            "en": "Which normalization, grouping or gradient convention is easiest to confuse?"
+          },
+          "hint": {
+            "zh": "对每道题沿回答轴计数。投票 [1,1,0,0] 平票时按本题约定取 0，一致率 0.5。用旧标签 1 评价新回答 [2,2,1] 时奖励为 [0,0,1]。",
+            "en": "Count along each question’s rollout axis. Votes [1,1,0,0] tie, so this exercise chooses 0 with consistency 0.5. Against frozen label 1, fresh answers [2,2,1] earn [0,0,1]."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样构造一个可手算的小例子检查这个机制？",
+            "en": "How would you construct a hand-computable check for this mechanism?"
+          },
+          "hint": {
+            "zh": "平票取最小 ID 是确定性教学约定。边界包含 0.25 和 0.75。新回答不能重新投票替换旧标签，否则训练目标会随当前回答漂移。答案等价判断由上游提供。",
+            "en": "Smallest-ID tie breaking is a deterministic teaching convention. Include both 0.25 and 0.75. Do not refresh the label from fresh answers: that changes the training target. Answer equivalence is provided upstream."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "怎样发现一个一致率很高但答案错误的伪标签？",
+            "en": "How could you detect a highly consistent but incorrect pseudo-label?"
+          },
+          "hint": {
+            "zh": "平票取最小 ID 是确定性教学约定。边界包含 0.25 和 0.75。新回答不能重新投票替换旧标签，否则训练目标会随当前回答漂移。答案等价判断由上游提供。",
+            "en": "Smallest-ID tie breaking is a deterministic teaching convention. Include both 0.25 and 0.75. Do not refresh the label from fresh answers: that changes the training target. Answer equivalence is provided upstream."
+          }
+        },
+        {
+          "id": "full-loop-evaluation",
+          "question": {
+            "zh": "教学策略的目标概率提高，能否说明完整模型在新任务上变强？",
+            "en": "Does improved target probability in the toy policy establish better full-model generalization?"
+          },
+          "hint": {
+            "zh": "区分固定观测记录上的局部更新和生成新数据的完整循环；需要独立测试集、真实标签检查与多轮实验。",
+            "en": "Distinguish a local update on fixed observations from the full loop that generates fresh data. Use held-out evaluation, independent label checks and multiple training rounds."
+          }
+        }
+      ]
+    },
+    {
+      "id": "self_evolving/gzero_hint",
+      "source": "problems/self_evolving/gzero_hint/README.md",
+      "functions": [
+        "hint_delta",
+        "proposer_rewards"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "这一步在论文的自演化循环中承担什么作用？",
+            "en": "What role does this step play in the paper’s co-evolution loop?"
+          },
+          "hint": {
+            "zh": "对同一段无提示回答，比较原问题与问题加提示两种上下文下的 token 概率；再加入提示长度和题目重复惩罚。",
+            "en": "Score the same unassisted answer under the original and hint-augmented contexts, then combine its token probability shift with hint-length and repetition penalties."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "实现时最容易混淆的归一化、分组或梯度约定是什么？",
+            "en": "Which normalization, grouping or gradient convention is easiest to confuse?"
+          },
+          "hint": {
+            "zh": "两次评分必须对齐到同一回答 token；提示本身不进入平均值。有效 token 的概率差为 [2,1] 时 δ=1.5。空行返回 0。无效格式用 -1 代替 δ 与长度项，但仍减去聚类占比。",
+            "en": "Align both scoring passes to the same response tokens; the hint itself is excluded. Token shifts [2,1] yield delta=1.5. Empty rows return zero. Invalid format replaces delta and length terms with -1, while retaining the cluster penalty."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样构造一个可手算的小例子检查这个机制？",
+            "en": "How would you construct a hand-computable check for this mechanism?"
+          },
+          "hint": {
+            "zh": "δ 是提示造成的概率变化代理量，不是真实质量增益，也不是完整 KL 散度。不要比较两段不同回答的概率。长度是字符数；奖励不截断到非负。Hint-δ 可微，最终奖励固定。",
+            "en": "Delta is a probability-shift proxy, not measured quality gain or a full KL divergence. Do not compare different responses. Length is in characters. Keep negative rewards. Hint-delta is differentiable; final rewards are fixed."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "如果提示直接泄露答案，较大 δ 为什么可能误导训练？",
+            "en": "Why might a large delta caused by answer leakage mislead training?"
+          },
+          "hint": {
+            "zh": "δ 是提示造成的概率变化代理量，不是真实质量增益，也不是完整 KL 散度。不要比较两段不同回答的概率。长度是字符数；奖励不截断到非负。Hint-δ 可微，最终奖励固定。",
+            "en": "Delta is a probability-shift proxy, not measured quality gain or a full KL divergence. Do not compare different responses. Length is in characters. Keep negative rewards. Hint-delta is differentiable; final rewards are fixed."
+          }
+        },
+        {
+          "id": "full-loop-evaluation",
+          "question": {
+            "zh": "教学策略的目标概率提高，能否说明完整模型在新任务上变强？",
+            "en": "Does improved target probability in the toy policy establish better full-model generalization?"
+          },
+          "hint": {
+            "zh": "区分固定观测记录上的局部更新和生成新数据的完整循环；需要独立测试集、真实标签检查与多轮实验。",
+            "en": "Distinguish a local update on fixed observations from the full loop that generates fresh data. Use held-out evaluation, independent label checks and multiple training rounds."
+          }
+        }
+      ]
+    },
+    {
+      "id": "self_evolving/gzero_pairs",
+      "source": "problems/self_evolving/gzero_pairs/README.md",
+      "functions": [
+        "preference_mask",
+        "build_preferences"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "这一步在论文的自演化循环中承担什么作用？",
+            "en": "What role does this step play in the paper’s co-evolution loop?"
+          },
+          "hint": {
+            "zh": "从已经评分的候选池中构造问题级偏好对，让 Generator 在没有提示的输入上学习有提示回答。",
+            "en": "Curate question-only preference pairs so the generator learns hint-assisted responses without receiving the hint in its training prompt."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "实现时最容易混淆的归一化、分组或梯度约定是什么？",
+            "en": "Which normalization, grouping or gradient convention is easiest to confuse?"
+          },
+          "hint": {
+            "zh": "先在完整候选池上求线性插值中位数，再应用质量掩码，保持原始顺序。δ=[-3,-2,10,11] 且前两项质量失败时，结果为空；不能重算中位数把后两项补进来。",
+            "en": "Compute the linearly interpolated median over the full pool before applying quality checks, preserving input order. For deltas [-3,-2,10,11], if the first two fail quality, retain nothing; do not refill from the upper half."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样构造一个可手算的小例子检查这个机制？",
+            "en": "How would you construct a hand-computable check for this mechanism?"
+          },
+          "hint": {
+            "zh": "包含中位数平票，所以保留数可能多于一半。允许负 δ。不要把 hint 放进 prompt，不要交换 chosen/rejected。质量评分本身已由上游完成。",
+            "en": "Include median ties, so more than half may survive. Negative deltas are allowed. Do not leak hints into prompts or reverse chosen/rejected. Structural quality evaluation is supplied upstream."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "为什么出题阶段追求高 δ，而训练数据阶段保留较低 δ？",
+            "en": "Why does proposer training favor high delta while preference curation retains lower delta?"
+          },
+          "hint": {
+            "zh": "包含中位数平票，所以保留数可能多于一半。允许负 δ。不要把 hint 放进 prompt，不要交换 chosen/rejected。质量评分本身已由上游完成。",
+            "en": "Include median ties, so more than half may survive. Negative deltas are allowed. Do not leak hints into prompts or reverse chosen/rejected. Structural quality evaluation is supplied upstream."
+          }
+        },
+        {
+          "id": "full-loop-evaluation",
+          "question": {
+            "zh": "教学策略的目标概率提高，能否说明完整模型在新任务上变强？",
+            "en": "Does improved target probability in the toy policy establish better full-model generalization?"
+          },
+          "hint": {
+            "zh": "区分固定观测记录上的局部更新和生成新数据的完整循环；需要独立测试集、真实标签检查与多轮实验。",
+            "en": "Distinguish a local update on fixed observations from the full loop that generates fresh data. Use held-out evaluation, independent label checks and multiple training rounds."
+          }
+        }
+      ]
+    },
+    {
+      "id": "self_evolving/visplay_rewards",
+      "source": "problems/self_evolving/visplay_rewards/README.md",
+      "functions": [
+        "image_group_rewards"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "这一步在论文的自演化循环中承担什么作用？",
+            "en": "What role does this step play in the paper’s co-evolution loop?"
+          },
+          "hint": {
+            "zh": "对每张无标注图片分别生成一组问题，并在图片内部计算重复惩罚。不同图片可以使用相同的局部聚类 ID。",
+            "en": "Generate question groups for unlabeled images and penalize repetition within each image. Different images may reuse local cluster IDs."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "实现时最容易混淆的归一化、分组或梯度约定是什么？",
+            "en": "Which normalization, grouping or gradient convention is easiest to confuse?"
+          },
+          "hint": {
+            "zh": "先用 image_ids 构造组，再在组内比较 clusters。某张图有四题，其中两题重复且 p=0.5，奖励为 0.5。加入另一张图片的题不能改变已有组的奖励。",
+            "en": "Group by image IDs before comparing cluster IDs. Two duplicates among four questions for one image with p=0.5 earn 0.5. Adding questions for another image must not change that group’s rewards."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样构造一个可手算的小例子检查这个机制？",
+            "en": "How would you construct a hand-computable check for this mechanism?"
+          },
+          "hint": {
+            "zh": "分母是当前图片的题目数，不是全局批次大小。局部聚类 ID 跨图片重用不代表重复。VisPlay 仍需要外部无标注图片；这里只实现观测反馈的奖励聚合。",
+            "en": "The denominator is the image-local question count, not the global batch. Reused cluster IDs across images do not imply duplication. VisPlay still requires unlabeled images; this exercise implements reward aggregation over observed feedback."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "为什么跨图片做全局去重会错误地惩罚合法问题？",
+            "en": "Why can global deduplication incorrectly penalize valid image-specific questions?"
+          },
+          "hint": {
+            "zh": "分母是当前图片的题目数，不是全局批次大小。局部聚类 ID 跨图片重用不代表重复。VisPlay 仍需要外部无标注图片；这里只实现观测反馈的奖励聚合。",
+            "en": "The denominator is the image-local question count, not the global batch. Reused cluster IDs across images do not imply duplication. VisPlay still requires unlabeled images; this exercise implements reward aggregation over observed feedback."
+          }
+        },
+        {
+          "id": "full-loop-evaluation",
+          "question": {
+            "zh": "教学策略的目标概率提高，能否说明完整模型在新任务上变强？",
+            "en": "Does improved target probability in the toy policy establish better full-model generalization?"
+          },
+          "hint": {
+            "zh": "区分固定观测记录上的局部更新和生成新数据的完整循环；需要独立测试集、真实标签检查与多轮实验。",
+            "en": "Distinguish a local update on fixed observations from the full loop that generates fresh data. Use held-out evaluation, independent label checks and multiple training rounds."
+          }
+        }
+      ]
+    },
+    {
+      "id": "self_evolving/mmzero_proposer",
+      "source": "problems/self_evolving/mmzero_proposer/README.md",
+      "functions": [
+        "diversity_adjustment",
+        "proposal_rewards"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "这一步在论文的自演化循环中承担什么作用？",
+            "en": "What role does this step play in the paper’s co-evolution loop?"
+          },
+          "hint": {
+            "zh": "为图像生成课程计算 Proposer 奖励：图片必须渲染成功，简单题提供可解性信号，困难题提供一致率信号，多样性调整防止单一模板占满训练池。",
+            "en": "Compute proposer feedback for a generated visual curriculum: rendering gates the score, easy questions provide solvability feedback, hard questions provide consistency, and diversity adjusts the task mixture."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "实现时最容易混淆的归一化、分组或梯度约定是什么？",
+            "en": "Which normalization, grouping or gradient convention is easiest to confuse?"
+          },
+          "hint": {
+            "zh": "对全部渲染尝试取平均，失败样本贡献零并保留在分母。两次尝试只有一次成功，成功项 easy=1、c=0.5，则基础奖励为 0.5。格式失败覆盖全部项，最终返回 -1。",
+            "en": "Average over every render attempt: failures contribute zero and remain in the denominator. With one success in two attempts, easy=1 and c=0.5 yield base reward 0.5. Invalid proposal format overrides everything with -1."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样构造一个可手算的小例子检查这个机制？",
+            "en": "How would you construct a hand-computable check for this mechanism?"
+          },
+          "hint": {
+            "zh": "简单题得分上限为 0.5；困难度项也至多 0.5。聚类多样性按 caption/easy/hard 权重 0.45/0.20/0.35 计算。M 是上游有效提案数，不一定等于当前张量行数。其余两项调整由调用者提供。",
+            "en": "Easy-question contribution caps at 0.5, as does difficulty. Diversity uses caption/easy/hard weights 0.45/0.20/0.35. M is the supplied valid proposal population, not necessarily this tensor’s row count. The other two adjustments are supplied."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "为什么只在成功渲染的样本上取平均会掩盖 Coder 的失败？",
+            "en": "Why would averaging only successful renders conceal coder failures?"
+          },
+          "hint": {
+            "zh": "简单题得分上限为 0.5；困难度项也至多 0.5。聚类多样性按 caption/easy/hard 权重 0.45/0.20/0.35 计算。M 是上游有效提案数，不一定等于当前张量行数。其余两项调整由调用者提供。",
+            "en": "Easy-question contribution caps at 0.5, as does difficulty. Diversity uses caption/easy/hard weights 0.45/0.20/0.35. M is the supplied valid proposal population, not necessarily this tensor’s row count. The other two adjustments are supplied."
+          }
+        },
+        {
+          "id": "full-loop-evaluation",
+          "question": {
+            "zh": "教学策略的目标概率提高，能否说明完整模型在新任务上变强？",
+            "en": "Does improved target probability in the toy policy establish better full-model generalization?"
+          },
+          "hint": {
+            "zh": "区分固定观测记录上的局部更新和生成新数据的完整循环；需要独立测试集、真实标签检查与多轮实验。",
+            "en": "Distinguish a local update on fixed observations from the full loop that generates fresh data. Use held-out evaluation, independent label checks and multiple training rounds."
+          }
+        }
+      ]
+    },
+    {
+      "id": "self_evolving/mmzero_feedback",
+      "source": "problems/self_evolving/mmzero_feedback/README.md",
+      "functions": [
+        "coder_rewards",
+        "solver_rewards"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "这一步在论文的自演化循环中承担什么作用？",
+            "en": "What role does this step play in the paper’s co-evolution loop?"
+          },
+          "hint": {
+            "zh": "分别计算 Coder 的执行与视觉反馈，以及 Solver 对银标签的一致性奖励。两个角色的奖励有不同的分量和端点。",
+            "en": "Compute coder execution/visual feedback and solver agreement with silver labels. These roles have different reward components and boundaries."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "实现时最容易混淆的归一化、分组或梯度约定是什么？",
+            "en": "Which normalization, grouping or gradient convention is easiest to confuse?"
+          },
+          "hint": {
+            "zh": "Coder 成功且 easy=0.8、c=0.5 时得 2.3；渲染与语法均失败得 -0.15。Solver 采用 α=0.9：答案同意但格式不合格仍得 0.9；不同意但格式合格得 0.1。",
+            "en": "Successful coder output with easy=0.8 and c=0.5 earns 2.3; both render and syntax failure earn -0.15. For solver alpha=0.9, agreement with invalid format earns 0.9; disagreement with valid format earns 0.1."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样构造一个可手算的小例子检查这个机制？",
+            "en": "How would you construct a hand-computable check for this mechanism?"
+          },
+          "hint": {
+            "zh": "Coder 不使用 Proposer 的 easy 上限。失败渲染没有视觉分数，两类错误可叠加。论文 Eq.11 附近的 difficulty 二值范围注释与 Eq.7 不一致；本题采用 Eq.7 的连续 min(c,1-c)。Solver 格式项是加法而非门控。",
+            "en": "The coder does not inherit the proposer’s easy-score cap. Failed renders have no visual scores; error penalties can add. The binary difficulty range annotation near Eq.11 conflicts with Eq.7; this exercise uses the continuous min(c,1-c) from Eq.7. Solver format is additive, not a gate."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "三个角色共用一套奖励时，哪种奖励投机会首先出现？",
+            "en": "What reward exploitation might appear if all three roles shared one reward?"
+          },
+          "hint": {
+            "zh": "Coder 不使用 Proposer 的 easy 上限。失败渲染没有视觉分数，两类错误可叠加。论文 Eq.11 附近的 difficulty 二值范围注释与 Eq.7 不一致；本题采用 Eq.7 的连续 min(c,1-c)。Solver 格式项是加法而非门控。",
+            "en": "The coder does not inherit the proposer’s easy-score cap. Failed renders have no visual scores; error penalties can add. The binary difficulty range annotation near Eq.11 conflicts with Eq.7; this exercise uses the continuous min(c,1-c) from Eq.7. Solver format is additive, not a gate."
+          }
+        },
+        {
+          "id": "full-loop-evaluation",
+          "question": {
+            "zh": "教学策略的目标概率提高，能否说明完整模型在新任务上变强？",
+            "en": "Does improved target probability in the toy policy establish better full-model generalization?"
+          },
+          "hint": {
+            "zh": "区分固定观测记录上的局部更新和生成新数据的完整循环；需要独立测试集、真实标签检查与多轮实验。",
+            "en": "Distinguish a local update on fixed observations from the full loop that generates fresh data. Use held-out evaluation, independent label checks and multiple training rounds."
+          }
+        }
+      ]
+    },
+    {
+      "id": "network_biology/degree_distribution",
+      "source": "problems/network_biology/degree_distribution/README.md",
+      "functions": [
+        "node_degrees",
+        "degree_distribution"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "节点的度与整个网络的度分布分别回答什么问题？孤立节点应该出现在哪里？",
+            "en": "What do node degree and the network degree distribution each describe, and where do isolated nodes appear?"
+          },
+          "hint": {
+            "zh": "度是不同邻居的数量；P(k) 是度恰好为 k 的节点数除以全部节点数。孤立节点的度为 0，分布必须保留从 0 到最大度的所有整数键。",
+            "en": "Degree counts distinct neighbors; P(k) is the fraction of all nodes whose degree equals k. Isolated nodes have degree zero, and the distribution includes every integer key from zero through the maximum degree."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "怎样构造邻居集合，才能同时正确处理反向重复边、自环和未知节点？",
+            "en": "How would you build neighbor sets while handling reversed duplicates, self-loops and unknown nodes correctly?"
+          },
+          "hint": {
+            "zh": "先为每个合法节点建立空集合并检查重名；逐边验证两个端点后再忽略自环，无向边要写入两个邻居集合。空图的两个函数都返回空字典。",
+            "en": "Initialize an empty set for every node and reject duplicate names. Validate both endpoints before ignoring a self-loop, and add each undirected edge in both directions. Both functions return an empty dictionary for an empty graph."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何用一条新增边和几个重复输入验证度数、分布的分母及归一化？",
+            "en": "How can one new edge and several duplicate inputs test degrees, the distribution denominator and normalization?"
+          },
+          "hint": {
+            "zh": "在两个不同且尚未相邻的节点间加边，两端度数各增加 1，总度增加 2。重复边、反向边和合法自环不改变结果；非空图的 P(k) 总和应为 1。",
+            "en": "Adding an edge between distinct non-neighbors increases each endpoint degree by one and the total degree by two. Duplicates, reversed edges and valid self-loops do not change the result. P(k) sums to one for a nonempty graph."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "graph-model-choice",
+          "question": {
+            "zh": "如果原始记录包含蛋白自相互作用或重复实验，本题为什么仍不把它们累加到节点度？",
+            "en": "Why does this exercise not add self-interactions or repeated experimental records to node degree?"
+          },
+          "hint": {
+            "zh": "接口定义的是简单无向图：重复记录合并为同一邻居，自环被忽略。若要研究相互作用次数或权重，需要先改变图模型及函数约定，不能直接把记录条数当成邻居数。",
+            "en": "The interface defines a simple undirected graph: repeated records identify the same neighbor, and self-loops are ignored. Studying interaction counts or weights requires a different graph model and contract; record count is not distinct-neighbor count."
+          }
+        },
+        {
+          "id": "degree-tail-evidence",
+          "question": {
+            "zh": "实验中出现少数高连接节点，是否足以把这个网络称为无标度网络？",
+            "en": "Does seeing a few highly connected nodes in the experiment establish that the network is scale-free?"
+          },
+          "hint": {
+            "zh": "度分布直方图描述当前合成图。判断幂律需要拟合、比较其他分布并考虑样本和测量偏差；本题只计算 P(k)，没有完成这些统计步骤。",
+            "en": "The histogram describes the current synthetic graph. Establishing a power law requires fitting, comparison with alternative distributions and attention to sampling and measurement bias. This exercise computes P(k) without performing those statistical steps."
+          }
+        }
+      ]
+    },
+    {
+      "id": "network_biology/hubs_centrality",
+      "source": "problems/network_biology/hubs_centrality/README.md",
+      "functions": [
+        "degree_centrality",
+        "betweenness_centrality",
+        "rank_hubs"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "为什么连接两个模块的节点可能度数很低，却有最高的介数中心性？",
+            "en": "Why can a connector between two modules have low degree but the highest betweenness centrality?"
+          },
+          "hint": {
+            "zh": "度中心性数直接邻居，分母为 N−1；介数统计其他节点对的最短路径经过该节点的份额。示例中的 X 只有两个邻居，却连接两个模块，介数为 16/28。",
+            "en": "Degree centrality counts direct neighbors and divides by N−1. Betweenness measures the share of shortest paths between other node pairs passing through the node. In the example, X has only two neighbors but connects the modules and has betweenness 16/28."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "计算介数时，怎样处理多条并列最短路径、路径端点和最终排名的浮点并列？",
+            "en": "How should betweenness handle tied shortest paths, path endpoints and floating-point ties in the final ranking?"
+          },
+          "hint": {
+            "zh": "每个无序节点对贡献 sigma_st(v)/sigma_st，只计内部节点；归一化使用全部 N 个节点，N<3 时全为零。排名先把分数舍入到 12 位小数，再按分数降序、名称升序排序。",
+            "en": "Each unordered pair contributes sigma_st(v)/sigma_st for interior nodes only. Normalize using the full node count N; all betweenness scores are zero when N<3. Rank by scores rounded to 12 decimals in descending order, then by ascending node name."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样用菱形图和很小的图，发现把路径份额当成 1 或归一化少一倍的错误？",
+            "en": "How can a diamond graph and very small graphs expose counting a path share as one or missing a normalization factor?"
+          },
+          "hint": {
+            "zh": "菱形图中，两个中间节点各分到同一端点对的 1/2 贡献，端点不获此贡献。另查空图、单点、两点、断开分量，以及分数只差 10^-13 时的名称并列规则。",
+            "en": "In a diamond, each of the two intermediate nodes receives one half of the contribution for the opposite endpoint pair; those endpoints receive none from that pair. Also check empty, one-node, two-node and disconnected graphs, plus name ties when scores differ by only 10^-13."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "disconnected-normalization",
+          "question": {
+            "zh": "向图中加入一个完全孤立的节点，已有节点的归一化中心性是否一定不变？",
+            "en": "Does adding a completely isolated node necessarily leave existing normalized centralities unchanged?"
+          },
+          "hint": {
+            "zh": "原有邻居与连通节点对之间的路径都没有改变，但本题两个归一化分母都依赖全图 N。区分未归一化的计数与最终分数，不要擅自改成各连通分量内部归一化。",
+            "en": "Existing neighbors and paths between connected pairs are unchanged, but both normalization denominators depend on the full graph size N. Separate raw counts from normalized scores, and do not silently normalize within each component."
+          }
+        },
+        {
+          "id": "shortcut-interpretation",
+          "question": {
+            "zh": "给两个模块增加一条绕过 X 的捷径后，X 的度中心性和介数分别可能怎样变化？",
+            "en": "After adding a shortcut between the two modules that bypasses X, how can its degree and betweenness change?"
+          },
+          "hint": {
+            "zh": "若捷径不与 X 相连，X 的邻居数不变；部分最短路径会绕开它，使示例中的介数降低。分数变化描述网络结构，判断蛋白是否必需或具有因果作用仍需要独立实验。",
+            "en": "If the shortcut does not touch X, its neighbor count stays fixed. Some shortest paths bypass it, lowering its betweenness in the example. These scores describe graph structure; protein essentiality or causal importance requires independent experiments."
+          }
+        }
+      ]
+    },
+    {
+      "id": "network_biology/connected_components",
+      "source": "problems/network_biology/connected_components/README.md",
+      "functions": [
+        "connected_components",
+        "largest_component",
+        "largest_component_fraction"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "连通分量的“极大”是什么意思？最大分量占比的分母应包括哪些节点？",
+            "en": "What does maximal mean for a connected component, and which nodes belong in the denominator of the largest-component fraction?"
+          },
+          "hint": {
+            "zh": "从分量中任一点出发，能到达的节点都必须在该分量中；各分量不重叠并覆盖全部节点。孤立节点也是单点分量，最大分量占比的分母是全部节点数。",
+            "en": "A component includes every node reachable from any of its members. Components are disjoint and cover all nodes. An isolated node is a singleton component, and the largest-component fraction divides by the total node count."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "遍历结束后，怎样同时保证分量成员、分量之间的顺序和最大分量选择是确定的？",
+            "en": "After traversal, how do you make member order, component order and the choice of largest component deterministic?"
+          },
+          "hint": {
+            "zh": "为每个尚未访问的节点启动 BFS 或 DFS，保留孤立节点。每个分量内按名称排序，再按大小降序、最小成员升序排列；空图返回空分量列表，最大分量为空列表、占比为 0。",
+            "en": "Start BFS or DFS from each unvisited node, retaining isolated nodes. Sort members by name, then components by descending size and ascending smallest member. For an empty graph, return no components, an empty largest component and fraction zero."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "除了和示例结果一致，还能用哪些结构性质及一次删边验证连通分量？",
+            "en": "Beyond matching the example, which structural properties and one edge deletion can validate connected components?"
+          },
+          "hint": {
+            "zh": "每个节点应恰好出现一次，任何边的两个端点应落在同一分量。删除连接两个模块的唯一桥边应把一个分量拆成两个；删掉三角形中的一条边则不一定拆开。",
+            "en": "Each node must appear exactly once, and both endpoints of every edge must belong to the same component. Removing the only bridge between two modules splits one component into two; removing one edge of a triangle need not disconnect it."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "equal-size-components",
+          "question": {
+            "zh": "若有两个同样大的最大分量，改变输入节点顺序会不会改变 largest_component 的结果？",
+            "en": "If two components tie for largest size, should reordering the input nodes change largest_component?"
+          },
+          "hint": {
+            "zh": "结果由最小成员的字符串顺序决定，而不是遍历发现顺序。构造两个等大的分量，分别打乱 nodes 和 edges，检查成员排序、分量排序和最大分量占比。",
+            "en": "The smallest member name determines the tie, independently of discovery order. Build equal-size components and permute nodes and edges separately, checking member order, component order and the largest-component fraction."
+          }
+        },
+        {
+          "id": "missing-interactions",
+          "question": {
+            "zh": "两个蛋白处在不同连通分量，能据此断言它们在细胞中彼此独立吗？",
+            "en": "Can proteins in different connected components be assumed biologically independent?"
+          },
+          "hint": {
+            "zh": "这里只能说明当前图中没有记录到连接路径。未测得的互作、条件特异的联系或图外机制都可能连接它们；解释分量时需要同时考虑数据来源和覆盖范围。",
+            "en": "The result says there is no recorded path in this graph. Unmeasured interactions, condition-specific links or mechanisms outside the graph may connect them. Interpret components together with the source and coverage of the interaction data."
+          }
+        }
+      ]
+    },
+    {
+      "id": "network_biology/shortest_paths",
+      "source": "problems/network_biology/shortest_paths/README.md",
+      "functions": [
+        "distances_from",
+        "shortest_path_length",
+        "shortest_path"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "本题的路径长度数的是边还是节点？不可达目标与起点本身在三个接口中如何表示？",
+            "en": "Does path length count edges or nodes, and how do the three interfaces represent unreachable targets and the source itself?"
+          },
+          "hint": {
+            "zh": "每条边长 1，所以 BFS 按距离逐层访问。单源字典包含 source:0 并省略不可达节点；两点接口对不可达目标返回 None，对相同起终点返回 0 和 [source]。",
+            "en": "Every edge has length one, so BFS visits nodes by distance. The single-source map includes source:0 and omits unreachable nodes. The pairwise interfaces return None for unreachable targets, and zero and [source] when source equals target."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "有多条等长最短路径时，怎样让父节点记录恢复出字典序最小的完整路径？",
+            "en": "When shortest paths tie in length, how can parent records reconstruct the lexicographically smallest complete path?"
+          },
+          "hint": {
+            "zh": "使用 FIFO 队列，邻居按字符串升序展开，并在首次发现时记录父节点。回溯得到的是终点到起点的链，返回前要反转；未知 source 或 target 要抛出 ValueError。",
+            "en": "Use a FIFO queue, expand neighbors in ascending string order and record the parent on first discovery. Backtracking produces a target-to-source chain, so reverse it before returning. Unknown source or target names raise ValueError."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样区分最短距离算对了与并列路径选择也算对了？",
+            "en": "How can you distinguish correct distances from correct tie-breaking between shortest paths?"
+          },
+          "hint": {
+            "zh": "构造两条等长路径，直接比较完整节点列表，再打乱边和节点输入。逐条检查返回路径上的边，确认长度等于节点数减一，并另测不可达、自路径和反向查询的距离。",
+            "en": "Create two equal-length paths and compare the full returned node list, then permute nodes and edges. Check every returned edge and that distance equals path-node count minus one. Test unreachable targets, self-paths and reverse-query distances separately."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "weighted-extension",
+          "question": {
+            "zh": "如果互作边带有置信度，能把本题的 BFS 结果直接解释为最可信的路径吗？",
+            "en": "If interactions have confidence scores, can the BFS result be interpreted directly as the most reliable path?"
+          },
+          "hint": {
+            "zh": "本题只最小化边数。必须先定义如何把置信度转成代价、怎样累加路径代价，再选择适合权重条件的算法；权重信息不属于当前接口。",
+            "en": "This exercise minimizes edge count only. First define how confidence becomes an edge cost and how costs combine along a path, then choose an algorithm suited to those weights. The current interface does not include weights."
+          }
+        },
+        {
+          "id": "proximity-evidence",
+          "question": {
+            "zh": "新增一条互作边缩短了两个蛋白的距离，这能支持什么结论，又还需要什么信息？",
+            "en": "If one added interaction shortens the distance between two proteins, what does that establish and what further information is needed?"
+          },
+          "hint": {
+            "zh": "它说明当前图的最短路径发生了变化，可作为邻近性假设的依据。功能或疾病关系还依赖互作质量、覆盖范围和其他证据；这里也没有实现论文中的疾病模块分离度量。",
+            "en": "It establishes a change in this graph’s shortest path and can motivate a proximity hypothesis. Functional or disease relationships also depend on interaction quality, coverage and other evidence. The exercise does not implement the paper’s disease-module separation measure."
+          }
+        }
+      ]
+    },
+    {
+      "id": "network_biology/feed_forward_loops",
+      "source": "problems/network_biology/feed_forward_loops/README.md",
+      "functions": [
+        "find_feed_forward_loops"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "前馈环的三个节点分别扮演什么角色？为什么一个有向三角形不一定是前馈环？",
+            "en": "What roles do the three nodes of a feed-forward loop play, and why is a directed triangle not always a feed-forward loop?"
+          },
+          "hint": {
+            "zh": "三元组 (x,y,z) 要满足 x→y、y→z、x→z，三个节点互异。方向决定顶层调控者、中间节点和目标；x→y→z→x 的有向环缺少所需的直接前馈边。",
+            "en": "The ordered triple (x,y,z) requires x→y, y→z and x→z with distinct nodes. Directions assign regulator, intermediate and target roles. A directed cycle x→y→z→x lacks the required direct feed-forward edge."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "怎样区分 induced=True 与 False，并避免把不同的合法角色分配合并成同一个结果？",
+            "en": "How do induced=True and False differ, and how do you avoid collapsing distinct valid role assignments into one result?"
+          },
+          "hint": {
+            "zh": "从有向邻居集合找共同目标，返回有序角色三元组并按字符串排序。诱导模式还要排除 y→x、z→x、z→y；非诱导模式允许额外边，同一节点集合可能产生多个三元组。",
+            "en": "Find common targets using directed neighbor sets, retain ordered role triples and sort them as string tuples. Induced matching also excludes y→x, z→x and z→y. Non-induced matching allows extra edges, so a node set can yield multiple triples."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何用链、有向环以及新增反向边，分别检查漏边、方向和诱导匹配错误？",
+            "en": "How can a chain, a directed cycle and an added reverse edge expose missing-edge, direction and induced-matching errors?"
+          },
+          "hint": {
+            "zh": "链与有向三环都应返回空列表。完整前馈环加入 z→y 后，非诱导模式出现两个角色分配，诱导模式不再匹配；再查重复边、自环和输入顺序不影响结果。",
+            "en": "A chain and a directed three-cycle both return no triples. Adding z→y to a full feed-forward loop creates two role assignments in non-induced mode and rejects the triple set in induced mode. Also check duplicates, self-loops and input-order independence."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "degree-preserving-control",
+          "question": {
+            "zh": "随机化实验为什么交换两条边的目标，而不是任意重新连边？哪些量应该保持不变？",
+            "en": "Why does the randomization swap the targets of two edges rather than reconnect edges arbitrarily, and what should remain fixed?"
+          },
+          "hint": {
+            "zh": "把 a→b、c→d 换成 a→d、c→b，会保持每个节点的出度和入度；产生自环或重复边的交换要拒绝。这样比较的是相同度约束下的前馈环计数。",
+            "en": "Replacing a→b and c→d with a→d and c→b preserves every node’s out-degree and in-degree. Reject swaps that create self-loops or duplicate edges. The comparison then measures feed-forward-loop counts under the same degree constraints."
+          }
+        },
+        {
+          "id": "motif-versus-count",
+          "question": {
+            "zh": "找到前馈环，或看到计数超过随机化均值，就已经证明它是有功能的网络模体吗？",
+            "en": "Does finding a feed-forward loop, or a count above the randomized mean, prove a functional network motif?"
+          },
+          "hint": {
+            "zh": "检测器返回结构匹配；显著富集需要合适的随机对照与统计分析，而功能还需要调控符号、动态或实验。这里的合成网络与 200 次随机化只提供计数比较。",
+            "en": "The detector returns structural matches. Significant enrichment requires suitable randomized controls and statistical analysis; function additionally needs regulatory signs, dynamics or experiments. The synthetic network and 200 randomizations here provide a count comparison."
+          }
+        }
+      ]
+    },
+    {
+      "id": "network_biology/community_modules",
+      "source": "problems/network_biology/community_modules/README.md",
+      "functions": [
+        "modularity",
+        "greedy_modularity_communities"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "模块度中的内部边数和度和分别如何计数？resolution 在公式中调节哪一项？",
+            "en": "How are internal edges and degree sums counted in modularity, and which term does resolution change?"
+          },
+          "hint": {
+            "zh": "L_c 把社区内每条无向边计一次，D_c 是成员在全图中的度之和。Q 对各社区累加 L_c/m−resolution×(D_c/2m)^2；分辨率乘在期望连接项上，m=0 时返回 0。",
+            "en": "L_c counts each internal undirected edge once; D_c sums members’ degrees in the full graph. Sum L_c/m−resolution×(D_c/2m)^2 over communities. Resolution scales the expected-connectivity term, and Q is zero when m=0."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "每轮合并怎样处理候选社区对、12 位舍入、并列和零增益停止？",
+            "en": "How should each merge handle candidate pairs, 12-decimal rounding, ties and stopping at zero gain?"
+          },
+          "hint": {
+            "zh": "只考虑有边相连的社区对。先将增益舍入到 12 位，再取最大者，并列时比较双方最小成员组成的升序名称对；最佳舍入增益不为正就停止，孤立节点保持单独社区。",
+            "en": "Consider only edge-connected community pairs. Round gains to 12 decimals before maximizing; break ties by the ascending pair of their smallest member names. Stop when the best rounded gain is not positive, leaving isolated nodes as singleton communities."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样同时验证模块度公式、划分合法性和贪心算法的分辨率行为？",
+            "en": "How can you check the modularity formula, partition validity and the greedy algorithm’s resolution behavior together?"
+          },
+          "hint": {
+            "zh": "两组三角形用一条桥边相连时，分别成社区的 Q 为 5/14（resolution=1）。再测重复成员、漏节点、空社区，及无边图；对两组四点团改变分辨率，观察合并、分开和单点结果。",
+            "en": "Two triangles joined by one bridge have Q=5/14 when kept separate at resolution=1. Test duplicate members, omitted nodes, empty communities and edgeless graphs. Vary resolution on two four-node cliques to observe merged, separate and singleton outcomes."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "greedy-optimum",
+          "question": {
+            "zh": "每次都选最大正增益，是否保证最终划分达到所有可能划分中的最高模块度？",
+            "en": "Does choosing the largest positive gain at every step guarantee the best modularity over all possible partitions?"
+          },
+          "hint": {
+            "zh": "贪心过程只比较当前可合并的社区对，不能撤销早先合并。小图可以枚举所有划分作对照；某个教学图上达到最优，不构成对任意图的全局最优保证。",
+            "en": "The greedy procedure compares currently available merges and cannot undo an earlier merge. Enumerate all partitions for a small-graph comparison. Reaching the optimum on one teaching graph does not establish a global guarantee for arbitrary graphs."
+          }
+        },
+        {
+          "id": "resolution-and-biology",
+          "question": {
+            "zh": "改变 resolution 后社区数变了，怎样判断这是算法行为还是生物功能发生变化？",
+            "en": "If changing resolution changes the number of communities, how do you separate algorithm behavior from a change in biological function?"
+          },
+          "hint": {
+            "zh": "数据和边没有变化，变化来自质量目标中期望连接项的权重及相应合并选择。所得社区是候选结构模块；把它们解释成通路或复合物，需要注释、复现与实验依据。",
+            "en": "The nodes and edges are unchanged; the expected-connectivity weight and resulting merge choices changed. The output consists of candidate structural modules. Interpreting them as pathways or complexes requires annotation, replication and experimental evidence."
           }
         }
       ]

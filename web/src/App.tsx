@@ -51,7 +51,6 @@ import { useQueuedJudge } from "./useQueuedJudge";
 import { jobErrorText } from "./judgeJobMessages";
 import { reloadApp } from './appRecovery';
 import { useBrowserJudge } from "./useBrowserJudge";
-import { browserReason } from "./browserMessages";
 import { browserBudget } from './browserBudgets';
 import { topicIdFromRoute, topicFromProblem } from "./communityTopics";
 import { accountReturnHref, isAccountRoute, signInHref } from "./accountNavigation";
@@ -69,13 +68,15 @@ import { readPaperRegistryRoute,discussionPracticeReturn,readFavoriteRoute,libra
 import "./community.css";
 
 const BrowserLearningNotice=deferredFeature<Parameters<typeof import('./BrowserLearningNotice').BrowserLearningNotice>[0]>(()=>import('./BrowserLearningNotice').then(module=>({default:module.BrowserLearningNotice})),['学习进度提示','learning progress notice'],{loading:()=>null,failure:(_props,retry)=><span className="browser-learning-notice-recovery"><FeatureRetry retry={retry} label={['重试学习进度提示','Retry progress notice']}/></span>});
+function BrowserFailureFallback(){const {t}=useI18n();return <>{t("当前环境暂时无法运行测试","Tests cannot run in this environment")}</>;}
+const BrowserFailureMessage=deferredFeature<{reason:string}>(()=>import("./BrowserFailureMessage"),["运行错误","run error"],{loading:BrowserFailureFallback,failure:BrowserFailureFallback});
 const CatalogFeedback=deferredFeature(()=>import('./CatalogFeedback'),['题库','Catalog']);
 const ChallengePanels=deferredFeature(()=>import('./ChallengePanels'),['练习','practice']);
 const EditorTools=deferredFeature(()=>import('./EditorTools'),['',''],{loading:()=> <EditorToolsFallback/>,failure:(_props,retry)=><EditorToolsFallback retry={retry}/>});
 const BrowserRunProgressBody=deferredFeature<import('react').ComponentProps<typeof import('./BrowserRunProgress').BrowserRunProgressBody>>(()=>import('./BrowserRunProgress').then(module=>({default:module.BrowserRunProgressBody})),['运行进度','run progress'],{loading:()=>null,failure:(_props,retry)=><FeatureRetry retry={retry}/>});
 const CommunitySubmissions=deferredFeature(()=>import('./CommunitySubmissions'),['累计提交','total submissions'],{loading:()=>null,failure:()=>null});
 const CompanyBridge=deferredFeature(()=>import('./LibraryCompanyEvidence'),['公司练习','company practice'],{loading:()=>null});
-const GroupChat=deferredFeature(()=>import('./GroupChat'),['群聊','group chat'],{loading:()=>null,failure:()=>null});
+const GroupChat=deferredFeature(()=>import('./GroupChat'),['群聊','group chat'],{loading:()=><span className="group-chat-placeholder" aria-hidden="true"/>,failure:()=>null});
 // Native primary links render immediately; this optional enhancement only scrolls their row.
 const MainNavigationVisibility=deferredFeature(()=>import('./MainNavigationVisibility'),['',''],{loading:()=>null,failure:()=>null});
 const panelIconPlaceholder=({size=14}:import('./WorkspacePanelIcon').WorkspacePanelIconProps)=><svg width={size} height={size} aria-hidden="true" focusable="false"/>;
@@ -181,7 +182,6 @@ function Workspace() {
   function showTests() {
     selectReadingTab("result");
   }
-  function openEditor() { focusEditor(); }
   const [details, setDetails] = useState<Record<string, Problem>>({});
   const [detailError, setDetailError] = useState("");
   const [detailRetry, setDetailRetry] = useState(0);
@@ -298,14 +298,13 @@ function Workspace() {
   useEffect(() => {
     setEditorFocus(previous => previous && previous.owner === practice.owner && previous.problem === problem?.id && previous.source === currentSource ? previous : undefined);
   }, [practice.owner, problem?.id, currentSource]);
-  function focusEditor(location?:SourceLocation) {
+  function focusEditor(location?:SourceLocation|unknown) {
     if(getId()!==id||!navigationIntent.isCurrent()||!problem||!practice.owns(practice.owner)||![problem.id,String(problem.number)].includes(routePath(id)))return;
     setRightTab("code");setMobilePane("code");
     navigationIntent.cancel();
     if(accountLoading||!practice.ready)return;
-    setEditorFocus({owner:practice.owner,problem:problem.id,href:window.location.href,source:currentSource,location,claimFocus:navigationIntent.create()});
+    setEditorFocus({owner:practice.owner,problem:problem.id,href:window.location.href,source:currentSource,location:location&&typeof location==="object"&&"line" in location?location as SourceLocation:undefined,claimFocus:navigationIntent.create()});
   }
-  function locateSource(location: SourceLocation) { focusEditor(location); }
   function editorFocused(request: EditorFocusRequest,focused=false) {
     if(focused&&editorFocus===request&&editorFocus.href===location.href&&practice.owns(editorFocus.owner)&&window.matchMedia("(max-width: 850px)").matches)
       document.querySelector(".mobile-workspace-switch")?.scrollIntoView({block:"start"});
@@ -512,9 +511,13 @@ function Workspace() {
     ...(hostedAppAvailable?[["discussion",t("讨论","Discuss")]]:[]),
   ];
   const libraryActive=!problem&&path!=='daily-challenge'&&!submissionPage&&!communityPage&&!messagesPage&&!interviewPage&&!accountPage&&!settingsPage&&!achievementsPage&&!profileUsername;
+  const resultState = running ? "running" : hasCurrentSyntaxError ? "failed" : report && reportSource === "current" ? isPassed(problem!, report) ? "passed" : "failed" : reportSource === "changed" || syntaxFailure ? "stale" : undefined;
   const workspaceSaveState = practice.error || (problem && practice.conflicts[problem.id]) ? "warning"
     : practice.loading || !practice.ready ? "loading"
     : practice.saving || practice.pending ? "saving" : "saved";
+  const backText = company?t("公司练习","Company practice"):directLibrary?t("题目列表","Exercise list"):courseCollection ? t(courseCollection.name,courseCollection.name_en) : sourcePostReturn||registryReturn ? backLabel : favoriteReturn ? t('收藏题目','Saved problems') : interviewReturn ? t('面经','Interviews') : selectedPaper
+    ? `${selectedPaper.number}. ${selectedPaper.short_title}`
+    : t("论文题库", "Papers");
   return (
     <PracticeProgressProvider owner={practice.owner} problems={problems} saved={learningSaved} ready={progressReady} failed={!!practice.error||learning.failed} retry={()=>{practice.retry();learning.retry();}}>
     <div className={`app ${problem ? "workspace-view" : ""}`} data-mobile-pane={mobilePane} data-focus-mode={focusMode || undefined}>
@@ -554,7 +557,47 @@ function Workspace() {
             <AppLink className={interviewPage ? "active" : ""} aria-current={interviewPage ? "page" : undefined} href="#/interviews"><BilingualText zh="面经" en="Interviews" /></AppLink>
             <MainNavigationVisibility />
           </nav>
+          {problem&&!loadError&&<div className="workspace-toolbar">
+            <div className="workspace-toolbar-start">
+            <AppLink
+              className="back-link"
+              href={listPractice?libraryReturn:courseCollection ? libraryReturn : sourcePostReturn||favoriteReturn||interviewReturn||registryReturn ? libraryReturn : selectedPaper ? withLibraryContext(`papers/${selectedPaper.id}`,libraryReturn) : libraryReturn || '#'}
+              title={backText}
+            >
+              <ArrowLeft size={15} />
+              {backText}
+            </AppLink>
+            {readFavoriteRoute(libraryReturn||'')?.list?<StudyListPracticeNavigation key={`${practice.owner}:${problem.id}`} problemId={problem.id} returnTo={libraryReturn!} problems={problems}/>:<ModuleNavigator key={`${practice.owner}:${problem.id}`} course={inCourse&&!directLibrary} current={problem} modules={listPractice?practiceScope.problems:siblingModules} allModules={problems} saved={learningSaved} ready={progressReady} scopeReady={companyReady&&(!directLibrary||scopeView?.filters.state==='all'||progressReady)} returnTo={libraryReturn} />}
+            <span className="toolbar-divider" />
+            <b title={problem.title}>
+              {problem.number}. {problem.title}
+            </b>
+            <ProblemFavoriteButton key={'favorite:'+problem.id} problemId={problem.id} returnTo={id}/>
+            </div>
+            <div className="workspace-run-controls">
+              {(running || !practice.ready || practice.loading || (!online && !browserAvailable)) && <span className="workspace-run-state" role="status">
+                {running ? <><span className="spinner" />{judge.active ? runStatus : browser.active ? t("运行中…", "Running…") : t("正在准备…", "Preparing…")}</> : !practice.ready || practice.loading ? t("正在准备工作区…", "Preparing workspace…") : t("判题服务未连接", "Judge offline")}
+              </span>}
+              {browser.active && <button className="workspace-stop-button" type="button" onClick={browser.stop}><X size={14}/>{t("停止","Stop")}</button>}
+              <div className="editor-run-actions">
+                {(browserAvailable || (!hosted && !publicSite)) && <button
+                  className="button subtle run-button" aria-keyshortcuts="Meta+Enter Control+Enter"
+                  disabled={running || !practice.ready}
+                  onClick={() => void run(browserAvailable ? 'browser' : 'server')}
+                ><Play size={15} fill="currentColor" />{t("运行测试", "Run tests")}</button>}
+                {hostedAppAvailable && <button
+                  className="button run-button"
+                  disabled={running || !practice.ready || (!!user && (!queueReady || !online || !!practice.conflicts[problem.id]))}
+                  onClick={() => user ? void run('server') : signInToSubmit()}
+                >{user ? t("提交", "Submit") : t("登录后提交", "Sign in to submit")}</button>}
+              </div>
+            </div>
+          </div>}
           <div className="nav-actions">
+            {problem&&!loadError&&<WorkspaceLayoutMenu onLayout={(ratio) => {
+              setFocusMode(false);
+              setLayoutRequest({horizontal:{ratio}});
+            }} />}
             <RepositoryLink />
             <GroupChat route={id} />
             <OnlinePresence />
@@ -677,49 +720,9 @@ function Workspace() {
       ) : (
         <>
           {company&&<CompanyTools company={company} days={companyDays} returnTo={practiceReturn||'#'} {...companyScope}/>}
-          <div className="workspace-toolbar">
-            <AppLink
-              className="back-link"
-              href={listPractice?libraryReturn:courseCollection ? libraryReturn : sourcePostReturn||favoriteReturn||interviewReturn||registryReturn ? libraryReturn : selectedPaper ? withLibraryContext(`papers/${selectedPaper.id}`,libraryReturn) : libraryReturn || '#'}
-            >
-              <ArrowLeft size={15} />
-              {company?t("公司练习","Company practice"):directLibrary?t("题目列表","Exercise list"):courseCollection ? t(courseCollection.name,courseCollection.name_en) : sourcePostReturn||registryReturn ? backLabel : favoriteReturn ? t('收藏题目','Saved problems') : interviewReturn ? t('面经','Interviews') : selectedPaper
-                ? `${selectedPaper.number}. ${selectedPaper.short_title}`
-                : t("论文题库", "Papers")}
-            </AppLink>
-            <span className="toolbar-divider" />
-            <b title={locale === 'en' ? problem.translations?.en?.title || problem.title : problem.title}>
-              {problem.number}. {locale === 'en' ? problem.translations?.en?.title || problem.title : problem.title}
-            </b>
-            <ProblemFavoriteButton key={'favorite:'+problem.id} problemId={problem.id} returnTo={id}/>
-            <div className="workspace-run-controls">
-              {(running || !practice.ready || practice.loading || (!online && !browserAvailable)) && <span className="workspace-run-state" role="status">
-                {running ? <><span className="spinner" />{judge.active ? runStatus : browser.active ? t("运行中…", "Running…") : t("正在准备…", "Preparing…")}</> : !practice.ready || practice.loading ? t("正在准备工作区…", "Preparing workspace…") : t("判题服务未连接", "Judge offline")}
-              </span>}
-              {browser.active && <button className="workspace-stop-button" type="button" onClick={browser.stop}><X size={14}/>{t("停止","Stop")}</button>}
-              <div className="editor-run-actions">
-                {(browserAvailable || (!hosted && !publicSite)) && <button
-                  className="button subtle run-button" aria-keyshortcuts="Meta+Enter Control+Enter"
-                  disabled={running || !practice.ready}
-                  onClick={() => void run(browserAvailable ? 'browser' : 'server')}
-                ><Play size={15} fill="currentColor" />{t("运行测试", "Run tests")}</button>}
-                {hostedAppAvailable && <button
-                  className="button run-button"
-                  disabled={running || !practice.ready || (!!user && (!queueReady || !online || !!practice.conflicts[problem.id]))}
-                  onClick={() => user ? void run('server') : signInToSubmit()}
-                >{user ? t("提交", "Submit") : t("登录后提交", "Sign in to submit")}</button>}
-              </div>
-            </div>
-            <WorkspaceLayoutMenu onLayout={(ratio) => {
-              setFocusMode(false);
-              setLayoutRequest({horizontal:{ratio}});
-            }} />
-            <button className="workspace-focus-toggle" aria-pressed={focusMode} title={t("专注写代码，按 Esc 返回分栏", "Focus on code; press Esc to restore both panels")} onClick={() => { if (!focusMode) openEditor(); setFocusMode(value => !value); }}>{focusMode ? <WorkspacePanelIcon name="unfocus" size={14}/> : <WorkspacePanelIcon name="focus" size={14}/>}{focusMode ? t("退出专注", "Exit focus") : t("专注模式", "Focus mode")}</button>
-            {readFavoriteRoute(libraryReturn||'')?.list?<StudyListPracticeNavigation key={`${practice.owner}:${problem.id}`} problemId={problem.id} returnTo={libraryReturn!} problems={problems}/>:<ModuleNavigator key={`${practice.owner}:${problem.id}`} course={inCourse&&!directLibrary} current={problem} modules={listPractice?practiceScope.problems:siblingModules} allModules={problems} saved={learningSaved} ready={progressReady} scopeReady={companyReady&&(!directLibrary||scopeView?.filters.state==='all'||progressReady)} returnTo={libraryReturn} />}
-          </div>
           <div className="mobile-workspace-switch" role="group" aria-label={t("练习视图", "Practice view")}>
             <button aria-pressed={mobilePane === "read"} aria-controls="problem-description-panel" onClick={() => selectReadingTab(tab)}><BookOpen size={16}/>{t('题面','Problem')}</button>
-            <button aria-pressed={mobilePane === "code"} aria-controls="problem-editor-panel" onClick={openEditor}><Code2 size={16}/>{t('编写代码','Write code')}{(report||syntaxFailure)&&<span aria-hidden="true" className={`mobile-result-dot ${!hasCurrentSyntaxError&&reportSource==='current'&&isPassed(problem,report)?'passed':''}`}/>}</button>
+            <button aria-pressed={mobilePane === "code"} aria-controls="problem-editor-panel" onClick={focusEditor}><Code2 size={16}/>{t('编写代码','Write code')}{resultState&&<span aria-hidden="true" className="mobile-result-dot" data-state={resultState}/>}</button>
           </div>
           <ResizableSplit
             as="main"
@@ -740,32 +743,22 @@ function Workspace() {
               <div className="reading-tab-strip" ref={readingTabsContainer}>
                 <div className="reading-tab-scroll" ref={readingTabsViewport}>
                   <div className="pane-tabs" id="problem-reading-tabs" ref={readingTabsContent} role="tablist" aria-label={t('题目内容','Problem content')} onKeyDown={navigateTabs}>
-                    {tabs.map(([key, label]) => (
-                      <button
+                    {tabs.map(([key, label]) => {
+                      const icon = ({description:"file",result:"terminal",lab:"lab",discussion:"discussion",notes:notesUnlocked?"":"lock"} as Record<string,import('./WorkspacePanelIcon').WorkspacePanelIconProps['name']>)[key];
+                      return <button
                         key={key}
                         id={`reading-tab-${key}`}
                         role="tab"
                         tabIndex={tab === key ? 0 : -1}
-                        className={tab === key ? "selected" : ""}
                         aria-selected={tab === key}
                         aria-controls={key === "result" ? "problem-results-panel" : key === "solution" ? "problem-solutions-panel" : key === "discussion" ? "problem-discussion-panel" : "problem-reading-content"}
+                        data-state={key === "result" ? resultState : undefined}
                         onClick={() => key === "lab" ? openLab() : selectReadingTab(key)}
                       >
-                        {key === "description" ? (
-                          <WorkspacePanelIcon name="file" size={14} />
-                        ) : key === "result" ? (
-                          <WorkspacePanelIcon name="terminal" size={14}/>
-                        ) : key === "lab" ? (
-                          <WorkspacePanelIcon name="lab" size={14} />
-                        ) : key === "discussion" ? (
-                          <WorkspacePanelIcon name="discussion" size={14} />
-                        ) : key === "notes" &&
-                          !notesUnlocked ? (
-                          <WorkspacePanelIcon name="lock" size={12}/>
-                        ) : null}
+                        {icon && <WorkspacePanelIcon name={icon} size={14} />}
                         {label}
-                      </button>
-                    ))}
+                      </button>;
+                    })}
                   </div>
                 </div>
                 <ReadingTabControls container={readingTabsContainer} viewport={readingTabsViewport} content={readingTabsContent} controlsId="problem-reading-tabs" selectedKey={tab}/>
@@ -809,7 +802,7 @@ function Workspace() {
                   )
                 ) : (
                   <>
-                    <ProblemOverview problem={problem} prerequisite={problems.find(p=>p.id===problem.parent)} returnTo={libraryReturn} course={inCourse} notesUnlocked={notesUnlocked} stats={getProblemStats(problemStats,problem.id)} statsLoading={statsLoading} onCode={openEditor}/>
+                    <ProblemOverview problem={problem} prerequisite={problems.find(p=>p.id===problem.parent)} returnTo={libraryReturn} course={inCourse} notesUnlocked={notesUnlocked} stats={getProblemStats(problemStats,problem.id)} statsLoading={statsLoading} onCode={focusEditor}/>
                     {tab === "description" && <PreparationGuide key={problem.id} problemId={problem.id} onNotes={()=>selectReadingTab("notes")} notesUnlocked={notesUnlocked&&progressReady} onLab={()=>openLab("concept")}/>}
                     {tab === "explanation" && (
                       <Visuals key={problem.id} problem={problem} report={report} sourceState={reportSource} initialView="concept" />
@@ -848,10 +841,10 @@ function Workspace() {
                 )}
               </div>
               <RetainedReadingPane key={communityPaneScope+':solutions'} active={tab==="solution"} id="problem-solutions-panel" labelledBy="reading-tab-solution">
-                {accountLoading?<p role="status">{t('正在确认账号…','Checking account…')}</p>:<ProblemSolutionPanel topic={topicFromProblem(problem)} solution={problem.solution} communityAvailable={hostedAppAvailable} onCode={openEditor} practiceCode={{owner:practice.owner,problemId:problem.id,code:currentSource,ready:practice.ready&&!practice.loading&&!practice.error&&!practice.conflicts[problem.id]}}/>}
+                {accountLoading?<p role="status">{t('正在确认账号…','Checking account…')}</p>:<ProblemSolutionPanel topic={topicFromProblem(problem)} solution={problem.solution} communityAvailable={hostedAppAvailable} onCode={focusEditor} practiceCode={{owner:practice.owner,problemId:problem.id,code:currentSource,ready:practice.ready&&!practice.loading&&!practice.error&&!practice.conflicts[problem.id]}}/>}
               </RetainedReadingPane>
               {hostedAppAvailable&&<RetainedReadingPane key={communityPaneScope+':discussion'} active={tab==="discussion"} id="problem-discussion-panel" labelledBy="reading-tab-discussion">
-                {accountLoading?<p role="status">{t('正在确认账号…','Checking account…')}</p>:<ProblemDiscussions topic={topicFromProblem(problem)} onCode={openEditor}/>}
+                {accountLoading?<p role="status">{t('正在确认账号…','Checking account…')}</p>:<ProblemDiscussions topic={topicFromProblem(problem)} onCode={focusEditor}/>}
               </RetainedReadingPane>}
               <div className="description-scroll workspace-result-panel" id="problem-results-panel" role="tabpanel" aria-labelledby="reading-tab-result" tabIndex={0} hidden={tab !== "result"} key={`${practice.owner}:${problem.id}`}>
                 <div className="workspace-result-heading" role="status">
@@ -859,19 +852,14 @@ function Workspace() {
                   <span>{running ? t("运行中…", "Running…") : browserRunStopped ? t("已停止", "Stopped") : runCancelled ? t("已取消", "Cancelled") : runFailed ? t("运行未完成", "Run incomplete") : hasCurrentSyntaxError ? t("语法错误", "Syntax error") : reportSource === "changed" || syntaxFailure ? t("代码已修改", "Code changed") : report && reportSource !== "current" ? t("上次运行", "Previous run") : report ? `${report.tests.filter(test => test.passed).length} / ${report.tests.length}` : t("等待运行", "Ready to run")}</span>
                 </div>
                 <div id="problem-results-content">
-                  <ChallengePanels key={`custom:${practice.owner}:${problem.id}`} problem={problem} source={currentSource} ready={practice.ready&&!practice.loading} busy={running&&!customBusy} onBusyChange={setCustomBusy}/>
                   {currentRunNotice && <div className="practice-notice" role="alert">{currentRunNotice}</div>}
                   {preparingRun && !browser.active && !judge.active && <p className="practice-notice" role="status">{t("正在准备运行…", "Preparing your run…")}</p>}
-                  {problem.browser_judge && (browser.active || browser.reasons[problem.id] || browser.diagnostics[problem.id] || completedBrowserReport) && <div className="browser-judge-panel">
+                  {problem.browser_judge && (browser.active || browser.reasons[problem.id]) && <div className="browser-judge-panel">
                     {browser.active && (browserHere
                       ? <BrowserRunProgressFrame onStop={browser.stop}><BrowserRunProgressBody progress={browser.progress || { stage: browser.stage || 'loading' }}/></BrowserRunProgressFrame>
                       : <div role="status">{t("另一道题正在运行", "Another module is running")} <button onClick={browser.stop}>{t("停止运行", "Stop run")}</button></div>)}
                     {browser.active && browserHere && browserBudget(problem).total > 120_000 && <small>{t(`完整实验最多运行 ${browserBudget(problem).total / 60_000} 分钟；可随时停止。`, `The full experiment can take up to ${browserBudget(problem).total / 60_000} minutes. You can stop at any time.`)}</small>}
-                    {browser.reasons[problem.id] && <p role="status">{browserReason(browser.reasons[problem.id], locale === "en")} {t('可以修改后重试，或登录后提交到服务端。', 'Edit and retry, or sign in to submit on the server.')}</p>}
-                    {(completedBrowserReport || browser.diagnostics[problem.id]) && <JudgeRuntimeDetails server={false} browserResult={completedBrowserReport}
-                      calibration={report?.browser_run?.calibration ?? (report && report === browser.reports[problem.id] ? browser.calibrations[problem.id] : undefined)}
-                      diagnostics={browser.diagnostics[problem.id]}
-                      measurement={report?.browser_run?.measurements ?? (report && report === browser.reports[problem.id] ? browser.measurements[problem.id] : undefined)}/>}
+                    {browser.reasons[problem.id] && <p role="status"><BrowserFailureMessage reason={browser.reasons[problem.id]}/> {t('可以修改后重试，或登录后提交到服务端。', 'Edit and retry, or sign in to submit on the server.')}</p>}
                   </div>}
                   {judge.waiting && <QueueAdmissionNotice waiting={judge.waiting} changed={queuedHere && judge.waiting.source !== currentSource} href={!queuedHere && judge.pending ? withLibraryContext(judge.pending.problem,libraryReturn) : undefined} onStop={() => { judge.stopWaiting(); }} onDownload={() => download(`paperleet-submission.py`,judge.waiting!.source)} />}
                   {judge.active && !judge.waiting && <div className="practice-notice judge-queue-notice" role="status">
@@ -898,7 +886,7 @@ function Workspace() {
                   {!running && (runFailed || runCancelled) && <section className="report-workflow run-recovery" aria-label={t('继续验证', 'Continue verification')}>
                     <p>{t('重新运行会使用编辑器中的当前代码。', 'Retrying uses the current code in the editor.')}</p>
                     <div className="feedback-actions">
-                      <button className="button subtle" type="button" onClick={openEditor}><Code2 size={14} aria-hidden="true"/>{t('返回代码修改', 'Edit code')}</button>
+                      <button className="button subtle" type="button" onClick={focusEditor}><Code2 size={14} aria-hidden="true"/>{t('返回代码修改', 'Edit code')}</button>
                       <button className="button feedback-rerun" type="button" data-retry-run disabled={!canRetryRun} onClick={() => void run(retryMode)}><Play size={13} aria-hidden="true"/>{retryMode === 'browser' ? t('重新运行当前代码', 'Run current code again') : t('重新提交当前代码', 'Resubmit current code')}</button>
                     </div>
                   </section>}
@@ -976,10 +964,15 @@ function Workspace() {
                     </div>
                   )}
                   {!running&&!runFailed&&!runCancelled&&<WorkspaceTestResults key={`${practice.owner}:${problem.id}`} problem={problem} report={report} syntax={syntaxFailure} source={currentSource} sourceState={reportSource} canRun={canRun} running={running}
-                    onEdit={openEditor} onRun={()=>void run()} onLocate={practice.ready?locateSource:undefined}>
+                    onEdit={focusEditor} onRun={()=>void run()} onLocate={practice.ready?focusEditor:undefined}>
                     {hosted&&report?.runtime==='browser-numpy-wasm'&&<BrowserResultActions problem={problem} report={report} sourceState={reportSource} signedIn={!!user} online={online} ready={progressReady} conflict={!!practice.conflicts[problem.id]} syncError={!!practice.error} busy={running} onSignIn={signInToSubmit} onVerify={()=>void run('server',report)} onRefresh={()=>void refreshHealth()} onLab={()=>openLab('run')}/>}
-                    {reportSource==='current'&&progressReady&&isPassed(problem,report)&&<InterviewPracticeNextStep course={inCourse&&!directLibrary} current={problem} problems={listPractice?practiceScope.problems:problems} scopeReady={companyReady} saved={learningSaved} next={nextProblem} returnTo={libraryReturn} onNotes={()=>selectReadingTab('notes')} onLab={()=>openLab('run')} onSolution={hostedAppAvailable?()=>selectReadingTab('solution'):undefined}/>}
+                    {resultState==='passed'&&progressReady&&<InterviewPracticeNextStep course={inCourse&&!directLibrary} current={problem} problems={listPractice?practiceScope.problems:problems} scopeReady={companyReady} saved={learningSaved} next={nextProblem} returnTo={libraryReturn} onNotes={()=>selectReadingTab('notes')} onLab={()=>openLab('run')} onSolution={hostedAppAvailable?()=>selectReadingTab('solution'):undefined}/>}
                   </WorkspaceTestResults>}
+                  {(completedBrowserReport || browser.diagnostics[problem.id]) && <JudgeRuntimeDetails server={false} browserResult={completedBrowserReport}
+                    calibration={report?.browser_run?.calibration ?? (report && report === browser.reports[problem.id] ? browser.calibrations[problem.id] : undefined)}
+                    diagnostics={browser.diagnostics[problem.id]}
+                    measurement={report?.browser_run?.measurements ?? (report && report === browser.reports[problem.id] ? browser.measurements[problem.id] : undefined)}/>}
+                  <ChallengePanels key={`custom:${practice.owner}:${problem.id}`} problem={problem} source={currentSource} ready={practice.ready&&!practice.loading} busy={running&&!customBusy} onBusyChange={setCustomBusy}/>
                   </div>
                   </div>
             </section>
@@ -991,7 +984,6 @@ function Workspace() {
                   role="tab"
                   tabIndex={rightTab === 'code' ? 0 : -1}
                   aria-controls="editor-code-view"
-                  className={rightTab === "code" ? "selected" : ""}
                   aria-selected={rightTab === "code"}
                   onClick={() => setRightTab("code")}
                 >
@@ -1003,14 +995,13 @@ function Workspace() {
                   role="tab"
                   tabIndex={rightTab === 'lab' ? 0 : -1}
                   aria-controls="editor-lab-view"
-                  className={rightTab === "lab" ? "selected" : ""}
                   aria-selected={rightTab === "lab"}
                   onClick={() => setRightTab("lab")}
                 >
                   <WorkspacePanelIcon name="lab" size={14} />
                   {t("实验台", "Lab")}
                 </button>
-                {user && <button id="editor-tab-history" role="tab" aria-selected={rightTab==="history"} tabIndex={rightTab==="history"?0:-1} aria-controls="editor-history-view" className={rightTab === "history" ? "selected" : ""} onClick={() => setRightTab("history")}>
+                {user && <button id="editor-tab-history" role="tab" aria-selected={rightTab==="history"} tabIndex={rightTab==="history"?0:-1} aria-controls="editor-history-view" onClick={() => setRightTab("history")}>
                   {t("我的提交", "My submissions")}
                 </button>}
               </div>
@@ -1036,6 +1027,7 @@ function Workspace() {
                       </div>
                     </details>
                   </div>
+                  <button className="workspace-focus-toggle" aria-pressed={focusMode} title={t("专注写代码，按 Esc 返回分栏", "Focus on code; press Esc to restore both panels")} onClick={() => { if (!focusMode) focusEditor(); setFocusMode(value => !value); }}><WorkspacePanelIcon name={focusMode ? "unfocus" : "focus"} size={15}/>{focusMode ? t("退出专注", "Exit focus") : t("专注模式", "Focus mode")}</button>
               </div>
               <div className="editor-history" id="editor-history-view" role="tabpanel" aria-labelledby="editor-tab-history" hidden={rightTab!=='history' || !user}>
                 {rightTab === 'history' && user && <SolutionHistory key={`${practice.owner}:${problem.id}`} owner={practice.owner} problem={problem} revision={submissionRevision} />}
@@ -1085,9 +1077,7 @@ function Workspace() {
                             : t("初始代码 · 编辑后自动保存到本地", "Starter code · edits save locally")
                           : t("已同步到账号", "Synced to your account")}
                     </span>
-                    <span>
-                      UTF-8 <i>·</i> Python
-                    </span>
+                    <span className="editor-cursor"/>
                   </div>
                   </div>
 

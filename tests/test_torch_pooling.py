@@ -2,12 +2,12 @@
 import numpy as np
 import pytest
 import torch
-from stridetorch import torch as lite
+from torchwasm import torch as lite
 
 
 @pytest.fixture(params=['scan', 'window', 'block', 'auto'], autouse=True)
 def pooling_algorithm(request, monkeypatch):
-    from stridetorch import _pooling
+    from torchwasm import _pooling
     monkeypatch.setattr(_pooling, '_ALGORITHM', request.param)
 
 

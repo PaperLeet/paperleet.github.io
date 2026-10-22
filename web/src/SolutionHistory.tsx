@@ -7,6 +7,7 @@ import type { SolutionHistoryState, SolutionRun } from "./solutionHistoryData";
 import type { Problem } from "./types";
 import { usePracticeInvalidation } from './usePracticeInvalidation';
 import SubmittedSource from "./SubmittedSource";
+import { formatRuntime, runtimeMs, verdictKind } from "./feedbackVerdict";
 import "./solution-history.css";
 
 type Props = { owner: string; problem: Problem; revision: number };
@@ -68,12 +69,15 @@ export default function SolutionHistory({ owner, problem, revision }: Props) {
 }
 
 function HistoryEntry({run,scope}:{run:SolutionRun;scope:string}) {
-  const {t,locale}=useI18n(),[opened,setOpened]=useState(false);
+  const {t,locale}=useI18n(),[opened,setOpened]=useState(false),{report}=run,runtime=runtimeMs(report);
+  // LeetCode-style status: a crash reads as Runtime Error, a wrong value as Wrong Answer.
+  const status={accepted:t('通过','Accepted'),incomplete:t('判题未完成','Run incomplete'),'not-accepted':t('未通过','Not accepted'),runtime:t('执行出错','Runtime Error'),wrong:t('解答错误','Wrong Answer')}[verdictKind(run.accepted,report)];
   return <li><details onToggle={event=>{if(event.currentTarget.open)setOpened(true);}}>
     <summary>
-      <span className={`solution-history-result ${run.accepted?'accepted':'failed'}`}>{run.accepted?t('通过','Accepted'):t('未通过','Not accepted')}</span>
+      <span className={`solution-history-result ${run.accepted?'accepted':'failed'}`}>{status}</span>
       <time dateTime={run.created_at}>{new Date(run.created_at).toLocaleString(locale==='zh'?'zh-CN':'en-US')}</time>
-      <span className="solution-history-count">{t('测试','Tests')} {run.report.tests.filter(test=>test.passed).length}/{run.report.tests.length}</span>
+      <span className="solution-history-count">{t('测试','Tests')} {report.tests.filter(test=>test.passed).length}/{report.tests.length}</span>
+      {runtime!==undefined&&<span className="solution-history-runtime">{formatRuntime(runtime)}</span>}
     </summary>
     {opened&&<div className="solution-history-source">
       {run.report.error&&<p className="solution-history-run-error">{run.report.error}</p>}

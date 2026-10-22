@@ -8,7 +8,7 @@ import zipfile
 import numpy as np
 import pytest
 import torch as native
-from stridetorch import torch as lite, UnsupportedOperation
+from torchwasm import torch as lite, UnsupportedOperation
 
 DTYPES=['bool','int8','uint8','int16','uint16','int32','uint32','int64','uint64','float16','float32','float64','complex64','complex128']
 

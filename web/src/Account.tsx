@@ -37,6 +37,7 @@ import { decodeProblemHash } from "./reports";
 import { AvatarImageError } from "./profileAvatar";
 import AvatarCropper from "./AvatarCropper";
 import { readProfileEditPolicy } from "./profileEditPolicy";
+import "./lc-profile.css";
 
 export default function Account({ returnTo }: { returnTo?: string }) {
   const { user, loading, capabilities, error, refresh } = useAccount();
@@ -397,7 +398,7 @@ export function SignIn({ enabled, compact = false, workEmailRegistration = false
   }
   return (
     <div className={compact ? "email-login-compact" : "account-grid"}>
-      <section className={compact ? "login-card" : "social-panel login-card"}>
+      <section className={compact ? "email-login-form" : "social-panel login-card"}>
         {!loginSecurity && security.widget}
         {!compact && <><h1>{t("加入研究者社区", "Join the community")}</h1>
         <p className="social-description">

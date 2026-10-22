@@ -1,10 +1,10 @@
 # Hub Identification: Degree and Betweenness Centrality
 
-Builds on the graph conventions of *Biological Interaction Networks: Node Degree and Degree Distribution* (exercise 93); finishing it first is recommended but your code for it is not reused. Here you rank the nodes of a protein-protein interaction (PPI) network as **candidate hubs** in two different ways.
+Builds on the graph conventions of *Biological Interaction Networks: Node Degree and Degree Distribution* (`network_biology/degree_distribution`); finishing it first is recommended but your code for it is not reused. Here you rank the nodes of a protein-protein interaction (PPI) network as **candidate hubs** in two different ways.
 
 ## Task and conventions
 
-Same simple undirected graph as exercise 93: unique `str` node names, `(u, v)` pairs in any order, repeated and reversed pairs count once, self-loops are ignored, isolated nodes stay in the result, and a duplicate node name or an unknown edge endpoint raises `ValueError`.
+Same simple undirected graph as `network_biology/degree_distribution`: unique `str` node names, `(u, v)` pairs in any order, repeated and reversed pairs count once, self-loops are ignored, isolated nodes stay in the result, and a duplicate node name or an unknown edge endpoint raises `ValueError`.
 
 ```python
 degree_centrality(nodes, edges) -> dict[str, float]
@@ -56,4 +56,3 @@ T0 checks the return types. T1 checks the hand-counted two-module values and com
 ## References
 
 - Barabasi AL, Oltvai ZN. [Network biology: understanding the cell's functional organization](https://doi.org/10.1038/nrg1272). *Nature Reviews Genetics* 5(2), 101-113 (2004). Its Box 1 introduces basic network measures.
-- Literature dataset record: `docs/research/network_biology_literature.json`, id 1.

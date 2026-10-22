@@ -1,5 +1,5 @@
-﻿id: network_biology/connected_components
-number: 106
+id: network_biology/connected_components
+number: 116
 title: 连通分量与最大连通分量
 title_en: Connected Components and the Largest Connected Component
 paper_id: network-biology
@@ -11,10 +11,6 @@ paper:
   doi: 10.1038/nrg1272
   anchors:
   - 'Box 1 (Network measures): general context for describing the global structure of cellular networks; connected components are a teaching adaptation here'
-  literature_record:
-    dataset: docs/research/network_biology_literature.json
-    id: 1
-    category: Classic Foundations & Network Topology
 type: implement
 parent: null
 difficulty: E
@@ -40,7 +36,7 @@ conventions:
   seed: 42
   dtype: Python str node names, float fraction
   device: CPU; pure Python standard library, no network access or dataset download
-  contract: 'Simple undirected graph with the exercise 93 conventions: unique str nodes, self-loops and repeated edges ignored, ValueError for duplicate nodes or unknown endpoints. Each component is a list of node names sorted ascending; components are ordered by size descending, ties by smallest node name. Isolated nodes are size-one components; no nodes gives [] and fraction 0.0. largest_component is the first component; the fraction is its size divided by the number of nodes.'
+  contract: 'Simple undirected graph with the network_biology/degree_distribution conventions: unique str nodes, self-loops and repeated edges ignored, ValueError for duplicate nodes or unknown endpoints. Each component is a list of node names sorted ascending; components are ordered by size descending, ties by smallest node name. Isolated nodes are size-one components; no nodes gives [] and fraction 0.0. largest_component is the first component; the fraction is its size divided by the number of nodes.'
 estimated_minutes: 15
 tests:
   T0: 1

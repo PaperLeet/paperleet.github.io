@@ -90,7 +90,7 @@ def test_greedy_recovers_planted_modules(impl):
 
 @pytest.mark.t2
 def test_partition_and_graph_validation(impl):
-    """Communities must partition the nodes exactly; graphs are validated as in exercise 93."""
+    """Communities must partition the nodes exactly; graphs are validated as in network_biology/degree_distribution."""
     bad_partitions = [[A], [A, B[:2]], [A + ["A1"], B], [A, B, []], [A, B + ["Q"]], [A + B, ["A1"]]]
     for partition in bad_partitions:
         with pytest.raises(ValueError):

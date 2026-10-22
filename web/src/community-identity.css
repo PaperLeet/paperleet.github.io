@@ -1,6 +1,6 @@
-.community-author-identity { display:inline-flex; flex-wrap:wrap; align-items:center; gap:7px; min-width:0; }
-.community-author-identity .institution-badge { max-width:260px; font-size:var(--type-meta); line-height:1.6; }
-.community-author-identity .affiliation-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.community-author-identity { display:inline-flex; flex-wrap:wrap; align-items:center; gap:7px; min-width:0; max-width:100%; }
+.community-author-identity .institution-badge { min-width:0; max-width:min(260px,100%); font-size:var(--type-meta); line-height:1.6; }
+.community-author-identity .affiliation-name { white-space:normal; overflow-wrap:anywhere; }
 .anonymous-author { color:var(--text-secondary); }
 .anonymous-avatar { display:inline-flex; }
 .publishing-identity { padding:12px 14px; border:1px solid var(--line); border-radius:9px; background:var(--surface2); }

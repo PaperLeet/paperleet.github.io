@@ -7,26 +7,14 @@ import { WorkspaceBackupFailure } from './WorkspaceBackupFallback';
 import { ModuleNavigationFallback } from "./ModuleNavigationFallback";
 import { QueueAdmissionFallback } from './QueueAdmissionFallback';
 import { useI18n } from './i18n';
-import { Globe2 } from 'lucide-react';
-import NavMetric from './NavMetric';
 
 // Both custom renderers supply their own visible labels.
 const customRecoveryLabel:[string,string]=['',''];
 const quietEnhancement={loading:()=>null,failure:()=>null};
 
-function PresencePlaceholder({retry}: {retry?: () => void}) {
-  const {t} = useI18n();
-  if (retry) return <button className="nav-metric online-presence unavailable" type="button" onClick={retry}
-    aria-label={t('重试在线人数', 'Retry online count')} title={t('重试在线人数', 'Retry online count')}>
-    <Globe2 size={14} strokeWidth={1.8} aria-hidden="true" /><b className="nav-metric-value" aria-hidden="true">—</b>
-  </button>;
-  return <NavMetric className="online-presence unavailable" value="—" label={t('在线人数暂不可用', 'Online count unavailable')}
-    icon={<Globe2 size={14} strokeWidth={1.8} aria-hidden="true" />} />;
-}
-export const OnlinePresence = deferredFeature(() => import('./OnlinePresence'), customRecoveryLabel, {
-  loading: () => <PresencePlaceholder />,
-  failure: (_props,retry) => <PresencePlaceholder retry={retry} />,
-});
+// Like LeetCode, the bar never shows a placeholder counter (an unavailable metric is display:none),
+// so the presence count simply joins the bar once its chunk and data arrive.
+export const OnlinePresence = deferredFeature(() => import('./OnlinePresence'), customRecoveryLabel, quietEnhancement);
 
 export const InboxBell = deferredFeature(() => import('./InboxBell'), ['通知', 'notifications'], {loading: () => null});
 export const Messages = deferredFeature(() => import('./Messages'), ['私信', 'messages']);
@@ -92,16 +80,6 @@ export const ModuleNavigator = deferredFeature<Parameters<typeof import('./Modul
   failure: props => <ModuleNavigationFallback {...props} />,
 });
 
-function ResetCodeFallback({ retry }: { retry?: () => void }) {
-  const { t } = useI18n();
-  return <button className="icon-button" type="button" disabled={!retry} onClick={retry}
-    aria-label={retry ? t('重试加载代码恢复', 'Retry loading code restore') : t('正在加载代码恢复', 'Loading code restore')}
-    title={retry ? t('重试加载代码恢复', 'Retry loading code restore') : t('正在加载代码恢复', 'Loading code restore')}><span aria-hidden="true">↺</span></button>;
-}
-export const ResetCodeButton = deferredFeature<Parameters<typeof import('./ResetCodeButton').ResetCodeButton>[0]>(() => import('./ResetCodeButton').then(module => ({default: module.ResetCodeButton})), customRecoveryLabel, {
-  loading: () => <ResetCodeFallback />,
-  failure: (_props, retry) => <ResetCodeFallback retry={retry} />,
-});
 export const BrowserDraftBackups = deferredFeature<Parameters<typeof import('./BrowserDraftBackups').BrowserDraftBackups>[0]>(() => import('./BrowserDraftBackups').then(module => ({default: module.BrowserDraftBackups})), ['草稿版本', 'draft versions'], {
   loading: props => props.conflict || props.backups.some(backup => backup.code !== props.source) ? <div className="feature-loading" role="status"><span className="spinner" /></div> : null,
 });

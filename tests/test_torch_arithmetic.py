@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 import torch as native
 
-from stridetorch import torch, UnsupportedOperation
+from torchwasm import torch, UnsupportedOperation
 
 DTYPES = ['bool','uint8','uint16','uint32','uint64','int8','int16','int32','int64',
           'float16','float32','float64','complex64','complex128']

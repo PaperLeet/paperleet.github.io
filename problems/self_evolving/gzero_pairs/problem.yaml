@@ -1,0 +1,75 @@
+id: self_evolving/gzero_pairs
+number: 110
+title: G-Zero 偏好样本筛选
+title_en: G-Zero Preference Curation
+paper_id: g-zero
+paper:
+  title: 'G-Zero: Self-Play for Open-Ended Generation from Zero Data'
+  authors: Chengsong Huang, Haolin Liu et al.
+  venue: arXiv 2026
+  arxiv: '2605.09959'
+  url: https://arxiv.org/abs/2605.09959
+  anchors:
+  - 'Section 3.3: lower-half delta filter and question-only DPO; official phase2.py'
+  official_code: https://github.com/Chengsong-Huang/G-Zero
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: preference_mask
+  signature: 'preference_mask(delta: Tensor, quality: Tensor) -> Tensor'
+- name: build_preferences
+  signature: 'build_preferences(records: list[dict], delta: Tensor, quality: Tensor)
+    -> list[dict]'
+module:
+  goal: G-Zero 偏好样本筛选
+  goal_en: G-Zero Preference Curation
+  scope: 按全池中位数筛选偏好对，保留只含问题的训练输入。
+  scope_en: Filter by the full-pool median and build preference pairs with question-only prompts.
+  required_functions:
+  - preference_mask
+  - build_preferences
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: CPU float32/float64; long IDs; bool masks.
+  contract: Finite inputs; no mutation. Starter docstrings define shapes, endpoints,
+    ties and gradient ownership.
+tests:
+  T0: 1
+  T1: 1
+  T2: 3
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+tags:
+- Self-Evolution
+- Self-Play
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-20'
+verified_sources:
+  checked_at: '2026-10-20'
+  links:
+  - https://arxiv.org/abs/2605.09959
+  - https://github.com/Chengsong-Huang/G-Zero
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2605.09959
+  anchor: 'Section 3.3: lower-half delta filter and question-only DPO; official phase2.py'
+  adaptation: A deterministic CPU toy policy trained with the submitted reward or
+    filtering function; not an LLM/VLM reproduction.
+mutants:
+- id: m1_upper_half
+  bug: Keep the upper half.
+- id: m2_ties
+  bug: Discard median ties.
+- id: m3_quality
+  bug: Ignore structural quality.
+- id: m4_leak
+  bug: Leak the hint into the training prompt.
+- id: m5_swap
+  bug: Reverse preference direction.

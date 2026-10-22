@@ -18,7 +18,7 @@ export default function Messages({username}: {username?: string}) {
   if (!user) return <main className="messages-page">
     <AppLink className="social-back messages-welcome-back" href="#/community"><ArrowLeft size={15}/>{t('返回社区', 'Back to community')}</AppLink>
     <section className="messages-welcome" aria-labelledby="messages-welcome-title">
-      <div className="messages-welcome-icon" aria-hidden="true"><MessageCircle size={34}/></div>
+      <div className="messages-welcome-icon" aria-hidden="true"><MessageCircle size={24}/></div>
       <span className="messages-welcome-eyebrow">{t('社区交流', 'Community conversations')}</span>
       <h1 id="messages-welcome-title">{t('私信', 'Messages')}</h1>
       <p>{t('与社区成员讨论论文和实现。', 'Discuss papers and implementations with the community.')}</p>

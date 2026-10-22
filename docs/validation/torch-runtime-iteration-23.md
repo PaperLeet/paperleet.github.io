@@ -98,18 +98,18 @@ patterns. They do not measure first binding, import, cold start, native Torch,
 peak memory or application speed. One float32 WASM optional-output exponential
 case shows only a 3% gain; it is retained rather than averaged away.
 
-The [development evidence](../../packages/stridetorch/benchmarks/results/iteration-23.json)
-and [source/test/harness archive](../../packages/stridetorch/benchmarks/results/iteration-23-harness.tar.gz)
+The [development evidence](../../packages/torchwasm/benchmarks/results/iteration-23.json)
+and [source/test/harness archive](../../packages/torchwasm/benchmarks/results/iteration-23-harness.tar.gz)
 retain all phases, failed prototypes, independent distributions and release
 snapshots. They explicitly distinguish completed gates from pending adoption.
-The [merged gates](../../packages/stridetorch/benchmarks/results/iteration-23-merged-gates.json)
-and [merged packaging/frontend archive](../../packages/stridetorch/benchmarks/results/iteration-23-merged-gates-harness.tar.gz)
+The [merged gates](../../packages/torchwasm/benchmarks/results/iteration-23-merged-gates.json)
+and [merged packaging/frontend archive](../../packages/torchwasm/benchmarks/results/iteration-23-merged-gates-harness.tar.gz)
 record the refreshed application metadata and repeated affected checks.
-The [complete local release gates](../../packages/stridetorch/benchmarks/results/iteration-23-local-gates.json)
-and [final WASM/archive receipts](../../packages/stridetorch/benchmarks/results/iteration-23-local-gates-harness.tar.gz)
+The [complete local release gates](../../packages/torchwasm/benchmarks/results/iteration-23-local-gates.json)
+and [final WASM/archive receipts](../../packages/torchwasm/benchmarks/results/iteration-23-local-gates-harness.tar.gz)
 close the full exported catalog gate against the frozen source and 161 files.
-The [latest upstream gates](../../packages/stridetorch/benchmarks/results/iteration-23-latest-upstream-gates.json)
-and [affected-check archive](../../packages/stridetorch/benchmarks/results/iteration-23-latest-upstream-gates-harness.tar.gz)
+The [latest upstream gates](../../packages/torchwasm/benchmarks/results/iteration-23-latest-upstream-gates.json)
+and [affected-check archive](../../packages/torchwasm/benchmarks/results/iteration-23-latest-upstream-gates-harness.tar.gz)
 retain the final application merge, server checks and refreshed packaging.
 
 ## Main Quality and superseded publication
@@ -130,6 +130,6 @@ Both superseded/skipped workflow histories are retained. A mature 0.24 can
 supersede an unreleased site version; the actual final deployment still requires
 eligible Pages steps and frozen live-file verification.
 
-[Main-quality evidence](../../packages/stridetorch/benchmarks/results/iteration-23-main-quality.json)
-and [workflow/artifact archive](../../packages/stridetorch/benchmarks/results/iteration-23-main-quality-harness.tar.gz)
+[Main-quality evidence](../../packages/torchwasm/benchmarks/results/iteration-23-main-quality.json)
+and [workflow/artifact archive](../../packages/torchwasm/benchmarks/results/iteration-23-main-quality-harness.tar.gz)
 record that main adoption is proven while site publication is not.

@@ -1,0 +1,78 @@
+id: self_evolving/rzero_curriculum
+number: 108
+title: R-Zero 伪标签与课程
+title_en: R-Zero Pseudo-Labels and Curriculum
+paper_id: r-zero
+paper:
+  title: 'R-Zero: Self-Evolving Reasoning LLM from Zero Data'
+  authors: Chengsong Huang, Wenhao Yu et al.
+  venue: ICLR 2026
+  arxiv: '2508.05004'
+  url: https://arxiv.org/abs/2508.05004
+  anchors:
+  - 'Sections 2.3–2.4: majority-vote labels, informative band and solver rewards'
+  official_code: https://github.com/Chengsong-Huang/R-Zero
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: consensus
+  signature: 'consensus(answers: Tensor, num_answers: int) -> tuple[Tensor, Tensor]'
+- name: curriculum_mask
+  signature: 'curriculum_mask(consistency: Tensor, low: float=0.25, high: float=0.75)
+    -> Tensor'
+- name: pseudo_rewards
+  signature: 'pseudo_rewards(answers: Tensor, labels: Tensor) -> Tensor'
+module:
+  goal: R-Zero 伪标签与课程
+  goal_en: R-Zero Pseudo-Labels and Curriculum
+  scope: 统计多数答案、筛选中等一致率问题，并用固定伪标签评分。
+  scope_en: Count majority answers, filter intermediate consistency and score against frozen pseudo-labels.
+  required_functions:
+  - consensus
+  - curriculum_mask
+  - pseudo_rewards
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: CPU float32/float64; long IDs; bool masks.
+  contract: Finite inputs; no mutation. Starter docstrings define shapes, endpoints,
+    ties and gradient ownership.
+tests:
+  T0: 1
+  T1: 1
+  T2: 3
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+tags:
+- Self-Evolution
+- Self-Play
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-20'
+verified_sources:
+  checked_at: '2026-10-20'
+  links:
+  - https://arxiv.org/abs/2508.05004
+  - https://github.com/Chengsong-Huang/R-Zero
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2508.05004
+  anchor: 'Sections 2.3–2.4: majority-vote labels, informative band and solver rewards'
+  adaptation: A deterministic CPU toy policy trained with the submitted reward or
+    filtering function; not an LLM/VLM reproduction.
+mutants:
+- id: m1_tie
+  bug: Choose largest ID on ties.
+- id: m2_normalizer
+  bug: Normalize by vocabulary rather than rollout count.
+- id: m3_boundary
+  bug: Drop the lower endpoint.
+- id: m4_label_direction
+  bug: Reward disagreement.
+- id: m5_refresh
+  bug: Replace frozen labels with a fresh majority.

@@ -8,7 +8,7 @@ import PageJump from './PageJump';
 import type {LibraryPageSize} from './libraryNavigation';
 import './library-pagination.css';
 
-export type Props={page:number;size:LibraryPageSize;total:number;modules:boolean;listId:string;compact?:boolean;labels?:{nav:[string,string];jump:[string,string];count:[string,string]};onPage:(page:number)=>void;onSize:(size:LibraryPageSize)=>void;onReturnToResults?:()=>void;canAct?:()=>boolean};
+export type Props={page:number;size:LibraryPageSize;total:number;modules:boolean;listId:string;compact?:boolean;labels?:{nav:[string,string];jump:[string,string];count:[string,string,string]};onPage:(page:number)=>void;onSize:(size:LibraryPageSize)=>void;onReturnToResults?:()=>void;canAct?:()=>boolean};
 
 export default function LibraryPagination({page,size,total,modules,listId,compact=false,labels,onPage,onSize,onReturnToResults,canAct}:Props){
  const root=useRef<HTMLElement>(null);
@@ -18,7 +18,7 @@ export default function LibraryPagination({page,size,total,modules,listId,compac
  const singlePage=valid&&pages===1;
  if(!total)return null;
  const numbers=libraryPageNumbers(page,pages);
- const count=labels?t(...labels.count):modules?t('道题','modules'):t('篇论文','papers');
+ const count=labels?t(labels.count[0],labels.count[total===1?2:1]):modules?t('道题',total===1?'module':'modules'):t('篇论文',total===1?'paper':'papers');
  const pageHint=(target:number)=>target>=1&&target<=pages?t(`第 ${target} / ${pages} 页 · ${((target-1)*size)+1}–${Math.min(target*size,total)} / ${total} ${count}`,`Page ${target} of ${pages} · ${((target-1)*size)+1}–${Math.min(target*size,total)} of ${total} ${count}`):undefined;
  const boundary=(last:boolean)=>{const target=last?pages:1,name=last?t('末页','Last page'):t('首页','First page'),Icon=last?ChevronsRight:ChevronsLeft;return <button type="button" data-pagination-control="" className="library-page-boundary" aria-label={name} aria-controls={listId} title={pageHint(target)} disabled={!valid||page===target} onClick={()=>choose(target)}><Icon size={17} aria-hidden="true"/></button>;};
  const pageSize=<label className="library-page-size"><span>{t('每页','Per page')}</span><select aria-label={t('每页显示数量','Results per page')} aria-controls={listId} value={size} onChange={event=>{if(active())onSize(Number(event.target.value) as LibraryPageSize);}}>{([20,50,100] as const).map(value=><option key={value} value={value}>{value}</option>)}</select></label>;

@@ -3,7 +3,7 @@ import sys
 import numpy as np
 import pytest
 from paperleet._vendor import torch as private
-import stridetorch as public
+import torchwasm as public
 
 
 @pytest.mark.parametrize('distribution',[private,public],ids=['application-private','standalone'])
@@ -33,10 +33,10 @@ assert x.grad is buffer
 
 def test_browser_profile_exports_gradient_module_from_both_distributions():
     from paperleet._vendor.torch.runtime import source_files as application
-    from stridetorch.runtime import source_files as standalone
+    from torchwasm.runtime import source_files as standalone
     for export in [application,standalone]:
         sources=export('autograd')
-        assert 'stridetorch/_gradient_utils.py' in sources
-        assert 'def clip_grad_norm_' in sources['stridetorch/_gradient_utils.py']
-        assert 'def clip_grad_value_' in sources['stridetorch/_gradient_utils.py']
-        assert 'stridetorch/_gradient_utils.py' not in export('schedules')
+        assert 'torchwasm/_gradient_utils.py' in sources
+        assert 'def clip_grad_norm_' in sources['torchwasm/_gradient_utils.py']
+        assert 'def clip_grad_value_' in sources['torchwasm/_gradient_utils.py']
+        assert 'torchwasm/_gradient_utils.py' not in export('schedules')

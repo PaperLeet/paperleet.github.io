@@ -21,7 +21,7 @@ html[data-reading-spacing="relaxed"] .prose,html[data-reading-spacing="relaxed"]
 .reading-appearance fieldset{border:0;margin:0;padding:0;min-width:0}
 .reading-appearance legend{padding:0;margin-bottom:7px;font-size:var(--type-small);font-weight:600;color:var(--text)}
 .reading-appearance fieldset>div{display:flex;flex-wrap:wrap;gap:6px}
-.reading-appearance button{min-height:44px;padding:8px 13px;border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--text);font:var(--type-small)/1.5 var(--font-sans)}
+.reading-appearance button{min-height:var(--control-height,44px);padding:6px 13px;border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--text);font:var(--type-small)/1.5 var(--font-sans)}
 .reading-appearance button[aria-pressed="true"]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--surface));color:var(--accent);font-weight:600}
 .reading-appearance button:hover:not([aria-disabled="true"]){border-color:var(--accent)}
 .reading-appearance :is(button,summary):focus-visible{outline:2px solid var(--accent);outline-offset:3px}
@@ -37,3 +37,11 @@ html[data-reading-spacing="relaxed"] .prose,html[data-reading-spacing="relaxed"]
 @media(forced-colors:active){.reading-appearance button[aria-pressed="true"]{border-color:Highlight;color:Highlight}}
 
 .reading-appearance button[aria-disabled="true"]{color:var(--muted);cursor:default;opacity:.7}
+
+/* Post pages: a quiet right-aligned text control while closed, the full panel once opened. */
+.discussion-post .reading-appearance-inline{display:flex;justify-content:flex-end;margin:-8px 0 8px}
+.discussion-post .reading-appearance-inline>details:not([open]){border-color:transparent;background:transparent}
+.discussion-post .reading-appearance-inline>details:not([open])>summary{min-height:var(--control-height,44px);padding:4px 8px;border-radius:var(--control-radius,8px);color:var(--text-secondary);font-size:var(--type-meta)}
+.discussion-post .reading-appearance-inline>details:not([open])>summary:hover{background:var(--surface2);color:var(--text)}
+.discussion-post .reading-appearance-inline>details:not([open])>summary>svg:last-child{margin-inline-start:2px}
+.discussion-post .reading-appearance-inline>details[open]{flex:1 1 100%}

@@ -105,8 +105,8 @@ documentation and evidence change. This does not establish a stable packaged GPU
 API, general task isolation, resident public Torch storage or automatic dispatch.
 No CI, tag, publication or deployment is enabled.
 
-The [machine-readable qualification](../../packages/stridetorch/benchmarks/results/protocol-negotiation.json)
-links the [verified raw archive](../../packages/stridetorch/benchmarks/results/protocol-negotiation-harness.tar.gz):
+The [machine-readable qualification](../../packages/torchwasm/benchmarks/results/protocol-negotiation.json)
+links the [verified raw archive](../../packages/torchwasm/benchmarks/results/protocol-negotiation-harness.tar.gz):
 357 files, 181 unique payloads, SHA-256
 `46721a754cdf51f94e6795e97f7eade71bf0853880eda14b6c3aa6a577d853f4`.
 It includes the failed drafts, historical fixtures, native results, real-browser
@@ -124,6 +124,6 @@ integrating the then-current main changes. The default runtime stays 0.83.0.
 
 The feature and integration SHAs have no workflow runs. Pages still uses the
 legacy `gh-pages` branch; no tag, publication or deployment was made.
-The [main adoption receipt](../../packages/stridetorch/benchmarks/results/protocol-negotiation-main-adoption.json)
-and [raw evidence](../../packages/stridetorch/benchmarks/results/protocol-negotiation-main-adoption-harness.tar.gz)
+The [main adoption receipt](../../packages/torchwasm/benchmarks/results/protocol-negotiation-main-adoption.json)
+and [raw evidence](../../packages/torchwasm/benchmarks/results/protocol-negotiation-main-adoption-harness.tar.gz)
 record the guarded push and exact remote verification.

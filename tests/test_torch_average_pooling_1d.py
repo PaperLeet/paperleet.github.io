@@ -3,7 +3,7 @@ import pickle
 import numpy as np
 import pytest
 import torch
-from stridetorch import torch as lite, UnsupportedOperation
+from torchwasm import torch as lite, UnsupportedOperation
 
 
 def dtype_for(api, dtype): return getattr(api, np.dtype(dtype).name)

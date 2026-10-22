@@ -1,5 +1,5 @@
 .library-overview.has-interview-guide { position:static; }
-.library-interview-guide { padding:18px; border:1px solid var(--line); border-radius:12px; background:var(--surface); min-width:0; }
+.library-interview-guide { padding:18px; border:1px solid var(--line); border-radius:var(--radius-panel); background:var(--surface); min-width:0; }
 .library-interview-guide header { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; }
 .library-interview-guide h2 { display:flex; gap:8px; align-items:center; margin:0; font-size:var(--type-body); line-height:1.6; }
 .library-interview-guide h2>button { display:flex; align-items:center; gap:8px; min-height:40px; padding:0; background:transparent; border:0; color:var(--text); font:inherit; font-weight:600; text-align:start; cursor:pointer; }
@@ -31,4 +31,14 @@
 .library-interview-guide footer { margin-top:12px; }
 .library-interview-guide :is(a,button,select,summary):focus-visible { outline:2px solid var(--accent); outline-offset:3px; border-radius:5px; }
 @media(max-width:1199px) { .library-overview.has-interview-guide { display:block; grid-row:1; } .library-overview.has-interview-guide>.library-progress-card { display:none; } }
-@media(pointer:coarse) { .library-interview-guide :is(a,button,select,summary) { min-height:44px; } }
+@media(max-width:600px) {
+ .library-interview-guide { padding:12px 14px; }
+ .library-interview-guide header { flex-wrap:nowrap; gap:12px; }
+ .library-interview-guide h2 { flex:1; min-width:0; }
+ .library-interview-guide h2>button { width:100%; min-height:var(--control-height,44px); }
+ .library-interview-guide h2>button>span { min-width:0; overflow-wrap:anywhere; }
+ .library-interview-guide h2>button>svg:last-child { margin-inline-start:auto; }
+ .library-interview-guide header>a { box-sizing:border-box; flex:none; width:var(--control-height,44px); height:var(--control-height,44px); justify-content:center; border-radius:8px; background:var(--surface2); }
+ .library-interview-guide header>a>span { display:none; }
+}
+@media(pointer:coarse) { .library-interview-guide :is(a,button,select,summary) { min-height:var(--control-height,44px); } }

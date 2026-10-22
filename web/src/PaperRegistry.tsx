@@ -6,6 +6,7 @@ import type {Category,Paper,Problem} from './types';
 import {searchPaperRegistry} from './paperRegistrySearch';
 import {readPaperRegistryRoute,paperRegistryHref,sortLibraryPapers,withLibraryContext,type PaperRegistryView} from './libraryNavigation';
 import {watchRegistryPosition,type RegistryPositionNotice} from './registryPosition';
+import NumberedPages from './NumberedPages';
 import './paper-registry.css';
 
 export const registryPageSize=20;
@@ -31,7 +32,7 @@ export default function PaperRegistry({papers,problems,categories=[],route='pape
  function turn(next:number){results.current?.focus({preventScroll:true});results.current?.scrollIntoView({block:'start'});change({page:next});}
  return <main className="social-page paper-registry-page" ref={root} data-registry-view={href}>
   <AppLink className="text-button" href="#"><ArrowLeft size={16}/>{t('返回题库','Back to practice')}</AppLink>
-  <header className="paper-registry-heading"><div><span className="paper-registry-eyebrow">{t('PaperLeet · 论文目录','PaperLeet · Paper directory')}</span><h1>{t('论文库','Paper registry')}</h1><p>{t('按来源查找已收录论文，了解练习覆盖范围，投稿前先查重。','Find published papers and their exercises before proposing something new.')}</p></div><AppLink className="button subtle" href="#/submit">{t('提交论文','Submit paper')}<ArrowUpRight size={16}/></AppLink></header>
+  <header className="paper-registry-heading"><div><h1>{t('论文库','Paper registry')}</h1><p>{t('按来源查找已收录论文，了解练习覆盖范围，投稿前先查重。','Find published papers and their exercises before proposing something new.')}</p></div><AppLink className="button subtle" href="#/submit">{t('提交论文','Submit paper')}<ArrowUpRight size={16}/></AppLink></header>
   {!view?<div className="paper-registry-empty" role="alert"><p>{t('这份论文库筛选链接无效。','This paper registry filter link is invalid.')}</p><AppLink className="button subtle" href="#/paper-registry">{t('查看完整论文库','Open the full paper registry')}</AppLink></div>:<>
    <div className="paper-registry-toolbar">
     <form role="search" className="paper-registry-search" onSubmit={event=>event.preventDefault()}><Search size={19} aria-hidden="true"/><input ref={search} type="search" value={query} maxLength={200} onChange={event=>change({query:event.target.value,page:1})} onCompositionStart={()=>{composing.current=true;}} onCompositionEnd={()=>{composing.current=false;}} onKeyDown={event=>{if(event.key==='Escape'&&query&&!composing.current&&!event.nativeEvent.isComposing&&event.keyCode!==229&&!event.ctrlKey&&!event.metaKey&&!event.altKey){event.preventDefault();event.stopPropagation();clear({query:'',page:1});}}} aria-label={t('搜索已收录论文','Search published papers')} placeholder={t('论文、作者、题号或 arXiv 链接…','Paper, author, exercise number or arXiv link…')}/>{query&&<button type="button" aria-label={t('清空论文搜索','Clear paper search')} onClick={()=>clear({query:'',page:1})}><X size={17} aria-hidden="true"/></button>}</form>
@@ -54,7 +55,7 @@ export default function PaperRegistry({papers,problems,categories=[],route='pape
      {(paper.summary||paper.summary_en)&&<p className="paper-registry-summary">{locale==='en'?paper.summary_en||paper.summary:paper.summary||paper.summary_en}</p>}
      <div className="paper-registry-links"><AppLink className="paper-registry-source" href={paper.url} target="_blank" rel="noopener noreferrer">{paper.arxiv?`arXiv:${paper.arxiv}`:t('原文','Source')}<ArrowUpRight size={15} aria-hidden="true"/></AppLink>{paper.module_ids.flatMap(id=>{const problem=byId.get(id);return problem?[<AppLink key={id} href={withLibraryContext(problem.number,href)}>#{problem.number} {locale==='en'?problem.translations?.en?.title||problem.title:problem.title}</AppLink>]:[];})}{!paper.module_ids.some(id=>byId.has(id))&&<span className="paper-registry-missing">{t('练习信息暂不可用','Exercise information is unavailable')}</span>}</div>
     </li>)}</ol>}
-    {entries.length>registryPageSize&&<nav className="paper-registry-pager" aria-label={t('论文库翻页','Paper registry pages')}><button type="button" disabled={page<=1} onClick={()=>turn(page-1)}>{t('上一页','Previous')}</button><span>{t(`第 ${page} / ${last} 页`,`Page ${page} of ${last}`)}</span><button type="button" disabled={page>=last||page>=501} onClick={()=>turn(page+1)}>{t('下一页','Next')}</button></nav>}
+    {entries.length>registryPageSize&&<nav className="paper-registry-pager" aria-label={t('论文库翻页','Paper registry pages')}><button type="button" disabled={page<=1} onClick={()=>turn(page-1)}>{t('上一页','Previous')}</button><NumberedPages page={page} pages={Math.min(last,501)} totalPages={last} onChange={turn}/><button type="button" disabled={page>=last||page>=501} onClick={()=>turn(page+1)}>{t('下一页','Next')}</button></nav>}
    </>}
   </>}
  </main>;

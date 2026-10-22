@@ -1,6 +1,6 @@
 # 网络模体：在有向调控网络中检测前馈环
 
-节点列表和非法输入沿用“生物互作网络：节点度与度分布”（第 93 题）的约定，但这次的图是**有向**的。你要在基因调控网络中寻找一种反复出现的小模式：前馈环。
+节点列表和非法输入沿用“生物互作网络：节点度与度分布”（`network_biology/degree_distribution`）的约定，但这次的图是**有向**的。你要在基因调控网络中寻找一种反复出现的小模式：前馈环。
 
 ## 任务与标准约定
 
@@ -50,4 +50,3 @@ T0 检查返回类型。T1 检查文档中的角色，并在两种模式下用�
 ## 参考资料
 
 - Milo R, Shen-Orr S, Itzkovitz S, Kashtan N, Chklovskii D, Alon U. [Network motifs: simple building blocks of complex networks](https://doi.org/10.1126/science.1078368). *Science* 298(5594), 824-827 (2002)。
-- 文献数据集记录：`docs/research/network_biology_literature.json`，id 21。

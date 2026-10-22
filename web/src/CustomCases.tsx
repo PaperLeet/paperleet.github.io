@@ -51,10 +51,10 @@ export default function CustomCases({problem,source,ready,busy,onBusyChange}:{pr
       <small>{t('执行限时 10 秒；首次需下载运行时。输出最多 16,000 字符，结果最多 10,000 个张量元素。','Execution limit: 10 seconds; the runtime downloads on first use. Output: 16,000 characters; tensor result: 10,000 elements.')}</small>
     </>}
     {error&&<pre role="alert">{error}</pre>}
-    {result&&<section aria-label={t('自定义运行结果','Custom run result')} aria-live="polite">
+    {result&&<section className="custom-case-result" data-state={!result.value.ok?'error':result.value.matches===false?'mismatch':result.value.matches===true?'match':'done'} aria-label={t('自定义运行结果','Custom run result')} aria-live="polite">
       {(result.source!==source||result.input!==JSON.stringify([name,args,kwargs,expected]))&&<p className="notice">{t('代码或输入已修改，以下为之前运行的输出。','Code or input changed. The output below belongs to the previous run.')}</p>}
       <strong>{!result.value.ok?t('执行失败','Execution failed'):result.value.matches===false?t('与预期不同','Does not match expected'):result.value.matches===true?t('与预期一致','Matches expected'):t('运行完成','Run complete')}</strong>
-      {'output' in result.value&&<pre>{JSON.stringify(result.value.output,null,2)}</pre>}
+      {'output' in result.value&&<><h4>{t('输出','Output')}</h4><pre>{JSON.stringify(result.value.output,null,2)}</pre></>}
       {result.value.error&&<pre>{result.value.error}</pre>}
       <h4>Console</h4><pre>{result.value.stdout||t('没有控制台输出。','No console output.')}</pre>
     </section>}

@@ -137,12 +137,12 @@ It does not measure the new 0.81 baseline. Small workloads were slower and the
 opaque learner Worker cannot expose the tested host GPU path. The production
 torch GPU backend stays disabled; no global GPU cutoff is inferred.
 
-[Aggregate result](../../packages/stridetorch/benchmarks/results/qualification-0.81.json)
+[Aggregate result](../../packages/torchwasm/benchmarks/results/qualification-0.81.json)
 and its linked raw archive retain exact source/evidence identities. Earlier
 candidate reports describe their historical stage; this record supersedes their
 then-pending local application gates.
 
-The [raw application/distribution archive](../../packages/stridetorch/benchmarks/results/qualification-0.81-harness.tar.gz)
+The [raw application/distribution archive](../../packages/torchwasm/benchmarks/results/qualification-0.81-harness.tar.gz)
 contains 817 individually verified files, 18,419,933 bytes, SHA-256
 `b3fbac64965b071a4f29e5c02566ca2ceb999298216b23f1c65c2b07450597de`.
 Its external-evidence manifest links the existing core/performance/GPU archives,
@@ -165,9 +165,9 @@ the catalog-count context field. Fresh 385 supplies 89 to the unchanged verifier
 the original failure is retained. The first upload failed with curl 55 and left
 main unchanged. Both transport attempts, audits, exact grants, the corrected
 204-command run and source manifests are in the
-[main-sync archive](../../packages/stridetorch/benchmarks/results/qualification-0.81-main-sync-harness.tar.gz): 86 verified files,
+[main-sync archive](../../packages/torchwasm/benchmarks/results/qualification-0.81-main-sync-harness.tar.gz): 86 verified files,
 3,744,761 bytes, SHA-256 `ee6299ffe7f736ed623447f9bbb51134dfcd16560192464cdb80e86b658fe27d`.
-[Machine-readable reconciliation](../../packages/stridetorch/benchmarks/results/qualification-0.81-main-sync.json).
+[Machine-readable reconciliation](../../packages/torchwasm/benchmarks/results/qualification-0.81-main-sync.json).
 
 ## Append-only study-data follow-up
 
@@ -192,8 +192,8 @@ because main had advanced; no new content was overwritten. A subsequent
 read-only Git negotiation acknowledges the already received `de22a49f` commit.
 Future attempts can use standard `push.negotiate=true` through the same native
 wrapper and release guards, reusing objects without a force push.
-[Data-follow-up evidence](../../packages/stridetorch/benchmarks/results/qualification-0.81-data-followup.json)
-and [raw archive](../../packages/stridetorch/benchmarks/results/qualification-0.81-data-followup-harness.tar.gz): 245 verified files
+[Data-follow-up evidence](../../packages/torchwasm/benchmarks/results/qualification-0.81-data-followup.json)
+and [raw archive](../../packages/torchwasm/benchmarks/results/qualification-0.81-data-followup-harness.tar.gz): 245 verified files
 (151 unique payloads, tar hard links for identical bytes),
 2,562,527 bytes, SHA-256 `cf6a15fa23532a2ebec0eee55c73f00ac91638fb9a18494cd9ac5072bc39f519`.
 
@@ -214,7 +214,7 @@ The known raw norm/sine WASM discrepancy remains and the production GPU backend
 and experimental terminal-HVP change remain disabled. The broader library goal
 continues.
 
-[Remote adoption receipt](../../packages/stridetorch/benchmarks/results/qualification-0.81-main-adoption.json)
-and [raw audit/remote-tree archive](../../packages/stridetorch/benchmarks/results/qualification-0.81-main-adoption-harness.tar.gz):
+[Remote adoption receipt](../../packages/torchwasm/benchmarks/results/qualification-0.81-main-adoption.json)
+and [raw audit/remote-tree archive](../../packages/torchwasm/benchmarks/results/qualification-0.81-main-adoption-harness.tar.gz):
 24 verified files, 956,733 bytes, SHA-256
 `d94a915a9a5b8f9d86c82e280216ad7ca0a3cc222f2c6248b6c83544c9aacab7`.

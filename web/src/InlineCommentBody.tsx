@@ -10,6 +10,7 @@ import {controlIsActive} from './activeControls';
 import {useWorkspaceIntent} from './useWorkspaceIntent';
 import {keepReadingTriggerVisible} from './readingViewport';
 import './community-card-actions.css';
+import PostReadingOverview from './PostReadingOverview';
 
 type Props={body:string;displayBody?:string;variant?:'reply'|'post';limit?:number;postId?:string;query?:string;canAct?:()=>boolean};
 const InlineCommentBody=memo(function InlineCommentBody(props:Props){
@@ -48,6 +49,7 @@ function InlineReader({body,displayBody=body,variant='reply',limit=280,postId,qu
   if(!(active instanceof HTMLElement)||!event.currentTarget.contains(active)||active.closest('input,textarea,select,[contenteditable]:not([contenteditable="false"])'))return;
   event.preventDefault();event.stopPropagation();change(false,active);
  }}>
+  {post&&<PostReadingOverview body={displayBody}/>}
   {expandable&&<div className="inline-comment-controls">
    <button ref={toggle} className="inline-comment-toggle" type="button" aria-expanded={open} aria-controls={regionId} aria-keyshortcuts={open?'Escape':undefined} onClick={event=>change(!open,event.currentTarget)}>
     {open?<ChevronUp size={15} aria-hidden="true"/>:<ChevronDown size={15} aria-hidden="true"/>}{open?collapseLabel:post?t('展开全文','Read full post'):t('展开回复','Read more')}
@@ -55,7 +57,7 @@ function InlineReader({body,displayBody=body,variant='reply',limit=280,postId,qu
    {open&&<><span>{fullLabel}</span><kbd className="inline-reading-keyhint" aria-hidden="true" title={t('Esc 收起当前阅读内容','Press Escape to collapse this reader')}>Esc</kbd></>}
   </div>}
   <div className="inline-comment-content" id={regionId} tabIndex={open?0:-1} role={open?'region':undefined} aria-label={open?fullLabel:undefined} aria-keyshortcuts={open?'Escape':undefined}>
-   {open?<FeatureBoundary fallback={<><p className="inline-reading-error" role="status">{t('暂时无法显示格式，以下为原始内容。可收起后重新展开。','Formatting is unavailable. The original text is shown below; collapse and reopen to retry.')}</p><pre className="inline-reading-plain">{body}</pre></>}>{post&&postId?<DiscussionReading body={body} displayBody={displayBody} postId={postId} compact instance canAct={current}/>:<CommunityMarkdown body={body} displayBody={displayBody}/>}</FeatureBoundary>:<PostPreviewContent summary={summary} reply={!post} inlinePost={post} query={query}/>}
+   {open?<FeatureBoundary fallback={<><p className="inline-reading-error" role="status">{t('暂时无法显示格式，以下为原始内容。可收起后重新展开。','Formatting is unavailable. The original text is shown below; collapse and reopen to retry.')}</p><pre className="inline-reading-plain">{body}</pre></>}>{post&&postId?<DiscussionReading body={body} displayBody={displayBody} postId={postId} compact instance overview={false} canAct={current}/>:<CommunityMarkdown body={body} displayBody={displayBody}/>}</FeatureBoundary>:<PostPreviewContent summary={summary} reply={!post} inlinePost={post} query={query}/>}
   </div>
   {open&&<button className="inline-comment-collapse" type="button" aria-controls={regionId} aria-expanded onClick={event=>change(false,event.currentTarget)}><ChevronUp size={15} aria-hidden="true"/>{collapseLabel}</button>}
  </div>;

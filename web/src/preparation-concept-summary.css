@@ -4,7 +4,7 @@
 .preparation-selected-meta>span:first-child{color:var(--accent);font-weight:550}
 .preparation-selected-meta>[data-difficulty]{padding:2px 7px;border-radius:5px;background:var(--surface2);color:var(--text-secondary)}
 .preparation-selected-concept h3{margin:8px 0 0;color:var(--text);font-size:var(--type-body);font-weight:600;line-height:1.6;overflow-wrap:anywhere}
-.preparation-selected-goal{margin:8px 0 0;color:var(--text-secondary);font-size:var(--type-body);line-height:1.8;overflow-wrap:anywhere}
+.preparation-selected-goal{margin:8px 0 0;color:var(--text-secondary);font-size:var(--type-body);line-height:1.6;overflow-wrap:anywhere}
 .preparation-selected-copy dl{display:grid;gap:9px;margin:13px 0 0;color:var(--text-secondary);font-size:var(--type-small);line-height:1.7}
 .preparation-selected-copy dl>div{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 12px;min-width:0}
 .preparation-selected-copy dt{flex:0 0 auto;color:var(--muted)}

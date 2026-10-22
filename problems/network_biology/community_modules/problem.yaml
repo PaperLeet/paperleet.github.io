@@ -1,5 +1,5 @@
-﻿id: network_biology/community_modules
-number: 109
+id: network_biology/community_modules
+number: 119
 title: 社区发现与候选生物学模块
 title_en: Community Detection and Candidate Biological Modules
 paper_id: hierarchical-modularity
@@ -11,10 +11,6 @@ paper:
   doi: 10.1126/science.1073374
   anchors:
   - 'Modular organization of cellular (metabolic) networks: densely connected topological modules; this exercise implements generic greedy modularity maximization, not the paper''s own module-identification procedure'
-  literature_record:
-    dataset: docs/research/network_biology_literature.json
-    id: 22
-    category: Network Motifs, Modules, & Community Detection
 type: implement
 parent: null
 difficulty: M
@@ -37,7 +33,7 @@ conventions:
   seed: 42
   dtype: Python str node names, float modularity
   device: CPU; pure Python standard library, no randomness, no network access or dataset download
-  contract: 'Simple undirected graph with the exercise 93 conventions (unique str nodes, self-loops and repeated edges ignored, ValueError for duplicate nodes or unknown endpoints). modularity: Q = sum_c [L_c/m - resolution*(D_c/2m)^2], 0.0 if m = 0, ValueError unless communities are nonempty, disjoint and cover every node once. greedy_modularity_communities: start from singletons, repeatedly merge the edge-connected pair with the largest gain e_ab/m - resolution*D_a*D_b/(2m^2); stop when the best gain rounded to 12 decimals is not strictly positive; ties go to the smallest pair of smallest-member names (a < b). Output communities are sorted lists ordered by size descending, ties by first member.'
+  contract: 'Simple undirected graph with the network_biology/degree_distribution conventions (unique str nodes, self-loops and repeated edges ignored, ValueError for duplicate nodes or unknown endpoints). modularity: Q = sum_c [L_c/m - resolution*(D_c/2m)^2], 0.0 if m = 0, ValueError unless communities are nonempty, disjoint and cover every node once. greedy_modularity_communities: start from singletons, repeatedly merge the edge-connected pair with the largest gain e_ab/m - resolution*D_a*D_b/(2m^2); stop when the best gain rounded to 12 decimals is not strictly positive; ties go to the smallest pair of smallest-member names (a < b). Output communities are sorted lists ordered by size descending, ties by first member.'
 estimated_minutes: 30
 tests:
   T0: 1

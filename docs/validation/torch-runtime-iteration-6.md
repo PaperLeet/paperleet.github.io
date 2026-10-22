@@ -138,8 +138,8 @@ moment bytes; scheduling adds no per-parameter moments.
 
 Raw samples, environments, source hashes, initial/final scheduler paths, balanced
 CPU controls, memory and validation metadata are in
-[iteration-6.json](../../packages/stridetorch/benchmarks/results/iteration-6.json).
-Use [bench_schedulers.py](../../packages/stridetorch/benchmarks/bench_schedulers.py)
+[iteration-6.json](../../packages/torchwasm/benchmarks/results/iteration-6.json).
+Use [bench_schedulers.py](../../packages/torchwasm/benchmarks/bench_schedulers.py)
 and the WASM runner's `--benchmark schedulers` option. Complete logs, frozen
 sources and fresh-Worker scripts are in the local
 `paperleet-wasm-evaluation-20261015/torch-iteration-6` evidence directory.
@@ -148,4 +148,4 @@ Only untracked, unreachable intermediate exports in this owned worktree are
 eligible for cleanup; tracked published assets remain available. No producer was
 live during the UI rebase. No license is selected and no PyPI release is made.
 The broader core/efficiency/independent-library and resident GPU goals remain
-active in the [roadmap](../../packages/stridetorch/ROADMAP.md).
+active in the [roadmap](../../packages/torchwasm/ROADMAP.md).

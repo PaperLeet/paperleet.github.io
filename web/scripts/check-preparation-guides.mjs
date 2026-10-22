@@ -15,7 +15,7 @@ for(const [key,value] of Object.entries(globals))Object.defineProperty(globalThi
 localStorage.setItem('paperleet.locale','en');
 let scroll;
 dom.window.matchMedia=()=>({matches:true});dom.window.HTMLElement.prototype.scrollIntoView=function(options){scroll={node:this,options};};
-const server=await createServer({server:{middlewareMode:true,hmr:false},appType:'custom',define:{'import.meta.env.VITE_APP_EDITION':JSON.stringify('local'),'import.meta.env.VITE_PUBLIC_SITE':JSON.stringify('1')},optimizeDeps:{noDiscovery:true,include:[]},plugins:[{
+const server=await createServer({configFile:false,esbuild:{jsx:'automatic'},server:{watch:null,middlewareMode:true,hmr:false,ws:false},appType:'custom',define:{'import.meta.env.VITE_APP_EDITION':JSON.stringify('local'),'import.meta.env.VITE_PUBLIC_SITE':JSON.stringify('1')},optimizeDeps:{noDiscovery:true,include:[]},plugins:[{
  name:'guide-import-fixture',enforce:'pre',resolveId(source,importer){if(source==='./preparationGuides'&&importer?.split('?')[0].endsWith('/PreparationGuide.tsx'))return '\0guide-import-fixture';},
  load(id){if(id==='\0guide-import-fixture')return `export {hasPreparationGuide} from '/src/preparationGuides.ts';export const loadPreparationGuide=id=>globalThis.__guideFixture.load(id);`;}
 }]});
@@ -33,6 +33,7 @@ try{
  const {default:Guide,PREPARATION_GUIDE_TIMEOUT}=await server.ssrLoadModule('/src/PreparationGuide.tsx');
  const {default:Handbook}=await server.ssrLoadModule('/src/PreparationHandbook.tsx');
  const {default:Hub}=await server.ssrLoadModule('/src/Interviews.tsx');
+ const {AccountProvider}=await server.ssrLoadModule('/src/social.tsx');
  const {default:Context}=await server.ssrLoadModule('/src/InterviewConceptContext.tsx');
  const nav=await server.ssrLoadModule('/src/interviewNavigation.ts');
  const {libraryReturnHref,withLibraryContext}=await server.ssrLoadModule('/src/libraryNavigation.ts');
@@ -40,12 +41,13 @@ try{
  const {decodeProblemHash}=await server.ssrLoadModule('/src/reports.ts');
  const loads=[],pending=[];globalThis.__guideFixture={load(id){return new Promise((resolve,reject)=>{const request={id,resolve,reject};loads.push(request);pending.push(request);});}};
  const content=id=>guides.find(guide=>guide.id===id),attention='architecture/attention',lora='finetuning/lora';
- const render=async(Component,props)=>act(async()=>{if(!root)root=createRoot(document.querySelector('#root'));root.render(React.createElement(LocaleProvider,null,React.createElement(Language),React.createElement(Component,props)));});
+ const render=async(Component,props)=>act(async()=>{if(Component===Hub&&props.route)window.history.replaceState(null,'','#/'+props.route.replace(/^#\/?/,''));if(!root)root=createRoot(document.querySelector('#root'));const page=React.createElement(Component,props);root.render(React.createElement(LocaleProvider,null,React.createElement(Language),Component===Hub?React.createElement(AccountProvider,null,page):page));});
  const take=()=>{assert(pending.length,'Missing guide import');return pending.shift();};
  const reply=async(request,id=request.id)=>act(async()=>request.resolve(content(id)));
  const click=async element=>{assert(element,'Missing control');await act(async()=>element.click());};
  const button=text=>[...document.querySelectorAll('button')].find(button=>button.textContent.trim()===text);
  const settle=async predicate=>{for(let i=0;i<60&&!predicate();i++)await act(async()=>new Promise(resolve=>setTimeout(resolve,10)));assert(predicate(),'Guide UI did not settle');};
+ const expandPaths=async()=>{assert.equal(document.querySelectorAll('.interview-path-grid>article').length,3);const extra=document.querySelector('.path-browser-extra');assert(extra&&!extra.open);await click(extra.querySelector(':scope>summary'));await settle(()=>extra.open&&document.querySelector('.path-browser-collapse'));};
  const open=async()=>{const count=loads.length;await act(async()=>{document.querySelector('.preparation-guide').open=true;});await settle(()=>loads.length===count+1);};
  const stop=async()=>{if(root)await act(async()=>root.unmount());root=undefined;pending.length=0;localStorage.setItem('paperleet.locale','en');};
  function Language(){const {setLocale}=useI18n();return React.createElement(React.Fragment,null,React.createElement('button',{onClick:()=>setLocale('zh')},'中文 fixture'),React.createElement('button',{onClick:()=>setLocale('en')},'EN fixture'));}
@@ -119,7 +121,7 @@ try{
   const request=take();assert.equal(request.id,id);await reply(request);assert.equal(document.querySelectorAll('.preparation-prompt-list > li').length,3);assert.equal(document.querySelector('h4').textContent,content(id).prompts[0].question.en);
   const practice=document.querySelector('.preparation-guide-actions a'),back=libraryReturnHref(practice.getAttribute('href')),parsed=nav.readInterviewRoute(back);assert.equal(parsed.track,'representation');assert.equal(parsed.concept,id);assert.equal(parsed.role,'ml');assert.equal(parsed.stage,'technical');assert.equal(parsed.company,'google');assert.equal(parsed.saved,true);assert.equal(parsed.q,'');assert.equal(account.accountReturnHref(decodeProblemHash(account.signInHref(practice.getAttribute('href')))),practice.getAttribute('href'));
  }
- await stop();await render(Hub,{route:'interviews?role=ml',problems:published});const curriculumCard=[...document.querySelectorAll('.interview-path-grid>article')].find(node=>node.textContent.includes('Representation & contrastive learning'));assert(curriculumCard,'ML preparation offers the representation curriculum');assert.deepEqual([...curriculumCard.querySelectorAll('.interview-path-modules a')].map(link=>decodeProblemHash(link.getAttribute('href')).split('?')[0]),representationModules.map(id=>String(published.find(problem=>problem.id===id).number)));
+ await stop();await render(Hub,{route:'interviews?role=ml',problems:published});await expandPaths();const curriculumCard=[...document.querySelectorAll('.interview-path-grid>article')].find(node=>node.textContent.includes('Representation & contrastive learning'));assert(curriculumCard,'ML preparation offers the representation curriculum');assert.deepEqual([...curriculumCard.querySelectorAll('.interview-path-modules a')].map(link=>decodeProblemHash(link.getAttribute('href')).split('?')[0]),representationModules.map(id=>String(published.find(problem=>problem.id===id).number)));
  await stop();
  const normalizationFilters={...representationFilters,track:'normalization'},normalizationModules=['architecture/layer_norm','architecture/rms_norm','architecture/group_norm'];
  await render(Handbook,{filters:normalizationFilters,problems:published});assert.deepEqual([...document.querySelectorAll('select option')].map(option=>option.value),normalizationModules);await open();await reply(take());
@@ -137,7 +139,7 @@ try{
   const request=take();assert.equal(request.id,id);await reply(request);assert.equal(document.querySelectorAll('.preparation-prompt-list > li').length,3);assert.equal(document.querySelector('h4').textContent,content(id).prompts[0].question.en);
   const practice=document.querySelector('.preparation-guide-actions a'),parsed=nav.readInterviewRoute(libraryReturnHref(practice.getAttribute('href')));assert.equal(parsed.track,'transformer');assert.equal(parsed.concept,id);assert.equal(parsed.company,'google');assert.equal(parsed.role,'llm');assert.equal(parsed.stage,'technical');assert.equal(parsed.saved,true);assert.equal(parsed.q,'');assert.equal(account.accountReturnHref(decodeProblemHash(account.signInHref(practice.getAttribute('href')))),practice.getAttribute('href'));
  }
- await stop();await render(Hub,{route:'interviews?role=llm',problems:published});const transformerCard=[...document.querySelectorAll('.interview-path-grid>article')].find(node=>node.textContent.includes('Transformer core & efficiency'));assert(transformerCard);assert.deepEqual([...transformerCard.querySelectorAll('.interview-path-modules a')].map(link=>decodeProblemHash(link.getAttribute('href')).split('?')[0]),transformerModules.map(id=>String(published.find(problem=>problem.id===id).number)));
+ await stop();await render(Hub,{route:'interviews?role=llm',problems:published});await expandPaths();const transformerCard=[...document.querySelectorAll('.interview-path-grid>article')].find(node=>node.textContent.includes('Transformer core & efficiency'));assert(transformerCard);assert.deepEqual([...transformerCard.querySelectorAll('.interview-path-modules a')].map(link=>decodeProblemHash(link.getAttribute('href')).split('?')[0]),transformerModules.map(id=>String(published.find(problem=>problem.id===id).number)));
  const pathDisclosure=transformerCard.querySelector('.interview-path-module-disclosure'),pathSummary=pathDisclosure.querySelector('summary');assert(!pathDisclosure.open);assert.equal(transformerCard.querySelectorAll('.interview-path-modules > a').length,3);assert(pathSummary.querySelector('.interview-path-module-expand-label').textContent.includes('Show 6 more modules'));pathSummary.focus();await click(pathSummary);assert(pathDisclosure.open);await click(button('中文 fixture'));assert(pathDisclosure.open);assert.equal(pathSummary.querySelector('.interview-path-module-collapse-label').textContent,'收起练习列表');assert.equal(transformerCard.querySelectorAll('.interview-path-modules a').length,9);await click(button('EN fixture'));assert.equal(pathSummary.querySelector('.interview-path-module-collapse-label').textContent,'Show fewer modules');await click(pathSummary);assert(!pathDisclosure.open);
  await stop();
  const experimentFilters={...transformerFilters,track:'training'};
@@ -149,7 +151,7 @@ try{
   await click(button('中文 fixture'));assert.equal(document.querySelector('h4').textContent,content(id).prompts[0].question.zh);await click(button('EN fixture'));
  }
  await stop();
- const postTrainingModules=['rl/gae','rl/ppo_clip','rl/grpo','rl/dr_grpo','rl/dapo','rl/gspo','rl/dpo'];
+ const postTrainingModules=['rl/gae','rl/ppo_clip','rl/grpo','rl/dr_grpo','rl/dapo','rl/gspo','rl/dpo','optimization/es_at_scale','finetuning/neural_thickets'];
  const postTrainingFilters={...nav.emptyInterviewFilters(),company:'google',role:'llm',stage:'technical',track:'post-training',q:'奖励 & λ 😀',saved:true,page:2};
  assert.deepEqual(nav.readInterviewRoute(nav.interviewHref(postTrainingFilters)),postTrainingFilters);
  const beforePostTraining=loads.length;await render(Handbook,{filters:postTrainingFilters,problems:published});assert.equal(loads.length,beforePostTraining);assert.deepEqual([...document.querySelectorAll('select option')].map(option=>option.value),postTrainingModules);
@@ -159,7 +161,7 @@ try{
   await click(button('中文 fixture'));assert.equal(document.querySelector('h4').textContent,content(id).prompts[0].question.zh);await click(button('EN fixture'));assert.equal(document.querySelector('h4').textContent,content(id).prompts[0].question.en);
   const practice=document.querySelector('.preparation-guide-actions a'),parsed=nav.readInterviewRoute(libraryReturnHref(practice.getAttribute('href')));assert.equal(parsed.track,'post-training');assert.equal(parsed.concept,id);assert.equal(parsed.company,'google');assert.equal(parsed.role,'llm');assert.equal(parsed.stage,'technical');assert.equal(parsed.saved,true);assert.equal(parsed.q,'');assert.equal(account.accountReturnHref(decodeProblemHash(account.signInHref(practice.getAttribute('href')))),practice.getAttribute('href'));
  }
- await stop();await render(Hub,{route:'interviews?role=llm',problems:published});const postTrainingCard=document.getElementById('interview-path-post-training')?.closest('article');assert(postTrainingCard);assert.deepEqual([...postTrainingCard.querySelectorAll('.interview-path-modules a')].map(link=>decodeProblemHash(link.getAttribute('href')).split('?')[0]),postTrainingModules.map(id=>String(published.find(problem=>problem.id===id).number)));assert.equal(postTrainingCard.querySelectorAll('.interview-path-modules > a').length,3);assert.equal(postTrainingCard.querySelectorAll('.interview-path-module-extra a').length,4);assert(!postTrainingCard.querySelector('details').open);
+ await stop();await render(Hub,{route:'interviews?role=llm',problems:published});await expandPaths();const postTrainingCard=document.getElementById('interview-path-post-training')?.closest('article');assert(postTrainingCard);assert.deepEqual([...postTrainingCard.querySelectorAll('.interview-path-modules a')].map(link=>decodeProblemHash(link.getAttribute('href')).split('?')[0]),postTrainingModules.map(id=>String(published.find(problem=>problem.id===id).number)));assert.equal(postTrainingCard.querySelectorAll('.interview-path-modules > a').length,3);assert.equal(postTrainingCard.querySelectorAll('.interview-path-module-extra a').length,6);assert(!postTrainingCard.querySelector('details').open);
  await stop();
  const fewStepModules=['diffusion/ddim','diffusion/progressive_distillation','diffusion/consistency','diffusion/flow_matching','diffusion/meanflow','diffusion/dmd','diffusion/dmd2'];
  const fewStepFilters={...nav.emptyInterviewFilters(),company:'microsoft',role:'ml',stage:'research',track:'few-step-generation',q:'蒸馏 & JVP 😀',saved:true,page:2};assert.deepEqual(nav.readInterviewRoute(nav.interviewHref(fewStepFilters)),fewStepFilters);
@@ -313,9 +315,10 @@ try{
   'low-rank-quantization':['finetuning/lora','finetuning/qlora','finetuning/svdquant'],
   'block-generation':['foundations/next_token_loss','foundations/sft_loss_mask','architecture/attention','diffusion/block_diffusion'],
   'inverse-diffusion':['diffusion/schedules','diffusion/param_conversion','diffusion/ddpm_sampling','diffusion/daps'],
+  'network-biology':['network_biology/degree_distribution','network_biology/hubs_centrality','network_biology/connected_components','network_biology/shortest_paths','network_biology/feed_forward_loops','network_biology/community_modules'],
  };
  for(const [track,ids]of Object.entries(newCurricula)){
-  const context={...nav.emptyInterviewFilters(),track,company:'nvidia',role:track==='inverse-diffusion'?'research':'llm',stage:'technical',saved:true,q:'专题 & 复习 😀',page:2};assert.deepEqual(nav.readInterviewRoute(nav.interviewHref(context)),context);
+  const context={...nav.emptyInterviewFilters(),track,company:'nvidia',role:['inverse-diffusion','network-biology'].includes(track)?'research':'llm',stage:'technical',saved:true,q:'专题 & 复习 😀',page:2};assert.deepEqual(nav.readInterviewRoute(nav.interviewHref(context)),context);
   const before=loads.length;await render(Handbook,{filters:context,problems:published});assert.equal(loads.length,before);assert.deepEqual([...document.querySelectorAll('select option')].map(option=>option.value),ids);
   for(const [index,id]of ids.entries()){
    if(index){const count=loads.length;await act(async()=>{const select=document.querySelector('select');select.value=id;select.dispatchEvent(new dom.window.Event('change',{bubbles:true}));});await settle(()=>loads.length===count+1);}else await open();
@@ -326,7 +329,7 @@ try{
   }
   await stop();await render(Hub,{route:nav.interviewHref(context),problems:published});const card=document.getElementById('interview-path-'+track).closest('article');assert.equal(card,document.querySelector('.interview-path-grid>article'));assert.deepEqual([...card.querySelectorAll('.interview-path-modules a')].map(link=>decodeProblemHash(link.getAttribute('href')).split('?')[0]),ids.map(id=>String(published.find(problem=>problem.id===id).number)));assert.equal(card.querySelectorAll('.interview-path-module-extra a').length,Math.max(0,ids.length-3));if(ids.length>3)assert(card.querySelector('details').open);await stop();
  }
- console.log('PASS complete curriculum handbook: three new source-grounded paths, all ordered bilingual prompts/native hints, deferred content, role/company/stage/saved practice and sign-in returns, selected path and complete module disclosure');
+ console.log('PASS complete curriculum handbook: four source-grounded paths, all ordered bilingual prompts/native hints, deferred content, role/company/stage/saved practice and sign-in returns, selected path and complete module disclosure');
  const completionIds=['diffusion/block_diffusion','diffusion/daps','finetuning/svdquant','representation/moge_alignment','diffusion/diffusion_nft','diffusion/fd_population','diffusion/fd_loss'];
  const maintainedPaths=JSON.parse(fs.readFileSync(path.join(repo,'paperleet/interview_catalog.json'))).paths;assert(completionIds.every(id=>maintainedPaths.some(path=>path.modules.includes(id))));assert.deepEqual([...new Set(maintainedPaths.flatMap(path=>path.modules))].sort(),published.map(problem=>problem.id).sort(),'Every published concept belongs to a curriculum');
  const allFilters={...nav.emptyInterviewFilters(),company:'nvidia',stage:'onsite',saved:true,q:'全部 & 复习 😀',page:3};location.hash=nav.interviewHref(allFilters);

@@ -1,0 +1,76 @@
+id: self_evolving/mmzero_feedback
+number: 113
+title: MM-Zero 编码与解题反馈
+title_en: MM-Zero Coder and Solver Feedback
+paper_id: mm-zero
+paper:
+  title: 'MM-Zero: Self-Evolving Multi-Model Vision Language Models From Zero Data'
+  authors: Zongxia Li, Hongyang Du, Chengsong Huang et al.
+  venue: arXiv 2026
+  arxiv: '2603.09206'
+  url: https://arxiv.org/abs/2603.09206
+  anchors:
+  - 'Sections 2.5–2.6, Eqs. 11–14: execution feedback and silver-answer reward'
+  official_code: https://github.com/zli12321/MM-Zero
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: coder_rewards
+  signature: 'coder_rewards(executed: Tensor, easy_accuracy: Tensor, consistency:
+    Tensor, syntax_error: Tensor) -> Tensor'
+- name: solver_rewards
+  signature: 'solver_rewards(answers: Tensor, format_valid: Tensor, num_answers: int,
+    alpha: float=0.9) -> Tensor'
+module:
+  goal: MM-Zero 编码与解题反馈
+  goal_en: MM-Zero Coder and Solver Feedback
+  scope: 区分 Coder 执行反馈与 Solver 多数答案、格式奖励。
+  scope_en: Separate Coder execution feedback from Solver majority-agreement and format rewards.
+  required_functions:
+  - coder_rewards
+  - solver_rewards
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: CPU float32/float64; long IDs; bool masks.
+  contract: Finite inputs; no mutation. Starter docstrings define shapes, endpoints,
+    ties and gradient ownership.
+tests:
+  T0: 1
+  T1: 1
+  T2: 3
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+tags:
+- Self-Evolution
+- Self-Play
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-20'
+verified_sources:
+  checked_at: '2026-10-20'
+  links:
+  - https://arxiv.org/abs/2603.09206
+  - https://github.com/zli12321/MM-Zero
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2603.09206
+  anchor: 'Sections 2.5–2.6, Eqs. 11–14: execution feedback and silver-answer reward'
+  adaptation: A deterministic CPU toy policy trained with the submitted reward or
+    filtering function; not an LLM/VLM reproduction.
+mutants:
+- id: m1_cap
+  bug: Apply the proposer cap to the coder.
+- id: m2_error
+  bug: Forget execution failure penalty.
+- id: m3_syntax
+  bug: Reward syntax errors.
+- id: m4_format_gate
+  bug: Gate agreement instead of adding format reward.
+- id: m5_tie
+  bug: Choose largest consensus ID on ties.

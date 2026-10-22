@@ -20,9 +20,9 @@ resource sets. Package resources, numerical kernels, derivative rules and
 optional GPU dispatch are otherwise identical. The default CPU payload still
 contains 63 resources, and automatic GPU dispatch remains disabled.
 
-The [machine-readable record](../../packages/stridetorch/benchmarks/results/index-bounds.json)
+The [machine-readable record](../../packages/torchwasm/benchmarks/results/index-bounds.json)
 binds the exact implementation/test hashes to the
-[raw evidence archive](../../packages/stridetorch/benchmarks/results/index-bounds-harness.tar.gz).
+[raw evidence archive](../../packages/torchwasm/benchmarks/results/index-bounds-harness.tar.gz).
 
 | Functional verification | Result |
 | --- | --- |

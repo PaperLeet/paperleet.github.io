@@ -1,0 +1,108 @@
+/* LeetCode Discuss layer for the community feed, post page and in-pane solutions.
+   Loaded with the deferred community chunk, so it follows the global sheets. */
+
+/* Feed rows: loud title, quiet meta and excerpt, subtle hover. */
+.community-post-card { transition: background-color .15s; }
+@media (hover: hover) { main.community-page .community-post-card:hover { background: color-mix(in srgb, var(--text) 3%, var(--surface)); } }
+.community-post-card .post-title { margin: 6px 0 2px; font-size: var(--type-list-title); line-height: 1.45; }
+@media (max-width: 640px) { .community-post-card .post-title { font-size: var(--type-body); } }
+.community-post-card .post-problem-link { margin-top: 2px; font-size: var(--type-meta); }
+.community-post-card .post-reading-overview { margin: 2px 0 4px; color: var(--muted); font-size: var(--type-meta); }
+.community-post-card .post-reading-overview li > svg { color: var(--muted); }
+.community-post-card .inline-post-body { margin: 4px 0 6px; }
+.community-post-card .post-excerpt { color: var(--text-secondary); font-size: var(--type-small); line-height: 1.65; }
+.community-post-card .inline-post-body .post-excerpt { margin-bottom: 4px; }
+.community-post-card .inline-comment-toggle { min-height: var(--control-height, 44px); margin-inline-start: -8px; padding: 2px 8px; font-size: var(--type-meta); }
+.community-post-card .community-translation { margin-block: 2px; }
+/* Feed rows drop chrome that adds a line without adding information: a time-only
+   reading estimate, and the failed-translation notice (Retry stays on the post page). */
+.community-post-card .post-reading-overview:not(:has(li:not([data-reading-metric="time"]))),
+.community-post-card .community-translation.is-failed { display: none; }
+
+/* Post page: go straight from the author row to the content, like LeetCode Discuss.
+   The estimate's caveat stays for assistive technology and as the item tooltip. */
+.discussion-post .post-reading-overview.is-detailed { margin: 0 0 4px; padding: 0; border: 0; color: var(--muted); font-size: var(--type-meta); }
+.discussion-post .post-reading-overview.is-detailed > p { position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+.discussion-post .post-reading-overview.is-detailed li > svg { color: var(--muted); }
+/* A time-only estimate shares the row of the closed "Reading appearance" control instead of adding
+   its own line; while the appearance panel is open the estimate steps aside, so nothing moves.
+   Posts with an "On this page" outline keep two lines: the outline sits between the two. */
+@media (min-width: 641px) {
+  .discussion-post .discussion-reading:not(.has-outline):has(.discussion-reading-body > .reading-appearance-inline) { position: relative; }
+  .discussion-post .discussion-reading:not(.has-outline):has(.discussion-reading-body > .reading-appearance-inline) > .post-reading-overview.is-detailed:not(:has(li:not([data-reading-metric="time"]))) { position: absolute; inset-block-start: -8px; inset-inline-start: 0; display: flex; align-items: center; max-width: calc(100% - 220px); min-height: var(--control-height, 44px); }
+  .discussion-post .discussion-reading:not(.has-outline):has(.reading-appearance-inline > details[open]) > .post-reading-overview.is-detailed:not(:has(li:not([data-reading-metric="time"]))) { visibility: hidden; }
+}
+
+/* Post page: one uniform pill row that floats while the article scrolls. */
+.discussion-actions .post-bookmark > button,
+.discussion-actions .post-bookmark-signin,
+.discussion-actions > .discussion-post-quote,
+.discussion-actions > .post-report-trigger {
+  min-height: var(--control-height, 44px);
+  padding: 4px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-size: var(--type-small);
+}
+.discussion-actions > .post-report-trigger { border-color: transparent; background: transparent; padding-inline: 10px; }
+.discussion-actions .post-bookmark > button:hover:not(:disabled),
+.discussion-actions .post-bookmark-signin:hover,
+.discussion-actions > .discussion-post-quote:hover:not(:disabled),
+.discussion-actions > .post-report-trigger:hover { background: var(--surface2); color: var(--text); text-decoration: none; }
+.discussion-actions .post-bookmark > button.active { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, transparent); background: color-mix(in srgb, var(--accent) 7%, transparent); }
+.discussion-actions .discussion-compose-action { min-height: var(--control-height, 44px); padding: 4px 14px; border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line)); border-radius: 999px; background: transparent; color: var(--accent); font-size: var(--type-small); font-weight: 600; }
+.discussion-actions .discussion-compose-action:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 8%, var(--surface)); color: var(--accent); text-decoration: none; }
+@media (min-width: 700px) {
+  .discussion-post > .discussion-actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    margin: 24px -32px -32px;
+    padding: 12px 32px;
+    border-radius: 0 0 var(--radius-panel, 12px) var(--radius-panel, 12px);
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  }
+  /* Keep keyboard focus clear of the floating bar (WCAG 2.4.11). */
+  .discussion-post :is(a, button, summary, input, select, textarea, [tabindex]):not(.discussion-actions *) { scroll-margin-bottom: 80px; }
+}
+
+.discussion-actions > button .discussion-action-label { margin-left: 0; }
+@media (max-width: 640px) {
+  /* Phones: Like, Repost and the reply count become icon + count pills so the bar keeps to two rows;
+     the labels stay in each button's accessible name. */
+  .discussion-actions > button { padding-inline: 10px; }
+  .discussion-actions > .post-report-trigger { min-width: var(--control-height, 44px); justify-content: center; }
+  .discussion-actions :is(.post-report-label, .discussion-action-label) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+}
+
+/* Post header: back link left, quiet copy-link and refresh pair right. */
+.discussion-navigation .discussion-share .discussion-copy { min-height: var(--control-height, 44px); padding: 4px 10px; border: 0; border-radius: var(--control-radius, 8px); background: transparent; color: var(--text-secondary); font-size: var(--type-small); font-weight: 500; }
+.discussion-navigation .discussion-share .discussion-copy:hover { background: var(--surface2); color: var(--text); text-decoration: none; }
+/* Phones keep the header on one row: copy and refresh become icons with screen-reader labels. */
+@media (max-width: 640px) {
+  .discussion-navigation { flex-wrap: nowrap; }
+  .discussion-navigation .social-back { min-width: 0; }
+  .discussion-navigation > .button.subtle, .discussion-navigation .discussion-share .discussion-copy { flex: none; min-width: var(--control-height, 44px); justify-content: center; padding-inline: 8px; }
+  .discussion-navigation :is(.discussion-copy-label, .discussion-refresh-label) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+}
+
+/* Replies: the per-thread search explanation appears only while searching. */
+.discussion-reply-controls:not(:focus-within) > .discussion-reply-search-help { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+.discussion-reply-controls { gap: 6px 8px; margin-top: 10px; padding-bottom: 12px; }
+.discussion-reply-search { padding-top: 2px; }
+.reply-heading .discussion-share { margin-inline-start: auto; }
+.reply-heading .discussion-share :is(a, .discussion-copy) { min-height: var(--control-height, 44px); color: var(--muted); font-size: var(--type-meta); }
+.reply-heading .discussion-share :is(a, .discussion-copy):hover { color: var(--accent); }
+
+/* Workspace pane: compact contribute button beside the "All solutions" link. */
+.problem-community-heading .button { min-height: var(--control-height, 44px); padding: 4px 14px; font-size: var(--type-small); }
+
+@media (prefers-reduced-motion: reduce) { .community-post-card { transition: none; } }
+@media (forced-colors: active) {
+  .discussion-post > .discussion-actions { background: Canvas; }
+  .discussion-actions > button, .discussion-actions .post-bookmark > button { border-color: ButtonText; }
+}

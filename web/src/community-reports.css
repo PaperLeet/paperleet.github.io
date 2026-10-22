@@ -1,6 +1,6 @@
 .post-report-trigger { display:inline-flex; align-items:center; gap:6px; min-height:40px; color:var(--muted); font:inherit; font-size:var(--type-small); background:none; border:0; cursor:pointer; }
 .post-report-trigger:hover { color:var(--accent); }
-.post-report-dialog { width:min(480px,calc(100vw - 32px)); max-height:calc(100dvh - 40px); box-sizing:border-box; overflow:auto; padding:24px; border:1px solid var(--line); border-radius:14px; background:var(--surface); color:var(--text); box-shadow:0 18px 70px #0003; }
+.post-report-dialog { width:min(480px,calc(100vw - 32px)); max-height:calc(100dvh - 40px); box-sizing:border-box; overflow:auto; padding:24px; border:1px solid var(--line); border-radius:var(--radius-lg); background:var(--surface-overlay); color:var(--text); box-shadow:var(--shadow-dialog); }
 .post-report-dialog::backdrop { background:#11182766; }
 .post-report-dialog header { display:flex; align-items:center; justify-content:space-between; gap:16px; }
 .post-report-dialog h2 { margin:0; font-size:var(--type-title); }

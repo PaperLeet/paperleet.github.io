@@ -1,5 +1,5 @@
-﻿id: network_biology/degree_distribution
-number: 104
+id: network_biology/degree_distribution
+number: 114
 title: 生物互作网络：节点度与度分布
 title_en: 'Biological Interaction Networks: Node Degree and Degree Distribution'
 paper_id: scale-free-networks
@@ -11,10 +11,6 @@ paper:
   doi: 10.1242/jcs.02714
   anchors:
   - 'Graph concepts for cellular networks: node degree and the degree distribution P(k), the fraction of nodes with degree k'
-  literature_record:
-    dataset: docs/research/network_biology_literature.json
-    id: 3
-    category: Classic Foundations & Network Topology
 type: implement
 parent: null
 difficulty: E

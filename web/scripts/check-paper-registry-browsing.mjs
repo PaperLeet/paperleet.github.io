@@ -158,4 +158,9 @@ try{
  const refreshed=await server.ssrLoadModule('/src/registryPosition.ts?fresh=app-reload');assert.equal(refreshed.readRegistryPosition(readingSource).paper,'graphsage');assert.equal(refreshed.readRegistryPosition(readingSource).top,readingTop);const beforeClose=returnedModule.getBoundingClientRect().top;await click(document.querySelector('[aria-label="Dismiss position notice"]'));await wait(()=>!document.querySelector('.paper-registry-position')&&document.activeElement===returnedModule);assert.equal(returnedModule.getBoundingClientRect().top,beforeClose);
  assert.equal(JSON.stringify(fixture.practice.saved),savedBefore);assert.equal(calls.flushes,0);assert.deepEqual(calls.runs,[]);assert.deepEqual(calls.submits,[]);assert.equal(network.length,0);
  assert.equal(starReads.length,1);console.log('PASS actual App registry reading return: captured exercise entry and exact source view, committed-notice geometry and keyboard focus after workspace return, reloadable public position, dismissal without a reading jump, unchanged private source, coalesced public star read and no judge/flush/registry or private requests');
-}finally{await act(async()=>{if(root)root.unmount();await server.close();});rmSync(cache,{recursive:true,force:true});dom.window.close();for(const[name,value]of originals)if(value)Object.defineProperty(globalThis,name,value);else delete globalThis[name];}
+}finally{
+ // Commit React's unmount and effect cleanup before stopping its module server.
+ // Waiting for Vite inside act can leave deferred imports alive until CI times out.
+ if(root)await act(async()=>root.unmount());
+ await server.close();rmSync(cache,{recursive:true,force:true});dom.window.close();for(const[name,value]of originals)if(value)Object.defineProperty(globalThis,name,value);else delete globalThis[name];
+}

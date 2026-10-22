@@ -2,7 +2,7 @@
 import numpy as np
 import pytest
 import torch as native
-from stridetorch import UnsupportedOperation, torch
+from torchwasm import UnsupportedOperation, torch
 
 
 def reduce(api, x, name, functional=True, **options):

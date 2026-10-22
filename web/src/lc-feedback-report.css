@@ -1,0 +1,94 @@
+/* Detailed test report (ReportView, ReportTests, FailureDiagnostic, TestComparison). Imported by those deferred
+   modules, so these rules stay out of the initial CSS and load after every global sheet. */
+.report-view .result-head { gap:16px; padding:16px 18px; border:1px solid var(--line); border-radius:var(--radius-lg); background:var(--surface); align-items:center; }
+.report-view .result-head h3 { margin:0; font-size:var(--type-lead); font-weight:600; line-height:1.5; }
+.report-view .result-head > div { min-width:0; align-items:center; gap:10px; }
+.report-view .result-head > div > svg { flex:none; }
+.report-view .result-head > span { flex:none; color:var(--muted); font-size:var(--type-meta); font-variant-numeric:tabular-nums; }
+.report-view .result-head.success { border-color:color-mix(in srgb,var(--green) 25%,var(--line)); background:color-mix(in srgb,var(--green) 3%,var(--surface)); }
+.report-view .result-head.failure > div { color:var(--red); }
+.report-view .result-head.failure { border-color:color-mix(in srgb,var(--red) 22%,var(--line)); background:color-mix(in srgb,var(--red) 3%,var(--surface)); }
+.report-view .result-head.previous { color:var(--muted); }
+.report-view:not([data-source="current"]) .result-summary-meter > span { background:var(--muted); }
+.report-view .report-source-notice { border-radius:8px; font-size:var(--type-small); line-height:1.85; }
+.report-view .report-meta { gap:10px; margin:16px 0; font-size:var(--type-meta); color:var(--muted); }
+.report-view .test-layers { gap:8px; margin-bottom:20px; }
+.report-view .test-layers > div { padding:10px 12px; border:1px solid var(--line); border-radius:var(--control-radius); background:var(--surface); }
+.report-view .test-layers > div > div:first-child { align-items:baseline; font-size:var(--type-small); }
+.report-view .test-layers b { color:var(--text-secondary); font-family:var(--font-mono); font-size:var(--type-meta); font-weight:600; }
+.report-view .test-layers span { font-variant-numeric:tabular-nums; }
+.report-view .test-layers small { margin:2px 0 10px; font-size:var(--type-meta); }
+/* Layer meters: a grey track with the passed share in green (the old track was a dark-only literal). */
+.report-view .mini-progress { background:var(--surface3); }
+.report-view .test-layers .mini-progress i { background:var(--green); }
+/* Flat test rows: one surface and thin dividers; only code and values are filled blocks. */
+.report-tests .test-detail { margin-bottom:6px; border-radius:var(--control-radius); }
+.report-tests .test-detail.failed { border-color:color-mix(in srgb,var(--red) 24%,var(--line)); }
+.report-tests .test-detail > summary { gap:10px; min-height:40px; padding:8px 12px; background:var(--surface); }
+.report-tests .test-detail.failed > summary { background:var(--surface); }
+.report-tests .test-detail.failed > summary > svg { color:var(--red); }
+.report-tests .test-detail > summary:hover { background:var(--surface2); }
+.report-tests .test-detail > summary > span { flex:1; white-space:normal; overflow-wrap:anywhere; line-height:1.6; }
+.report-tests .test-detail > summary b { padding:1px 6px; border:0; border-radius:var(--radius-xs); background:var(--surface2); font-family:var(--font-mono); font-size:var(--type-caption); font-weight:500; color:var(--text-secondary); }
+.report-tests .test-detail > summary small { flex:none; color:var(--muted); font-variant-numeric:tabular-nums; font-size:var(--type-meta); }
+.report-tests .test-body { padding:14px 14px 16px; background:var(--surface); }
+.failure-insight { padding:0 0 0 12px; border:0; border-left:2px solid var(--red); border-radius:0; background:none; }
+.failure-insight > span { color:var(--red); font-size:var(--type-caption); font-weight:600; letter-spacing:.04em; }
+.failure-insight > p { margin:4px 0 0; font-family:var(--font-mono); font-size:var(--type-meta); line-height:1.75; white-space:pre-wrap; overflow-wrap:break-word; }
+.failure-insight .source-location-button { min-height:36px; margin:10px 0 0; padding:6px 12px; border-radius:var(--control-radius); font-size:var(--type-meta); }
+.failure-trace { margin-top:12px; border:1px solid var(--line); border-radius:var(--control-radius); background:var(--surface); overflow:hidden; }
+.report-tests .test-body .failure-trace { margin-top:14px; border:0; border-top:1px solid var(--line); border-radius:0; }
+.failure-trace > summary { min-height:40px; padding:8px 12px; color:var(--text-secondary); font-size:var(--type-meta); line-height:1.6; cursor:pointer; }
+.report-tests .test-body .failure-trace > summary { padding-inline:0; }
+.failure-trace > summary:hover { color:var(--text); background:var(--surface2); }
+.report-tests .test-body .failure-trace > summary:hover { background:none; }
+.failure-trace-toolbar { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; padding:4px 12px; border-block:1px solid var(--line); background:var(--surface2); color:var(--muted); font-size:var(--type-caption); }
+.report-tests .test-body .failure-trace-toolbar { border:0; border-bottom:1px solid var(--line); border-radius:var(--control-radius) var(--control-radius) 0 0; background:color-mix(in srgb,var(--text) 5%,var(--surface)); }
+.failure-trace-toolbar > button { display:inline-flex; align-items:center; gap:5px; min-height:36px; font-size:var(--type-meta); }
+.failure-trace .failure-message { margin:0; padding:12px; border:0; border-radius:0; max-height:340px; overflow:auto; font-size:var(--type-meta); line-height:1.8; background:var(--surface); color:var(--text-secondary); }
+.report-tests .test-body .failure-trace .failure-message { border-radius:0 0 var(--control-radius) var(--control-radius); background:color-mix(in srgb,var(--text) 5%,var(--surface)); }
+.diagnostic-copy-status { margin:0; padding:7px 12px; color:var(--muted); font-size:var(--type-small); }
+.test-body .test-why { display:flex; flex-direction:column; gap:4px; padding:12px 0 0; margin:14px 0 0; border-top:1px solid var(--line); border-radius:0; background:none; font-size:var(--type-meta); line-height:1.75; color:var(--text-secondary); }
+.test-why > b { color:var(--text); font-size:var(--type-meta); font-weight:600; }
+/* Numerical comparison: stacked, labelled grey monospace blocks that never break inside a number. */
+.test-comparison { margin:14px 0 0; padding:0; border:0; border-radius:0; background:none; overflow-wrap:normal; }
+.test-comparison h4 { margin:0 0 6px; color:var(--text-secondary); font-size:var(--type-meta); font-weight:500; }
+.test-comparison .comparison-index,.test-comparison .comparison-values dd { display:block; margin:0; padding:9px 12px; border-radius:var(--control-radius); background:color-mix(in srgb,var(--text) 5%,var(--surface)); color:var(--text); font:var(--type-small)/1.6 var(--font-mono); white-space:pre; overflow-x:auto; overflow-wrap:normal; }
+.test-comparison .comparison-values { grid-template-columns:minmax(0,1fr); gap:12px; margin:12px 0; }
+@media (min-width:560px) { .test-comparison .comparison-values { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+.test-comparison .comparison-values > div { min-width:0; padding:0; border:0; border-radius:0; background:none; }
+.test-comparison .comparison-values dt { margin-bottom:6px; color:var(--text-secondary); font-size:var(--type-meta); font-weight:500; }
+.test-comparison .comparison-values > div:first-child dd { box-shadow:inset 2px 0 var(--green); background:color-mix(in srgb,var(--green) 5%,var(--surface)); }
+.test-comparison .comparison-values > div:last-child dd { box-shadow:inset 2px 0 var(--red); background:color-mix(in srgb,var(--red) 6%,var(--surface)); }
+.test-comparison .comparison-tolerances { grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr)); gap:8px 12px; margin:0 0 6px; }
+.test-comparison .comparison-tolerances > div { padding:6px 10px; border-radius:var(--radius-sm); background:color-mix(in srgb,var(--text) 4%,var(--surface)); }
+.test-comparison .comparison-tolerances dt { margin-bottom:2px; color:var(--text-secondary); font-size:var(--type-meta); }
+.test-comparison .comparison-tolerances dd { font:var(--type-meta)/1.6 var(--font-mono); overflow-wrap:break-word; }
+.test-comparison p { margin:6px 0 0; font-size:var(--type-meta); line-height:1.7; overflow-wrap:break-word; }
+@media (forced-colors:active) { .test-comparison .comparison-index,.test-comparison .comparison-values dd { border:1px solid CanvasText; } }
+/* Keep result controls readable inside narrow, independently resized panes. */
+.report-tests .test-outcome-switch { max-width:100%; flex-wrap:nowrap; }
+.report-tests .test-outcome-switch button { min-height:28px; padding-block:2px; }
+.report-tests .test-outcome-switch button > span { font-size:var(--type-meta); }
+.report-tests .test-outcome-switch button:nth-child(2)[aria-pressed="true"] { color:var(--red); }
+.report-tests .test-layer-filter { min-width:0; max-width:100%; }
+.report-tests .test-layer-filter select { min-height:28px; min-width:0; max-width:100%; }
+.report-test-actions { flex-wrap:wrap; font-size:var(--type-small); }
+.report-test-actions .text-button,.test-filter-empty > .text-button { min-height:36px; font-size:var(--type-meta); }
+.report-tests .test-detail > summary:focus-visible,.failure-trace > summary:focus-visible { outline:2px solid var(--accent); outline-offset:-3px; }
+.report-tests .test-layer-filter select:focus-visible { outline-offset:-3px; }
+@media (max-width:600px) {
+  .report-view .result-head { padding:14px; flex-wrap:wrap; gap:10px; }
+  .report-view .result-head h3 { font-size:var(--type-body); }
+  .report-view .test-layers { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .report-tests .test-body { padding:12px; }
+  .report-tests .test-detail > summary { gap:7px; padding-inline:10px; }
+  .failure-trace-toolbar > span { display:none; }
+  .failure-trace-toolbar > button { margin-left:auto; }
+  /* One-row segmented control: the layer filter takes the next row instead of splitting the pill. */
+  .report-tests .test-outcome-switch { flex:1 1 100%; flex-wrap:nowrap; }
+  .report-tests .test-outcome-switch button { flex:1; justify-content:center; padding-inline:6px; }
+  .report-tests .test-layer-filter { flex:1 1 auto; }
+  .report-tests .test-layer-filter select { width:100%; max-width:none; }
+}
+@media (pointer:coarse) { .failure-insight .source-location-button,.failure-trace-toolbar > button,.report-tests .test-outcome-switch button,.report-tests .test-layer-filter select,.report-test-actions .text-button,.test-filter-empty > .text-button { min-height:44px; } .report-tests .test-layer-filter select { font-size:var(--type-body); } }

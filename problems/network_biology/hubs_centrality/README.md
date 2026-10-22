@@ -1,10 +1,10 @@
 # 枢纽蛋白识别：度中心性与介数中心性
 
-建立在“生物互作网络：节点度与度分布”（第 93 题）的图约定之上；建议先完成它，但本题不复用你的旧代码。这里用两种不同方式给蛋白质互作（PPI）网络的节点排序，选出**候选枢纽**。
+建立在“生物互作网络：节点度与度分布”（`network_biology/degree_distribution`）的图约定之上；建议先完成它，但本题不复用你的旧代码。这里用两种不同方式给蛋白质互作（PPI）网络的节点排序，选出**候选枢纽**。
 
 ## 任务与标准约定
 
-与第 93 题相同的简单无向图：`str` 节点名唯一，`(u, v)` 对内顺序任意，重复或反向重复的边只算一条，自环被忽略，孤立节点保留在结果中，节点名重复或边端点不在 `nodes` 中抛出 `ValueError`。
+与 `network_biology/degree_distribution` 相同的简单无向图：`str` 节点名唯一，`(u, v)` 对内顺序任意，重复或反向重复的边只算一条，自环被忽略，孤立节点保留在结果中，节点名重复或边端点不在 `nodes` 中抛出 `ValueError`。
 
 ```python
 degree_centrality(nodes, edges) -> dict[str, float]
@@ -56,4 +56,3 @@ T0 检查返回类型。T1 检查手算的双模块数值，并用穷举简单�
 ## 参考资料
 
 - Barabasi AL, Oltvai ZN. [Network biology: understanding the cell's functional organization](https://doi.org/10.1038/nrg1272). *Nature Reviews Genetics* 5(2), 101-113 (2004)。其中的 Box 1 介绍基本网络度量。
-- 文献数据集记录：`docs/research/network_biology_literature.json`，id 1。

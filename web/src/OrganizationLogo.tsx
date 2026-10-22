@@ -8,7 +8,7 @@ const files: Record<string, string> = {
   bytedance: 'bytedance-linkedin.jpg', alibaba: 'alibaba-linkedin.jpg', tencent: 'tencent-linkedin.jpg', baidu: 'baidu-linkedin.jpg',
   meituan: 'meituan-linkedin.jpg', kuaishou: 'kuaishou-linkedin.jpg', deepseek: 'deepseek-linkedin.jpg', brown: 'brown.png',
   google: 'google-linkedin.jpg', meta: 'meta-linkedin.jpg', amazon: 'amazon-linkedin.jpg', apple: 'apple-linkedin.jpg',
-  nvidia: 'nvidia-linkedin.jpg', anthropic: 'anthropic-linkedin.jpg', xai: 'xai.ico',
+  nvidia: 'nvidia-linkedin.jpg', anthropic: 'anthropic-linkedin.jpg', xai: 'xai.ico', huggingface: 'huggingface.svg',
   mit: 'mit.svg', 'uc-berkeley': 'uc-berkeley.ico', cornell: 'cornell.ico',
   stanford: 'stanford.ico', cmu: 'cmu.ico',
 };

@@ -1,0 +1,3220 @@
+{
+  "status": "qualified_local_091_current_main_resource_ui",
+  "version": "0.91.0",
+  "qualified_source_base": "59b46c1267a532ab048e6f357503a57d7195838d",
+  "parent_main": "34628ed3f83ec335193fd24006d84d64741b3225",
+  "preserved_development_head": "ff030ea07aadfd4e7ba5a788b9458c9d28c09b62",
+  "previous_main_qualification": {
+    "path": "packages/torchwasm/benchmarks/results/qualification-0.91-main-catalog-followup.json",
+    "sha256": "cf97f03bf59f2506319217e8c45a7c15486c39d7883a9cbc33449aff6e46552c",
+    "raw_archive": {
+      "path": "packages/torchwasm/benchmarks/results/qualification-0.91-main-catalog-followup-harness.tar.gz",
+      "sha256": "398dce21d19b4c85d4305b75106fb76934c415a7978f562cbce5bf5fccbf1f67",
+      "bytes": 3696768,
+      "manifest_sha256": "daffb2f413072b3628329173074da5c0bbde7e06ca2c139952c6535fabead19f",
+      "logical_files": 6322,
+      "unique_local_blobs": 316,
+      "inherited_archive_blobs": 2755,
+      "inherited_git_blobs": 0,
+      "format": "sha256-deduplicated-v2"
+    }
+  },
+  "core_qualification": {
+    "path": "packages/torchwasm/benchmarks/results/qualification-0.91-cumprod.json",
+    "sha256": "aff6ec649d195279a61bb9b3e7f9aedd2e618da1260d6ab75196d8502e8fa18d",
+    "raw_archive": {
+      "path": "packages/torchwasm/benchmarks/results/qualification-0.91-cumprod-harness.tar.gz",
+      "sha256": "5f3329a82610cb442408e1756d0f27e1f142b7ac5ddf095f47a14458ab1eb37f",
+      "bytes": 16291144,
+      "manifest_sha256": "121fe9f3be7e9ac03804d1ff4a3f85ab3cfef183cab2cebe463707cfe7bba2dd",
+      "logical_files": 7845,
+      "unique_local_blobs": 2856,
+      "inherited_archive_blobs": 0,
+      "inherited_git_blobs": 0,
+      "format": "sha256-deduplicated-v1"
+    }
+  },
+  "public_files": {
+    "_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+    "_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+    "_normalization.py": "ee0e0abca72343d13425ba430fda9d8933198ac52297115c55ce621faca2a06c",
+    "_nn.py": "6fac6422569a18167eb0a9d978320aa0483e11be989c0c21f5fcefd73999ae63",
+    "_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+    "_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+    "_multihead.py": "c5319edfd61a8e12fcf18b0e6059bf3f841a0dd80b8faab573b3773b2d2acacf",
+    "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+    "_convolution.py": "303f7562ae23518ef46bcfbca259d4d6894e490dbe992d8181079b09bf363d5a",
+    "_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+    "_errors.py": "d4db8985fff533c02b354e750fde07bbec3996c0c90273a2d48f1629ecc96fb5",
+    "_module.py": "badab7a25f3d66170c5a5fdd1c2b4f36f611bb1628e58f151dae9c4641b13727",
+    "_graph.py": "6aaa666f2a0f44cd52ca3b2af5e9d8b6aa92cf9fa809d40b9c347ddf8341944e",
+    "_distance.py": "a40f4e2749314790a3a9e7626739aaf0b570c6ad254bcb500d07853c87e2ec7f",
+    "_ops.py": "ef501ff790e00cee47e0b62a761cbfa3eaba159f96b01277a2350bab1d81628d",
+    "_transpose_convolution.py": "74edf86685872218f32936633823c760257c727283d77b00f67f95a32bfe14d9",
+    "_attention.py": "e84044bc25147aa9424d06d91c269aa4741c8441e25253976f48e850384c00a3",
+    "_api.py": "ae1511434cae24b1df41cc85764ee0585c0d2e2795561dd84fcbbd1011469d15",
+    "_sequences.py": "75964a026e7cbaff8fda6106f3c894f5a22da790c6bedbfd183196289d437afc",
+    "_convolution_padding.py": "4ec1b307faf7d6ca39d7b4e2eeeac8da383b813cc21407dd8825d04b44acf8d3",
+    "_cli.py": "80a02bc86b1f73b2fb0bbfd948c49afe0c269a32dc861631d1824a938bb5c9eb",
+    "_cholesky.py": "cd4e7b8d607365719afd3d601df6c1aa45b40d223c816315a6e038eebca60b6c",
+    "_batchnorm.py": "b7de9ab4c6c2738e0de528b4a44e944adc185e0b854c8d8c8837fe0c8463b848",
+    "__init__.py": "89e3d4f1ad87b72c2cd42c08e12a410307f0646bc48dd767c05320a7ced91fbf",
+    "_determinants.py": "dc12f1ef1f7b8e7bc8155f92c100bb31843e11fd519a4ca295fea606a31eed42",
+    "_promotion.py": "d53ffa3fcfbd70841f52fcad2007c8dc51414526b68319a45d1878eaaa040b82",
+    "_arithmetic.py": "6edf441673469c365ece33f9d15d58b5cfaf8a940c443a2bca12f19d9bafd55f",
+    "_linalg.py": "8392805de1e95c8f408bc7b0fd7a3574418a24feabded8bc4bf7c8c430304d1d",
+    "_pooling.py": "5cb9ced0bf9ed79c8549e3c7696a5b110e53af43203bae047b6d27efee2888cb",
+    "_tensor.py": "9b75e948de75dd0dd4fa9429f04537d5d6f273cd6b1fa5c665408ce45c06800f",
+    "runtime.py": "7f72c3c386f41f5d70769ef4012bf7a2eb7f00b7f924d31449391ef29648caa9",
+    "_type_info.py": "e5ff59ffb232823e56eee7ea215e056535525507e11313da77b2df5003dc0a68",
+    "_registry.py": "fed7ca219d645cf317a51091e83440f9f65da5ce4ab1562d5acddec59057abc0",
+    "_defaults.py": "3584396a1ab6c345f4a9f0b94e33f13b050b8a21eeea959b518a3ea8705a5a17",
+    "NOTICE": "59f92a14b0b7754555742d9e19a02ed80725a9cb8fb2133db2e2119c4ed4f6a5",
+    "_random.py": "1beca3230d7fb7a1f92ef1a7e4a64e19c5e39be5ab8401c1e36ef3b08abdc414",
+    "_optim.py": "55412c079ba627054436549a2eee7df84f465b17ceaae37559ad826177b2b489",
+    "_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+    "_average_pooling.py": "0ca22fbb892ad41d1bcc95519166ddf542d66676bd61c7ea62ba7866190fb629",
+    "_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+    "_fused_matrix.py": "8c9f98fd33ee514db590ac097a78caf122cfe97ec2f3e7ee3fe19878ea554fbe",
+    "_state.py": "730a58a1aba37c75ead580ad69e052ad01c3937698f8fa07f79015ae68d53bdd",
+    "_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+    "_average_pooling3d.py": "1d81e78165eae51e762c3213ff4f2eba05ef123d3a8eb26f355f11073aa01ec2",
+    "_nn_modules.py": "5bc5a95df66792f270dc44b65151ac174e5ae8b08dcf452181776243d2bb7664",
+    "_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+    "_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+    "_reductions.py": "4357c45dc153396b3fb24ac566eb04a9b5301786f9a804f0b2e82802b906a824",
+    "_autograd.py": "f9959aaf8e1c6d242a3fe8bded02fce903e315e185064f42ba4fba5a60f2b8ef",
+    "_instancenorm.py": "2e365e6cb8e8c7afa1935c6158fb5ed80ece5a47d1e870dc06ea245120a2396d",
+    "_transformer.py": "4be0544e0008cc6917e12053ece7290ecee7f70cc9dedeb6efbf771a177ec0fd",
+    "_layout.py": "1c88dd00b2ab186704a58790695ad1fdfc5b489e79761a878135463e60253c1e",
+    "_higher_order.py": "c1eb8130aef40cf34265f0fab46d74a32e9c332f2f46b54e7d30a841799e71c4",
+    "_gradient_utils.py": "6ca0c769446932900014d5799445946ec944f6078b411f4157a7aa7c0d36307c",
+    "_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+    "_groupnorm.py": "46826f1f1e5040417ad64d5910c3ecb77025e0a340acdff4d86e760f3c95181d",
+    "_vector_norm.py": "9d1d8114a602589ba705be7f2d16643daffa189a759a1675b5354eed85a8d2b3",
+    "_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+    "_legacy.py": "46fc7a2ff0b3ea57454ea1ef4551e2cd455b3ce887733b0d1030b80b425feefb",
+    "_clamp.py": "a16867341c746bb7c4d1cbd81cada891081e6060388c1477161d203262dbc729",
+    "_indexed.py": "b27aedec3e6bcf2c6718e05fe2591fa98d049d5f4d42d384bc28b0b5b2848319",
+    "_pooling3d.py": "982511ea21dd05d6289c9080a8d6b185a66aac6bce9e7fbbecd59196fb51c320",
+    "_matmul.py": "593f120f3baae128131da5d9a1f9cd226e505c66e3b05b094f8cfc46f9e517f8",
+    "_optimizer.py": "9f6c93a0fdd538a6aa00f3b5770212fe1cbf214bf7cbb525e50b93a160e3b5d9",
+    "__main__.py": "2a0f4e1d24ee4c519ca361a05373dbb842accc5ac610272eabc7a2afd54194d1",
+    "_indexing.py": "4a8faad85e991cdd37ffe6f27c0e238cd5eee2fbaa9deeda3c8afb73d8e7f2e6",
+    "_activation.py": "f5e27e4cbd11677d90bc293719837da22e88f483939d16601b2c824594fc32ea",
+    "_construction.py": "656661a62d89fcdfb2e10dc197e6e3706d6e6f714e6e1a841718ddc421eb48fb",
+    "experimental/__init__.py": "f336f25c81929eac19abaa1e897014db9f16cc639a68aa6167d9acbcc7928a4b",
+    "experimental/webgpu/resident_bridge.py": "e4ed73e2e1bf41b5187d381004383e7276dcb0b5b3df6aa1fb9c367334cb70b7",
+    "experimental/webgpu/rpc-client.mjs": "821155085f2566f8a8376357143dccbf51277da955d0edf51dc22117a631527d",
+    "experimental/webgpu/__init__.py": "d92d4e79d00422256c5a1e379e6963039a4c6165099d7ff7bf0c8563498d245e",
+    "experimental/webgpu/gpu-service.mjs": "c94d08573ba975d071e1065b8a6e91b383708dfe3cb2d211f75109556db5b26b",
+    "experimental/webgpu/torch_bridge.py": "53c905577d4f1e1c7cac1c9fa3b60efcb3781eaa2f2fa2e84cdddaf432cecfba",
+    "experimental/webgpu/plan-program.mjs": "53e91df4357582cec150aa1660a2cdc7144c88c7b2d749f2aee4e13fe059a02d",
+    "experimental/webgpu/resources.py": "0e9d7e5de33575f39ec0da09caa8c3c29ed2b4bc1398dd545b92a25faf77bf5d",
+    "experimental/webgpu/_pyodide.py": "190e8e4691b434ac942d86e7a2c67b908ee9e692c3945a6a4f08b2bb9cfe31d4",
+    "experimental/webgpu/matrix_client.py": "67fdb3d1e403996cb363e08fd67330177612a3dacca51ddad3bf627624c08c52",
+    "experimental/webgpu/rpc-protocol.mjs": "1029deca26c775d64a00c0f1cc5efe9c604712cdc339c2c534379cbbdd0dd7da"
+  },
+  "sdk_files": {
+    "test_hvp_branching.py": "678503cd5c62c983314e856c9d85c2c53058529b02359b8aabaaa1c2b8b83e85",
+    "test_transpose_convolution.py": "e344595b6f2477463f14908296667fc722c608a38c8e7559a47fcd44435e79c1",
+    "test_dispatch.py": "b9754f43891274320d48eb8587773eb009d11def9e840195e777f66553273304",
+    "test_tensor_reverse.py": "9bd3ce9941803ae83f15a82155ccbb8529438680152a3b04c80055ce1e9e7a48",
+    "test_functional_jvp.py": "535d563bb285e610b938617652d8e0fe64aa05c8c603e68225977133fb01e759",
+    "test_convolution_padding.py": "676a59c01f922105d0ff3d1c900512d1fdfba4d37d87244c6b97eab724c16f2f",
+    "test_gradient_clipping.py": "01aacdde8587d0b8c8299cf0568552df491b01f62e59cfee76148328f012b14f",
+    "test_statistics.py": "f0f78908bb9d9805aceabf4d59f70a7fcfa3af6a623e962e77f69537f410a696",
+    "test_groupnorm.py": "4e60a71015ae006f7b3a9c77fe9f1bc0092cd9fc6f48c403fa90224cc201e518",
+    "test_cholesky.py": "25809ecb5ac55842b8e4ed58f124f4e4e608d397faa46e53bb1320b4ad01fc28",
+    "test_module_operator_pickle.py": "d5f7ab70e40b593e9fd445ba06c36f93dea81b53ee5241274576a0c1408ec1d0",
+    "test_det_jvp.py": "3a1ed6a82018979089807ccfbff717672e8dd13113a58bbdc42165ea5e54204f",
+    "test_average_pooling.py": "53d63f72012dba3462840226cd9be11c5c33d1e25ce106a727ed3c067a18f73d",
+    "test_binary_saved_values.py": "4d63b9217f421c02936c0334891dcff9383e69de87abbe7b951a42dcd03e5dd6",
+    "test_cholesky_solve.py": "aa0207084eed6d929874620ffdf490128aa8a3b5bea2a591aeef3b4f43821d27",
+    "test_feature_detection.py": "3aaaa403490fa1a6eaa5aa408a34d97711fda5b9540c6aca86e0eeeb764a01e2",
+    "test_inactive_pullbacks.py": "536e50c6770dff185685cc25f94e55df1f0ca5c3dc6105b5cff07e2b8aa77688",
+    "test_numpy_inputs.py": "2ba80d656b2f6c143a8b132ea9e64a18e1fe08571cc5349c55a9bc065837b544",
+    "test_pooling.py": "3b879fd33997efbbcff16f7c9e5d4d4371607f1d14f037e4939a2d70ee757abf",
+    "test_multihead_attention.py": "15346ce42e4dd23e860ebf8ad4aa79bf8a4f7d1cc45a7f603fef2790e62c59a0",
+    "test_joint_dense_routing.py": "be61b4d1099c43bfd50744faa0f85c67e23a73397338361ba6f1d562be7d27dc",
+    "test_cumsum.py": "06b712ce78ef03aee1b09dd3587549cd9fcb0d7bb85cd9f12b56b72c773a5b93",
+    "test_solve.py": "83ad12af1e8a1330b88f0baa894f50eac5b3f9d9e0b9de0d71d1fb06a3a2bb3e",
+    "test_indexed_accumulation.py": "83193576d97ec20801ffac234dead40d6f8a7ed0c265d1f8f466069908e9ec89",
+    "test_attention_efficiency.py": "cbd42a019acfe3aa19a54d17e0a9ed0d2e787ddeb90132b4f5eac43ba0cbed7b",
+    "test_matmul_wasm.py": "f5c0531b1cac5629f180d82b4b49a7c82f519ecacd7e97780ee5d4449cd13906",
+    "test_inverse_routing.py": "cbce1e9e31591e5cf03296693fa608a1d84f10abac655fbc537d9828f89e3f6a",
+    "test_conversion_modes.py": "07db6c04a6b2b57a744e32eb15388dd377392333657a2e60fb6e44617c53b015",
+    "test_joint_vjp.py": "0fc94038ad7aa6d079578e328b6330b1991b3e2949847ee5fb56eca11a00fac1",
+    "test_tensor_clamp.py": "669134f18f6a2d13e702a3546ef48828aba0ae2c5a8ed6259ae14eab3d9ad694",
+    "test_vector_products.py": "d1acb4cb327b67cf76054d409012022d372ee9f48080ff294031a272c7a13495",
+    "test_graph_lifecycle.py": "550ef4c657ccefbd241e28541dd72e403333663b5e9e6ebf2272f87765019f9d",
+    "test_convolution.py": "7a19ffd72719f7c044e34a1931df45bab7ba90174aa2606a409810abdb7e8bdf",
+    "test_wasm_owned_square.py": "34248b92831b054921c72284e947c63df771d0d7542683085285ed9130f2e690",
+    "test_shape_ops.py": "5a3a32e20c968e3504ca16cb8ad56c32f55fcd19ac2e02e159a46b0d14c4f90a",
+    "test_functional_vjp.py": "f765120d5ca8c613edbc5fb8d2904fc0d01b0b9e767caa8b3ebd7ec81117eb21",
+    "test_matmul_saved_values.py": "85adda6ce9ffcc76d6949cf318863312f68b8ea579338790a4d3645c324ea398",
+    "test_functional_jacobian.py": "ea0061f62377287e959c21a308162084c7cfb6f9d42ef572ef6657890714a8f5",
+    "test_webgpu_package.py": "36c0aa88300a3d9146fe2ca0efa43c7904f44c7dc343646492047babcf5f6189",
+    "test_default_dtype.py": "7261886dd207aa09b10c679e745c468da95fda75a2be1348ed50b7438c9459ed",
+    "test_module_lifecycle.py": "08ada21cf755c499979da8d595c25ee8639d25d2abbdd37cf5282c4117750694",
+    "test_indexing.py": "b39a615899c7d0314f28fb690f4a6fffcd8d60186f7c9099436d26f11e5b3d18",
+    "test_cumsum_execution.py": "4934b1611de1f941cae345e60d525e2557044da777207a9395e42672ca7d0562",
+    "test_batchnorm.py": "ad661c6432d2a3d1be69e5c5df7ac325b5be1d9c0c59253af0b915106f3165dc",
+    "test_distances.py": "69a964c074bfeaafa9c0a6489f12d82a9cc4fb246b3e65fada9cb4773fdb0011",
+    "test_optimizer_lifecycle.py": "746c7ab647d8330dbc24f6cec81df45b9ae704489b6e1c7cd01640cffc4a4037",
+    "test_promotion.py": "450d5bf942b94be30a62124cf319c6bef458b217affe452b8e5eb23c2a39177f",
+    "test_hvp_determinant.py": "1c26a83fb4161e0fc8f07213805f39f50510737a88c8e5ac8fe94ae835d82ad2",
+    "test_functional_jacobian_contracts.py": "d329582ca3f675ff7814f3a9afb01689c8b9194434384c25b34de69854f166be",
+    "test_binary_operand_lifetime.py": "4d25914b265b0bc41091e3473bb5f66c9ab4af9da38e963ad18c1c85d11f6493",
+    "test_hvp_graph_barriers.py": "49d974e3d4f0f3db602fb9ba587a1dd26ffa32c5c4ea0224bb225ba5c89747a6",
+    "test_clamp_contract.py": "467a8c1795f31ea548f62658d746c7fabd67835c75cd1abb4cc437a3b8597c63",
+    "test_type_info.py": "0586347f36d76cc10ddb43e5e704727384626d8de22bde6b80a0d5aad7607ff4",
+    "test_construction.py": "5fb056e5f44cd3ee00128c12b5866c439c5d383566777554afe1fba0c3257e3e",
+    "test_vector_norm.py": "d15a5abeb35b1a4ce53d818ad5bc06e9ecf9dba1f312f108cb738870913f8e3d",
+    "test_cholesky_inverse.py": "ecb189ea7c717ea2ae262eab57f5f82829cbd582aea214fdbe468818f243058c",
+    "test_attention.py": "3af76da9b25fbc85b71bc7c886423eb47931f9e7b8bd49da741b6198a884b842",
+    "test_pooling_1d.py": "493a8ad613efb14a96d45c239bc4eb6b13c8394c1bfa942266080619a19e37bd",
+    "test_piecewise_jvp.py": "f1b83de6527786a8a021e73653a2397d464f45ead0b2be52402c0154cd0c56ce",
+    "test_logical_zero.py": "147fadf85b6b6c5e75916c117a2298c66deb237e559eed91c6ee32ade45b40ca",
+    "test_triangular.py": "9ec27fabe2baffe69995726181205bd490d100a7999805eab0184ce433acb868",
+    "test_functional_jvp_dependencies.py": "f48684e71b253e519008e9be2428f4e33c8957aeb1fd8d6535352eb80ff7a6b1",
+    "test_jvp_preprocessing_subclass.py": "19749d4336527648fd5a84a0dae21370805b425b69fa519d79d672b373991355",
+    "test_hvp_reachable_branches.py": "073aea6c4941bcb9976d94c501ecdb9b5728caecbf5f3dc2a57d0933d247f381",
+    "test_linalg_failures.py": "1204f2f7fb04b45930eaae4845efda52e80983d60aa7a70b65694575e81619b7",
+    "test_nn_workflows.py": "6274835f3012c996a806dc2140a34f1a00d229f64265678b66c07327cc7d2ce7",
+    "test_mean.py": "23247769199a3810b16a239127fe92f3ba885285afdd54d770161bc31e2c2355",
+    "test_sequences.py": "d796a2356b30017c39fd02b841fc8870026a7c5f7b505ed56dc7aedef616efc5",
+    "test_joint_lifetime.py": "d481b515f710263c4a20ed91d8778a68bac596e0cd6a173f36b6319823e2f6f2",
+    "test_pooling_3d.py": "bf1b5d69b1a12905a7e6120baab7e089d4f03dcc28f1219267d548a5fb5a28ed",
+    "test_standalone.py": "506a586a31e6a5f6583f47797bf11ef57dcb728fb03a46e76058703c8b96c5dc",
+    "test_average_pooling_plans.py": "3c26a93f28522cd9e4a7d557960a4aa8b7e7828686f2b594b8c000f160a05421",
+    "test_instancenorm.py": "c9b6f08f8b9f69d7fea9b045e9c048cdf96c1e2c4b965938c27a77fea1ee33be",
+    "test_functional_hvp.py": "898acdf86c068bf7b96e6935bccc7e6e5eab5f2af3fb53eb7caf2dbfb7a0bfb5",
+    "test_logdet.py": "0b80548d2fe117ec5f358e236ecdc350c94db785031dc6b15ff87a6a0fcca72b",
+    "test_ieee.py": "eed41ef71360bad23710ee5dd561d1faf079775d853cd109e31bcf042c376734",
+    "test_hvp_reverse_cleanup.py": "9f3c9f34363e2ff570fca0ef9c326c505d0726c55af947d8052aaec95cf741c9",
+    "test_tensor_hooks.py": "36cc75a3def84eef2302f667c5396954fb5c9ce79a67a9c77c29cf0a30a5010c",
+    "test_cumprod.py": "681d5e50ea9a4a2ee0c102da3996e0aaaf750c4edd2d1316ce986b4d4d5a2222",
+    "test_gradient_layout.py": "71854d4d9874c48d0516e804353ef14ff7f3c586b84f0f9e32a1d323e4c840ce",
+    "test_layout.py": "afb8af20f40aee7c9f2070baba986070e5fcb06db11a79452b6155bb4009fd5a",
+    "test_matrix_products.py": "4527ea1802c471263ea7225a05d36d4720c852e775a17ef75340890181436560",
+    "test_scheduler_lifecycle.py": "d32c56476c69fa076376d643218424c0f89fa8b0b7d256760e1c79fb2622a0fb",
+    "test_selective_joint.py": "a77b3d6c68dafaabef5bf67beb4d23fbbbcd799fb2c9a6aa181607ba7264a929",
+    "test_reflected_division.py": "2899502dbc78cf0c4dbcc15bf24fa5cd0faffb6acddf147b463cc61a1388f379",
+    "test_determinant_policy.py": "da313c44f7468eba38f9bf5c74adcc8500626d7de2b30061d588dc670f8272c9",
+    "test_batched_matmul_wasm.py": "409b7fd890db460d0307801631ab3cac3ffd6aada28a88be7f54a895e8ddb4d2",
+    "test_arithmetic.py": "1a60b0911dcd00cfb093c5d9aa9dc37c04fb8f75276a87bcc09c26c4a22ad9a0",
+    "test_serialization.py": "89f0c429546ed32a1de0307a8494809b6f39feed6f77f2b588d84aa09ce1e913",
+    "test_axis_transforms.py": "76ee83ee02101c482a5d590ec5241d4855058a6516e1d8af6dad72cc76b8813a",
+    "test_module_hooks.py": "6941a9e01b7be34c468d8fbd873237495277b33444232db8566b13bbaa4182fb",
+    "test_power_precision.py": "1e52496609f4292f05cd39e161bf0eb851fb537788180ba22ad26f7ea11d5799",
+    "test_transformer.py": "ade633a9a93ac4fa05417344cd063c8e879571282c5c113fc7225a389709f625",
+    "test_average_pooling_1d.py": "70a3213d4448932b1955302000dc38352c2e518df1dad3457f2c5a26fc4f266d",
+    "test_classification.py": "f8eaf436059a40dd2389b3a4e785d589d14e2b0dc07cb3d130ef077e21e3fa85",
+    "test_functional_numpy_escape.py": "aca004d1afab5e43c63c87751bf178ae6389aca1092ba00330ea37a767e2e3b5",
+    "test_joint_gradient_release.py": "04e608aa35af3fdce7193a0f595668d933c21013b219fec45b36e6e20a42c4ac",
+    "test_nan_reductions.py": "1ee40f344867e3e321354fa5e520762cdfca9674e20640d4eaa2740259209575",
+    "test_average_pooling_3d.py": "63cd1a409014ab6827fefce4583f1a6d6ce14ddc26bd2e548594e2ceceb87d88",
+    "test_inverse.py": "016f817213e298c3d3ba75e6cd6276f79792489a4e977bb91e0f2aa66694ef56",
+    "test_fused_matrix.py": "159f1871c02f982a13c364fabb17d293683b7f60b43991a5877db969d182d339",
+    "test_linear_wasm.py": "e773c95aa992e7ef78d3242023f7471cf74dfcf304d54bf5f3574a6916c8a917"
+  },
+  "private_application": {
+    "paperleet/catalog.py": "735dc6c4ccf7e2e3b0a56e28e5b8f7aac8c29b575bc19a72f17e4c067f745a8c",
+    "paperleet/server.py": "f312e1a8bf80422d77dd4982f16f9e42d13f074b5f94093cb1d577695daf3ddd",
+    "paperleet/browser_judge.py": "d5033ddc6dc9af8bbe16606d584a529e26fe732a237462081c7b8723197ac5c1",
+    "paperleet/config.py": "ab5de5eceb0f614eebdfd4fec23aea0f61bc05b23a7f2cbcda2be89fff246ed8",
+    "paperleet/interview_catalog.json": "91fcc66f4587562a1141f2727b1f5479b9ba1d35f0492abcc8f53b7fa1688c50",
+    "paperleet/browser_config.py": "9c5654ed110b924b4ad913d0e12ac227187caf203da6608eb9bee90a4a4e06c0",
+    "paperleet/paper_catalog.py": "e63b9b5de167af2a0f40264f84944fde3063e18f12f6d6c394b74b66b3d0ec64",
+    "paperleet/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "paperleet/export.py": "656d3e730fb5bdfd9d177f1bd7b60248240ddc39e71d5cf422cef26a5e6e2aa8",
+    "paperleet/cli.py": "272d66ee9103ba8d3be2f828fafc962e942e64fe3421294b2db6428aa657d5f3",
+    "paperleet/daily_challenges.json": "729205e84bbf19f12d1964860f15847385a719918a1d7d9b8081447c3efbc573",
+    "paperleet/daily_challenges.py": "5a226d21cbe5a4762757f04797e2bb6c795acecc1205f20ddd6d2f2c78fb094a",
+    "paperleet/_vendor/__init__.py": "65dab731441f63d4010fbbceed668bda77e2b5c8661f62649f5bb60be7880240",
+    "paperleet/browser/numpy_autograd.py": "447e0f8a01d32c753f67c459f27e4744146fb5911d7cba36ddca6ea1d0c67b61",
+    "paperleet/browser/harness.py": "ca16c0c73f0b3d66e8f51993652da0517c78919dd3934a304d1669dd42cf6ff2",
+    "paperleet/browser/schedules_numpy.py": "3bf1a063af7c2427b12df0cf76f858bcf49b3fd018e40a213cb97d6838a85695",
+    "paperleet/common/oracles.py": "a581d1a393422467bd1f2e08ed6f409cb2e00709d3dc95d6daaaa323c85c26e7",
+    "paperleet/common/rl_envs.py": "43df0e150cf20bcea021b297e82399d9143e74af4b8a082f1d3bf8b532885646",
+    "paperleet/common/metrics.py": "d73783449d6f563d4c41f153a9c17710d8f7949ed0b1797f200028bc7af9cf61",
+    "paperleet/common/models.py": "88d639d18bf3986d61e6b8cbb89624d49379e7a7a0690c5bbe7081bea178ae92",
+    "paperleet/common/comparisons.py": "17271ed561a9be613c8ce0f3e08bbe53f61e45661b4dfb43e6c6b9f95210c21f",
+    "paperleet/common/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "paperleet/common/asserts.py": "8a341a2df520bdd62442135065bb3b0fe63942515bf97ff2c83d00484a5ed5e1",
+    "paperleet/common/toydata.py": "e0bf163bc9080de0a2f7799df5d08a9b0ae1103e837070419f8624aac66a2e13",
+    "paperleet/submissions/worker.py": "d1d64a8ae6ec60e8ae923a3d6b950a20a42f0fb8aa6c07052abfb04eb54a038a",
+    "paperleet/submissions/harness.py": "1a1e3046fc173037b3a4d54aa791fe9f01f581efee3866724041c3f5473966a6",
+    "paperleet/submissions/arxiv.py": "f8833d949870884190b9ddc181752e44866d142f94f6e09878f38a72bb41cb7f",
+    "paperleet/submissions/checks.py": "18c61d522c98db88575f5dd1fd30b9b61fdab384a07aef0aaf65261828f51278",
+    "paperleet/submissions/__init__.py": "316984484d70c7c32dd253350490d0ff036e4df6ed65aa51a930da2a6463faf0",
+    "paperleet/submissions/model.py": "f2ad7e63c8ee78d4a46a2bba2f76f3a1cb388881da2a47e06c670416a02bb04a",
+    "paperleet/submissions/sandbox.py": "2360228a855b273108655eddcedad372f860af2c92926964f10ed4fcf36f2077",
+    "paperleet/submissions/artifacts.py": "467ed9e0e041f4f6a24ea0e2b34df6b95ee42f0eab298b77fce01c8f39d9a5a0",
+    "paperleet/judge/queue.py": "faa434aa80e4701f8aec9d4a7bac1a36ae1084e1802a9cfe702165420e67c322",
+    "paperleet/judge/runner.py": "20bc3a9521d9e241bbcc8675340d7e5d6fd26c08d9bb91468b5710553ac23de8",
+    "paperleet/judge/mutation.py": "f1bfbec15f2ae6cc36d818ec1d22658985fadf6bf4fbd7b26c6ea10df40999a1",
+    "paperleet/judge/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "paperleet/judge/loader.py": "18b8b4cbaa197e78f4db3bdf387ba760b75a026a5ba8ccaae78a61fe9e2b6dc3",
+    "paperleet/judge/jobs_api.py": "b14089adbb6c496b68f021c31a46c5c9629c093c599dca0f92d0ff7fef69bde9",
+    "paperleet/judge/pytest_plugin.py": "3399c70b440fab97fa2acdebb5b7b3a24266c7958686b44f805656e324f2b4d9",
+    "paperleet/_vendor/torch/_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+    "paperleet/_vendor/torch/_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+    "paperleet/_vendor/torch/_normalization.py": "ee0e0abca72343d13425ba430fda9d8933198ac52297115c55ce621faca2a06c",
+    "paperleet/_vendor/torch/_nn.py": "6fac6422569a18167eb0a9d978320aa0483e11be989c0c21f5fcefd73999ae63",
+    "paperleet/_vendor/torch/_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+    "paperleet/_vendor/torch/_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+    "paperleet/_vendor/torch/_multihead.py": "c5319edfd61a8e12fcf18b0e6059bf3f841a0dd80b8faab573b3773b2d2acacf",
+    "paperleet/_vendor/torch/LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "paperleet/_vendor/torch/_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+    "paperleet/_vendor/torch/_convolution.py": "303f7562ae23518ef46bcfbca259d4d6894e490dbe992d8181079b09bf363d5a",
+    "paperleet/_vendor/torch/_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+    "paperleet/_vendor/torch/_errors.py": "d4db8985fff533c02b354e750fde07bbec3996c0c90273a2d48f1629ecc96fb5",
+    "paperleet/_vendor/torch/_module.py": "badab7a25f3d66170c5a5fdd1c2b4f36f611bb1628e58f151dae9c4641b13727",
+    "paperleet/_vendor/torch/_graph.py": "6aaa666f2a0f44cd52ca3b2af5e9d8b6aa92cf9fa809d40b9c347ddf8341944e",
+    "paperleet/_vendor/torch/_distance.py": "a40f4e2749314790a3a9e7626739aaf0b570c6ad254bcb500d07853c87e2ec7f",
+    "paperleet/_vendor/torch/_ops.py": "ef501ff790e00cee47e0b62a761cbfa3eaba159f96b01277a2350bab1d81628d",
+    "paperleet/_vendor/torch/_transpose_convolution.py": "74edf86685872218f32936633823c760257c727283d77b00f67f95a32bfe14d9",
+    "paperleet/_vendor/torch/_attention.py": "e84044bc25147aa9424d06d91c269aa4741c8441e25253976f48e850384c00a3",
+    "paperleet/_vendor/torch/_api.py": "ae1511434cae24b1df41cc85764ee0585c0d2e2795561dd84fcbbd1011469d15",
+    "paperleet/_vendor/torch/_sequences.py": "75964a026e7cbaff8fda6106f3c894f5a22da790c6bedbfd183196289d437afc",
+    "paperleet/_vendor/torch/_convolution_padding.py": "4ec1b307faf7d6ca39d7b4e2eeeac8da383b813cc21407dd8825d04b44acf8d3",
+    "paperleet/_vendor/torch/_cli.py": "80a02bc86b1f73b2fb0bbfd948c49afe0c269a32dc861631d1824a938bb5c9eb",
+    "paperleet/_vendor/torch/_cholesky.py": "cd4e7b8d607365719afd3d601df6c1aa45b40d223c816315a6e038eebca60b6c",
+    "paperleet/_vendor/torch/_batchnorm.py": "b7de9ab4c6c2738e0de528b4a44e944adc185e0b854c8d8c8837fe0c8463b848",
+    "paperleet/_vendor/torch/__init__.py": "89e3d4f1ad87b72c2cd42c08e12a410307f0646bc48dd767c05320a7ced91fbf",
+    "paperleet/_vendor/torch/_determinants.py": "dc12f1ef1f7b8e7bc8155f92c100bb31843e11fd519a4ca295fea606a31eed42",
+    "paperleet/_vendor/torch/_promotion.py": "d53ffa3fcfbd70841f52fcad2007c8dc51414526b68319a45d1878eaaa040b82",
+    "paperleet/_vendor/torch/_arithmetic.py": "6edf441673469c365ece33f9d15d58b5cfaf8a940c443a2bca12f19d9bafd55f",
+    "paperleet/_vendor/torch/_linalg.py": "8392805de1e95c8f408bc7b0fd7a3574418a24feabded8bc4bf7c8c430304d1d",
+    "paperleet/_vendor/torch/_pooling.py": "5cb9ced0bf9ed79c8549e3c7696a5b110e53af43203bae047b6d27efee2888cb",
+    "paperleet/_vendor/torch/_tensor.py": "9b75e948de75dd0dd4fa9429f04537d5d6f273cd6b1fa5c665408ce45c06800f",
+    "paperleet/_vendor/torch/runtime.py": "7f72c3c386f41f5d70769ef4012bf7a2eb7f00b7f924d31449391ef29648caa9",
+    "paperleet/_vendor/torch/_type_info.py": "e5ff59ffb232823e56eee7ea215e056535525507e11313da77b2df5003dc0a68",
+    "paperleet/_vendor/torch/_registry.py": "fed7ca219d645cf317a51091e83440f9f65da5ce4ab1562d5acddec59057abc0",
+    "paperleet/_vendor/torch/_defaults.py": "3584396a1ab6c345f4a9f0b94e33f13b050b8a21eeea959b518a3ea8705a5a17",
+    "paperleet/_vendor/torch/NOTICE": "59f92a14b0b7754555742d9e19a02ed80725a9cb8fb2133db2e2119c4ed4f6a5",
+    "paperleet/_vendor/torch/_random.py": "1beca3230d7fb7a1f92ef1a7e4a64e19c5e39be5ab8401c1e36ef3b08abdc414",
+    "paperleet/_vendor/torch/_optim.py": "55412c079ba627054436549a2eee7df84f465b17ceaae37559ad826177b2b489",
+    "paperleet/_vendor/torch/_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+    "paperleet/_vendor/torch/_average_pooling.py": "0ca22fbb892ad41d1bcc95519166ddf542d66676bd61c7ea62ba7866190fb629",
+    "paperleet/_vendor/torch/_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+    "paperleet/_vendor/torch/_fused_matrix.py": "8c9f98fd33ee514db590ac097a78caf122cfe97ec2f3e7ee3fe19878ea554fbe",
+    "paperleet/_vendor/torch/_state.py": "730a58a1aba37c75ead580ad69e052ad01c3937698f8fa07f79015ae68d53bdd",
+    "paperleet/_vendor/torch/_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+    "paperleet/_vendor/torch/_average_pooling3d.py": "1d81e78165eae51e762c3213ff4f2eba05ef123d3a8eb26f355f11073aa01ec2",
+    "paperleet/_vendor/torch/_nn_modules.py": "5bc5a95df66792f270dc44b65151ac174e5ae8b08dcf452181776243d2bb7664",
+    "paperleet/_vendor/torch/_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+    "paperleet/_vendor/torch/_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+    "paperleet/_vendor/torch/_reductions.py": "4357c45dc153396b3fb24ac566eb04a9b5301786f9a804f0b2e82802b906a824",
+    "paperleet/_vendor/torch/_autograd.py": "f9959aaf8e1c6d242a3fe8bded02fce903e315e185064f42ba4fba5a60f2b8ef",
+    "paperleet/_vendor/torch/_instancenorm.py": "2e365e6cb8e8c7afa1935c6158fb5ed80ece5a47d1e870dc06ea245120a2396d",
+    "paperleet/_vendor/torch/_transformer.py": "4be0544e0008cc6917e12053ece7290ecee7f70cc9dedeb6efbf771a177ec0fd",
+    "paperleet/_vendor/torch/_layout.py": "1c88dd00b2ab186704a58790695ad1fdfc5b489e79761a878135463e60253c1e",
+    "paperleet/_vendor/torch/_higher_order.py": "c1eb8130aef40cf34265f0fab46d74a32e9c332f2f46b54e7d30a841799e71c4",
+    "paperleet/_vendor/torch/_gradient_utils.py": "6ca0c769446932900014d5799445946ec944f6078b411f4157a7aa7c0d36307c",
+    "paperleet/_vendor/torch/_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+    "paperleet/_vendor/torch/_groupnorm.py": "46826f1f1e5040417ad64d5910c3ecb77025e0a340acdff4d86e760f3c95181d",
+    "paperleet/_vendor/torch/_vector_norm.py": "9d1d8114a602589ba705be7f2d16643daffa189a759a1675b5354eed85a8d2b3",
+    "paperleet/_vendor/torch/_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+    "paperleet/_vendor/torch/_legacy.py": "46fc7a2ff0b3ea57454ea1ef4551e2cd455b3ce887733b0d1030b80b425feefb",
+    "paperleet/_vendor/torch/_clamp.py": "a16867341c746bb7c4d1cbd81cada891081e6060388c1477161d203262dbc729",
+    "paperleet/_vendor/torch/_indexed.py": "b27aedec3e6bcf2c6718e05fe2591fa98d049d5f4d42d384bc28b0b5b2848319",
+    "paperleet/_vendor/torch/_pooling3d.py": "982511ea21dd05d6289c9080a8d6b185a66aac6bce9e7fbbecd59196fb51c320",
+    "paperleet/_vendor/torch/_matmul.py": "593f120f3baae128131da5d9a1f9cd226e505c66e3b05b094f8cfc46f9e517f8",
+    "paperleet/_vendor/torch/_optimizer.py": "9f6c93a0fdd538a6aa00f3b5770212fe1cbf214bf7cbb525e50b93a160e3b5d9",
+    "paperleet/_vendor/torch/__main__.py": "2a0f4e1d24ee4c519ca361a05373dbb842accc5ac610272eabc7a2afd54194d1",
+    "paperleet/_vendor/torch/_indexing.py": "4a8faad85e991cdd37ffe6f27c0e238cd5eee2fbaa9deeda3c8afb73d8e7f2e6",
+    "paperleet/_vendor/torch/_activation.py": "f5e27e4cbd11677d90bc293719837da22e88f483939d16601b2c824594fc32ea",
+    "paperleet/_vendor/torch/_construction.py": "656661a62d89fcdfb2e10dc197e6e3706d6e6f714e6e1a841718ddc421eb48fb"
+  },
+  "numerical_reuse": {
+    "status": "verified_091_core_reuse_and_catalog_followup",
+    "head": "50ca8aa619f8c5ad28aff7523a8b52db242d028e",
+    "core_record": "packages/torchwasm/benchmarks/results/qualification-0.91-cumprod.json",
+    "core_record_sha256": "aff6ec649d195279a61bb9b3e7f9aedd2e618da1260d6ab75196d8502e8fa18d",
+    "core_archive_sha256": "5f3329a82610cb442408e1756d0f27e1f142b7ac5ddf095f47a14458ab1eb37f",
+    "integrity": {
+      "qualification-0.91-cumprod.json": {
+        "status": "verified_evidence_integrity",
+        "format": "sha256-deduplicated-v1",
+        "logical_files": 7845,
+        "local_blobs": 2856,
+        "inherited_archive_blobs": 0,
+        "inherited_git_blobs": 0,
+        "current_source_checked": true,
+        "external_capture_directories_used": false,
+        "archive_sha256": "5f3329a82610cb442408e1756d0f27e1f142b7ac5ddf095f47a14458ab1eb37f"
+      },
+      "qualification-0.91-cumprod-replay.json": {
+        "status": "verified_evidence_integrity",
+        "format": "sha256-deduplicated-v1",
+        "logical_files": 193,
+        "local_blobs": 193,
+        "inherited_archive_blobs": 0,
+        "inherited_git_blobs": 0,
+        "current_source_checked": true,
+        "external_capture_directories_used": false,
+        "archive_sha256": "c7d4886a267ceb61fe150842c7b0e4f2852fb1d2576d2a416811b2f45e09594f"
+      }
+    },
+    "public_resources": 80,
+    "sdk_modules": 102,
+    "private_application_resources": 108,
+    "full_native_application_input_count": 1513,
+    "unchanged_native_inputs": 1510,
+    "changed_native_inputs": {
+      "/Users/david/Developer/PaperLeet-torch-release/paperleet/interview_catalog.json": {
+        "qualified": "69f80a3a799b51c6774b361085078dba9d685dfc1ce15f92db36150618e084c4",
+        "current": "91fcc66f4587562a1141f2727b1f5479b9ba1d35f0492abcc8f53b7fa1688c50"
+      },
+      "/Users/david/Developer/PaperLeet-torch-release/tests/test_interview_catalog.py": {
+        "qualified": "27268fe41c0d9f10bbff4c8947e2bab52f90497722eb88cf8de137b4db9b2ab8",
+        "current": "c280e04c463523bde16c2fefd21591bec585749f487b2414497031d149e7d06a"
+      },
+      "/Users/david/Developer/PaperLeet-torch-release/packages/torchwasm/README.md": {
+        "qualified": "0530546153f092fe3a0de9a72405b69d5e8f7a65a5aaf5197adc0d6d79840130",
+        "current": "2f4e3c7445aa89e5b9c668ddae4dd066d4e3806c76b689633b2201e0d753c8d9"
+      }
+    },
+    "private_application": {
+      "paperleet/catalog.py": "735dc6c4ccf7e2e3b0a56e28e5b8f7aac8c29b575bc19a72f17e4c067f745a8c",
+      "paperleet/server.py": "f312e1a8bf80422d77dd4982f16f9e42d13f074b5f94093cb1d577695daf3ddd",
+      "paperleet/browser_judge.py": "d5033ddc6dc9af8bbe16606d584a529e26fe732a237462081c7b8723197ac5c1",
+      "paperleet/config.py": "ab5de5eceb0f614eebdfd4fec23aea0f61bc05b23a7f2cbcda2be89fff246ed8",
+      "paperleet/interview_catalog.json": "91fcc66f4587562a1141f2727b1f5479b9ba1d35f0492abcc8f53b7fa1688c50",
+      "paperleet/browser_config.py": "9c5654ed110b924b4ad913d0e12ac227187caf203da6608eb9bee90a4a4e06c0",
+      "paperleet/paper_catalog.py": "e63b9b5de167af2a0f40264f84944fde3063e18f12f6d6c394b74b66b3d0ec64",
+      "paperleet/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "paperleet/export.py": "656d3e730fb5bdfd9d177f1bd7b60248240ddc39e71d5cf422cef26a5e6e2aa8",
+      "paperleet/cli.py": "272d66ee9103ba8d3be2f828fafc962e942e64fe3421294b2db6428aa657d5f3",
+      "paperleet/daily_challenges.json": "729205e84bbf19f12d1964860f15847385a719918a1d7d9b8081447c3efbc573",
+      "paperleet/daily_challenges.py": "5a226d21cbe5a4762757f04797e2bb6c795acecc1205f20ddd6d2f2c78fb094a",
+      "paperleet/_vendor/__init__.py": "65dab731441f63d4010fbbceed668bda77e2b5c8661f62649f5bb60be7880240",
+      "paperleet/browser/numpy_autograd.py": "447e0f8a01d32c753f67c459f27e4744146fb5911d7cba36ddca6ea1d0c67b61",
+      "paperleet/browser/harness.py": "ca16c0c73f0b3d66e8f51993652da0517c78919dd3934a304d1669dd42cf6ff2",
+      "paperleet/browser/schedules_numpy.py": "3bf1a063af7c2427b12df0cf76f858bcf49b3fd018e40a213cb97d6838a85695",
+      "paperleet/common/oracles.py": "a581d1a393422467bd1f2e08ed6f409cb2e00709d3dc95d6daaaa323c85c26e7",
+      "paperleet/common/rl_envs.py": "43df0e150cf20bcea021b297e82399d9143e74af4b8a082f1d3bf8b532885646",
+      "paperleet/common/metrics.py": "d73783449d6f563d4c41f153a9c17710d8f7949ed0b1797f200028bc7af9cf61",
+      "paperleet/common/models.py": "88d639d18bf3986d61e6b8cbb89624d49379e7a7a0690c5bbe7081bea178ae92",
+      "paperleet/common/comparisons.py": "17271ed561a9be613c8ce0f3e08bbe53f61e45661b4dfb43e6c6b9f95210c21f",
+      "paperleet/common/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "paperleet/common/asserts.py": "8a341a2df520bdd62442135065bb3b0fe63942515bf97ff2c83d00484a5ed5e1",
+      "paperleet/common/toydata.py": "e0bf163bc9080de0a2f7799df5d08a9b0ae1103e837070419f8624aac66a2e13",
+      "paperleet/submissions/worker.py": "d1d64a8ae6ec60e8ae923a3d6b950a20a42f0fb8aa6c07052abfb04eb54a038a",
+      "paperleet/submissions/harness.py": "1a1e3046fc173037b3a4d54aa791fe9f01f581efee3866724041c3f5473966a6",
+      "paperleet/submissions/arxiv.py": "f8833d949870884190b9ddc181752e44866d142f94f6e09878f38a72bb41cb7f",
+      "paperleet/submissions/checks.py": "18c61d522c98db88575f5dd1fd30b9b61fdab384a07aef0aaf65261828f51278",
+      "paperleet/submissions/__init__.py": "316984484d70c7c32dd253350490d0ff036e4df6ed65aa51a930da2a6463faf0",
+      "paperleet/submissions/model.py": "f2ad7e63c8ee78d4a46a2bba2f76f3a1cb388881da2a47e06c670416a02bb04a",
+      "paperleet/submissions/sandbox.py": "2360228a855b273108655eddcedad372f860af2c92926964f10ed4fcf36f2077",
+      "paperleet/submissions/artifacts.py": "467ed9e0e041f4f6a24ea0e2b34df6b95ee42f0eab298b77fce01c8f39d9a5a0",
+      "paperleet/judge/queue.py": "faa434aa80e4701f8aec9d4a7bac1a36ae1084e1802a9cfe702165420e67c322",
+      "paperleet/judge/runner.py": "20bc3a9521d9e241bbcc8675340d7e5d6fd26c08d9bb91468b5710553ac23de8",
+      "paperleet/judge/mutation.py": "f1bfbec15f2ae6cc36d818ec1d22658985fadf6bf4fbd7b26c6ea10df40999a1",
+      "paperleet/judge/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "paperleet/judge/loader.py": "18b8b4cbaa197e78f4db3bdf387ba760b75a026a5ba8ccaae78a61fe9e2b6dc3",
+      "paperleet/judge/jobs_api.py": "b14089adbb6c496b68f021c31a46c5c9629c093c599dca0f92d0ff7fef69bde9",
+      "paperleet/judge/pytest_plugin.py": "3399c70b440fab97fa2acdebb5b7b3a24266c7958686b44f805656e324f2b4d9",
+      "paperleet/_vendor/torch/_module_conversion.py": "9ca544334ba99d70868719aed9a56274322ca111e7773be6950f03ad763d1cdf",
+      "paperleet/_vendor/torch/_classification.py": "907d30dc2ead3fc0b328f2e76158d75d111ffebf72159a3c235322477f9cf4a4",
+      "paperleet/_vendor/torch/_normalization.py": "ee0e0abca72343d13425ba430fda9d8933198ac52297115c55ce621faca2a06c",
+      "paperleet/_vendor/torch/_nn.py": "6fac6422569a18167eb0a9d978320aa0483e11be989c0c21f5fcefd73999ae63",
+      "paperleet/_vendor/torch/_serialization.py": "836aadca4da136b2c3e1d4b225736cd13ca5320f81d157d14414076b4065ab04",
+      "paperleet/_vendor/torch/_containers.py": "9ec8d1e510ca296f3df0e7744e446dc6f19fa0bf5de880ec85027e6272ed13e5",
+      "paperleet/_vendor/torch/_multihead.py": "c5319edfd61a8e12fcf18b0e6059bf3f841a0dd80b8faab573b3773b2d2acacf",
+      "paperleet/_vendor/torch/LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "paperleet/_vendor/torch/_backend.py": "cdec35091fa42f984fe7f45ed6e061cc0ff798914228dae96d824e9a44317439",
+      "paperleet/_vendor/torch/_convolution.py": "303f7562ae23518ef46bcfbca259d4d6894e490dbe992d8181079b09bf363d5a",
+      "paperleet/_vendor/torch/_conversion.py": "004711292eb9da0ea6f24ecd2ce15f01eedceeedc00c094d2f892c9ebd8788cd",
+      "paperleet/_vendor/torch/_errors.py": "d4db8985fff533c02b354e750fde07bbec3996c0c90273a2d48f1629ecc96fb5",
+      "paperleet/_vendor/torch/_module.py": "badab7a25f3d66170c5a5fdd1c2b4f36f611bb1628e58f151dae9c4641b13727",
+      "paperleet/_vendor/torch/_graph.py": "6aaa666f2a0f44cd52ca3b2af5e9d8b6aa92cf9fa809d40b9c347ddf8341944e",
+      "paperleet/_vendor/torch/_distance.py": "a40f4e2749314790a3a9e7626739aaf0b570c6ad254bcb500d07853c87e2ec7f",
+      "paperleet/_vendor/torch/_ops.py": "ef501ff790e00cee47e0b62a761cbfa3eaba159f96b01277a2350bab1d81628d",
+      "paperleet/_vendor/torch/_transpose_convolution.py": "74edf86685872218f32936633823c760257c727283d77b00f67f95a32bfe14d9",
+      "paperleet/_vendor/torch/_attention.py": "e84044bc25147aa9424d06d91c269aa4741c8441e25253976f48e850384c00a3",
+      "paperleet/_vendor/torch/_api.py": "ae1511434cae24b1df41cc85764ee0585c0d2e2795561dd84fcbbd1011469d15",
+      "paperleet/_vendor/torch/_sequences.py": "75964a026e7cbaff8fda6106f3c894f5a22da790c6bedbfd183196289d437afc",
+      "paperleet/_vendor/torch/_convolution_padding.py": "4ec1b307faf7d6ca39d7b4e2eeeac8da383b813cc21407dd8825d04b44acf8d3",
+      "paperleet/_vendor/torch/_cli.py": "80a02bc86b1f73b2fb0bbfd948c49afe0c269a32dc861631d1824a938bb5c9eb",
+      "paperleet/_vendor/torch/_cholesky.py": "cd4e7b8d607365719afd3d601df6c1aa45b40d223c816315a6e038eebca60b6c",
+      "paperleet/_vendor/torch/_batchnorm.py": "b7de9ab4c6c2738e0de528b4a44e944adc185e0b854c8d8c8837fe0c8463b848",
+      "paperleet/_vendor/torch/__init__.py": "89e3d4f1ad87b72c2cd42c08e12a410307f0646bc48dd767c05320a7ced91fbf",
+      "paperleet/_vendor/torch/_determinants.py": "dc12f1ef1f7b8e7bc8155f92c100bb31843e11fd519a4ca295fea606a31eed42",
+      "paperleet/_vendor/torch/_promotion.py": "d53ffa3fcfbd70841f52fcad2007c8dc51414526b68319a45d1878eaaa040b82",
+      "paperleet/_vendor/torch/_arithmetic.py": "6edf441673469c365ece33f9d15d58b5cfaf8a940c443a2bca12f19d9bafd55f",
+      "paperleet/_vendor/torch/_linalg.py": "8392805de1e95c8f408bc7b0fd7a3574418a24feabded8bc4bf7c8c430304d1d",
+      "paperleet/_vendor/torch/_pooling.py": "5cb9ced0bf9ed79c8549e3c7696a5b110e53af43203bae047b6d27efee2888cb",
+      "paperleet/_vendor/torch/_tensor.py": "9b75e948de75dd0dd4fa9429f04537d5d6f273cd6b1fa5c665408ce45c06800f",
+      "paperleet/_vendor/torch/runtime.py": "7f72c3c386f41f5d70769ef4012bf7a2eb7f00b7f924d31449391ef29648caa9",
+      "paperleet/_vendor/torch/_type_info.py": "e5ff59ffb232823e56eee7ea215e056535525507e11313da77b2df5003dc0a68",
+      "paperleet/_vendor/torch/_registry.py": "fed7ca219d645cf317a51091e83440f9f65da5ce4ab1562d5acddec59057abc0",
+      "paperleet/_vendor/torch/_defaults.py": "3584396a1ab6c345f4a9f0b94e33f13b050b8a21eeea959b518a3ea8705a5a17",
+      "paperleet/_vendor/torch/NOTICE": "59f92a14b0b7754555742d9e19a02ed80725a9cb8fb2133db2e2119c4ed4f6a5",
+      "paperleet/_vendor/torch/_random.py": "1beca3230d7fb7a1f92ef1a7e4a64e19c5e39be5ab8401c1e36ef3b08abdc414",
+      "paperleet/_vendor/torch/_optim.py": "55412c079ba627054436549a2eee7df84f465b17ceaae37559ad826177b2b489",
+      "paperleet/_vendor/torch/_module_hooks.py": "c9c8d9e04e8c79f5d18e28211256aca3efc87e17c4d44ccfc6358e7a6931ab2b",
+      "paperleet/_vendor/torch/_average_pooling.py": "0ca22fbb892ad41d1bcc95519166ddf542d66676bd61c7ea62ba7866190fb629",
+      "paperleet/_vendor/torch/_integration.py": "0c172f0d5ba706e73569234fc1ed1d3b99b91cdf19ed2d9e1c41cdde3959f2d0",
+      "paperleet/_vendor/torch/_fused_matrix.py": "8c9f98fd33ee514db590ac097a78caf122cfe97ec2f3e7ee3fe19878ea554fbe",
+      "paperleet/_vendor/torch/_state.py": "730a58a1aba37c75ead580ad69e052ad01c3937698f8fa07f79015ae68d53bdd",
+      "paperleet/_vendor/torch/_schedulers.py": "35fc4ff4e2c987a994bc189020fcceefbcb91fd5d59195054ae0bcc377946281",
+      "paperleet/_vendor/torch/_average_pooling3d.py": "1d81e78165eae51e762c3213ff4f2eba05ef123d3a8eb26f355f11073aa01ec2",
+      "paperleet/_vendor/torch/_nn_modules.py": "5bc5a95df66792f270dc44b65151ac174e5ae8b08dcf452181776243d2bb7664",
+      "paperleet/_vendor/torch/_tensor_hooks.py": "4b8751b8da3ae864caab12fb4b43127f94715987d0902a6cf844d06c56e1ae00",
+      "paperleet/_vendor/torch/_statistics.py": "d45d7fc0e9dc0fc3a914e3000ccf4da00ca8095602bd54451b5169ccf80ddad8",
+      "paperleet/_vendor/torch/_reductions.py": "4357c45dc153396b3fb24ac566eb04a9b5301786f9a804f0b2e82802b906a824",
+      "paperleet/_vendor/torch/_autograd.py": "f9959aaf8e1c6d242a3fe8bded02fce903e315e185064f42ba4fba5a60f2b8ef",
+      "paperleet/_vendor/torch/_instancenorm.py": "2e365e6cb8e8c7afa1935c6158fb5ed80ece5a47d1e870dc06ea245120a2396d",
+      "paperleet/_vendor/torch/_transformer.py": "4be0544e0008cc6917e12053ece7290ecee7f70cc9dedeb6efbf771a177ec0fd",
+      "paperleet/_vendor/torch/_layout.py": "1c88dd00b2ab186704a58790695ad1fdfc5b489e79761a878135463e60253c1e",
+      "paperleet/_vendor/torch/_higher_order.py": "c1eb8130aef40cf34265f0fab46d74a32e9c332f2f46b54e7d30a841799e71c4",
+      "paperleet/_vendor/torch/_gradient_utils.py": "6ca0c769446932900014d5799445946ec944f6078b411f4157a7aa7c0d36307c",
+      "paperleet/_vendor/torch/_device.py": "b901acfbc9bed8ae11d460c86851d29cda7b0db15ab184ec030aa33019adc2dd",
+      "paperleet/_vendor/torch/_groupnorm.py": "46826f1f1e5040417ad64d5910c3ecb77025e0a340acdff4d86e760f3c95181d",
+      "paperleet/_vendor/torch/_vector_norm.py": "9d1d8114a602589ba705be7f2d16643daffa189a759a1675b5354eed85a8d2b3",
+      "paperleet/_vendor/torch/_grad_mode.py": "d6b8a99819a9786d8f58e7c7bc7a649955d90a7f640d2657280ff80fd1dc285c",
+      "paperleet/_vendor/torch/_legacy.py": "46fc7a2ff0b3ea57454ea1ef4551e2cd455b3ce887733b0d1030b80b425feefb",
+      "paperleet/_vendor/torch/_clamp.py": "a16867341c746bb7c4d1cbd81cada891081e6060388c1477161d203262dbc729",
+      "paperleet/_vendor/torch/_indexed.py": "b27aedec3e6bcf2c6718e05fe2591fa98d049d5f4d42d384bc28b0b5b2848319",
+      "paperleet/_vendor/torch/_pooling3d.py": "982511ea21dd05d6289c9080a8d6b185a66aac6bce9e7fbbecd59196fb51c320",
+      "paperleet/_vendor/torch/_matmul.py": "593f120f3baae128131da5d9a1f9cd226e505c66e3b05b094f8cfc46f9e517f8",
+      "paperleet/_vendor/torch/_optimizer.py": "9f6c93a0fdd538a6aa00f3b5770212fe1cbf214bf7cbb525e50b93a160e3b5d9",
+      "paperleet/_vendor/torch/__main__.py": "2a0f4e1d24ee4c519ca361a05373dbb842accc5ac610272eabc7a2afd54194d1",
+      "paperleet/_vendor/torch/_indexing.py": "4a8faad85e991cdd37ffe6f27c0e238cd5eee2fbaa9deeda3c8afb73d8e7f2e6",
+      "paperleet/_vendor/torch/_activation.py": "f5e27e4cbd11677d90bc293719837da22e88f483939d16601b2c824594fc32ea",
+      "paperleet/_vendor/torch/_construction.py": "656661a62d89fcdfb2e10dc197e6e3706d6e6f714e6e1a841718ddc421eb48fb"
+    },
+    "changed_private_catalog": {
+      "paperleet/interview_catalog.json": {
+        "qualified": "69f80a3a799b51c6774b361085078dba9d685dfc1ce15f92db36150618e084c4",
+        "current": "91fcc66f4587562a1141f2727b1f5479b9ba1d35f0492abcc8f53b7fa1688c50"
+      }
+    },
+    "native_catalog": {
+      "status": "passed_updated_catalog_on_both_numpy_environments",
+      "receipts": [
+        {
+          "label": "modern",
+          "command": [
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+            "-B",
+            "-m",
+            "pytest",
+            "tests/test_interview_catalog.py",
+            "-q",
+            "-p",
+            "no:cacheprovider",
+            "--basetemp=/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-1085/modern-tmp",
+            "--junitxml=/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-1085/modern.xml"
+          ],
+          "exit_code": 0,
+          "log_sha256": "da2450991f6829eedb651480e556778c20810645b8186fff8543e2d2ac6130ed",
+          "counts": {
+            "tests": 1,
+            "errors": 0,
+            "failures": 0,
+            "skipped": 0
+          }
+        },
+        {
+          "label": "minimum",
+          "command": [
+            "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-137/native26-env/bin/python",
+            "-B",
+            "-m",
+            "pytest",
+            "tests/test_interview_catalog.py",
+            "-q",
+            "-p",
+            "no:cacheprovider",
+            "--basetemp=/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-1085/minimum-tmp",
+            "--junitxml=/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-1085/minimum.xml"
+          ],
+          "exit_code": 0,
+          "log_sha256": "364fae48cbe8f4ef8e995f8fb3224d43792e784eb9919ceefea2fe0106918edf",
+          "counts": {
+            "tests": 1,
+            "errors": 0,
+            "failures": 0,
+            "skipped": 0
+          }
+        }
+      ],
+      "scope": "Complete changed catalogue regression module; unchanged numerical application tests remain qualified by hashes.",
+      "ci_triggered": false,
+      "pushed": false,
+      "published": false,
+      "deployed": false
+    },
+    "unchanged_active_data_files": 183,
+    "prior_sdk": {
+      "modern_passed": 14009,
+      "minimum_passed": 14006,
+      "minimum_skipped": 3,
+      "node_passed": 13993,
+      "chrome_passed": 13993
+    },
+    "prior_native_application": {
+      "passed": 33653,
+      "skipped": 1
+    },
+    "prior_all_module_wasm": 89,
+    "reuse_scope": "Every numerical source, SDK module, private application resource and active data asset retains its qualified hash. Full native application inputs differ in the already-rebuilt standalone README and the current-main catalogue plus its complete test module. Catalogue regressions rerun on both NumPy environments; private application payload differs only in that catalogue. Current-main frontend/build/Worker and all six rebuilt packages are rechecked separately.",
+    "release_policy_files": {
+      ".github/workflows/ci.yml": "345296bb9592f17e84e98ab2247eb30bea152d3543b46dfe575eaceb31eb137f",
+      ".github/workflows/pages.yml": "797546f44c96b642f456ed15e34dcab09624e17fe8f8dad37e83a8a25058b2cb",
+      "web/scripts/check-release-request.cjs": "15c2458b8bd6429226a2ba40d5a41b1d7644ee032ecf43c5a854c3c153487d6a",
+      "web/scripts/pages-release-gate.cjs": "cb57661501e723c30dc4540855ecd1f27c0ff7b1bb826bf0e0fe3fa86c3dfd14",
+      "web/scripts/check-pages-release.cjs": "94fb650c606dc7f6c6210bd39be7d3368c60cddbdb6312114090cc996c7b7567",
+      "web/scripts/check-pages-backfill.cjs": "6353d0e303defba12cc915133c1ffa7ecf4f3d040c3c94d27b74961c743909a8",
+      "docs/releasing.md": "209a00612c57e015659ae0bf4c4095fb713afdd9a89c19f3e96a5120928fec4d"
+    },
+    "development_branch_preserved": true,
+    "ci_triggered": false,
+    "pushed": false,
+    "published": false,
+    "deployed": false
+  },
+  "native_catalog": {
+    "status": "passed_updated_catalog_on_both_numpy_environments",
+    "receipts": [
+      {
+        "label": "modern",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+          "-B",
+          "-m",
+          "pytest",
+          "tests/test_interview_catalog.py",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp=/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-1085/modern-tmp",
+          "--junitxml=/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-1085/modern.xml"
+        ],
+        "exit_code": 0,
+        "log_sha256": "da2450991f6829eedb651480e556778c20810645b8186fff8543e2d2ac6130ed",
+        "counts": {
+          "tests": 1,
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0
+        }
+      },
+      {
+        "label": "minimum",
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-137/native26-env/bin/python",
+          "-B",
+          "-m",
+          "pytest",
+          "tests/test_interview_catalog.py",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp=/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-1085/minimum-tmp",
+          "--junitxml=/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-1085/minimum.xml"
+        ],
+        "exit_code": 0,
+        "log_sha256": "364fae48cbe8f4ef8e995f8fb3224d43792e784eb9919ceefea2fe0106918edf",
+        "counts": {
+          "tests": 1,
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0
+        }
+      }
+    ],
+    "scope": "Complete changed catalogue regression module; unchanged numerical application tests remain qualified by hashes.",
+    "ci_triggered": false,
+    "pushed": false,
+    "published": false,
+    "deployed": false
+  },
+  "packages": {
+    "status": "passed_final_torchwasm_package_builds",
+    "version": "0.91.0",
+    "artifacts": [
+      {
+        "path": "public-dist/torchwasm-0.91.0-py3-none-any.whl",
+        "sha256": "bdac591d4ae64409c00966a226f8cc033f3a745133e112a74d433f154452c3dd",
+        "resources": 80
+      },
+      {
+        "path": "public-dist/torchwasm-0.91.0.tar.gz",
+        "sha256": "981d5f6d9439734a67ca8c0e5a2fec0876e4d4323dbb44b516504ab578aac396"
+      },
+      {
+        "path": "public-rebuild-dist/torchwasm-0.91.0-py3-none-any.whl",
+        "sha256": "bdac591d4ae64409c00966a226f8cc033f3a745133e112a74d433f154452c3dd",
+        "resources": 80
+      },
+      {
+        "path": "private-dist/paperleet-0.1.0-py3-none-any.whl",
+        "sha256": "bb947938fb5a1ce948484fdda8692e0d8a98cc44c5046f86098e7469758de664",
+        "resources": 69
+      },
+      {
+        "path": "private-dist/paperleet-0.1.0.tar.gz",
+        "sha256": "a5bd3116b71cabb2680b30464d4865b7517d33c09ee9dffdba5504468d019dba"
+      },
+      {
+        "path": "private-rebuild-dist/paperleet-0.1.0-py3-none-any.whl",
+        "sha256": "c32a54015ef98961a7f49da6bf91b57457baf2f7e3c7281e9d75b2ee8a1c7b20",
+        "resources": 69
+      }
+    ],
+    "receipts": [
+      {
+        "label": "public",
+        "exit_code": 0,
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+          "-B",
+          "-c",
+          "from setuptools import build_meta;import sys;target=sys.argv[1];build_meta.build_sdist(target);build_meta.build_wheel(target)",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-1084/public-dist"
+        ],
+        "log_sha256": "8c1cb75e069a9634e7cd53043f0dfdfff4e1ddeb5cdaec8245f0ae3c5c55a522"
+      },
+      {
+        "label": "public-rebuild",
+        "exit_code": 0,
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+          "-B",
+          "-c",
+          "from setuptools import build_meta;import sys;target=sys.argv[1];build_meta.build_wheel(target)",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-1084/public-rebuild-dist"
+        ],
+        "log_sha256": "46efd56a77f805cbd32ac8459dbd154b27925192ae7af3fff0310b3414a13379"
+      },
+      {
+        "label": "private",
+        "exit_code": 0,
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+          "-B",
+          "-c",
+          "from setuptools import build_meta;import sys;target=sys.argv[1];build_meta.build_sdist(target);build_meta.build_wheel(target)",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-1084/private-dist"
+        ],
+        "log_sha256": "11c25293129a560ac9fcee0f7de49a4f950d6619ea6b1af9756d1f2fe5c8b630"
+      },
+      {
+        "label": "private-rebuild",
+        "exit_code": 0,
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+          "-B",
+          "-c",
+          "from setuptools import build_meta;import sys;target=sys.argv[1];build_meta.build_wheel(target)",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-1084/private-rebuild-dist"
+        ],
+        "log_sha256": "17e58a64f323990f045cffd46e28af3ecd223fea299ed7f7063d620554cb2cd9"
+      },
+      {
+        "label": "install",
+        "exit_code": 0,
+        "command": [
+          "/Users/david/.local/bin/uv",
+          "pip",
+          "install",
+          "--python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+          "--target",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-1084/installed",
+          "--no-deps",
+          "--offline",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-1084/public-dist/torchwasm-0.91.0-py3-none-any.whl",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-1084/private-dist/paperleet-0.1.0-py3-none-any.whl"
+        ],
+        "log_sha256": "5370ecff38725fb76ca36bbf71a0406e1b42640a4d2f514850e2c725d605e376"
+      },
+      {
+        "label": "np25-smoke",
+        "exit_code": 0,
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+          "-I",
+          "-B",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-1084/smoke.py",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-1084/installed",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-1084/source-plan.json"
+        ],
+        "log_sha256": "d75f52350415780bf619aca55ebb5e977b169ce0c4a99eeb349bc9b7911be7cf"
+      },
+      {
+        "label": "np126-smoke",
+        "exit_code": 0,
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-137/native26-env/bin/python",
+          "-I",
+          "-B",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-1084/smoke.py",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-1084/installed",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-1084/source-plan.json"
+        ],
+        "log_sha256": "57dac00540b39084b14fdf0fa7a2f656a8cb44f06ba26dfd89c9bd5b6fff642f"
+      }
+    ],
+    "public_resources": 80,
+    "private_resources": 69,
+    "sdk_files": 102,
+    "published": false,
+    "ci_triggered": false
+  },
+  "frontend_command_count": 252,
+  "frontend": {
+    "status": "qualified_local_torchwasm_091_cumprod",
+    "receipts": [
+      {
+        "label": "full-frontend",
+        "exit_code": 0,
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-1090/run-selected.py"
+        ],
+        "log_sha256": "7267b5c699b73652eff07a12563990be3b31ea5483a5b6f7bf2accb07b4fa131"
+      },
+      {
+        "label": "build",
+        "exit_code": 0,
+        "command": [
+          "npm",
+          "run",
+          "build"
+        ],
+        "log_sha256": "565b7588f9da055a1e5d43c9bd0b11c9734ab847144524619a1d0e837515cc67"
+      },
+      {
+        "label": "pages-profile-build",
+        "exit_code": 0,
+        "command": [
+          "npm",
+          "run",
+          "build"
+        ],
+        "log_sha256": "6812375b8b642fedb6ad08ecadabb7650f5a2db40b68dea6bcdef073c23cdc35"
+      },
+      {
+        "label": "write-production-metadata",
+        "exit_code": 0,
+        "command": [
+          "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+          "web/scripts/pages-build-metadata.cjs",
+          "write",
+          "web/dist",
+          "59b46c1267a532ab048e6f357503a57d7195838d"
+        ],
+        "log_sha256": "5c839afe795411dfe08331b63e617189f2650b33f5229e2834c977dafa876f84"
+      },
+      {
+        "label": "verify-production-metadata",
+        "exit_code": 0,
+        "command": [
+          "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+          "web/scripts/pages-build-metadata.cjs",
+          "verify",
+          "web/dist",
+          "59b46c1267a532ab048e6f357503a57d7195838d"
+        ],
+        "log_sha256": "5c839afe795411dfe08331b63e617189f2650b33f5229e2834c977dafa876f84"
+      },
+      {
+        "label": "pages-assets",
+        "exit_code": 0,
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+          "-B",
+          "web/scripts/check-pages-assets.py"
+        ],
+        "log_sha256": "64b417efae794fc57e3a0b3da4679107cf8610e7ae2c8c161f4447150d584195"
+      },
+      {
+        "label": "retention",
+        "exit_code": 0,
+        "command": [
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-82/application-env/bin/python",
+          "-B",
+          "web/scripts/retain-pages-assets.py",
+          "web/dist",
+          "--check"
+        ],
+        "log_sha256": "1adef021a78bf1ce38711ddcc62f8494bb0e51988faf9e31b55d98b36a41c128"
+      },
+      {
+        "label": "generated-worker",
+        "exit_code": 0,
+        "command": [
+          "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-1090/verify-generated-worker.mjs"
+        ],
+        "log_sha256": "7062cf1b309b171d177ba7851d95b69fc702d940fa95b4a03607f64ecc1faaea"
+      },
+      {
+        "label": "nested-wasm",
+        "exit_code": 0,
+        "command": [
+          "/Users/david/.local/share/fnm/node-versions/v22.22.1/installation/bin/node",
+          "/Users/david/Developer/paperleet-wasm-evaluation-20261015/torch-iteration-1090/check-nested-wasm.mjs"
+        ],
+        "log_sha256": "6b1bd7a5a9cb4e55dd1017c95b68a3aa5e69a263b45b61da0f209443804dbdbc"
+      }
+    ],
+    "ci_triggered": false,
+    "published": false,
+    "deployed": false,
+    "selected_command_count": 114,
+    "inherited_command_count": 138,
+    "coverage_plan": {
+      "registered_commands": 252,
+      "rerun_commands": 114,
+      "inherited_commands": 138,
+      "changed_inputs": [
+        "web/package.json",
+        "web/scripts/check-interview-resources.mjs",
+        "web/scripts/check-resource-control-ownership.mjs",
+        "web/src/InterviewResources.tsx",
+        "web/src/interview-resource-browser.css"
+      ],
+      "added_checker": "web/scripts/check-resource-kind-entry.mjs",
+      "conservative_reverse_import_parents": [
+        "web/src/App.tsx",
+        "web/src/EditorTools.tsx",
+        "web/src/InterviewResources.tsx",
+        "web/src/Interviews.tsx",
+        "web/src/PaperDetail.tsx",
+        "web/src/ProblemOverview.tsx",
+        "web/src/ProblemSolutionPanel.tsx",
+        "web/src/ReportTests.tsx",
+        "web/src/ReportView.tsx",
+        "web/src/SubmissionResultPage.tsx",
+        "web/src/WorkspaceTestResults.tsx",
+        "web/src/deferredPages.tsx",
+        "web/src/interview-resource-browser.css",
+        "web/src/main.tsx"
+      ],
+      "inherited": [
+        {
+          "registered_index": 45,
+          "canonical": "node scripts/check-community-topics.mjs",
+          "checker_sha256": "09164d4f070f39e52343aadb85090ed783362a2e10fea9ed4929618bd8e645e7",
+          "previous_receipt": {
+            "registered_index": 45,
+            "command": "node scripts/check-community-topics.mjs",
+            "exit_code": 0,
+            "log_sha256": "0386387f0b571f21d783b041809fcdab19ef50c77e8e8306a8c1f8e88ba095ff"
+          }
+        },
+        {
+          "registered_index": 46,
+          "canonical": "node scripts/check-community-topic-browser.mjs",
+          "checker_sha256": "d7067eeeaec17080edeba2b83a6c388ef451b165cbe882cac9c84eb84eab4d21",
+          "previous_receipt": {
+            "registered_index": 46,
+            "command": "node scripts/check-community-topic-browser.mjs",
+            "exit_code": 0,
+            "log_sha256": "0897f3d209ab8fe8af43c3a561342c41d8ca73e2542ef269ee688cf2ba349303"
+          }
+        },
+        {
+          "registered_index": 48,
+          "canonical": "node scripts/check-community-navigation.mjs",
+          "checker_sha256": "5fa32fad7a013f00f073f27cb14b556f67490fe76236276550a06cb8d94391b6",
+          "previous_receipt": {
+            "registered_index": 48,
+            "command": "node scripts/check-community-navigation.mjs",
+            "exit_code": 0,
+            "log_sha256": "e98cbbd6aaf56b4acd5acd0abf69df1c046b2a338cfe60d5f5e33784251bce4b"
+          }
+        },
+        {
+          "registered_index": 49,
+          "canonical": "node scripts/check-discussion-sharing.mjs",
+          "checker_sha256": "1ab93726a07e97b0dfcd3e5714d523d0bae8cd321976d72941909573420e8fb1",
+          "previous_receipt": {
+            "registered_index": 49,
+            "command": "node scripts/check-discussion-sharing.mjs",
+            "exit_code": 0,
+            "log_sha256": "2d6a6584085a26bc9837b1cebca2efdfd9cd86778cb07e372890dda013d8052c"
+          }
+        },
+        {
+          "registered_index": 50,
+          "canonical": "node scripts/check-inbox.mjs",
+          "checker_sha256": "decd5b31a0bf8019fc6d07cf4b79991acb669d4952b2558ca1ec35e6ad676c1e",
+          "previous_receipt": {
+            "registered_index": 50,
+            "command": "node scripts/check-inbox.mjs",
+            "exit_code": 0,
+            "log_sha256": "b49d8a7236061205c04d833b1a0f3887015468fe8dcf1334ba94f61e6ffaf2e3"
+          }
+        },
+        {
+          "registered_index": 51,
+          "canonical": "node scripts/check-inbox-reading.mjs",
+          "checker_sha256": "669ccc6f16bd70d5c81fc20af2fe53722eb49ba21ef923f2440f6567fb1fbac3",
+          "previous_receipt": {
+            "registered_index": 51,
+            "command": "node scripts/check-inbox-reading.mjs",
+            "exit_code": 0,
+            "log_sha256": "4934dcddd0277f822cfa306742c73336e3f8ea09d15798c6b34495a4b458515e"
+          }
+        },
+        {
+          "registered_index": 52,
+          "canonical": "node scripts/check-inbox-notification-filters.mjs",
+          "checker_sha256": "a857e9cef15d19271f6c2b1c011dbcf5ced4b8c86fb7b55a74511c7f89440fac",
+          "previous_receipt": {
+            "registered_index": 52,
+            "command": "node scripts/check-inbox-notification-filters.mjs",
+            "exit_code": 0,
+            "log_sha256": "3fca9f1ad763dee8ecd40675d32b803e5f7759b68722f72039fa85dddd9cb380"
+          }
+        },
+        {
+          "registered_index": 53,
+          "canonical": "node scripts/check-review-notifications.mjs",
+          "checker_sha256": "de7b65e0db9c798f547a00135844069709c27f826ff43c6bd3375c6c1766c8b1",
+          "previous_receipt": {
+            "registered_index": 53,
+            "command": "node scripts/check-review-notifications.mjs",
+            "exit_code": 0,
+            "log_sha256": "d59891aa610811e38e03b13200c10113106a432825161a4cd7df5f2be35590dd"
+          }
+        },
+        {
+          "registered_index": 54,
+          "canonical": "node scripts/check-moderation-user-messages.mjs",
+          "checker_sha256": "cb8c8fae2d579f9a10ab054c45a62769751feb1396992c39655e5db7a1d699a9",
+          "previous_receipt": {
+            "registered_index": 54,
+            "command": "node scripts/check-moderation-user-messages.mjs",
+            "exit_code": 0,
+            "log_sha256": "c95438882a362c328ed729cb5254aaf53d1b0775c37f5c3ba83264f37a0030ee"
+          }
+        },
+        {
+          "registered_index": 55,
+          "canonical": "node scripts/check-community-discovery.mjs",
+          "checker_sha256": "0f9ff41e3460897c9adcd2af661ef82be42ff40ec58cb0951e79dfb22f8117d7",
+          "previous_receipt": {
+            "registered_index": 55,
+            "command": "node scripts/check-community-discovery.mjs",
+            "exit_code": 0,
+            "log_sha256": "440103c98c41f075c679dae3e959b37537aa6efc193522e19fa803d69020bf69"
+          }
+        },
+        {
+          "registered_index": 56,
+          "canonical": "node scripts/check-community-feed-filters.mjs",
+          "checker_sha256": "a425340f1b172750344acb60270b8c1f459e6fd3125af9806b5bfaaa3e4f88fd",
+          "previous_receipt": {
+            "registered_index": 56,
+            "command": "node scripts/check-community-feed-filters.mjs",
+            "exit_code": 0,
+            "log_sha256": "9d565b12632d90688285b8ba32411ac66f3f0e429aad7a3c6f64199736ae05f9"
+          }
+        },
+        {
+          "registered_index": 57,
+          "canonical": "node scripts/check-community-tag-discovery.mjs",
+          "checker_sha256": "0bd9b614df084349524b2b07c86f58605eb700b689fae24ad85df6216d7d24e7",
+          "previous_receipt": {
+            "registered_index": 57,
+            "command": "node scripts/check-community-tag-discovery.mjs",
+            "exit_code": 0,
+            "log_sha256": "05830ad9e56030890f622601024b1ecfd8dcac7eaa548b67a10ea2835a74a8e4"
+          }
+        },
+        {
+          "registered_index": 58,
+          "canonical": "node scripts/check-community-tag-selection.mjs",
+          "checker_sha256": "1657e88b582ed4d426e044a106fccb0feb323d1a9729a20e3a0820273f316b17",
+          "previous_receipt": {
+            "registered_index": 58,
+            "command": "node scripts/check-community-tag-selection.mjs",
+            "exit_code": 0,
+            "log_sha256": "3b761c1934d185eb192fa0914f41c423d6758cc2f56c147a42827ef89d9ab5fe"
+          }
+        },
+        {
+          "registered_index": 59,
+          "canonical": "node scripts/check-community-tag-browsing.mjs",
+          "checker_sha256": "616285e28e956c79f80ce639fcd375df5a5cd5656cce28ca728e2204c2b5c718",
+          "previous_receipt": {
+            "registered_index": 59,
+            "command": "node scripts/check-community-tag-browsing.mjs",
+            "exit_code": 0,
+            "log_sha256": "4db5a2592968ed78762f7a391c52ce333e1e978f1972b0916baf13206dab37ed"
+          }
+        },
+        {
+          "registered_index": 60,
+          "canonical": "node scripts/check-community-period.mjs",
+          "checker_sha256": "2000dce61d9d5c0d9da624ac6a0a2fd51c6c07e6de1f2f8721cd43c3077c8e02",
+          "previous_receipt": {
+            "registered_index": 60,
+            "command": "node scripts/check-community-period.mjs",
+            "exit_code": 0,
+            "log_sha256": "7f91ef99993e6c97807400ed1d1fd57b29244559812ec084db772994e8a9d408"
+          }
+        },
+        {
+          "registered_index": 61,
+          "canonical": "node scripts/check-community-pagination.mjs",
+          "checker_sha256": "f7074c91c85c9585a780af54bcecb1e8e38660198ffdffdcf655ee4b0e4fbabd",
+          "previous_receipt": {
+            "registered_index": 61,
+            "command": "node scripts/check-community-pagination.mjs",
+            "exit_code": 0,
+            "log_sha256": "1722be4a7cddf9c7c233b1e2ecdc7b67c0feb4cdf66e617db0c530fecd25ab53"
+          }
+        },
+        {
+          "registered_index": 62,
+          "canonical": "node scripts/check-community-search.mjs",
+          "checker_sha256": "0633a93afd08908c484af4eab9f2f6140a70857278e66f1674a39d4083e6eb9f",
+          "previous_receipt": {
+            "registered_index": 62,
+            "command": "node scripts/check-community-search.mjs",
+            "exit_code": 0,
+            "log_sha256": "32ae5b091554820c5135b99a550eea7c48ae69ce5ea3936132a05cae84d47c89"
+          }
+        },
+        {
+          "registered_index": 63,
+          "canonical": "node scripts/check-search-input-ownership.mjs",
+          "checker_sha256": "d39816726d16e6bcedc1e862bc8d5c67160cae717816c7c0c25610807ca155c6",
+          "previous_receipt": {
+            "registered_index": 63,
+            "command": "node scripts/check-search-input-ownership.mjs",
+            "exit_code": 0,
+            "log_sha256": "5d793fadc3d905e44401e5d5b63bffc8a76af0fc369032f86832c776cc49178e"
+          }
+        },
+        {
+          "registered_index": 64,
+          "canonical": "node scripts/check-community-feed-timeout.mjs",
+          "checker_sha256": "d6e136aefe73c831f60f10e8dbfdccee0e81f979c933fe9d278fd23f38b83725",
+          "previous_receipt": {
+            "registered_index": 64,
+            "command": "node scripts/check-community-feed-timeout.mjs",
+            "exit_code": 0,
+            "log_sha256": "58bec6625e4b3a321fb0375f61a1d5dea7e3187e794e934a854adbb2d15831a7"
+          }
+        },
+        {
+          "registered_index": 65,
+          "canonical": "node scripts/check-community-reports.mjs",
+          "checker_sha256": "6339ad474eb19ee706003be7537069619b9320cf0a839db1a65b2ecdef95f88a",
+          "previous_receipt": {
+            "registered_index": 65,
+            "command": "node scripts/check-community-reports.mjs",
+            "exit_code": 0,
+            "log_sha256": "bf4eef048374025e53b3b065555a8d9cb4d4c3cf0cd72227d0120bad7727b5eb"
+          }
+        },
+        {
+          "registered_index": 66,
+          "canonical": "node scripts/check-report-dialog-review.mjs",
+          "checker_sha256": "cbc9e5c5f012c608cf785bbfeb856d5d25f905a86f08b850e9e6043da9d063f8",
+          "previous_receipt": {
+            "registered_index": 66,
+            "command": "node scripts/check-report-dialog-review.mjs",
+            "exit_code": 0,
+            "log_sha256": "63c067141490c2f3136457aa63f88a993eeb4c25d701e99851c6c0ceac7af16e"
+          }
+        },
+        {
+          "registered_index": 68,
+          "canonical": "node scripts/check-community-highlights.mjs",
+          "checker_sha256": "0887de006038145d4065571ca63a96a710672b9d0692a598670189df28636841",
+          "previous_receipt": {
+            "registered_index": 68,
+            "command": "node scripts/check-community-highlights.mjs",
+            "exit_code": 0,
+            "log_sha256": "74563ae70c31952687d7fbbe89d5eec9f0f583304bdf2bbbe2f47eb4808e4d4a"
+          }
+        },
+        {
+          "registered_index": 69,
+          "canonical": "node scripts/check-admin-inbox.mjs",
+          "checker_sha256": "cef378b886d295d8d0623a14e882544d24f443c8ae9ba1e49af048f80dcc3c8c",
+          "previous_receipt": {
+            "registered_index": 69,
+            "command": "node scripts/check-admin-inbox.mjs",
+            "exit_code": 0,
+            "log_sha256": "7bdcef0a9a6b65f8bcb73882267c6de4084376e5e731d610769adc7c3c34f2ff"
+          }
+        },
+        {
+          "registered_index": 70,
+          "canonical": "node scripts/check-admin-paper-progress.mjs",
+          "checker_sha256": "859380d456a3615d7d508f2efe7c002cc0c1bfb49288a096bf82eaa872f85439",
+          "previous_receipt": {
+            "registered_index": 70,
+            "command": "node scripts/check-admin-paper-progress.mjs",
+            "exit_code": 0,
+            "log_sha256": "8fc2ce626a714fc144188d536b662457febf0283e20f5ddad6db8462f5d90e57"
+          }
+        },
+        {
+          "registered_index": 71,
+          "canonical": "node scripts/check-admin-continuity.mjs",
+          "checker_sha256": "b2e20fb186c8c1f261391f492ebe594a5955b9de9435bd39aeaaa6e29df14901",
+          "previous_receipt": {
+            "registered_index": 71,
+            "command": "node scripts/check-admin-continuity.mjs",
+            "exit_code": 0,
+            "log_sha256": "8bddd3cc8c7db1e23b5f25fae541c35e71d578a27859396a6c72da0982eeafa7"
+          }
+        },
+        {
+          "registered_index": 72,
+          "canonical": "node scripts/check-admin-taxonomy-browsing.mjs",
+          "checker_sha256": "7780545b4d0a418f9951b913b0a483fbbaf6e6046deca637da9770c786d8e056",
+          "previous_receipt": {
+            "registered_index": 72,
+            "command": "node scripts/check-admin-taxonomy-browsing.mjs",
+            "exit_code": 0,
+            "log_sha256": "16dfcdecf197eb90a33cd0f4822b4d332f546de1520d2ed8a90a318763f07e55"
+          }
+        },
+        {
+          "registered_index": 73,
+          "canonical": "node scripts/check-moderation-comparison.mjs",
+          "checker_sha256": "b53a72caaea805e48c7314aaea722de329aa115fc64d66fa981d97ad11c3a6f8",
+          "previous_receipt": {
+            "registered_index": 73,
+            "command": "node scripts/check-moderation-comparison.mjs",
+            "exit_code": 0,
+            "log_sha256": "6c4f59e74b857b0f8589c3ae9aa9bac26bd8777337bf44be4bf5df166f198e42"
+          }
+        },
+        {
+          "registered_index": 75,
+          "canonical": "node scripts/check-report-history.mjs",
+          "checker_sha256": "035328f1bce57e724e5571cdf87693d4dbf100db0a9d3aeb82e947390c497fb8",
+          "previous_receipt": {
+            "registered_index": 75,
+            "command": "node scripts/check-report-history.mjs",
+            "exit_code": 0,
+            "log_sha256": "c56865a23e08ba0f3918ba5749321b228ced7499fac898e6ae4d02db8d982e88"
+          }
+        },
+        {
+          "registered_index": 80,
+          "canonical": "node scripts/check-reference-solution.mjs",
+          "checker_sha256": "f43747bf262c0258df8d2ec7b62de315cd172353863331b346dda14e40c2c248",
+          "previous_receipt": {
+            "registered_index": 80,
+            "command": "node scripts/check-reference-solution.mjs",
+            "exit_code": 0,
+            "log_sha256": "8e247c0b2a72e4ee3a19e4f51812d10f4267c25fe40cbb145f54ab691165dc06"
+          }
+        },
+        {
+          "registered_index": 82,
+          "canonical": "node scripts/check-solution-reading.mjs",
+          "checker_sha256": "c4002d9f083b0166526ae25583dc26d7415bc88628d4e2dab2570ea6be057113",
+          "previous_receipt": {
+            "registered_index": 82,
+            "command": "node scripts/check-solution-reading.mjs",
+            "exit_code": 0,
+            "log_sha256": "ce3a86dfc1e1b4cb8db1466e10bfe496cf0f64db53785c9b600f1436c34bd72c"
+          }
+        },
+        {
+          "registered_index": 84,
+          "canonical": "node scripts/check-reply-viewport.mjs",
+          "checker_sha256": "dca3d362baa72f2fb5c0fb4ad1165a666a480f6a5bffa410b120de282268c301",
+          "previous_receipt": {
+            "registered_index": 84,
+            "command": "node scripts/check-reply-viewport.mjs",
+            "exit_code": 0,
+            "log_sha256": "61c2e418820f9f4f2f4df688ff3e0f36aaf44378deb0fdd44e01fae01a281c71"
+          }
+        },
+        {
+          "registered_index": 86,
+          "canonical": "node scripts/check-community-card-actions.mjs",
+          "checker_sha256": "a42739cfb0b8f7090d2531c1ddcff4494757950783325fa5f4db1689d49b4260",
+          "previous_receipt": {
+            "registered_index": 86,
+            "command": "node scripts/check-community-card-actions.mjs",
+            "exit_code": 0,
+            "log_sha256": "5352d833af6f0f07099ab3b93291b1e3507586d828483639b4cb07af2e64dd9e"
+          }
+        },
+        {
+          "registered_index": 87,
+          "canonical": "node scripts/check-like-retry-focus.mjs",
+          "checker_sha256": "cf2a772a15dc55721a3d91af9fd484ed5b3201fd88bed7fe67f61c2a74702f46",
+          "previous_receipt": {
+            "registered_index": 87,
+            "command": "node scripts/check-like-retry-focus.mjs",
+            "exit_code": 0,
+            "log_sha256": "bb68d661ac948c0ebcc54b9d6609382893c4e1a9f9fed7010b300fb310a6fff2"
+          }
+        },
+        {
+          "registered_index": 88,
+          "canonical": "node scripts/check-card-comment-search.mjs",
+          "checker_sha256": "0361e5a21b44e3059d2c34b3ddcf3907cd9f6d442d330552032dfd528428ed20",
+          "previous_receipt": {
+            "registered_index": 88,
+            "command": "node scripts/check-card-comment-search.mjs",
+            "exit_code": 0,
+            "log_sha256": "39ca201b3dbca420f904225f1cb4515697d8a757fc54bc28795ac474a49f9ddc"
+          }
+        },
+        {
+          "registered_index": 89,
+          "canonical": "node scripts/check-community-card-sharing.mjs",
+          "checker_sha256": "67913fd67a768cfca51ff81d88c3073fd7b544f10cfe7f170e485309325a302f",
+          "previous_receipt": {
+            "registered_index": 89,
+            "command": "node scripts/check-community-card-sharing.mjs",
+            "exit_code": 0,
+            "log_sha256": "f88cf175b8e70e5526bf79400e16892d0f6c39a43ed66edb8be79815a7aa0a78"
+          }
+        },
+        {
+          "registered_index": 90,
+          "canonical": "node scripts/check-problem-favorites.mjs",
+          "checker_sha256": "ddbbe86c4ffed7620bff4f32f93e60f23f1f8afe0bed67540386d74c487fd928",
+          "previous_receipt": {
+            "registered_index": 90,
+            "command": "node scripts/check-problem-favorites.mjs",
+            "exit_code": 0,
+            "log_sha256": "bdbfe8c7eda1e5a47c7baa222473f97e3e899dacc0155309d689b71dd174a2bf"
+          }
+        },
+        {
+          "registered_index": 92,
+          "canonical": "node scripts/check-study-list-store.mjs",
+          "checker_sha256": "502b4797517b1313652c9feeebc2e54f00663bba411b9a70cd3b894fec804ad0",
+          "previous_receipt": {
+            "registered_index": 92,
+            "command": "node scripts/check-study-list-store.mjs",
+            "exit_code": 0,
+            "log_sha256": "7bf14a13c763d04204698da0d534fb441cc7095a6c4047bcaccb435b6ca46534"
+          }
+        },
+        {
+          "registered_index": 93,
+          "canonical": "node scripts/check-study-lists.mjs",
+          "checker_sha256": "97e6e7f3f90ff1b1a5a1da3d40364634230efb4b8d603c8ff95c54b3ee540a57",
+          "previous_receipt": {
+            "registered_index": 93,
+            "command": "node scripts/check-study-lists.mjs",
+            "exit_code": 0,
+            "log_sha256": "aec1e85cd8c14f6c408a74456c84e51811bc2aa0ee4be725e3b12b1146d39ee6"
+          }
+        },
+        {
+          "registered_index": 94,
+          "canonical": "node scripts/check-study-list-order.mjs",
+          "checker_sha256": "f6d5043ee5af75816a9694f5287e3f10d67f3695fc1a7386a71e23ca1d1dd04a",
+          "previous_receipt": {
+            "registered_index": 94,
+            "command": "node scripts/check-study-list-order.mjs",
+            "exit_code": 0,
+            "log_sha256": "fe9a7d33de5c382373532661f237192368ba16b519893934a8d95b67c0519441"
+          }
+        },
+        {
+          "registered_index": 96,
+          "canonical": "node scripts/check-community-writing.mjs",
+          "checker_sha256": "24d8a68580403f2e4db36f9e92afd80af7c960356594b59c75939cd2407c068d",
+          "previous_receipt": {
+            "registered_index": 96,
+            "command": "node scripts/check-community-writing.mjs",
+            "exit_code": 0,
+            "log_sha256": "c977375f446942e6782858dff18ac1f0af90fcca22c07bd4a0833c79b3974a0d"
+          }
+        },
+        {
+          "registered_index": 97,
+          "canonical": "node scripts/check-writing-feedback.mjs",
+          "checker_sha256": "a053946dc8e2d61107055dcb128aacb03559344844cd9ff2532d0d0d24436b71",
+          "previous_receipt": {
+            "registered_index": 97,
+            "command": "node scripts/check-writing-feedback.mjs",
+            "exit_code": 0,
+            "log_sha256": "8efc3c0ae1ecf36d5a033291814a7b9b9edb08a1da4e9dde1e05efa96410df46"
+          }
+        },
+        {
+          "registered_index": 98,
+          "canonical": "node scripts/check-edit-review-navigation.mjs",
+          "checker_sha256": "98606590d70c9a98e1d6758acf5e598c85d2c8ca19de17ff8d695e584e850655",
+          "previous_receipt": {
+            "registered_index": 98,
+            "command": "node scripts/check-edit-review-navigation.mjs",
+            "exit_code": 0,
+            "log_sha256": "74117bc503d9875b8b3543f0c5b7d724aeae5ec384d6ad1f88bfda6375fe64e1"
+          }
+        },
+        {
+          "registered_index": 100,
+          "canonical": "node scripts/check-community-drafts.mjs",
+          "checker_sha256": "7a92377703a4d8ea13e1058751cdfc3d676ea545cd833342b21be7d56a827855",
+          "previous_receipt": {
+            "registered_index": 100,
+            "command": "node scripts/check-community-drafts.mjs",
+            "exit_code": 0,
+            "log_sha256": "276152877a666297cafc52cbfcc82287c9b6cf16bd7074b747ca71e9e2c07b30"
+          }
+        },
+        {
+          "registered_index": 101,
+          "canonical": "node scripts/check-draft-center.mjs",
+          "checker_sha256": "59a87a880d89488ecb3e82e3f98591c5059d9b963dcdffab432b1b48d08ed2c9",
+          "previous_receipt": {
+            "registered_index": 101,
+            "command": "node scripts/check-draft-center.mjs",
+            "exit_code": 0,
+            "log_sha256": "6c4b811fb21ad463c6225b2543fe435739ebadf484b128ff2ca302e3c15a96cb"
+          }
+        },
+        {
+          "registered_index": 102,
+          "canonical": "node scripts/check-community-anonymous.mjs",
+          "checker_sha256": "1c48a4b536296e0437c63158696605af955625e8b5f94fda2a9987df83da1f72",
+          "previous_receipt": {
+            "registered_index": 102,
+            "command": "node scripts/check-community-anonymous.mjs",
+            "exit_code": 0,
+            "log_sha256": "ee0dbcc43eef7b9c9f8e9e2db33106cbad5f52591241e28751570b4808694102"
+          }
+        },
+        {
+          "registered_index": 103,
+          "canonical": "node scripts/check-publishing-identity-choice.mjs",
+          "checker_sha256": "20af4c057e2ce70d34e56b60e4b83eaf2e45bf95dc15bff55d8a9571712e2260",
+          "previous_receipt": {
+            "registered_index": 103,
+            "command": "node scripts/check-publishing-identity-choice.mjs",
+            "exit_code": 0,
+            "log_sha256": "8263e5381430c61e614777301c3a80b49abdbdb10334116e89e019e4e0d77d0f"
+          }
+        },
+        {
+          "registered_index": 104,
+          "canonical": "node scripts/check-community-papers.mjs",
+          "checker_sha256": "fea165c41dc4ab7dcf59377db21f3b578760d95a899e871d2547985d4c9299cd",
+          "previous_receipt": {
+            "registered_index": 104,
+            "command": "node scripts/check-community-papers.mjs",
+            "exit_code": 0,
+            "log_sha256": "7d706c608c57022e3f5449e37f969877bc4ea88a5e3b6bbb9f80acc7eeb3f0f0"
+          }
+        },
+        {
+          "registered_index": 105,
+          "canonical": "node scripts/check-community-paper-ui.mjs",
+          "checker_sha256": "643fb54c04dada84e054644814d11ef51f3ba545c7eddfc7d47b1600ec4ad4fd",
+          "previous_receipt": {
+            "registered_index": 105,
+            "command": "node scripts/check-community-paper-ui.mjs",
+            "exit_code": 0,
+            "log_sha256": "6058814c88ae38393d0d82cc26fa6dae0702ba3816baece227277cbbd518b77a"
+          }
+        },
+        {
+          "registered_index": 106,
+          "canonical": "node scripts/check-community-markdown.mjs",
+          "checker_sha256": "1e897bcf1492f9561895ca4130fd3406fc156a7f8e24371ef652fb54d0cfca87",
+          "previous_receipt": {
+            "registered_index": 106,
+            "command": "node scripts/check-community-markdown.mjs",
+            "exit_code": 0,
+            "log_sha256": "ec6286582c27efb55dfb1413861ab2b785e40ee2379129be1bc6b8142ae388da"
+          }
+        },
+        {
+          "registered_index": 107,
+          "canonical": "node scripts/check-community-table.mjs",
+          "checker_sha256": "c90e93e90368f1eb3b4e93a0dea279894496086d1778dd6d9c2719ded7b4cb24",
+          "previous_receipt": {
+            "registered_index": 107,
+            "command": "node scripts/check-community-table.mjs",
+            "exit_code": 0,
+            "log_sha256": "86383b8f1f0cd638cfb2d8d820af756d0ab1831942d3c8e3758d6c668be7986f"
+          }
+        },
+        {
+          "registered_index": 108,
+          "canonical": "node scripts/check-community-translation.mjs",
+          "checker_sha256": "fb4895b50676a6e8f3337ded3069efbb9cacfccae50cf4ee064033fcec38cca6",
+          "previous_receipt": {
+            "registered_index": 108,
+            "command": "node scripts/check-community-translation.mjs",
+            "exit_code": 0,
+            "log_sha256": "1cf78047d1b47d0e3321354bb3cb697edce8bfe94e4e0b098086e2280f15ac27"
+          }
+        },
+        {
+          "registered_index": 109,
+          "canonical": "node scripts/check-community-code-block.mjs",
+          "checker_sha256": "b446d0f040ae06d446faafe4e867a4b64f16801f92dc9b97ce42f2b3c0709603",
+          "previous_receipt": {
+            "registered_index": 109,
+            "command": "node scripts/check-community-code-block.mjs",
+            "exit_code": 0,
+            "log_sha256": "cfa0c1e58f16eb326aab55efb3fba08714f14e040f556d3346ea2c3fbda60824"
+          }
+        },
+        {
+          "registered_index": 110,
+          "canonical": "node scripts/check-code-disclosure.mjs",
+          "checker_sha256": "8246204977af5563031c39eea8a2bfbc627e9c21411d15b7a8fd922527a019ea",
+          "previous_receipt": {
+            "registered_index": 110,
+            "command": "node scripts/check-code-disclosure.mjs",
+            "exit_code": 0,
+            "log_sha256": "c6a34a01a6ba22aac7467c54e50be1e729b61fe731ac6ade9b0d9069872aea26"
+          }
+        },
+        {
+          "registered_index": 111,
+          "canonical": "node scripts/check-math-security.mjs",
+          "checker_sha256": "81429565d3c9095221aa725cc1a4af3e838644e835d32ebcc0c5e9bf22cb8454",
+          "previous_receipt": {
+            "registered_index": 111,
+            "command": "node scripts/check-math-security.mjs",
+            "exit_code": 0,
+            "log_sha256": "c3194760fa7eff18c9073164f4f3e087938eec5f22392fd1c560cdde4409d5b3"
+          }
+        },
+        {
+          "registered_index": 112,
+          "canonical": "node scripts/check-markdown-editor.mjs",
+          "checker_sha256": "0a0ffb0d111a0295bb842888cba5dc6371b0f909970452c310a7a7d6c2ac15e2",
+          "previous_receipt": {
+            "registered_index": 112,
+            "command": "node scripts/check-markdown-editor.mjs",
+            "exit_code": 0,
+            "log_sha256": "eb7094f33eb159e0f39737a2b76960494a8eb846e6ee42b8f2451fcc4ccde6fb"
+          }
+        },
+        {
+          "registered_index": 113,
+          "canonical": "node scripts/check-table-writing.mjs",
+          "checker_sha256": "ccf62ac87ad1c17e1894fd32f1e6d1830dfb8ed1ee9380fc17d642253ec3afa4",
+          "previous_receipt": {
+            "registered_index": 113,
+            "command": "node scripts/check-table-writing.mjs",
+            "exit_code": 0,
+            "log_sha256": "4745a4dda08af33dc2c6aa46562bf262297052b6d7d78288bf5be11720883a14"
+          }
+        },
+        {
+          "registered_index": 114,
+          "canonical": "node scripts/check-live-writing.mjs",
+          "checker_sha256": "bedc33c6260e02b3bdbbf73a1f5d3d262357f4e4be15f3cd9cf8b353215710f7",
+          "previous_receipt": {
+            "registered_index": 114,
+            "command": "node scripts/check-live-writing.mjs",
+            "exit_code": 0,
+            "log_sha256": "a89e0456517f2094fa391392b231e5c2e6f704a90cdea26827fd32cc3f7588e0"
+          }
+        },
+        {
+          "registered_index": 115,
+          "canonical": "node scripts/check-writing-sections.mjs",
+          "checker_sha256": "a2d0ffa5d8c15fa46e28f9c46326aa25db5b37c78cec1eaf59e3b15144c1f938",
+          "previous_receipt": {
+            "registered_index": 115,
+            "command": "node scripts/check-writing-sections.mjs",
+            "exit_code": 0,
+            "log_sha256": "5c2b40902ef1e97b26ba1c0af746cd4c4793e70d6a403deedc5b4e5fc379aee9"
+          }
+        },
+        {
+          "registered_index": 116,
+          "canonical": "node scripts/check-community-submit-shortcut.mjs",
+          "checker_sha256": "a46c67fada67081a3703e13614e50cbe373fce04969b7afebbda96654dc8e8bc",
+          "previous_receipt": {
+            "registered_index": 116,
+            "command": "node scripts/check-community-submit-shortcut.mjs",
+            "exit_code": 0,
+            "log_sha256": "195be1b0ae60a0c133efa92e10eb2ad080bba5ef2b53c14f88e8144db6c4b105"
+          }
+        },
+        {
+          "registered_index": 117,
+          "canonical": "node scripts/check-discussion-reading.mjs",
+          "checker_sha256": "398ff4d119c8f6535e5e835cae0d25ecfc34dd4eae03edf16b572cb59e75ce9f",
+          "previous_receipt": {
+            "registered_index": 117,
+            "command": "node scripts/check-discussion-reading.mjs",
+            "exit_code": 0,
+            "log_sha256": "474c35b8d9ec6709eab3e78ab2433cac5bbee2f2f0cb4c1fd24a2f2c04256818"
+          }
+        },
+        {
+          "registered_index": 118,
+          "canonical": "node scripts/check-reading-section-filter.mjs",
+          "checker_sha256": "01ae674d510c60ea6456690ec506a05387b88b168ffa36409dff2d6b3fa298b8",
+          "previous_receipt": {
+            "registered_index": 118,
+            "command": "node scripts/check-reading-section-filter.mjs",
+            "exit_code": 0,
+            "log_sha256": "b8d7379634d2f373e09433463b42706a270802f58ce713b50b68016645005d98"
+          }
+        },
+        {
+          "registered_index": 119,
+          "canonical": "node scripts/check-discussion-replies.mjs",
+          "checker_sha256": "0a7d2580101567055bf5a1b7edaaaadbedc82edf71e0f6beaea5fdbfdf5e944e",
+          "previous_receipt": {
+            "registered_index": 119,
+            "command": "node scripts/check-discussion-replies.mjs",
+            "exit_code": 0,
+            "log_sha256": "4189345008cba55cc6870e210f7fa257fee45797a3f4f814156b17a175e83208"
+          }
+        },
+        {
+          "registered_index": 120,
+          "canonical": "node scripts/check-author-reply-navigation.mjs",
+          "checker_sha256": "5a03c17bc0995a9dff51d22916a99cefe48aa71b8d6f5fcbcda576fe0dc2b6f1",
+          "previous_receipt": {
+            "registered_index": 120,
+            "command": "node scripts/check-author-reply-navigation.mjs",
+            "exit_code": 0,
+            "log_sha256": "1400cb1466f5fd8e54543541d3a83b1c3c39c55fc20da828fd1104b8f8accc6d"
+          }
+        },
+        {
+          "registered_index": 121,
+          "canonical": "node scripts/check-reply-search-context.mjs",
+          "checker_sha256": "681525885c5c52738dd332a418a0351ca5fc4388a74ecd987defaa53aaa7285f",
+          "previous_receipt": {
+            "registered_index": 121,
+            "command": "node scripts/check-reply-search-context.mjs",
+            "exit_code": 0,
+            "log_sha256": "eb5e8b200b99e53d69b1ca220d9c594afab456b70338430dc7abcf11881f438a"
+          }
+        },
+        {
+          "registered_index": 122,
+          "canonical": "node scripts/check-reply-search-collapse.mjs",
+          "checker_sha256": "0e2d089820886d01c8195afdcc8ba1788a69f03c0d9dd416c5a165e80adc65c6",
+          "previous_receipt": {
+            "registered_index": 122,
+            "command": "node scripts/check-reply-search-collapse.mjs",
+            "exit_code": 0,
+            "log_sha256": "91d1386bfa7dd8606416f317e0e79399e5e063dc41b91b44338dc286d18dbfed"
+          }
+        },
+        {
+          "registered_index": 123,
+          "canonical": "node scripts/check-reply-quotes.mjs",
+          "checker_sha256": "4b69ad588d70265004bbd6b005be17de1b37c8e60f12417fab823f74cb142b5a",
+          "previous_receipt": {
+            "registered_index": 123,
+            "command": "node scripts/check-reply-quotes.mjs",
+            "exit_code": 0,
+            "log_sha256": "1bafec39a804a62591f719c99f72b54024d9ed354fd4d3c29831d1efc2322025"
+          }
+        },
+        {
+          "registered_index": 124,
+          "canonical": "node scripts/check-inline-reply-quotes.mjs",
+          "checker_sha256": "ce9ccf0cbc6b427b6a2eb5d00671c7909ec784011f7a7250cf69ec7791094439",
+          "previous_receipt": {
+            "registered_index": 124,
+            "command": "node scripts/check-inline-reply-quotes.mjs",
+            "exit_code": 0,
+            "log_sha256": "f007a3d2990ebb8ac7d4f809e3c41b5f44e399741ca8f8de7a33e6ab01b5555b"
+          }
+        },
+        {
+          "registered_index": 125,
+          "canonical": "node scripts/check-post-quotes.mjs",
+          "checker_sha256": "8a9362ede443ad254502d8f523a933d3fd317a04cd04cf75bac5e49b89aec2a7",
+          "previous_receipt": {
+            "registered_index": 125,
+            "command": "node scripts/check-post-quotes.mjs",
+            "exit_code": 0,
+            "log_sha256": "643e26e47d55ed028058c45948d5509e5f773a3f353d5ff50aed3585235f3325"
+          }
+        },
+        {
+          "registered_index": 126,
+          "canonical": "node scripts/check-inline-reply-editing.mjs",
+          "checker_sha256": "66065fa934a882a76ea5a8b7e23204527dec559a08a80e6b4b4053248fbbc584",
+          "previous_receipt": {
+            "registered_index": 126,
+            "command": "node scripts/check-inline-reply-editing.mjs",
+            "exit_code": 0,
+            "log_sha256": "d01003bc46fda77e400543fe6c9193b9b6ddcbf55d674aa63a8850a0c73ef38e"
+          }
+        },
+        {
+          "registered_index": 127,
+          "canonical": "node scripts/check-post-preview.mjs",
+          "checker_sha256": "bb0a315e6e3f7175963e2ae074206974f28315ccfe28327cdc8804628f7f529f",
+          "previous_receipt": {
+            "registered_index": 127,
+            "command": "node scripts/check-post-preview.mjs",
+            "exit_code": 0,
+            "log_sha256": "1435859e7ff08102bff12a44b3e8c8b1d985449920e0c5dff93eb8dad734be51"
+          }
+        },
+        {
+          "registered_index": 128,
+          "canonical": "node scripts/check-post-search-preview.mjs",
+          "checker_sha256": "f5e4f903cb5227af438e72b4e02c7e480283704acd909761c3979789858f3d48",
+          "previous_receipt": {
+            "registered_index": 128,
+            "command": "node scripts/check-post-search-preview.mjs",
+            "exit_code": 0,
+            "log_sha256": "b8d81a71a7b19f983fcf93c572c2bd1986bf3518671e8d7c9fd54509cc64d1b1"
+          }
+        },
+        {
+          "registered_index": 129,
+          "canonical": "node scripts/check-feed-outlines.mjs",
+          "checker_sha256": "38c716f27c8a9cc57493bf04b21deec43d9c408ead7c228db0df34f64e0b79d6",
+          "previous_receipt": {
+            "registered_index": 129,
+            "command": "node scripts/check-feed-outlines.mjs",
+            "exit_code": 0,
+            "log_sha256": "4ee669d89f3ee72bb527eaa3732b3f523f3ae93a2f3e85be99bd94ea633874c1"
+          }
+        },
+        {
+          "registered_index": 130,
+          "canonical": "node scripts/check-feed-bookmarks.mjs",
+          "checker_sha256": "fc1fbecb98d0470e4c7005ecbf95274210a5ebca3bcdba2051ce0da3fc5f4de3",
+          "previous_receipt": {
+            "registered_index": 130,
+            "command": "node scripts/check-feed-bookmarks.mjs",
+            "exit_code": 0,
+            "log_sha256": "577d2dc4b26390270bb2cbcfb2e74302ba0af0dc80a1293a5105a40c3157730d"
+          }
+        },
+        {
+          "registered_index": 131,
+          "canonical": "node scripts/check-deployment.mjs",
+          "checker_sha256": "38cbe8ef6fc18f770f14e4560c290484c9fe3cf7fbd067eff581383511d6ba19",
+          "previous_receipt": {
+            "registered_index": 131,
+            "command": "node scripts/check-deployment.mjs",
+            "exit_code": 0,
+            "log_sha256": "0a3e1e2560487f5802e7a05cb06395b1685604e0ac59475bd335965e11d45c4a"
+          }
+        },
+        {
+          "registered_index": 132,
+          "canonical": "node scripts/check-api-origin.mjs",
+          "checker_sha256": "197bdc5911531496d88bd3b2d4a81587061ade599c5c3346794f1f016cca68b1",
+          "previous_receipt": {
+            "registered_index": 132,
+            "command": "node scripts/check-api-origin.mjs",
+            "exit_code": 0,
+            "log_sha256": "b76acd669ab4c954bb258e3c134ed1588942f6815467bb90e54ee928c1c296ee"
+          }
+        },
+        {
+          "registered_index": 133,
+          "canonical": "node scripts/check-presence.mjs",
+          "checker_sha256": "3bf1706aadd740406989121131b8fbd5f1f49ce54b9953dfd3984bf254826eef",
+          "previous_receipt": {
+            "registered_index": 133,
+            "command": "node scripts/check-presence.mjs",
+            "exit_code": 0,
+            "log_sha256": "198452aa4c33bff51f3921e6c72a8fdbead208436b0c258f8baf2022a697ac0a"
+          }
+        },
+        {
+          "registered_index": 134,
+          "canonical": "node scripts/check-community-submissions.mjs",
+          "checker_sha256": "4a25f41c13d57842528a78763c3e060a49bf664b8f1c8a8a3db1fbb52b55a758",
+          "previous_receipt": {
+            "registered_index": 134,
+            "command": "node scripts/check-community-submissions.mjs",
+            "exit_code": 0,
+            "log_sha256": "4f033c05256cd323211f47ecd78f26f2d79c434fd1e8db3038cc6a189f63ad93"
+          }
+        },
+        {
+          "registered_index": 135,
+          "canonical": "node scripts/check-startup.mjs",
+          "checker_sha256": "7d74e061fec8c5944f1c7417854488e9e7c0ef1f03def0deb181fde0b0467ada",
+          "previous_receipt": {
+            "registered_index": 135,
+            "command": "node scripts/check-startup.mjs",
+            "exit_code": 0,
+            "log_sha256": "6e3d7b2de3734df112b19957983ec93f2d0ca804924692172c6cb2401a044839"
+          }
+        },
+        {
+          "registered_index": 136,
+          "canonical": "node scripts/check-app-error-boundary.mjs",
+          "checker_sha256": "c03e69ad9a5fe6104ae3a576f1932ca50309c7329978b5ef0a13374022481c14",
+          "previous_receipt": {
+            "registered_index": 136,
+            "command": "node scripts/check-app-error-boundary.mjs",
+            "exit_code": 0,
+            "log_sha256": "30f4678398313fd4b4a2e1bc023a9b652e9615840955f86162115a73894fede0"
+          }
+        },
+        {
+          "registered_index": 137,
+          "canonical": "node scripts/check-reading-tabs.mjs",
+          "checker_sha256": "63b4e612876c2e548c89fa157402d16de9ba665a8ccfc5bccbf200faec69c980",
+          "previous_receipt": {
+            "registered_index": 137,
+            "command": "node scripts/check-reading-tabs.mjs",
+            "exit_code": 0,
+            "log_sha256": "04cf9aa958b98d0036beaea962ab51bcb147b9ed8fd4aef07d9820a031a55e18"
+          }
+        },
+        {
+          "registered_index": 138,
+          "canonical": "node scripts/check-catalog-workbench.mjs",
+          "checker_sha256": "b87e776c1fe16461bc052bd101084e970f8e1940871f258bdbc20e2570f50bf9",
+          "previous_receipt": {
+            "registered_index": 138,
+            "command": "node scripts/check-catalog-workbench.mjs",
+            "exit_code": 0,
+            "log_sha256": "8f7d9b5aeb35d330b1ca294f70e628ca95f6d2636c7ec0b8f2fe60556e69c18a"
+          }
+        },
+        {
+          "registered_index": 140,
+          "canonical": "node scripts/check-library-pagination.mjs",
+          "checker_sha256": "227f42c2a8a76f774ce7eb2261c864b4f3475394cbcb555fd8bec7ca34319c01",
+          "previous_receipt": {
+            "registered_index": 140,
+            "command": "node scripts/check-library-pagination.mjs",
+            "exit_code": 0,
+            "log_sha256": "d7c18c5aae40ed893fe5501c3e00f2743623c665c3c838757b73301b719fa26e"
+          }
+        },
+        {
+          "registered_index": 141,
+          "canonical": "node scripts/check-page-jump-ownership.mjs",
+          "checker_sha256": "b81e3cf40a2b08aa414f9edc20fe32461969f6f06a80fac6dfb656335e7e2ae5",
+          "previous_receipt": {
+            "registered_index": 141,
+            "command": "node scripts/check-page-jump-ownership.mjs",
+            "exit_code": 0,
+            "log_sha256": "0a32d2c4e9cc37ace3d6057c8e994d0645df19e99e7570fcaf78b03453a9e228"
+          }
+        },
+        {
+          "registered_index": 142,
+          "canonical": "node scripts/check-library-columns.mjs",
+          "checker_sha256": "cca60a14173702d5ec324127a77bb1de42fdcd2b9a7712710ae8f73c54c23331",
+          "previous_receipt": {
+            "registered_index": 142,
+            "command": "node scripts/check-library-columns.mjs",
+            "exit_code": 0,
+            "log_sha256": "580b697c61d40590373b73a97c9894fd51f18d558e2df5f887c6a7c8e4cca5a4"
+          }
+        },
+        {
+          "registered_index": 143,
+          "canonical": "node scripts/check-library-filter-continuity.mjs",
+          "checker_sha256": "d04a156e540bd547b012c1b7bdad4f61f7c37c5a60f394ec70708deb050ad419",
+          "previous_receipt": {
+            "registered_index": 143,
+            "command": "node scripts/check-library-filter-continuity.mjs",
+            "exit_code": 0,
+            "log_sha256": "9acc71d87d42256ba9227c8699834628be46e752ebb0c12cfd4bd170db68449a"
+          }
+        },
+        {
+          "registered_index": 144,
+          "canonical": "node scripts/check-library-filter-results.mjs",
+          "checker_sha256": "585e61dfb1a34836d93fc2e3f69a953d073d758c43d21f38a6ea19a9ef9541bb",
+          "previous_receipt": {
+            "registered_index": 144,
+            "command": "node scripts/check-library-filter-results.mjs",
+            "exit_code": 0,
+            "log_sha256": "c23205c9d9245f6e0ad1507f1bd6887e5f3032fe6ce2dc858892b259137698a5"
+          }
+        },
+        {
+          "registered_index": 145,
+          "canonical": "node scripts/check-feed-filter-continuity.mjs",
+          "checker_sha256": "e9677d0c63bbcd042c8af26a22106adbf5ba06eb5858be450356254ec64ba1b8",
+          "previous_receipt": {
+            "registered_index": 145,
+            "command": "node scripts/check-feed-filter-continuity.mjs",
+            "exit_code": 0,
+            "log_sha256": "5e3a9ddd03ec7e8d014bbdb68a6348f509b6271c237a4d4bce1a217633c2d1bf"
+          }
+        },
+        {
+          "registered_index": 146,
+          "canonical": "node scripts/check-library-exercise-companies.mjs",
+          "checker_sha256": "4b7a41ace7c4d4474c8a8265647e3589851a164fc4580214b066e13b2104c17b",
+          "previous_receipt": {
+            "registered_index": 146,
+            "command": "node scripts/check-library-exercise-companies.mjs",
+            "exit_code": 0,
+            "log_sha256": "e480a166749450cc628d4727ca16ac453f31a05982a28a5f222e9b34ce7663c1"
+          }
+        },
+        {
+          "registered_index": 147,
+          "canonical": "node scripts/check-source-company-directory.mjs",
+          "checker_sha256": "95698e95cd528880ecffb7019f8ad16a36e8a41a593397d2ced32cd335c06307",
+          "previous_receipt": {
+            "registered_index": 147,
+            "command": "node scripts/check-source-company-directory.mjs",
+            "exit_code": 0,
+            "log_sha256": "cd6952f157f38402364253d9acbabf135d63c0cd805d2227db8a7063432df461"
+          }
+        },
+        {
+          "registered_index": 148,
+          "canonical": "node scripts/check-practice-company-directory.mjs",
+          "checker_sha256": "fdca311ef7cc9b33e858df00f391d3045762e17d9167a8c19937a26849a8741d",
+          "previous_receipt": {
+            "registered_index": 148,
+            "command": "node scripts/check-practice-company-directory.mjs",
+            "exit_code": 0,
+            "log_sha256": "9f5f74a52c4138821d7b8441a64896db80996201ea4507aaf00105b1b8ed6566"
+          }
+        },
+        {
+          "registered_index": 149,
+          "canonical": "node scripts/check-library-exercise-favorites.mjs",
+          "checker_sha256": "d01f74f33d54a2d677085d00375b286f0df652fc42f8826d2488ddb7ed7e60cd",
+          "previous_receipt": {
+            "registered_index": 149,
+            "command": "node scripts/check-library-exercise-favorites.mjs",
+            "exit_code": 0,
+            "log_sha256": "2e84dd80a1f27ae9116107a53a2d853a4b0316ec7daddeeb0ff4d6d92103b9fd"
+          }
+        },
+        {
+          "registered_index": 150,
+          "canonical": "node scripts/check-queue-admission.mjs",
+          "checker_sha256": "4c674ef7f367f1a0c354983765e39079bef7b0d25d1e139b94162cb34bdc7be1",
+          "previous_receipt": {
+            "registered_index": 150,
+            "command": "node scripts/check-queue-admission.mjs",
+            "exit_code": 0,
+            "log_sha256": "f434df34fd1bb8ed83c3915f793f6be4f3a5c630a54f6d513ef6b2edf240edb2"
+          }
+        },
+        {
+          "registered_index": 151,
+          "canonical": "node scripts/check-queued-controller.mjs",
+          "checker_sha256": "0f1fc8ff770ef72909c84cb1139caf1080c1d0dce9a004c07f31fcdcc65fb24c",
+          "previous_receipt": {
+            "registered_index": 151,
+            "command": "node scripts/check-queued-controller.mjs",
+            "exit_code": 0,
+            "log_sha256": "8da7345ecd685f66dd80c272042414da2a2ce2cf79424e99414583348d34bda9"
+          }
+        },
+        {
+          "registered_index": 152,
+          "canonical": "node scripts/check-queue-startup.mjs",
+          "checker_sha256": "66f74f97a652d6bf2f6e92728d94d47dc00c5ba45b76cd5868fa3e444235e0ea",
+          "previous_receipt": {
+            "registered_index": 152,
+            "command": "node scripts/check-queue-startup.mjs",
+            "exit_code": 0,
+            "log_sha256": "9b32bbd33e4722581558c28190d84d2d9ba0eceb49590854685e9fe9292f06e1"
+          }
+        },
+        {
+          "registered_index": 153,
+          "canonical": "node scripts/check-browser-calibration.mjs",
+          "checker_sha256": "73041e22e49ed7551ab27e6e7b6e9c07cfa5bf721182a30ce45207104d62c315",
+          "previous_receipt": {
+            "registered_index": 153,
+            "command": "node scripts/check-browser-calibration.mjs",
+            "exit_code": 0,
+            "log_sha256": "d2b3ca7aa50156b8b22d012076d4639aeac493dd2a0247392be031da55ae5ea7"
+          }
+        },
+        {
+          "registered_index": 154,
+          "canonical": "node scripts/check-browser-worker-watch.mjs",
+          "checker_sha256": "30a6bdc89fbc84fb48d7c3170060b1a13649feae8f22fbcbdc2734f6a468faef",
+          "previous_receipt": {
+            "registered_index": 154,
+            "command": "node scripts/check-browser-worker-watch.mjs",
+            "exit_code": 0,
+            "log_sha256": "3d0ba5c9fdd36d648aa432e057eb7fd9ec34d6a8307fcbf54cfdd5b12908ada5"
+          }
+        },
+        {
+          "registered_index": 157,
+          "canonical": "node scripts/check-module-picker.mjs",
+          "checker_sha256": "0c71876d49d42993cc155ea4ed61b58176b783b303f697de5ad82e8ea93c18e5",
+          "previous_receipt": {
+            "registered_index": 157,
+            "command": "node scripts/check-module-picker.mjs",
+            "exit_code": 0,
+            "log_sha256": "4b0e0038f44fbacb16fea59cfbeb674a24fcc608364139963d4fc303d7c57ea2"
+          }
+        },
+        {
+          "registered_index": 158,
+          "canonical": "node scripts/check-workspace-ui.mjs",
+          "checker_sha256": "e1b58371591cef812a9753a158115e3cd0a4b9baa5b0f43280701920dc407f73",
+          "previous_receipt": {
+            "registered_index": 158,
+            "command": "node scripts/check-workspace-ui.mjs",
+            "exit_code": 0,
+            "log_sha256": "bd14d896075a393856a0c173b6c6c5112d97303d45ef4f453ef1d17bcca2db06"
+          }
+        },
+        {
+          "registered_index": 161,
+          "canonical": "node scripts/check-reset-code-review.mjs",
+          "checker_sha256": "3ac6d5a4ed150bf252a809951dba5ecbc401943e57397d5149ea093be9a9647b",
+          "previous_receipt": {
+            "registered_index": 161,
+            "command": "node scripts/check-reset-code-review.mjs",
+            "exit_code": 0,
+            "log_sha256": "ede944e251ed37e532e4d570048c4e8bf1933cc97035fc9d74e8fdc434c2ffa7"
+          }
+        },
+        {
+          "registered_index": 162,
+          "canonical": "node scripts/check-workspace-intent.mjs",
+          "checker_sha256": "fa86a02099d34321a9d9dda7e5c0fd9994b44e9a93cd7b27340719a0668d0e88",
+          "previous_receipt": {
+            "registered_index": 162,
+            "command": "node scripts/check-workspace-intent.mjs",
+            "exit_code": 0,
+            "log_sha256": "2c0472e8f5788d2eb6ad6c6b19cf5825101cc93ffd078fa0193e51275bb68f94"
+          }
+        },
+        {
+          "registered_index": 163,
+          "canonical": "node scripts/check-submission-completion.mjs",
+          "checker_sha256": "2e94cb3b244cc0ff63d7a7a36597a44c93073038f36a012f4523488078f4da8c",
+          "previous_receipt": {
+            "registered_index": 163,
+            "command": "node scripts/check-submission-completion.mjs",
+            "exit_code": 0,
+            "log_sha256": "d0be4827d146d23448bd3d7d264e8597677b10a07beaed6ebc3fca7e58f0fdee"
+          }
+        },
+        {
+          "registered_index": 165,
+          "canonical": "node scripts/check-achievements.mjs",
+          "checker_sha256": "9839a8f32cc04c2166f30ca2edd65a7047e7e42e912bd1914769e224bdeb2e75",
+          "previous_receipt": {
+            "registered_index": 165,
+            "command": "node scripts/check-achievements.mjs",
+            "exit_code": 0,
+            "log_sha256": "baee4c31dfe34108ed6e587b10ce8320781c6f1002dd19dabc6b1c0ed15d89ba"
+          }
+        },
+        {
+          "registered_index": 166,
+          "canonical": "node scripts/check-submissions.mjs",
+          "checker_sha256": "6ba411d8f6c90f6afdcdbb87782e2f4e8bdeef28b61d73b0831cb596655e88c8",
+          "previous_receipt": {
+            "registered_index": 166,
+            "command": "node scripts/check-submissions.mjs",
+            "exit_code": 0,
+            "log_sha256": "afed93346c3e3237c2b66ba4f6118fd4cadaccada5f1702cf18a4e8645f246ef"
+          }
+        },
+        {
+          "registered_index": 167,
+          "canonical": "node scripts/check-proposal-drafts.mjs",
+          "checker_sha256": "9b240692da7b91b52794647fecb6d5cafd8d18e9529bdfa29936bb8e5f3d84b2",
+          "previous_receipt": {
+            "registered_index": 167,
+            "command": "node scripts/check-proposal-drafts.mjs",
+            "exit_code": 0,
+            "log_sha256": "4a14fc2efdc82a02651bafa98495fb2eb85a90d5e3bb9f8f28aac1a414f52726"
+          }
+        },
+        {
+          "registered_index": 168,
+          "canonical": "node scripts/check-paper-pool.mjs",
+          "checker_sha256": "fc29fd64e1a5a830258b772dcf58e36487298e727d6f530c266e11e3d832a97a",
+          "previous_receipt": {
+            "registered_index": 168,
+            "command": "node scripts/check-paper-pool.mjs",
+            "exit_code": 0,
+            "log_sha256": "6906625ec3130721963577ee310032886addae801cc9365b42ba6ea794f90bb1"
+          }
+        },
+        {
+          "registered_index": 172,
+          "canonical": "node scripts/check-paper-preflight.mjs",
+          "checker_sha256": "b9944d6782b668cb269b6a578fa2dfe08eae1d31868bc19de3dc86323c13a90c",
+          "previous_receipt": {
+            "registered_index": 172,
+            "command": "node scripts/check-paper-preflight.mjs",
+            "exit_code": 0,
+            "log_sha256": "dade6a30490e5c86d582aaef437d44c0d964e2e4cf7f130a0bf4329004b86131"
+          }
+        },
+        {
+          "registered_index": 173,
+          "canonical": "node scripts/check-interviews.mjs",
+          "checker_sha256": "cf93a9b2c9203ab069939677961859ce7212ed45c4bccc1dd5d74b0cefb1813e",
+          "previous_receipt": {
+            "registered_index": 173,
+            "command": "node scripts/check-interviews.mjs",
+            "exit_code": 0,
+            "log_sha256": "d2c10f3e418dc7fc0c487094a5ed67bd89cfea6622c8633c8491c5c2c33280b9"
+          }
+        },
+        {
+          "registered_index": 179,
+          "canonical": "node scripts/check-related-module-selection.mjs",
+          "checker_sha256": "30df9c8410eb05d1fd1bec6111b252f4a8f3466dd262aea9d14214bee9720221",
+          "previous_receipt": {
+            "registered_index": 179,
+            "command": "node scripts/check-related-module-selection.mjs",
+            "exit_code": 0,
+            "log_sha256": "131a00d66a33cf42612bdee7ae2b6e192fd9e3fd2db9f109b21ef7425446def7"
+          }
+        },
+        {
+          "registered_index": 180,
+          "canonical": "node scripts/check-interview-sharing.mjs",
+          "checker_sha256": "041cfe0ac995d5409fa06ea8aafa603ad590cc5c7cd19a0e1708620a141afce3",
+          "previous_receipt": {
+            "registered_index": 180,
+            "command": "node scripts/check-interview-sharing.mjs",
+            "exit_code": 0,
+            "log_sha256": "915b7ce6c80fff4d99d23e552f9093b179962bee92b2c2b90f4213f003928b6a"
+          }
+        },
+        {
+          "registered_index": 181,
+          "canonical": "node scripts/check-interview-writing.mjs",
+          "checker_sha256": "e94be5c41d04c2a69b04f6fe0728b41b2d8cb7193f53e45aa4ab9af3bba5f761",
+          "previous_receipt": {
+            "registered_index": 181,
+            "command": "node scripts/check-interview-writing.mjs",
+            "exit_code": 0,
+            "log_sha256": "97bc3d08a121d33bcce4183bc25bfe89aa92c2dc250ac5bc6a8c4e806330eb20"
+          }
+        },
+        {
+          "registered_index": 182,
+          "canonical": "node scripts/check-interview-draft-status.mjs",
+          "checker_sha256": "78920acb707fcce5306eca220ccd780ddb83d96bda4b0ac70e26e2e3a1a3b72d",
+          "previous_receipt": {
+            "registered_index": 182,
+            "command": "node scripts/check-interview-draft-status.mjs",
+            "exit_code": 0,
+            "log_sha256": "1e8338977c5211f9d5162f572c4c142146ee50e2d94732ac770c269f48dc9870"
+          }
+        },
+        {
+          "registered_index": 183,
+          "canonical": "node scripts/check-question-records.mjs",
+          "checker_sha256": "02dfec8cdde757cb84f50f1217ab2be0d66cc100940378b13f1c83fdd96c66ff",
+          "previous_receipt": {
+            "registered_index": 183,
+            "command": "node scripts/check-question-records.mjs",
+            "exit_code": 0,
+            "log_sha256": "bd8869a66086974df8f6584b3a5d9f38d85483a6065d8c022f4b56b22961b754"
+          }
+        },
+        {
+          "registered_index": 194,
+          "canonical": "node scripts/check-company-target-store.mjs",
+          "checker_sha256": "b098c67791e0b040824e51a606aa6cdc522b55045e644047521642d6b1e4c851",
+          "previous_receipt": {
+            "registered_index": 193,
+            "command": "node scripts/check-company-target-store.mjs",
+            "exit_code": 0,
+            "log_sha256": "72ce293b70982684339ae5a4bbd7e61c0f9e6b0b569844a164d7c15fdf8edd1d"
+          }
+        },
+        {
+          "registered_index": 203,
+          "canonical": "node scripts/check-library-interview-guide.mjs",
+          "checker_sha256": "5b849ea85ec0a8d55478db59c848654999c7b8c24730044a5c7c8d14a8f147b9",
+          "previous_receipt": {
+            "registered_index": 202,
+            "command": "node scripts/check-library-interview-guide.mjs",
+            "exit_code": 0,
+            "log_sha256": "db70edfd9cd8b36117fd1bdef0ee484058dd6961c80f88531a636576da725ec7"
+          }
+        },
+        {
+          "registered_index": 207,
+          "canonical": "node scripts/check-comparison-browsing.mjs",
+          "checker_sha256": "c21c1271c4d015a661cc394f5e716840fcc31ee6e41a990e4ec0d92fe7bbc25f",
+          "previous_receipt": {
+            "registered_index": 206,
+            "command": "node scripts/check-comparison-browsing.mjs",
+            "exit_code": 0,
+            "log_sha256": "03d97c1b34e1afcc0c816d474c45053146ded6661b5a2931bc806918d8aaf498"
+          }
+        },
+        {
+          "registered_index": 212,
+          "canonical": "node scripts/check-interview-search-evidence.mjs",
+          "checker_sha256": "e48161f7a8fc17ad5b2def528d69aaa7fa9899b5e14d6b6bf06301b99fbe73ef",
+          "previous_receipt": {
+            "registered_index": 211,
+            "command": "node scripts/check-interview-search-evidence.mjs",
+            "exit_code": 0,
+            "log_sha256": "075c0aef9281c34ac7ba31445990f8ce4a749ea7b5d529c840288ff79b17748b"
+          }
+        },
+        {
+          "registered_index": 213,
+          "canonical": "node scripts/check-interview-concept-favorites.mjs",
+          "checker_sha256": "9839bea734f2e8802a1240b245b56fe20cbb916c3c9cafaa9e8c759d7d5679aa",
+          "previous_receipt": {
+            "registered_index": 212,
+            "command": "node scripts/check-interview-concept-favorites.mjs",
+            "exit_code": 0,
+            "log_sha256": "f7fe302369ed664dc40a815d7f52b05c1a79e38c4a5e62c7db61f61313411b2a"
+          }
+        },
+        {
+          "registered_index": 214,
+          "canonical": "node scripts/check-ranking-disclosure.mjs",
+          "checker_sha256": "e5541870738b0af93f4f98f5218ab6e32d95d4acd7bc421abf0f964b57e91ba3",
+          "previous_receipt": {
+            "registered_index": 213,
+            "command": "node scripts/check-ranking-disclosure.mjs",
+            "exit_code": 0,
+            "log_sha256": "8ad0ed4160560229aada7a7fc1b476d4014f05133f1bf86968e5e1b59f9fe7db"
+          }
+        },
+        {
+          "registered_index": 216,
+          "canonical": "node scripts/check-practice-metadata.mjs",
+          "checker_sha256": "7f39595e6dfecc07b8c6beec72ccaf9c60113d07baf99c23740500bbedf3d952",
+          "previous_receipt": {
+            "registered_index": 215,
+            "command": "node scripts/check-practice-metadata.mjs",
+            "exit_code": 0,
+            "log_sha256": "cda14f2ba6da32a9dc393189c9ee62d419a18ed2bddde1f9ae6013fb6eaa0d19"
+          }
+        },
+        {
+          "registered_index": 217,
+          "canonical": "node scripts/check-curated-practice-order.mjs",
+          "checker_sha256": "e1c20bc9f338a932207c4907dd8b4a0868b41af5051a2bdba53ef8fe27fad8dc",
+          "previous_receipt": {
+            "registered_index": 216,
+            "command": "node scripts/check-curated-practice-order.mjs",
+            "exit_code": 0,
+            "log_sha256": "aed2aeabf0c7c4aba836f059a13ef8542e8811143fa2564cdd5333727f438c82"
+          }
+        },
+        {
+          "registered_index": 218,
+          "canonical": "node scripts/check-interview-continuation.mjs",
+          "checker_sha256": "6cac6ec92e3a0ff4c06c4f589d23fe5ba8d22405c8f501c5d5ebebdff90d1020",
+          "previous_receipt": {
+            "registered_index": 217,
+            "command": "node scripts/check-interview-continuation.mjs",
+            "exit_code": 0,
+            "log_sha256": "046ce7e750d53b89e94916d5d0c0e625105840876c1e363a385c3751f23e58c9"
+          }
+        },
+        {
+          "registered_index": 220,
+          "canonical": "node scripts/check-batch-review.mjs",
+          "checker_sha256": "ca889e467300651cc2128117e5ec1218e43bc5e5ac2351d09492b612f02a215f",
+          "previous_receipt": {
+            "registered_index": 219,
+            "command": "node scripts/check-batch-review.mjs",
+            "exit_code": 0,
+            "log_sha256": "9b5abc0931a4df9408d717c74695d5638817d875b2b74b595b2afdba15f26fbe"
+          }
+        },
+        {
+          "registered_index": 224,
+          "canonical": "node scripts/check-interview-filter-feedback.mjs",
+          "checker_sha256": "aaff6a9ac1096083e3c1fb30bde14a8d1474422dcbee8f31a8f12311cbb741b7",
+          "previous_receipt": {
+            "registered_index": 223,
+            "command": "node scripts/check-interview-filter-feedback.mjs",
+            "exit_code": 0,
+            "log_sha256": "a4d2d11d5754cd8a202884324c4c9d46fe6dd83a0a4e59e0f63ada5676d30df5"
+          }
+        },
+        {
+          "registered_index": 225,
+          "canonical": "node scripts/check-interview-filter-feedback.mjs --readonly",
+          "checker_sha256": "aaff6a9ac1096083e3c1fb30bde14a8d1474422dcbee8f31a8f12311cbb741b7",
+          "previous_receipt": {
+            "registered_index": 224,
+            "command": "node scripts/check-interview-filter-feedback.mjs --readonly",
+            "exit_code": 0,
+            "log_sha256": "1ca0922ba72966352437400b64d4530898cb05e2991bbaf618f7a73de0360c73"
+          }
+        },
+        {
+          "registered_index": 229,
+          "canonical": "node scripts/check-interview-batch-sharing.mjs",
+          "checker_sha256": "da04a0d67147d1766bdb39f2560b4f4f0bcbe80e502b02fc8008493562b97b1c",
+          "previous_receipt": {
+            "registered_index": 228,
+            "command": "node scripts/check-interview-batch-sharing.mjs",
+            "exit_code": 0,
+            "log_sha256": "7f250e5a3f5a4668ee26a0f3be2688be72e3b173df53b4c35e0f4dfcacd58f58"
+          }
+        },
+        {
+          "registered_index": 230,
+          "canonical": "node scripts/check-interview-study-list.mjs",
+          "checker_sha256": "af6eeb6720e5f9ce0c1ee526e97c20e1b0f4000b2a4ec8fe81ab13fa23d3938e",
+          "previous_receipt": {
+            "registered_index": 229,
+            "command": "node scripts/check-interview-study-list.mjs",
+            "exit_code": 0,
+            "log_sha256": "b24564815ed1105158542ad45e0d6accf2772199e918b935ff90e1c3fdf1f3c3"
+          }
+        },
+        {
+          "registered_index": 231,
+          "canonical": "node scripts/check-report-study-list.mjs",
+          "checker_sha256": "c1f0c9efaa054734e14187cb73c34b319290f28eaf7562eb9b3784748bad11bc",
+          "previous_receipt": {
+            "registered_index": 230,
+            "command": "node scripts/check-report-study-list.mjs",
+            "exit_code": 0,
+            "log_sha256": "976792e4057ba80f44854f449e59b1782b0da70c82bb7ee30c84fec0dc3d7a4f"
+          }
+        },
+        {
+          "registered_index": 233,
+          "canonical": "node scripts/check-report-practice-search.mjs",
+          "checker_sha256": "fc268a55088f72eeb1fe6f68690de4432ab7591f5fc1109fd3e2ebca03265dca",
+          "previous_receipt": {
+            "registered_index": 232,
+            "command": "node scripts/check-report-practice-search.mjs",
+            "exit_code": 0,
+            "log_sha256": "a964cdac9bd53154bd8c05e724adfad60c53c9155c614700bb0c923fb75bac7a"
+          }
+        },
+        {
+          "registered_index": 238,
+          "canonical": "node scripts/check-source-inline-reading.mjs",
+          "checker_sha256": "95e1e9fa36466636c9ee4c8f941052918c37517fa5ec5dd3a3a8ca04cc2d066a",
+          "previous_receipt": {
+            "registered_index": 237,
+            "command": "node scripts/check-source-inline-reading.mjs",
+            "exit_code": 0,
+            "log_sha256": "10743050da6f3814ab70bf571117235b5779eceab51e44a2eadfa6d1e8a6ea6d"
+          }
+        },
+        {
+          "registered_index": 239,
+          "canonical": "node scripts/check-practice-experiences.mjs",
+          "checker_sha256": "1f7af2021e47e2ea6394d625c6ce95b8ec9f94b1eb382368e8b8ffeb72a04de0",
+          "previous_receipt": {
+            "registered_index": 238,
+            "command": "node scripts/check-practice-experiences.mjs",
+            "exit_code": 0,
+            "log_sha256": "9f8ae0cdbfa0e9c01bcdecb6442c8f3664e3f65d103acee5df505d33262afa16"
+          }
+        },
+        {
+          "registered_index": 240,
+          "canonical": "node scripts/check-problem-company-navigation.mjs",
+          "checker_sha256": "0279c10e0966949529bdb4cc8768d02aca39acdd241f3f209c06d73519d4b460",
+          "previous_receipt": {
+            "registered_index": 239,
+            "command": "node scripts/check-problem-company-navigation.mjs",
+            "exit_code": 0,
+            "log_sha256": "b205bab9c839b67a822c98104028a24e7774b274624e4fab3725c4c844fba697"
+          }
+        },
+        {
+          "registered_index": 241,
+          "canonical": "node scripts/check-problem-evidence-filters.mjs",
+          "checker_sha256": "921c2b3043e71a81e1b30db1a9a21066def178ffee0b6001718dad1871132d82",
+          "previous_receipt": {
+            "registered_index": 240,
+            "command": "node scripts/check-problem-evidence-filters.mjs",
+            "exit_code": 0,
+            "log_sha256": "85f4899eb1324ec2c99af4fd171c37f5a466c5df68593a9ec8bdbe73bf441934"
+          }
+        },
+        {
+          "registered_index": 247,
+          "canonical": "node scripts/check-study-followups.mjs",
+          "checker_sha256": "52d028d1e6bb6573c0c53123c69420364d84752d4f32825dc3aca2de68077559",
+          "previous_receipt": {
+            "registered_index": 246,
+            "command": "node scripts/check-study-followups.mjs",
+            "exit_code": 0,
+            "log_sha256": "c7607b7518d69aac6b0ae06c654ebde9b3812f5525978e344071104eff3dc5f3"
+          }
+        },
+        {
+          "registered_index": 248,
+          "canonical": "node scripts/check-path-navigation.mjs",
+          "checker_sha256": "88ed2dcc9af768bfe06c176a108cb694b85419b40ec71045c0795744801438ce",
+          "previous_receipt": {
+            "registered_index": 247,
+            "command": "node scripts/check-path-navigation.mjs",
+            "exit_code": 0,
+            "log_sha256": "97bad01e02fa8c61c9c484ec0123206509c222edc562a461f4cd4e6aee27b99f"
+          }
+        },
+        {
+          "registered_index": 249,
+          "canonical": "node scripts/check-daily-challenges.mjs",
+          "checker_sha256": "aadcf5f7170bf9ee01bc2c4a95d2570566857e55b8f9627d9bfe738b80b3c075",
+          "previous_receipt": {
+            "registered_index": 248,
+            "command": "node scripts/check-daily-challenges.mjs",
+            "exit_code": 0,
+            "log_sha256": "f5229a789b45610ff5ee50893d3ae3d7a82387eb407ef6f8974c716d916932da"
+          }
+        },
+        {
+          "registered_index": 250,
+          "canonical": "node scripts/check-challenge-ui.mjs",
+          "checker_sha256": "322bb75019a90a1ae895581c2f7fcbb0f33ae55d1c0f89dc0b9e9cdc161e7d23",
+          "previous_receipt": {
+            "registered_index": 249,
+            "command": "node scripts/check-challenge-ui.mjs",
+            "exit_code": 0,
+            "log_sha256": "ace39240b939a4bfba942a6db39c091b1637af8370daa8945c7230821758e2b1"
+          }
+        },
+        {
+          "registered_index": 251,
+          "canonical": "node scripts/check-editor-search.mjs",
+          "checker_sha256": "49df82fa85f82167a580eac052376e57186b3a56c4f331f6309afda8dd0a6847",
+          "previous_receipt": {
+            "registered_index": 250,
+            "command": "node scripts/check-editor-search.mjs",
+            "exit_code": 0,
+            "log_sha256": "97519c8ca9bd7c5d22d5c8e43880e1913ce3c89a59d390bd26caaeff2450c101"
+          }
+        },
+        {
+          "registered_index": 252,
+          "canonical": "node scripts/check-control-feedback.mjs",
+          "checker_sha256": "5922ddd4f8090531bbbbeed59f0358de1456dc3b626c0617c33453c064ffcbb1",
+          "previous_receipt": {
+            "registered_index": 251,
+            "command": "node scripts/check-control-feedback.mjs",
+            "exit_code": 0,
+            "log_sha256": "0f566d2ef563a8b83beaa728e55f77ccc05e4e77d35cddf40ba08130e0e7fb39"
+          }
+        }
+      ],
+      "parent_record": "packages/torchwasm/benchmarks/results/qualification-0.91-main-catalog-followup.json",
+      "parent_record_sha256": "cf97f03bf59f2506319217e8c45a7c15486c39d7883a9cbc33449aff6e46552c",
+      "scope": "Reuse the complete preceding251-command qualification for unchanged unrelated checker inputs. Rerun every new/changed checker, runtime/workspace prefix, all resource/preparation checks, every checker referencing the changed component or its conservative reverse-import parents, and ambiguous dynamic SSR-loader tests. Both builds and actual Worker rerun separately."
+    },
+    "selected_results": [
+      {
+        "registered_index": 1,
+        "command": "node scripts/check-runtime-download.mjs",
+        "exit_code": 0,
+        "log_sha256": "2cf75a010b52205b5de3d3c4da0f97c4dcf939561f7730a0c972b5af505c3d42"
+      },
+      {
+        "registered_index": 2,
+        "command": "node scripts/check.mjs",
+        "exit_code": 0,
+        "log_sha256": "470586d2e5d129ca05f5e231504fc3b0681da1f2e83188e6fe746525fa561ceb"
+      },
+      {
+        "registered_index": 3,
+        "command": "node scripts/check-practice.mjs",
+        "exit_code": 0,
+        "log_sha256": "b1bdd64a492f9d693f5a14ff94690ce0a957fd33351967af22bb245ef11cbce8"
+      },
+      {
+        "registered_index": 4,
+        "command": "node scripts/check-hosted-workspace-sync.mjs",
+        "exit_code": 0,
+        "log_sha256": "fe0c36a324836d4cdda265cdee63f43451b3d3e08ec0f7b92d534dd13bf64a7a"
+      },
+      {
+        "registered_index": 5,
+        "command": "node scripts/check-hosted-offline-recovery.mjs",
+        "exit_code": 0,
+        "log_sha256": "4fa63a26f772be9d60a1e2588700bd22a39d28e8c4776e229aed555db478aef8"
+      },
+      {
+        "registered_index": 6,
+        "command": "node scripts/check-practice-views.mjs",
+        "exit_code": 0,
+        "log_sha256": "ebefcc7a66c25a6f03ac0e74f156395200c35ac75fa24de03cce6ef2d85d741f"
+      },
+      {
+        "registered_index": 7,
+        "command": "node scripts/check-submission-result.mjs",
+        "exit_code": 0,
+        "log_sha256": "c4447ea2bfc26a82fc8a00bfbffcbecbcfc274be177f0b9d3e5aaf554482594b"
+      },
+      {
+        "registered_index": 8,
+        "command": "node scripts/check-guest-workspace.mjs",
+        "exit_code": 0,
+        "log_sha256": "59d44da6a90e2afe0303bb8401f58410e30cf6ae9f6631f8a632198e2f8a7808"
+      },
+      {
+        "registered_index": 9,
+        "command": "node scripts/check-guest-workspace-lifecycle.mjs",
+        "exit_code": 0,
+        "log_sha256": "edfb9f6c33c7451f9436207f85eac69e648ce0fcd0a8f81900e01eec2f58e3e6"
+      },
+      {
+        "registered_index": 10,
+        "command": "node scripts/check-solution-history.mjs",
+        "exit_code": 0,
+        "log_sha256": "efb58cc5df314970657735bcd41fd79461e97030972ba5d9149b07163e44dd79"
+      },
+      {
+        "registered_index": 11,
+        "command": "node scripts/check-submitted-source.mjs",
+        "exit_code": 0,
+        "log_sha256": "7802cc1ac1401d38b3c1bce705b3a71ec66653069a5315439feff4de61896a69"
+      },
+      {
+        "registered_index": 12,
+        "command": "node scripts/check-publishing-rules.mjs",
+        "exit_code": 0,
+        "log_sha256": "07bc73206e58b78268351202222e1595fa019ea5a69b1a678af0dfe41331b0c7"
+      },
+      {
+        "registered_index": 13,
+        "command": "node scripts/check-community-join.mjs",
+        "exit_code": 0,
+        "log_sha256": "885ac426c13cc5412c4f56980904d9eeb638b158aeb6ec3c78dafbcc07251223"
+      },
+      {
+        "registered_index": 14,
+        "command": "node scripts/check-account.mjs",
+        "exit_code": 0,
+        "log_sha256": "ce64f7f92a015a5fbaaa53e9c408d599e710555d171d0c5bd95bb6a7d6eeaabe"
+      },
+      {
+        "registered_index": 15,
+        "command": "node scripts/check-email-login.mjs",
+        "exit_code": 0,
+        "log_sha256": "e14df7c74a0cb210318ff557843fa77066e6af8a25407240610a5bd803e4a3ae"
+      },
+      {
+        "registered_index": 16,
+        "command": "node scripts/check-affiliation-verification.mjs",
+        "exit_code": 0,
+        "log_sha256": "a0312cc1643bce439f1cad4fd31e047e4fc6176a6107b202bfd1cd59af5edc7c"
+      },
+      {
+        "registered_index": 17,
+        "command": "node scripts/check-account-identity.mjs",
+        "exit_code": 0,
+        "log_sha256": "37cc24d1b73be9ef70b8d09c6a3569d221b05c88f6a64d53b9d21a3ef29d1d19"
+      },
+      {
+        "registered_index": 18,
+        "command": "node scripts/check-user-growth.mjs",
+        "exit_code": 0,
+        "log_sha256": "253739376f2df62dc58e23b8d5ab322c1a65e8db8a25bf0dd635088317d8d076"
+      },
+      {
+        "registered_index": 19,
+        "command": "node scripts/check-profile-save.mjs",
+        "exit_code": 0,
+        "log_sha256": "1bdef3a8615cf4b0b8248d13556e09a72abda55e220f27d23ef22dada23a5d20"
+      },
+      {
+        "registered_index": 20,
+        "command": "node scripts/check-avatar-cropper.mjs",
+        "exit_code": 0,
+        "log_sha256": "be8eb85c0b6dc3fc88a357a34cfe73df677cd08f7b0fa42ffca516b0a9a5edc1"
+      },
+      {
+        "registered_index": 21,
+        "command": "node scripts/check-profile-settings.mjs",
+        "exit_code": 0,
+        "log_sha256": "ef9385e4dba06417641f6a72f770264b02c5fcbecb8d64533351c25f48714833"
+      },
+      {
+        "registered_index": 22,
+        "command": "node scripts/check-deferred-features.mjs",
+        "exit_code": 0,
+        "log_sha256": "a0a533a6c29cd4f5ef26aac6b0eb492fa59f07241da7a1affaac21b958f1754f"
+      },
+      {
+        "registered_index": 23,
+        "command": "node scripts/check-reading-preferences.mjs",
+        "exit_code": 0,
+        "log_sha256": "9b321266486e96debfc712ea5e94787b51ccfb7955e45c62bfc48ad192474405"
+      },
+      {
+        "registered_index": 24,
+        "command": "node scripts/check-reading-appearance.mjs",
+        "exit_code": 0,
+        "log_sha256": "2953b2910b2d93fb8a8a2011c320ea49024835f60c5f3e2b6f9e3fee44fd182e"
+      },
+      {
+        "registered_index": 25,
+        "command": "node scripts/check-paper-detail-loading.mjs",
+        "exit_code": 0,
+        "log_sha256": "76e560da876c95deff3dbdeb3b21f71b8aa3ed8554204e57e1d76c657d7a9584"
+      },
+      {
+        "registered_index": 26,
+        "command": "node scripts/check-random-problem.mjs",
+        "exit_code": 0,
+        "log_sha256": "1c5cefc8f197bb6f9bd8878be589cce1c193cdc4efc7b58e5a2b67f177705d96"
+      },
+      {
+        "registered_index": 27,
+        "command": "node scripts/check-profile.mjs",
+        "exit_code": 0,
+        "log_sha256": "cf34719d9d151bebee300d21f00e4254a8e33f018b477c8ee2148805f782fc96"
+      },
+      {
+        "registered_index": 28,
+        "command": "node scripts/check-profile-solutions.mjs",
+        "exit_code": 0,
+        "log_sha256": "041a3cf23a8ad354f4c7b669285b98714e31c56f08fd06ca353b94bd6db7c559"
+      },
+      {
+        "registered_index": 29,
+        "command": "node scripts/check-profile-interviews.mjs",
+        "exit_code": 0,
+        "log_sha256": "f8f4dc8c34ae4b427bf29bc2a38b2333e85b6c7e1d72422cff351f761ece0d03"
+      },
+      {
+        "registered_index": 30,
+        "command": "node scripts/check-profile-navigation.mjs",
+        "exit_code": 0,
+        "log_sha256": "2a847ed87c5685e0b94763fc3437d6d5d40ddc58622f27941ade2394a527b301"
+      },
+      {
+        "registered_index": 31,
+        "command": "node scripts/check-journey.mjs",
+        "exit_code": 0,
+        "log_sha256": "d6e6b536f18bf591ae7d23cdc427b5d3480f817b6e9c18bca540f028e40dbaf4"
+      },
+      {
+        "registered_index": 32,
+        "command": "node scripts/check-judge-journey.mjs",
+        "exit_code": 0,
+        "log_sha256": "032e76e643aba579e5025a664499c180be5e789458cf0beb002a67653ba97246"
+      },
+      {
+        "registered_index": 33,
+        "command": "node scripts/check-data-and-jobs.mjs",
+        "exit_code": 0,
+        "log_sha256": "dbcc64549efecabca5b9a78cb53bbfb5b1cdcac7482cd457119f961cd0e9b284"
+      },
+      {
+        "registered_index": 34,
+        "command": "node scripts/check-browser-bundles.mjs",
+        "exit_code": 0,
+        "log_sha256": "a250ad3036d813e5487d9898138720eff9ccf7b4947a831d8fdaaddb9f3dd586"
+      },
+      {
+        "registered_index": 35,
+        "command": "node scripts/check-wasm-cases.mjs",
+        "exit_code": 0,
+        "log_sha256": "07a89237a76cd71e9dfde55cec33f1e0523d7d9fbc8a0d70e9cea3fe8c6985d1"
+      },
+      {
+        "registered_index": 36,
+        "command": "node scripts/check-browser-progress.mjs",
+        "exit_code": 0,
+        "log_sha256": "26aee5dec4dd3991c7045c946af1166a6e4b6a6ab1bd36e3d930f00b4c5c757b"
+      },
+      {
+        "registered_index": 37,
+        "command": "node scripts/check-progress-details.mjs",
+        "exit_code": 0,
+        "log_sha256": "4d3a8521669c735343af98feb226920dd95f1a75e4106a50978072d8d339077c"
+      },
+      {
+        "registered_index": 38,
+        "command": "node scripts/check-browser-syntax.mjs",
+        "exit_code": 0,
+        "log_sha256": "adad4e3d19a8d5f31d745a0f27dde452d9f335be6536ab9e992ab9628b53ef53"
+      },
+      {
+        "registered_index": 39,
+        "command": "node scripts/check-source-locations.mjs",
+        "exit_code": 0,
+        "log_sha256": "208dfc0192b2948be3d68f37a78b2bb107ef705676fcc75b931bfe127532fc5f"
+      },
+      {
+        "registered_index": 40,
+        "command": "node scripts/check-trace-navigation.mjs",
+        "exit_code": 0,
+        "log_sha256": "31a57045b92ffc49069521cde3e2323e9d090a551ff4576dc417f2e1182c756c"
+      },
+      {
+        "registered_index": 41,
+        "command": "node scripts/check-report-test-search.mjs",
+        "exit_code": 0,
+        "log_sha256": "9121f8cc6f6e1a9036585fe1a24953d829009f4e610f77cc00539906bcc6d726"
+      },
+      {
+        "registered_index": 42,
+        "command": "node scripts/check-failure-detail-reveal.mjs",
+        "exit_code": 0,
+        "log_sha256": "d44d9505aebb216dac0b38a56217d28169d9e568f16317827e27a078c238a789"
+      },
+      {
+        "registered_index": 43,
+        "command": "node scripts/check-python-navigation.mjs",
+        "exit_code": 0,
+        "log_sha256": "5d35597c34662d75afab66cbc2f441117b8df6dc6b517a7ad60a340be5633759"
+      },
+      {
+        "registered_index": 44,
+        "command": "node scripts/check-browser-judge.mjs",
+        "exit_code": 0,
+        "log_sha256": "5b3b08fc8445f237acfb1d7d26cfc196e3fad49fa4f3f47357f6fbaedb6160e8"
+      },
+      {
+        "registered_index": 47,
+        "command": "node scripts/check-community-topic-feed.mjs",
+        "exit_code": 0,
+        "log_sha256": "249647e8a174c0f89ddd99267af908a977fd611a2cac94b8f532a650475d49e8"
+      },
+      {
+        "registered_index": 67,
+        "command": "node scripts/check-admin-workspace.mjs",
+        "exit_code": 0,
+        "log_sha256": "549b49010abf286662818ee0050262628d884fec01510228e2f6d24af867642c"
+      },
+      {
+        "registered_index": 74,
+        "command": "node scripts/check-moderation-navigation.mjs",
+        "exit_code": 0,
+        "log_sha256": "b867c23dd0b97a65639d84a2b96657d48615cd92f428691957629f611cb2d7c1"
+      },
+      {
+        "registered_index": 76,
+        "command": "node scripts/check-community-solutions.mjs",
+        "exit_code": 0,
+        "log_sha256": "3a8a2379f6547eab329cb6bf3553588dc9f3c400d2718301164f412d57cfc475"
+      },
+      {
+        "registered_index": 77,
+        "command": "node scripts/check-problem-solution-panel.mjs",
+        "exit_code": 0,
+        "log_sha256": "9a453edc3139723d44329822bca18607795579622acb63bf2b7831fe1b7fb30b"
+      },
+      {
+        "registered_index": 78,
+        "command": "node scripts/check-retained-solutions.mjs",
+        "exit_code": 0,
+        "log_sha256": "037d4a8dca3b39ca53abd6db1d2b0f37b22cff529caecf1bfc9caf83ddee1d71"
+      },
+      {
+        "registered_index": 79,
+        "command": "node scripts/check-inline-problem-discussions.mjs",
+        "exit_code": 0,
+        "log_sha256": "57dd31839b4f11a74bb478daf601899f6e047121ce36e247a017e4fb26183903"
+      },
+      {
+        "registered_index": 81,
+        "command": "node scripts/check-solution-code-draft.mjs",
+        "exit_code": 0,
+        "log_sha256": "b0ac2151d6099a5282a82e6fa178d329c4cba4e59832b44d10a6d41a3c24d7d5"
+      },
+      {
+        "registered_index": 83,
+        "command": "node scripts/check-solution-navigation.mjs",
+        "exit_code": 0,
+        "log_sha256": "0869bfadfb4c9e7cfa4fd9a83fe84dfbab21240ca0ab668a53b16751eba147ce"
+      },
+      {
+        "registered_index": 85,
+        "command": "node scripts/check-reading-visibility.mjs",
+        "exit_code": 0,
+        "log_sha256": "f6861b29bb9f70820da55c0d23421bf82a2be1209267b607bb62d5ebe69b606d"
+      },
+      {
+        "registered_index": 91,
+        "command": "node scripts/check-favorite-pagination.mjs",
+        "exit_code": 0,
+        "log_sha256": "38b1b03cbfc5688b3129df7d5b9757c799540e47408b4c6e8bd53c4224a50767"
+      },
+      {
+        "registered_index": 95,
+        "command": "node scripts/check-favorite-reading.mjs",
+        "exit_code": 0,
+        "log_sha256": "94b2b149bc43f493a1e5a13a93e17e886952205c02d1bade50c2502ce45551b4"
+      },
+      {
+        "registered_index": 99,
+        "command": "node scripts/check-writing-disclosure.mjs",
+        "exit_code": 0,
+        "log_sha256": "8cfa2b0cc453aec77fa518ed642aa61006d88d08792ff385d704f366ac598db3"
+      },
+      {
+        "registered_index": 139,
+        "command": "node scripts/check-library-navigation.mjs",
+        "exit_code": 0,
+        "log_sha256": "c4b8b000e2d3ddda9e4060824e5b282464fc0fa7abbc6ad7997ca5e54e99bd00"
+      },
+      {
+        "registered_index": 155,
+        "command": "node scripts/check-ui-interactions.mjs",
+        "exit_code": 0,
+        "log_sha256": "e140b9a3f0241bf993a9af0d07bc26d07bad65749b2d05778caad81e12c766d7"
+      },
+      {
+        "registered_index": 156,
+        "command": "node scripts/check-main-navigation.mjs",
+        "exit_code": 0,
+        "log_sha256": "03f40eb575330baf4cf1aa6cdaa943a4daa57814f48e8f6ae645a63d19c0b86a"
+      },
+      {
+        "registered_index": 159,
+        "command": "node scripts/check-workspace-actions.mjs",
+        "exit_code": 0,
+        "log_sha256": "7ec947906f5a84fd1322da6f6b4a0e3081cba944ddf7dfd3b8053ed5990043a4"
+      },
+      {
+        "registered_index": 160,
+        "command": "node scripts/check-editor-tools.mjs",
+        "exit_code": 0,
+        "log_sha256": "81ad7a73b071bc3fdaf88bd6e956bc7a30ddd6ceb8036c68b36cdd897ecf1a70"
+      },
+      {
+        "registered_index": 164,
+        "command": "node scripts/check-problem-overview.mjs",
+        "exit_code": 0,
+        "log_sha256": "81cc523a5a948157374945b03b7330c0643e112f4c161151451536abbd9c74cc"
+      },
+      {
+        "registered_index": 169,
+        "command": "node scripts/check-paper-registry.mjs",
+        "exit_code": 0,
+        "log_sha256": "14b004de8ce8230f1cdb6a5cff6c46bc16007b073e1d8b021c070f5e9238c10f"
+      },
+      {
+        "registered_index": 170,
+        "command": "node scripts/check-paper-registry-browsing.mjs",
+        "exit_code": 0,
+        "log_sha256": "00807d2997a21a5706a2799a9b07b2f1cea034a186a803126bb24011c1411003"
+      },
+      {
+        "registered_index": 171,
+        "command": "node scripts/check-registry-position.mjs",
+        "exit_code": 0,
+        "log_sha256": "22ffd96f27ab74def7ea85002c5938209a547c6d36591d79b1174037f9eed021"
+      },
+      {
+        "registered_index": 174,
+        "command": "node scripts/check-interview-ui.mjs",
+        "exit_code": 0,
+        "log_sha256": "fae4403cbbca739dbfd85da4f66da6d3aa2cc346ac99c41c6985777fbda5b7fb"
+      },
+      {
+        "registered_index": 175,
+        "command": "node scripts/check-interview-search.mjs",
+        "exit_code": 0,
+        "log_sha256": "8fcd1b4e14c0786b09a9f634af6ff3924a3b5938431d794a875d146808731742"
+      },
+      {
+        "registered_index": 176,
+        "command": "node scripts/check-interview-search-reading.mjs",
+        "exit_code": 0,
+        "log_sha256": "348d8e05e21ae780d07b1880a7625ecc94f8f56d3d12dd6877d5b56e90509630"
+      },
+      {
+        "registered_index": 177,
+        "command": "node scripts/check-interview-outcomes.mjs",
+        "exit_code": 0,
+        "log_sha256": "eba882effd4eb933ee6ea41ff60e11cadae5bca6bc696c275f1b8829fb2f91a3"
+      },
+      {
+        "registered_index": 178,
+        "command": "node scripts/check-interview-browse.mjs",
+        "exit_code": 0,
+        "log_sha256": "d8f566d60a86dca954d33dd757bf473a907c084bb2e3cc502f5c6913290b7a44"
+      },
+      {
+        "registered_index": 184,
+        "command": "node scripts/check-company-preparation.mjs",
+        "exit_code": 0,
+        "log_sha256": "61df25f9e04ce51a2f660afa9e9a40d68befae64847dbde603c417703ed05a15"
+      },
+      {
+        "registered_index": 185,
+        "command": "node scripts/check-preparation-path-browser.mjs",
+        "exit_code": 0,
+        "log_sha256": "65fa8a808cad38ef535fcb422850731258ab16c5800b2bfcf4f5581b487c36c8"
+      },
+      {
+        "registered_index": 186,
+        "command": "node scripts/check-interview-resources.mjs",
+        "exit_code": 0,
+        "log_sha256": "f1d24b687b4cf68b0bcd7e6a458f8d15b118e696f31faaeab283faca65317cf9"
+      },
+      {
+        "registered_index": 187,
+        "command": "node scripts/check-resource-learning-search.mjs",
+        "exit_code": 0,
+        "log_sha256": "79386bf4a71ef789b5db2af42b0d4f355b78700cf4cea553efee3474c71ed311"
+      },
+      {
+        "registered_index": 188,
+        "command": "node scripts/check-huggingface-preparation.mjs",
+        "exit_code": 0,
+        "log_sha256": "3bf7f83a8efbaaea606b4b7a667f0e20f87af5af61211c1b867127b00ab23828"
+      },
+      {
+        "registered_index": 189,
+        "command": "node scripts/check-low-rank-reading.mjs",
+        "exit_code": 0,
+        "log_sha256": "f6cc9e57cf9d4e107e7ebb05d399c050c3a80ea6f5ef2c78a7521fe47f399de4"
+      },
+      {
+        "registered_index": 190,
+        "command": "node scripts/check-resource-practice.mjs",
+        "exit_code": 0,
+        "log_sha256": "2d9f0e3deef2d66ae7f887e282378322da698f0f35a204649fc9709cb5dfe8f9"
+      },
+      {
+        "registered_index": 191,
+        "command": "node scripts/check-resource-kind-entry.mjs",
+        "exit_code": 0,
+        "log_sha256": "dd3b98b31e676ff0ccdbff4c3dc0095bafb999d0f33ede1f4b7cd2670ced7f27"
+      },
+      {
+        "registered_index": 192,
+        "command": "node scripts/check-resource-control-ownership.mjs",
+        "exit_code": 0,
+        "log_sha256": "6abd7f209fa299be478333b86cbcbe9022ff37c65b744e8ce1279b5d35b105ac"
+      },
+      {
+        "registered_index": 193,
+        "command": "node scripts/check-company-directory.mjs",
+        "exit_code": 0,
+        "log_sha256": "19656ad34ba155a9b562d80b3cd72f09ef4b49e467bc94d93436e9f139281f86"
+      },
+      {
+        "registered_index": 195,
+        "command": "node scripts/check-company-target-recovery.mjs",
+        "exit_code": 0,
+        "log_sha256": "7d56cf396c63fcd58abb83ec51c61d198573ff28ae11ddb24e668748e72264f3"
+      },
+      {
+        "registered_index": 196,
+        "command": "node scripts/check-company-targets.mjs",
+        "exit_code": 0,
+        "log_sha256": "ee0123c6ef7eab064d344d013036f5ef55241a077c22a846e20bc77c8221ef7e"
+      },
+      {
+        "registered_index": 197,
+        "command": "node scripts/check-company-targets.mjs --readonly",
+        "exit_code": 0,
+        "log_sha256": "6977c6da4e16f5ac28c451588652b27762c563f9735c98f987584cf7a20236fa"
+      },
+      {
+        "registered_index": 198,
+        "command": "node scripts/check-company-target-directory.mjs",
+        "exit_code": 0,
+        "log_sha256": "9da086ccec78232ac6e906dba0874a57a2b5b327ce27376d6b6c9e7008ca14ff"
+      },
+      {
+        "registered_index": 199,
+        "command": "node scripts/check-company-target-directory.mjs --readonly",
+        "exit_code": 0,
+        "log_sha256": "f837215cc866e035d0cd84cba9a2b1d509078b7049126fb6ee86c160f0091afb"
+      },
+      {
+        "registered_index": 200,
+        "command": "node scripts/check-company-practice-progress.mjs",
+        "exit_code": 0,
+        "log_sha256": "ecbb03ce202bc2756e0ad1b7666df78893e1bcc3e69eab704c6cd7565d12432b"
+      },
+      {
+        "registered_index": 201,
+        "command": "node scripts/check-company-preparation-progress.mjs",
+        "exit_code": 0,
+        "log_sha256": "67d577291eb7127eff71b1f33c024b370c4823d5bb13d3d999d26026c0f98057"
+      },
+      {
+        "registered_index": 202,
+        "command": "node scripts/check-company-study-entry.mjs",
+        "exit_code": 0,
+        "log_sha256": "e503065f67c1d1dfa29f3c6939f61a7890b70afe0d75c30b1bfcac5d6aba1343"
+      },
+      {
+        "registered_index": 204,
+        "command": "node scripts/check-library-company.mjs",
+        "exit_code": 0,
+        "log_sha256": "caa1581afbf239206551057eb03e16e26d64ffb097a3babb265ca45ee523b7a4"
+      },
+      {
+        "registered_index": 205,
+        "command": "node scripts/check-library-row-actions.mjs",
+        "exit_code": 0,
+        "log_sha256": "a00b083ae29e914ec5e9c64f4266d6de17ca7f2e5db3e2be3686b258e219ef9b"
+      },
+      {
+        "registered_index": 206,
+        "command": "node scripts/check-company-comparison.mjs",
+        "exit_code": 0,
+        "log_sha256": "02977980f4d6a6979a96fdbd555666eaa017515376ad440a5da03d3b2ce0ae0b"
+      },
+      {
+        "registered_index": 208,
+        "command": "node scripts/check-company-comparison-practice.mjs",
+        "exit_code": 0,
+        "log_sha256": "b26b4c674b296ad02f9bd768b381ae929298482e8cc748fcab87b6f5df6f3b16"
+      },
+      {
+        "registered_index": 209,
+        "command": "node scripts/check-comparison-learning.mjs",
+        "exit_code": 0,
+        "log_sha256": "e6ee52822d64d48af0eac51979f1fb0d3664fdecee337caa1932f5a9203034ba"
+      },
+      {
+        "registered_index": 210,
+        "command": "node scripts/check-interview-study.mjs",
+        "exit_code": 0,
+        "log_sha256": "700bd6dba57410f8e3922f08c521c531373cd6ddb1f4855f0a975be14814c92a"
+      },
+      {
+        "registered_index": 211,
+        "command": "node scripts/check-interview-ranking.mjs",
+        "exit_code": 0,
+        "log_sha256": "a0ca153faf59095e2641148c094d336b685a431a520d07555fe2463d53069089"
+      },
+      {
+        "registered_index": 215,
+        "command": "node scripts/check-evidence-recency.mjs",
+        "exit_code": 0,
+        "log_sha256": "e312c02cc0de2d3f551b876a89892bd542aa5eab6904c568357cb4659d4412f3"
+      },
+      {
+        "registered_index": 219,
+        "command": "node scripts/check-interview-practice-group.mjs",
+        "exit_code": 0,
+        "log_sha256": "818d723ab7d5d0f6909032fffcfa772be7025f18594a815d7a92803b2c79d822"
+      },
+      {
+        "registered_index": 221,
+        "command": "node scripts/check-interview-budget.mjs",
+        "exit_code": 0,
+        "log_sha256": "1f04b0e07a49bd90f16857d14268b0b1773702751b83d0e7a3348e5ae6226b74"
+      },
+      {
+        "registered_index": 222,
+        "command": "node scripts/check-interview-practice-filters.mjs",
+        "exit_code": 0,
+        "log_sha256": "e85c6eeac61aab3bbf5d632a615ed472694da044c3d80d303edc8ff7b7440ccd"
+      },
+      {
+        "registered_index": 223,
+        "command": "node scripts/check-interview-context.mjs",
+        "exit_code": 0,
+        "log_sha256": "c9118ea61ce32c9b1c8b6656cc47319603ddb49373cc4ede5be08f30a215cb9a"
+      },
+      {
+        "registered_index": 226,
+        "command": "node scripts/check-interview-browse-filters.mjs",
+        "exit_code": 0,
+        "log_sha256": "adc8067b1c4f1111c409eb2e03aebdf8e8169629852474a54075a55ce531a8b6"
+      },
+      {
+        "registered_index": 227,
+        "command": "node scripts/check-interview-browse-filters.mjs --readonly",
+        "exit_code": 0,
+        "log_sha256": "47a7752ada9847fcd1f11208f30cc3f7ff278b434318a9b92a85168ee7322cdf"
+      },
+      {
+        "registered_index": 228,
+        "command": "node scripts/check-interview-filter-support.mjs",
+        "exit_code": 0,
+        "log_sha256": "3f47a751c340edb82d7b41a61c275f83178346776258645f17e747d6af21cf65"
+      },
+      {
+        "registered_index": 232,
+        "command": "node scripts/check-interview-saved.mjs",
+        "exit_code": 0,
+        "log_sha256": "a8f6a67f664d69904cf268bcb78e2688bc7597292d29e0c79639a1fc9daee11c"
+      },
+      {
+        "registered_index": 234,
+        "command": "node scripts/check-interview-report-practice.mjs",
+        "exit_code": 0,
+        "log_sha256": "045aa0ae9e53a023a393bdb0607b3831abb6c2052ab4406ae921d70be1740be6"
+      },
+      {
+        "registered_index": 235,
+        "command": "node scripts/check-report-practice-progress.mjs",
+        "exit_code": 0,
+        "log_sha256": "0b5d02ad3786de54dd283ae8adf05f5b8e0ca7e92591ca56aaa3b36284848315"
+      },
+      {
+        "registered_index": 236,
+        "command": "node scripts/check-interview-facets.mjs",
+        "exit_code": 0,
+        "log_sha256": "05aa6d3c34b4e41cc73a4d3546efe8917ed71d9ac48b091589bfedb80ac781b2"
+      },
+      {
+        "registered_index": 237,
+        "command": "node scripts/check-interview-source-preview.mjs",
+        "exit_code": 0,
+        "log_sha256": "df69a78f24f7e47b956a75a5df001c11baa4e18a2d6b111844877e614d5087ec"
+      },
+      {
+        "registered_index": 242,
+        "command": "node scripts/check-reading-return.mjs",
+        "exit_code": 0,
+        "log_sha256": "90ac6b5febab90fb1c5f9c83333af318348f3093f8cf7d74ab0232fc7a904f3f"
+      },
+      {
+        "registered_index": 243,
+        "command": "node scripts/check-source-post-practice.mjs",
+        "exit_code": 0,
+        "log_sha256": "6cbf220a57c735b5b4703b89b50a9ba8616a2e70f850c9b87462e3ff322780be"
+      },
+      {
+        "registered_index": 244,
+        "command": "node scripts/check-discussion-practice-return.mjs",
+        "exit_code": 0,
+        "log_sha256": "db8b785f5a5fa364ce1bca82bec41905f2b4ed6f5fdfcd0a0a9a3db936239077"
+      },
+      {
+        "registered_index": 245,
+        "command": "node scripts/check-concept-journey.mjs",
+        "exit_code": 0,
+        "log_sha256": "a9cf4c266125e74ddfc07a26aaaf766b443654e48bd8384b8794ffddbcab1077"
+      },
+      {
+        "registered_index": 246,
+        "command": "node scripts/check-preparation-guides.mjs",
+        "exit_code": 0,
+        "log_sha256": "ba7ffe1865ba3104a355536b90a1a4fde78f971288d03b6c4bfbea03ba46f5e3"
+      }
+    ]
+  },
+  "qualified_inputs": {
+    "manifest_entry": "raw/1090/source-plan.json",
+    "sha256": "2bd772e84d62e2af0423dd29da1bb9879397da472c7e3011e54f78e61aeb8b04",
+    "bytes": 456992
+  },
+  "active_data_closure": {
+    "manifest_entry": "raw/1090/active-data-closure.json",
+    "sha256": "583f675940a3b0821128f7b25267dfb655902dc352e618ef4f4fedd0b7b17b7f",
+    "bytes": 20606
+  },
+  "active_indexes": {
+    "web/public/data/catalog.json": "459226f17c3f0498d230cc3865f4fd06272bd1364b8fb34c6d937f8dcf5b143d",
+    "web/public/data/index-v3.json": "cc767e693e62f8dc91bda17c7d660aba9ab35ccc458232493826a0f8bf58d61f",
+    "web/public/data/index.json": "ff0c56ff2b6d0d2e1a995357bd3eec4164699c44d8ada424263f7db00146d42e"
+  },
+  "legacy_fixtures": {
+    "status": "restored_exact_required_legacy_fixtures",
+    "original_candidate_head": "31c21d7396d1affe711279ebe87a7fd73a155ae0",
+    "original_development_head": "ff030ea07aadfd4e7ba5a788b9458c9d28c09b62",
+    "added": {
+      "web/public/data/browser-judge/runtime-aef24b11e9715ef6309c.json": {
+        "sha256": "aef24b11e9715ef6309c205f9aa55d51f1377a3bc94a6c1c407a072566f7d861",
+        "bytes": 895720,
+        "git_blob": "a6151df589aba1e6d23ed51efb1ada3555ed3293",
+        "referenced_by": [
+          "web/scripts/check-browser-bundles.mjs"
+        ]
+      }
+    },
+    "retained_manifest_dependency_closure_checked": 17470,
+    "missing_manifest_dependencies": 0,
+    "scope": "Restore original immutable development blobs explicitly referenced by maintained source/tests. All retained JSON manifests are checked for missing known local data dependencies. Active183 qualification data is unchanged.",
+    "tests_weakened": false,
+    "ci_triggered": false,
+    "pushed": false,
+    "published": false,
+    "deployed": false
+  },
+  "nested_worker": {
+    "status": "passed",
+    "path": "/problems/architecture/attention/",
+    "feedback": "Tests passed\n7 / 7 tests passed",
+    "browser": "155.0.8059.82",
+    "source_sha256": "be496abb190e3f11b2aea79cf39aefe37bf430cfa47aa5ba83516bf780bf1448",
+    "verified_runtime_resources": 65,
+    "evidence": {
+      "manifest_entry": "raw/1090/nested-wasm-result.json",
+      "sha256": "2f48f6825ca1ba4d9c2fdea555423e55a8b9dfbcd89c7a922b9af61cc0f08b06",
+      "bytes": 49236
+    }
+  },
+  "generated_worker": {
+    "status": "verified",
+    "node": "v22.22.1",
+    "esbuild": "0.25.12",
+    "inputs": {
+      "web/public/browser-judge/diagnostics.mjs": "65955cd69d88c51a322f86e53afa0aca8a7be77b2b7337dbce81aa61f868ebe0",
+      "web/public/browser-judge/syntax.mjs": "f3a5a60a3e349d15366fddba99974c93acf2948118bdc8ce2d6d24792c81a1c3",
+      "web/public/browser-judge/packages.mjs": "fa2f6cca07702133538066f8588f4e800adde6f6dc7a524669cf9266ceef52d9",
+      "web/src/browserRunDetails.ts": "fdb4d280ad9466fbd8f8ef963fb100c13776953f13eb793b33819388f4eb3d71",
+      "web/src/browserCalibration.ts": "0a953b86869554ab0ff6908633177736e558fab138786cf36149607fab528ce8",
+      "web/src/customCasePython.ts": "b3049b88746a54a0ce5051cdf3f19cdc240425a8f4956751739c1c0d8a82f2b2",
+      "web/src/browserWorker.mjs": "e1a93f04e1a3b6d37d9dd69dcab4f21aa17d554d76b6c9326938b64f204aacff"
+    },
+    "generated_module": "web/src/browserWorkerAsset.generated.ts",
+    "generated_module_sha256": "9d7ba9689071a09f6c516937a6c2a42ecda02a027db4319c5a7eb499360de086",
+    "asset": "web/public/browser-judge/worker-e80f39a2f97a4c81b30e475ac8e10c0436862a2c289063c5ff4b50accfb5e0a3.mjs",
+    "asset_sha256": "e80f39a2f97a4c81b30e475ac8e10c0436862a2c289063c5ff4b50accfb5e0a3",
+    "asset_bytes": 9969,
+    "scope": "Exact esbuild regeneration in memory from recorded source graph; generated module and immutable asset bytes both match. Generated files are verified as build derivatives rather than Git blobs."
+  },
+  "production_build_metadata": {
+    "manifest_entry": "build/.paperleet-build.json",
+    "sha256": "e168cf7e3e98dfec7b30f3ff3dd4c84f5266ee45d0291bc578cc4f8c77c0c03d",
+    "bytes": 2048366
+  },
+  "retained_main": {
+    "proof_files": 470,
+    "immutable_data_files": 17286,
+    "evidence": {
+      "manifest_entry": "retention/retained-main-identities.json",
+      "sha256": "16a7b3412963ad569083f001a5a82694a43c392b2f423343b0c02e889b030469",
+      "bytes": 4342304
+    }
+  },
+  "scope_notes": [
+    "Main adds a resource-kind entry in one leaf component and its scoped stylesheet, two updated checkers and one new checker. Mathematical/SDK/private application source and all active data are unchanged; preceding full251 frontend qualification is retained.",
+    "Current252 registered coverage reruns114 commands: every new/changed checker, core/workspace/runtime prefix, all resource/preparation checks, checks referencing the changed component or its conservative14 reverse-import parents, and ambiguous dynamic SSR-loader checks.138 unrelated unchanged checker sources reuse their previous individual exit0 receipts. This is explicit scoped followup coverage, not a claim of another full252-command rerun.",
+    "Both builds, asset/retention and exact generated Worker checks, and actual Chrome seven-test judgement rerun on this exact tree. Six package artifacts and both updated catalogue tests retain their unchanged source/input identities from the preceding qualified catalogue followup."
+  ],
+  "remote_main_adopted": false,
+  "ci_triggered": false,
+  "tagged": false,
+  "published": false,
+  "deployed": false,
+  "raw_archive": {
+    "path": "packages/torchwasm/benchmarks/results/qualification-0.91-main-resource-ui-harness.tar.gz",
+    "sha256": "317f86919e30e6aabddac95538d83a947961f399cebd433410dba50e62d32b27",
+    "bytes": 1371201,
+    "manifest_sha256": "e6abca3233013aa494662eaf78d4c4c671a95af422b3fdf42a12baee7ea05594",
+    "logical_files": 2926,
+    "unique_local_blobs": 69,
+    "inherited_archive_blobs": 2822,
+    "inherited_git_blobs": 0,
+    "format": "sha256-deduplicated-v2"
+  }
+}

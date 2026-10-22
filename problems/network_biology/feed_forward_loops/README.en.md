@@ -1,6 +1,6 @@
 # Network Motifs: Detecting Feed-forward Loops in a Directed Regulatory Network
 
-Uses the conventions of *Biological Interaction Networks: Node Degree and Degree Distribution* (exercise 93) for node lists and invalid input, but the graph is now **directed**. You search a gene regulatory network for one small recurring pattern, the feed-forward loop.
+Uses the conventions of *Biological Interaction Networks: Node Degree and Degree Distribution* (`network_biology/degree_distribution`) for node lists and invalid input, but the graph is now **directed**. You search a gene regulatory network for one small recurring pattern, the feed-forward loop.
 
 ## Task and conventions
 
@@ -50,4 +50,3 @@ T0 checks the return type. T1 checks documented roles and compares random direct
 ## References
 
 - Milo R, Shen-Orr S, Itzkovitz S, Kashtan N, Chklovskii D, Alon U. [Network motifs: simple building blocks of complex networks](https://doi.org/10.1126/science.1078368). *Science* 298(5594), 824-827 (2002).
-- Literature dataset record: `docs/research/network_biology_literature.json`, id 21.

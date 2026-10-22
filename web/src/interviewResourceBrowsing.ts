@@ -4,16 +4,20 @@ export type InterviewResource=typeof interviewCatalog.resources[number];
 export const resourceKinds=['all','guide','careers','technical'] as const;
 export type ResourceKind=typeof resourceKinds[number];
 export const resourceBrowserQuery=(value:string)=>Array.from(value.replace(/[\u0000-\u001f\u007f]/g,' ').trim()).slice(0,100).join('');
-export const resourceBrowserTerms=(value:string)=>resourceBrowserQuery(value).normalize('NFKC').toLowerCase().replace(/[\s/_-]+/gu,' ').trim();
+export const foldResourceText=(value:string)=>value.normalize('NFKC').toLowerCase().replace(/[\s/_-]+/gu,' ').trim();
+export const resourceBrowserTerms=(value:string)=>foldResourceText(resourceBrowserQuery(value));
+export function resourceSearchText(resource:InterviewResource){
+ const company=interviewCatalog.companies.find(row=>row.id===resource.company);
+ return foldResourceText([resource.id,resource.name,resource.name_en,resource.description,resource.description_en,resource.url,company?.id,company?.name,company?.name_en].join('\n'));
+}
 
 /** Search only maintained public labels; never query a provider or alter the resource URL. */
-export function matchingInterviewResources(resources:InterviewResource[],query:string){
+export function matchingInterviewResources(resources:InterviewResource[],query:string,learning?:ReadonlyMap<string,readonly string[]>){
  const terms=resourceBrowserTerms(query).split(' ').filter(Boolean);
  if(!terms.length)return resources;
  return resources.filter(resource=>{
-  const company=interviewCatalog.companies.find(row=>row.id===resource.company);
   // Only the input is bounded; full public descriptions and labels remain searchable.
-  const full=[resource.id,resource.name,resource.name_en,resource.description,resource.description_en,resource.url,company?.id,company?.name,company?.name_en].join('\n').normalize('NFKC').toLowerCase().replace(/[\s/_-]+/gu,' ');
+  const full=foldResourceText([resourceSearchText(resource),...learning?.get(resource.id)||[]].join('\n'));
   return terms.every(term=>full.includes(term));
  });
 }

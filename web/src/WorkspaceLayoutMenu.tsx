@@ -35,7 +35,7 @@ export default function WorkspaceLayoutMenu({onLayout}:{onLayout:(ratio:number,r
     if(!(active instanceof HTMLElement)||!event.currentTarget.contains(active))return;
     event.preventDefault();event.stopPropagation();focusIntent.current={opening:false,opener:active,href:location.href};setOpen(false);
   }}>
-    <button type="button" className="workspace-layout-trigger" ref={trigger} aria-expanded={open} aria-controls={id} onClick={()=>{focusIntent.current=undefined;setOpen(value=>!value);}} onKeyDown={event=>{
+    <button type="button" className="workspace-layout-trigger" ref={trigger} title={t('布局','Layout')} aria-expanded={open} aria-controls={id} onClick={()=>{focusIntent.current=undefined;setOpen(value=>!value);}} onKeyDown={event=>{
       if(event.key!=='ArrowDown'||event.defaultPrevented||event.repeat||event.nativeEvent.isComposing||event.nativeEvent.keyCode===229||event.altKey||event.ctrlKey||event.metaKey||event.shiftKey)return;
       event.preventDefault();
       if(open){root.current?.querySelector<HTMLButtonElement>('.workspace-layout-popover button')?.focus({preventScroll:true});return;}

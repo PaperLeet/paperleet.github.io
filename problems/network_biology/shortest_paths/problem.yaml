@@ -1,5 +1,5 @@
-﻿id: network_biology/shortest_paths
-number: 107
+id: network_biology/shortest_paths
+number: 117
 title: 最短路径与网络邻近性
 title_en: Shortest Paths and Network Proximity
 paper_id: incomplete-interactome
@@ -11,10 +11,6 @@ paper:
   doi: 10.1126/science.1257601
   anchors:
   - 'Network location of disease modules in the interactome and its relation to pathobiological similarity; this exercise implements only unweighted shortest-path distance, not the paper''s module-separation measure'
-  literature_record:
-    dataset: docs/research/network_biology_literature.json
-    id: 42
-    category: Network Medicine, Disease Interactomes, & Epidemiology
 type: implement
 parent: null
 difficulty: M
@@ -40,7 +36,7 @@ conventions:
   seed: 42
   dtype: Python str node names, int distances
   device: CPU; pure Python standard library, no network access or dataset download
-  contract: 'Unweighted simple undirected graph with the exercise 93 conventions: unique str nodes, self-loops and repeated edges ignored, ValueError for duplicate nodes or unknown endpoints. Every edge has length 1. distances_from omits unreachable nodes and maps source to 0. shortest_path_length returns None for an unreachable target and 0 when source == target. shortest_path returns None when unreachable, [source] when source == target, and otherwise the lexicographically smallest list of node names among all shortest paths. An unknown source or target raises ValueError.'
+  contract: 'Unweighted simple undirected graph with the network_biology/degree_distribution conventions: unique str nodes, self-loops and repeated edges ignored, ValueError for duplicate nodes or unknown endpoints. Every edge has length 1. distances_from omits unreachable nodes and maps source to 0. shortest_path_length returns None for an unreachable target and 0 when source == target. shortest_path returns None when unreachable, [source] when source == target, and otherwise the lexicographically smallest list of node names among all shortest paths. An unknown source or target raises ValueError.'
 estimated_minutes: 20
 tests:
   T0: 1

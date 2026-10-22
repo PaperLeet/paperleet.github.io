@@ -1,6 +1,6 @@
 # Community Detection and Candidate Biological Modules
 
-Uses the graph conventions of *Biological Interaction Networks: Node Degree and Degree Distribution* (exercise 93). You score partitions of a network with **modularity** and implement a deterministic greedy algorithm that proposes **communities**, which can be read as candidate functional modules.
+Uses the graph conventions of *Biological Interaction Networks: Node Degree and Degree Distribution* (`network_biology/degree_distribution`). You score partitions of a network with **modularity** and implement a deterministic greedy algorithm that proposes **communities**, which can be read as candidate functional modules.
 
 ## Task and conventions
 
@@ -55,4 +55,5 @@ T0 checks the return types. T1 checks modularity against hand-computed values an
 ## References
 
 - Ravasz E, Somera AL, Mongru DA, Oltvai ZN, Barabasi AL. [Hierarchical organization of modularity in metabolic networks](https://doi.org/10.1126/science.1073374). *Science* 297(5586), 1551-1555 (2002).
-- Literature dataset record: `docs/research/network_biology_literature.json`, id 22.
+- Clauset A, Newman MEJ, Moore C. [Finding community structure in very large networks](https://arxiv.org/abs/cond-mat/0408187). *Physical Review E* 70, 066111 (2004). [DOI: 10.1103/PhysRevE.70.066111](https://doi.org/10.1103/PhysRevE.70.066111). Algorithmic background for greedy agglomerative modularity optimization; this exercise specifies its own rounding, tie and stopping conventions.
+- Reichardt J, Bornholdt S. [Statistical Mechanics of Community Detection](https://arxiv.org/abs/cond-mat/0603718). *Physical Review E* 74, 016110 (2006). [DOI: 10.1103/PhysRevE.74.016110](https://doi.org/10.1103/PhysRevE.74.016110). Background for a community quality objective with a resolution parameter.

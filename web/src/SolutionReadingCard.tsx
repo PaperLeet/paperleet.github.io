@@ -10,6 +10,7 @@ import {communityPostHref} from './communityNavigation';
 import {keepReadingTriggerVisible} from './readingViewport';
 import './solution-reading-card.css';
 import PostSearchMatch from './PostSearchMatch';
+import PostReadingOverview from './PostReadingOverview';
 import {useSolutionReadingTarget,SolutionReadingSteps} from './SolutionReadingNavigation';
 
 /** Local disclosure leaves both the practice editor and card replies mounted. */
@@ -32,6 +33,7 @@ export default function SolutionReadingCard({id,title,body,displayBody=body,retu
     target.focus({preventScroll:true});keepReadingTriggerVisible(target);
   },[open,body]);
   return <div className={`solution-reading-card${discussion?' discussion-reading-card':''}`}>
+    <PostReadingOverview body={displayBody}/>
     <details open={open} onToggle={event=>setExpandedBody(event.currentTarget.open?body:undefined)} onKeyDown={event=>{
       if(!open||event.key!=='Escape'||event.defaultPrevented||event.repeat||event.altKey||event.ctrlKey||event.metaKey||event.shiftKey||event.nativeEvent.isComposing||event.nativeEvent.keyCode===229)return;
       const active=document.activeElement;
@@ -49,7 +51,7 @@ export default function SolutionReadingCard({id,title,body,displayBody=body,retu
             <button type="button" className="solution-reading-code" onClick={onCode}><Code2 size={15} aria-hidden="true"/>{t('返回代码','Back to code')}</button>
           </div>}
           <FeatureBoundary fallback={<><p role="status">{discussion?t('格式暂时无法显示，以下是原始帖子。收起后可重新展开。','Formatting is unavailable. The original post is below; collapse and reopen to retry.'):t('格式暂时无法显示，以下是原始题解。收起后可重新展开。','Formatting is unavailable. The original solution is below; collapse and reopen to retry.')}</p><pre className="inline-reading-plain">{body}</pre></>}>
-            <DiscussionReading body={body} displayBody={displayBody} postId={id} compact/>
+            <DiscussionReading body={body} displayBody={displayBody} postId={id} compact overview={false}/>
           </FeatureBoundary>
           {!onCode&&<div className="solution-reading-footer"><button type="button" className="solution-reading-collapse" onClick={event=>collapse(event.currentTarget)}><ArrowUp size={15} aria-hidden="true"/>{collapseLabel}</button></div>}
         </>}

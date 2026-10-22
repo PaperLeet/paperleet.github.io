@@ -1,6 +1,6 @@
 # Connected Components and the Largest Connected Component
 
-Uses the graph conventions of *Biological Interaction Networks: Node Degree and Degree Distribution* (exercise 93). A **connected component** is a maximal set of proteins in which every protein can be reached from every other by following interaction edges.
+Uses the graph conventions of *Biological Interaction Networks: Node Degree and Degree Distribution* (`network_biology/degree_distribution`). A **connected component** is a maximal set of proteins in which every protein can be reached from every other by following interaction edges.
 
 ## Task and conventions
 
@@ -44,4 +44,3 @@ T0 checks the return types. T1 checks the documented toy network and compares ps
 ## References
 
 - Barabasi AL, Oltvai ZN. [Network biology: understanding the cell's functional organization](https://doi.org/10.1038/nrg1272). *Nature Reviews Genetics* 5(2), 101-113 (2004). General context for describing the structure of cellular networks; the connected-component exercise itself is a teaching adaptation.
-- Literature dataset record: `docs/research/network_biology_literature.json`, id 1.

@@ -1,6 +1,6 @@
 # 最短路径与网络邻近性
 
-沿用“生物互作网络：节点度与度分布”（第 93 题）的图约定。你要计算两个蛋白之间相隔多少步互作，以及哪条路径实现了这个距离。
+沿用“生物互作网络：节点度与度分布”（`network_biology/degree_distribution`）的图约定。你要计算两个蛋白之间相隔多少步互作，以及哪条路径实现了这个距离。
 
 ## 任务与标准约定
 
@@ -44,4 +44,3 @@ T0 检查返回类型。T1 检查文档中的玩具网络，并用 Floyd-Warshal
 ## 参考资料
 
 - Menche J, Sharma A, Kitsak M, Ghiassian SD, Vidal M, Loscalzo J, Barabasi AL. [Uncovering disease-disease relationships through the incomplete interactome](https://doi.org/10.1126/science.1257601). *Science* 347(6224), 1257601 (2015)。关于疾病模块网络位置的背景；本题不实现其分离度量。
-- 文献数据集记录：`docs/research/network_biology_literature.json`，id 42。

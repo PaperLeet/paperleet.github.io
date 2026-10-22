@@ -1,5 +1,6 @@
 import { useI18n } from "./i18n";
 import type { TestComparison as Comparison } from "./comparisons";
+import "./lc-feedback-report.css";
 
 export default function TestComparison({ comparison }: { comparison: Comparison }) {
   const { t } = useI18n();

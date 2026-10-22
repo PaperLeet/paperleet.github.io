@@ -77,8 +77,8 @@ unverified on the shared host. No local tests/builds/audits overlap timing.
 These are steady-state library measurements, not application, native Torch,
 cold-start or peak-memory claims.
 
-[Evidence](../../packages/stridetorch/benchmarks/results/iteration-26.json) and
-the [reproducibility archive](../../packages/stridetorch/benchmarks/results/iteration-26-harness.tar.gz)
+[Evidence](../../packages/torchwasm/benchmarks/results/iteration-26.json) and
+the [reproducibility archive](../../packages/torchwasm/benchmarks/results/iteration-26-harness.tar.gz)
 retain frozen sources, all phases, original failed Native fixture calls,
 corrected tests and distribution gates.
 
@@ -112,8 +112,8 @@ graph is three JavaScript assets, 403,168 raw /130,272 gzip bytes. Actual logs
 retain ephemeral Vite shutdown/occupied-HMR messages; assertions and commands
 pass. No application browser visual QA is claimed.
 
-[Integration gates](../../packages/stridetorch/benchmarks/results/iteration-26-integration-gates.json)
-and the [194-file receipt archive](../../packages/stridetorch/benchmarks/results/iteration-26-integration-gates-harness.tar.gz)
+[Integration gates](../../packages/torchwasm/benchmarks/results/iteration-26-integration-gates.json)
+and the [194-file receipt archive](../../packages/torchwasm/benchmarks/results/iteration-26-integration-gates-harness.tar.gz)
 preserve real reports, frozen live bytes, actual profile settings and package
 artifacts. Main adopted `11434fb8fceaa765cad52802ac1355303a61211f` by non-force
 push after latest-upstream integration. Actual
@@ -135,12 +135,12 @@ completed every actual deploy step successfully. Downloaded descendant reports
 pass native78/10218/342/three repeats in414.18s and exported WASM78/342/no budget
 violations in324561ms, with the same frozen26/821 independent suite hashes.
 All original per-module source hashes, inputs, counts, packages and budgets agree.
-[Remote quality evidence](../../packages/stridetorch/benchmarks/results/iteration-26-remote-quality.json)
+[Remote quality evidence](../../packages/torchwasm/benchmarks/results/iteration-26-remote-quality.json)
 preserves the original reports and this distinction. The0.27 candidate addresses
 the broader leaf-gradient layout/ownership audit; full memory-format compatibility
 is not claimed.
 
-[Remote adoption and live evidence](../../packages/stridetorch/benchmarks/results/iteration-26-remote-adoption.json)
+[Remote adoption and live evidence](../../packages/torchwasm/benchmarks/results/iteration-26-remote-adoption.json)
 and its13-file archive preserve the distinction between source and deployed
 commits. Frozen live verification succeeds for all78 decoded starters, current
 manifest/detail references and158 immutable payloads, including both exact

@@ -380,11 +380,12 @@ export function DateLabel({ value }: { value: string }) {
 export function AccountNav(props: import('./HeaderAccountMenu').HeaderAccountMenuProps) {
   const {user,loading} = useAccount();
   const {t} = useI18n();
+  const label = t('登录', 'Sign in');
   return <div className="account-nav-actions">
-    {!loading && !user && hostedAppAvailable && <AppLink className="header-signin-cta" href={hostedAppHref(signInHref(props.returnTo || ''))}
+    {!user && hostedAppAvailable && (loading ? <span className="header-signin-placeholder" aria-hidden="true">{label}</span> : <AppLink className="header-signin-cta" href={hostedAppHref(signInHref(props.returnTo || ''))}
       title={t('保存解答与成绩，换设备继续练习', 'Save solutions and results, and continue on another device')}>
-      {t('登录', 'Sign in')}
-    </AppLink>}
+      {label}
+    </AppLink>)}
     <HeaderAccountMenu {...props}/>
   </div>;
 }

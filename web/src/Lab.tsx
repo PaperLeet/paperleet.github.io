@@ -4,6 +4,7 @@ import { Pause, Play, RotateCcw } from "lucide-react";
 import type { Problem, Report } from "./types";
 import { useI18n } from "./i18n";
 import { decodeViz } from "./vizData";
+import SelfEvolvingFlow from "./SelfEvolvingFlow";
 import { scheduleData } from "./concepts";
 import { experimentTests, reportTestLabel, type ExperimentView } from "./experimentResults";
 import { ReportSourceNotice } from "./ReportSourceNotice";
@@ -1091,7 +1092,7 @@ export default function Lab({ problem, report, sourceState = "unknown", initialV
     () => decodeViz(problem.vizData || {}) as Data,
     [problem.vizData],
   );
-  if (data.kind === "toy_experiment" || (!problem.vizData && experimentTests(problem.id, report).length)) return <ToyExperiment problem={problem} report={report} data={data} sourceState={sourceState} initialView={initialView} />;
+  if (data.kind === "toy_experiment" || (!problem.vizData && experimentTests(problem.id, report).length)) return <>{problem.id.startsWith("self_evolving/") && <SelfEvolvingFlow key={problem.paper_id} paper={problem.paper_id || ""}/>}<ToyExperiment problem={problem} report={report} data={data} sourceState={sourceState} initialView={initialView} /></>;
   return (
     <>
       <div className="toy-view-tabs" role="group" aria-label={t("实验视图", "Experiment view")}>

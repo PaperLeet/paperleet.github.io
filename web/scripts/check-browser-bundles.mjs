@@ -32,12 +32,12 @@ try {
   for (const [i, bundle] of bundles.entries()) {
     assert.equal(bundle.problem, pilots[i].id);
     assert.equal(bundle.harness, fs.readFileSync('../paperleet/browser/harness.py', 'utf8'));
-    const adapter = pilots[i].id === 'diffusion/schedules' ? 'schedules_numpy.py' : 'numpy_autograd.py';
+    const adapter = pilots[i].browser_judge.backend === 'numpy-wasm' ? 'schedules_numpy.py' : 'numpy_autograd.py';
     assert.equal(bundle.adapter, fs.readFileSync(`../paperleet/browser/${adapter}`, 'utf8'));
     assert.equal(bundle.files['paperleet/common/asserts.py'], fs.readFileSync('../paperleet/common/asserts.py', 'utf8'));
     assert.equal(bundle.files['paperleet/common/comparisons.py'], fs.readFileSync('../paperleet/common/comparisons.py', 'utf8'));
     for (const name of ['LICENSE', 'NOTICE'])
-      assert.equal(bundle.files[`stridetorch/${name}`], fs.readFileSync(`../packages/stridetorch/${name}`, 'utf8'));
+      assert.equal(bundle.files[`torchwasm/${name}`], fs.readFileSync(`../packages/torchwasm/${name}`, 'utf8'));
     for (const [name, source] of Object.entries(bundle.files)) {
       if (/\/tests\/test_[^/]+\.py$/.test(name)) assert.equal(source, fs.readFileSync(`../${name}`, 'utf8'));
       if (name.endsWith('/problem.yaml')) assert.equal(source, fs.readFileSync(`../${name}`, 'utf8'));
@@ -65,9 +65,9 @@ try {
   }
   for (const value of [null, [], { ...manifest, version: 4 }, { ...manifest, version:'3' }, { ...manifest, problem: lora.id },
     { ...manifest, files: { ...manifest.files, 'paperleet/common/asserts.py': 'override' } },
-    { ...manifest, files: { ...manifest.files, 'stridetorch/_tensor.py': 'override' } },
-    { ...manifest, files: { ...manifest.files, 'stridetorch/LICENSE': 'override' } },
-    { ...manifest, files: { ...manifest.files, 'stridetorch/NOTICE': 'override' } },
+    { ...manifest, files: { ...manifest.files, 'torchwasm/_tensor.py': 'override' } },
+    { ...manifest, files: { ...manifest.files, 'torchwasm/LICENSE': 'override' } },
+    { ...manifest, files: { ...manifest.files, 'torchwasm/NOTICE': 'override' } },
     { ...manifest, files: { ...manifest.files, 'paperleet_torch/_tensor.py': 'override' } },
     { ...manifest, files: { ...manifest.files, 'paperleet_torch/LICENSE': 'override' } },
     { ...manifest, files: { ...manifest.files, 'paperleet_torch/NOTICE': 'override' } },
@@ -87,7 +87,7 @@ try {
   const oldLoad=createBrowserBundleLoader(async url=>Response.json(String(url).includes('/runtime-')?runtime:version2));
   assert.equal((await oldLoad(attention,base,signal())).version,2);
   const oldRuntime = clone(runtime);
-  delete oldRuntime.files['stridetorch/LICENSE']; delete oldRuntime.files['stridetorch/NOTICE'];
+  delete oldRuntime.files['torchwasm/LICENSE']; delete oldRuntime.files['torchwasm/NOTICE'];
   const oldRuntimeLoad = createBrowserBundleLoader(async url => Response.json(String(url).includes('/runtime-') ? oldRuntime : version2));
   assert.equal((await oldRuntimeLoad(attention, base, signal())).adapter, runtime.adapter);
   // Cached immutable exports from before the independent package rename remain usable.
@@ -96,6 +96,19 @@ try {
   const legacyRuntimeBundle = await legacyRuntimeLoad(attention, base, signal());
   assert.equal(legacyRuntimeBundle.files['paperleet_torch/_tensor.py'], legacyRuntime.files['paperleet_torch/_tensor.py']);
   assert.equal(legacyRuntimeBundle.files['paperleet_torch/LICENSE'], legacyRuntime.files['paperleet_torch/LICENSE']);
+  // Retained StrideTorch exports must work with the TorchWasm loader too.
+  const strideRuntime = JSON.parse(fs.readFileSync('public/data/browser-judge/runtime-aef24b11e9715ef6309c.json', 'utf8'));
+  const strideRuntimeLoad = createBrowserBundleLoader(async url => Response.json(String(url).includes('/runtime-') ? strideRuntime : version2));
+  const strideRuntimeBundle = await strideRuntimeLoad(attention, base, signal());
+  assert.equal(strideRuntimeBundle.files['stridetorch/_tensor.py'], strideRuntime.files['stridetorch/_tensor.py']);
+  assert.equal(strideRuntimeBundle.files['stridetorch/NOTICE'], strideRuntime.files['stridetorch/NOTICE']);
+  for (const namespace of ['torchwasm', 'stridetorch', 'paperleet_torch']) {
+    for (const filename of ['_tensor.py', 'LICENSE', 'NOTICE'])
+      await invalidProblem({ ...manifest, files: { ...manifest.files, [`${namespace}/${filename}`]: 'override' } });
+    const badPath = createBrowserBundleLoader(async url => Response.json(String(url).includes('/runtime-')
+      ? { ...runtime, files: { ...runtime.files, [`${namespace}/../escape.py`]: '' } } : manifest));
+    await assert.rejects(badPath(attention, base, signal()));
+  }
   for (const path of ['https://other.example/runtime.json', '/api/private', '../browser-judge/runtime-' + 'a'.repeat(20) + '.json',
     'browser-judge/runtime-' + 'a'.repeat(20) + '.json?token=private', 'browser-judge/runtime-%2e%2e.json']) {
     await invalidProblem({ ...manifest, runtime_bundle_url: path });
@@ -103,13 +116,13 @@ try {
   }
   for (const value of [{ ...runtime, version: 2 }, { ...runtime, backend: 'unknown' }, { ...runtime, files: {} },
     { ...runtime, adapter: null }, { ...runtime, files: { ...runtime.files, 'extra.py': 'override' } },
-    { ...runtime, files: { ...runtime.files, 'stridetorch/../escape.py': 'override' } },
+    { ...runtime, files: { ...runtime.files, 'torchwasm/../escape.py': 'override' } },
     { ...runtime, files: { ...runtime.files, 'paperleet/common/asserts.py': 12 } }]) {
     const reject = createBrowserBundleLoader(async url => Response.json(String(url).includes('/runtime-') ? value : manifest));
     await assert.rejects(reject(attention, base, signal()));
   }
-  for (const name of ['LICENSE', 'NOTICE', 'paperleet/LICENSE', 'stridetorch/LICENSE.txt',
-    'stridetorch/COPYING', 'stridetorch/subdir/NOTICE', 'stridetorch/../LICENSE', '/stridetorch/LICENSE']) {
+  for (const name of ['LICENSE', 'NOTICE', 'paperleet/LICENSE', 'torchwasm/LICENSE.txt',
+    'torchwasm/COPYING', 'torchwasm/subdir/NOTICE', 'torchwasm/../LICENSE', '/torchwasm/LICENSE']) {
     const reject = createBrowserBundleLoader(async url => Response.json(String(url).includes('/runtime-')
       ? { ...runtime, files: { ...runtime.files, [name]: 'unexpected notice' } } : manifest));
     await assert.rejects(reject(attention, base, signal()));

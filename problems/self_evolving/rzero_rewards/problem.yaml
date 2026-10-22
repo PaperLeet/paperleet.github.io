@@ -1,0 +1,75 @@
+id: self_evolving/rzero_rewards
+number: 107
+title: R-Zero 出题奖励
+title_en: R-Zero Challenger Rewards
+paper_id: r-zero
+paper:
+  title: 'R-Zero: Self-Evolving Reasoning LLM from Zero Data'
+  authors: Chengsong Huang, Wenhao Yu et al.
+  venue: ICLR 2026
+  arxiv: '2508.05004'
+  url: https://arxiv.org/abs/2508.05004
+  anchors:
+  - 'Section 2.2: uncertainty, repetition and format gating'
+  official_code: https://github.com/Chengsong-Huang/R-Zero
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: uncertainty_reward
+  signature: 'uncertainty_reward(consistency: Tensor) -> Tensor'
+- name: challenger_rewards
+  signature: 'challenger_rewards(consistency: Tensor, clusters: Tensor, valid: Tensor,
+    strength: float=1.0) -> Tensor'
+module:
+  goal: R-Zero 出题奖励
+  goal_en: R-Zero Challenger Rewards
+  scope: 实现三角形不确定性奖励、批内重复惩罚与格式门控。
+  scope_en: Implement triangular uncertainty, batch repetition penalty and format gating.
+  required_functions:
+  - uncertainty_reward
+  - challenger_rewards
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: CPU float32/float64; long IDs; bool masks.
+  contract: Finite inputs; no mutation. Starter docstrings define shapes, endpoints,
+    ties and gradient ownership.
+tests:
+  T0: 1
+  T1: 1
+  T2: 3
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+tags:
+- Self-Evolution
+- Self-Play
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-20'
+verified_sources:
+  checked_at: '2026-10-20'
+  links:
+  - https://arxiv.org/abs/2508.05004
+  - https://github.com/Chengsong-Huang/R-Zero
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2508.05004
+  anchor: 'Section 2.2: uncertainty, repetition and format gating'
+  adaptation: A deterministic CPU toy policy trained with the submitted reward or
+    filtering function; not an LLM/VLM reproduction.
+mutants:
+- id: m1_sign
+  bug: Reverse the uncertainty slope.
+- id: m2_no_floor
+  bug: Allow negative challenger rewards.
+- id: m3_no_format
+  bug: Ignore malformed proposals.
+- id: m4_single_cluster
+  bug: Treat every question as unique.
+- id: m5_live_reward
+  bug: Retain a gradient through observed consistency.

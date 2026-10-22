@@ -50,4 +50,3 @@ T0 checks the return types. T1 compares the documented toy network and pseudo-ra
 ## References
 
 - Albert R. [Scale-free networks in cell biology](https://doi.org/10.1242/jcs.02714). *Journal of Cell Science* 118(21), 4947-4957 (2005). Reviews graph concepts, including degree and the degree distribution, for describing cellular networks.
-- Literature dataset record: `docs/research/network_biology_literature.json`, id 3.

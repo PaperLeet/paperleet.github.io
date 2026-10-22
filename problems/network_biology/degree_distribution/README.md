@@ -50,4 +50,3 @@ T0 检查返回类型。T1 用邻接矩阵基准比较文档中的玩具网络�
 ## 参考资料
 
 - Albert R. [Scale-free networks in cell biology](https://doi.org/10.1242/jcs.02714). *Journal of Cell Science* 118(21), 4947-4957 (2005)。综述了用度和度分布等图概念描述细胞网络。
-- 文献数据集记录：`docs/research/network_biology_literature.json`，id 3。

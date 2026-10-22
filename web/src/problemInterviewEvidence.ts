@@ -1,8 +1,15 @@
-import {readInterviewSummary} from './interviewModels';
+import {interviewCatalog,readInterviewSummary,type InterviewSummary} from './interviewModels';
 import {emptyInterviewFilters} from './interviewNavigation';
 export const problemInterviewPeriods=['30','90','365','all'] as const;
 export type ProblemInterviewPeriod=typeof problemInterviewPeriods[number];
 export const problemInterviewFilters=(problemId:string,days:ProblemInterviewPeriod,company='')=>({...emptyInterviewFilters(),days,company,concept:problemId});
+
+/** Only a confirmed current-period summary can supply counts; all choices remain selectable. */
+export function problemInterviewCompanyChoices(companies:InterviewSummary['companies'],ready:boolean){
+ const evidence=new Map(companies.filter(row=>row.reports>0&&row.contributors>0).map(row=>[row.company,row]));
+ const all=interviewCatalog.companies.map(company=>({company,evidence:ready?evidence.get(company.id):undefined}));
+ return {ready,all,matched:all.filter(choice=>choice.evidence),other:all.filter(choice=>!choice.evidence)};
+}
 
 /** A problem-scoped summary counts the same matching reports as its requested concept. */
 export function readProblemInterviewEvidence(raw:unknown,problemId:string,days:ProblemInterviewPeriod){

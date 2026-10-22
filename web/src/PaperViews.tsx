@@ -15,6 +15,7 @@ import { paperCollections, papersInCollection } from "./paperCollections";
 import { eligibleUnattemptedProblems, pickRandomUnattemptedProblem } from "./randomProblem";
 import { recommendPractice } from "./practice-recommendation";
 import { deferredFeature,FeatureRetry } from './deferredFeature';
+import { hostedAppAvailable } from './deployment';
 import "./practice-journey.css";
 import { StateIcon } from "./PaperState";
 import { emptyLibraryFilters, libraryHref, libraryTags, sameLibraryTag, normalizeLibraryFilters, readLibraryRoute, sortLibraryPapers, withLibraryContext, type LibraryFilters } from './libraryNavigation';
@@ -36,6 +37,8 @@ const LibraryOverview = deferredFeature(() => import('./LibraryOverview'), ['练
 const LibraryPagination = deferredFeature<import('./LibraryPagination').Props>(()=>import('./LibraryPagination'), ['题库分页','library pages'], {loading:props=><LibraryPageFallback {...props}/>,failure:(props,retry)=><><LibraryPageFallback {...props}/><FeatureRetry retry={retry}/></>});
 const SearchMatch=deferredFeature<import('react').ComponentProps<typeof import('./LibrarySearchMatch').default>>(()=>import('./LibrarySearchMatch'),['搜索高亮','search highlighting'],{loading:props=><>{props.text}</>,failure:props=><>{props.text}</>});
 function LibrarySearchMatch(props:import('react').ComponentProps<typeof import('./LibrarySearchMatch').default>){return props.query.trim()?<SearchMatch {...props}/>:<>{props.text}</>;}
+/** The roadmap graph, its data and styles load only when a collection opens view=roadmap. */
+const CollectionRoadmap=deferredFeature<import('./CollectionRoadmap').Props>(()=>import('./CollectionRoadmap'),['路线图','Roadmap'],{loading:()=><div className="collection-roadmap-placeholder" aria-hidden="true"/>});
 
 function LibraryPageFallback({page,size,total,compact,onPage}:import('./LibraryPagination').Props){
  const {t}=useI18n(),pages=Math.max(1,Math.ceil(total/size));
@@ -60,12 +63,12 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
     setDensity(value);
     try { localStorage.setItem('paperleet.library.density.v1', value); } catch { /* Usable without storage. */ }
   }
-  const practice = { problems, saved };
   const selectedCollection = paperCollections.find((collection) => collection.id === collectionId);
   const course = selectedCollection?.kind === "course";
   const listedPapers = papersInCollection(papers, selectedCollection);
   const filters = normalizeLibraryFilters(readLibraryRoute(route)?.filters || emptyLibraryFilters(), listedPapers);
   const {query,category,tag,difficulty:diff,state,sort = 'default'} = filters;
+  const roadmap=filters.view==='roadmap';
   const company=filters.company||'',companyDays=filters.company_days||'365',moduleView=course||!!company||filters.view==='modules',directModules=filters.view==='modules'&&!course&&!company;
   const advancedFilterCount = [tag, diff, state].filter(value => value !== 'all').length + Number(!!company);
   const companyData=companyScope?.data?.scope===companyScope?.scope?companyScope?.data:undefined;
@@ -75,16 +78,19 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
   const editedHref = useRef<string | undefined>(undefined);
   function change(patch: Partial<LibraryFilters>,paging=false) {
     if(!currentView())return;
-    const next = normalizeLibraryFilters({...filters,page:undefined,...patch},listedPapers);
+    // Any patch without a view (chips, sidebar filters) leaves the exclusive roadmap for the list, as a new history entry.
+    const next = normalizeLibraryFilters({...filters,...roadmap&&{view:undefined},page:undefined,...patch},listedPapers);
     const href = libraryHref(selectedCollection?.id,next);
     editedHref.current = href;
-    onFilters?.(href,paging);
+    onFilters?.(href,paging||roadmap);
   }
   const listedModuleIds = new Set(listedPapers.flatMap((paper) => paper.module_ids));
   const listedModules = problems.filter((problem) => listedModuleIds.has(problem.id));
   const selectedCategory=categories.find(item=>item.id===category);
   const visibleCategories = categories.filter((item) => listedPapers.some((paper) => paper.category === item.id));
-  const shownCategories = categoriesOpen ? visibleCategories : visibleCategories.filter((item,index) => index < 3 || item.id === category);
+  // The Roadmap chip takes one of the three slots the collapsed row has room for.
+  const collapsedCategories = selectedCollection?.roadmap ? 2 : 3;
+  const shownCategories = categoriesOpen ? visibleCategories : visibleCategories.filter((item,index) => index < collapsedCategories || item.id === category);
   const tags = libraryTags(listedPapers, category);
   const selectedTag = tag === 'all' ? 'all' : tags.find(name => sameLibraryTag(name, tag)) ?? tag;
   const overviewModules=company?listedModules.filter(problem=>companyData?.ids.has(problem.id)):listedModules;
@@ -102,7 +108,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
   }
   useEffect(() => {
     const focusSearch = (event: KeyboardEvent) => {
-      if(event.key!=='/'||event.defaultPrevented||event.repeat||event.isComposing||event.keyCode===229||event.ctrlKey||event.metaKey||event.altKey||!currentView())return;
+      if(roadmap||event.key!=='/'||event.defaultPrevented||event.repeat||event.isComposing||event.keyCode===229||event.ctrlKey||event.metaKey||event.altKey||!currentView())return;
       const target=event.target;
       if(target instanceof Element&&target.closest('input,textarea,select,[contenteditable]:not([contenteditable="false"]),[role="textbox"],[role="dialog"],dialog[open]')||document.querySelector('dialog[open]'))return;
       event.preventDefault();searchInput.current?.focus({preventScroll:true});libraryMain.current?.scrollIntoView({block:'start'});
@@ -111,12 +117,10 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
     return ()=>window.removeEventListener('keydown',focusSearch);
   },[viewHref]);
   function changeSort(sort:import('./libraryNavigation').LibrarySort){
-    if(!currentView())return;
     change({sort});
   }
   function changeView(value:'papers'|'modules'){
-    if(!currentView()||(filters.view||'papers')===value)return;
-    change({view:value==='modules'?'modules':undefined},true);
+    if(value!==(filters.view||'papers'))change({view:value==='modules'?value:undefined},true);
   }
   function returnToResults(){
     if(waitingForStatus||!currentView())return;
@@ -127,7 +131,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
     returnToResults();
     change({page:next>1?next:undefined,page_size:nextSize===20?undefined:nextSize},true);
   }
-  const pagination={page,size,canAct:currentView,total:rowIds.length,modules:!!moduleView,listId,onPage:(page:number)=>paginate(page),onSize:(size:import('./libraryNavigation').LibraryPageSize)=>paginate(outOfRange?1:Math.floor(offset/size)+1,size),onReturnToResults:returnToResults};
+  const pagination={page,size,canAct:currentView,total:rowIds.length,modules:moduleView,listId,onPage:paginate,onSize:(size:import('./libraryNavigation').LibraryPageSize)=>paginate(outOfRange?1:Math.floor(offset/size)+1,size),onReturnToResults:returnToResults};
   useEffect(() => {
     if (waitingForStatus) return;
     let disposed = false, stop: (() => void) | undefined;
@@ -153,35 +157,36 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
   const hasFilters = !!company || !!query || diff !== "all" || state !== "all" || tag !== "all" || category !== "all";
   const nextInCollection = selectedCollection && progressReady && companyReady ? recommendPractice(filteredModules, saved, course) || filteredModules[0] : undefined;
   const nextState = nextInCollection && status(nextInCollection, saved[nextInCollection.id]);
+  // Course pages headline this count with a bar in their hero; the catalogue keeps it beside its title.
+  const solvedSummary = <div className="library-progress" style={{'--solved':solvedModules/(overviewModules.length||1)} as import('react').CSSProperties}><CheckCircle2 size={16} /><BilingualText zh="已通过模块" en="Modules solved" /><b>{companyReady?solvedModules:'—'} / {companyReady?overviewModules.length:'—'}</b></div>;
   return <main className={`home paper-library${selectedCollection ? " collection-page" : ""}`}>
     {selectedCollection ? <header className="collection-page-header">
       <AppLink className="back-link" href="#"><ArrowLeft size={15} aria-hidden="true" />{t("全部论文", "All papers")}</AppLink>
       <div className="collection-page-title-row">
-        <div className="collection-page-identity"><span className={`collection-page-mark collection-${selectedCollection.id}`} aria-hidden="true"><BookOpen size={25} /></span><div><h1>{t(selectedCollection.name, selectedCollection.name_en)}</h1><div className="collection-page-meta"><span>{course ? t("课程", "Course") : `${listedPapers.length} ${t("篇论文", "papers")}`}</span><span>{listedModules.length} {t("道题", "modules")}</span></div></div></div>
+        <div className="collection-page-identity"><span className={`collection-page-mark collection-${selectedCollection.id}`} aria-hidden="true"><BookOpen size={25} /></span><div><h1>{t(selectedCollection.name, selectedCollection.name_en)}</h1><div className="collection-page-meta"><span>{course ? t("课程", "Course") : `${listedPapers.length} ${t("篇论文", "papers")}`}</span><span>{listedModules.length} {t("道题", "modules")}</span></div>{solvedSummary}</div></div>
         {nextInCollection && <AppLink className="button collection-practice" href={withLibraryContext(nextInCollection.number, viewHref)}><Code2 size={16} aria-hidden="true" />{nextState === "done" ? t("回顾练习", course ? "Review course" : "Review collection") : nextState === "started" ? t("继续练习", "Resume practice") : t("开始练习", "Start practice")}<ArrowRight size={15} aria-hidden="true" /></AppLink>}
       </div>
-    </header> : <>
-    <LibraryCollections papers={papers} problems={problems} saved={saved} progressReady={progressReady}/>
-    </>}
+    </header> : <LibraryCollections papers={papers} problems={problems} saved={saved} progressReady={progressReady}/>}
     <div className="library-layout">
     <div className="library-main" ref={libraryMain} id="paper-library" data-density={density}>
     <header className="library-heading">
       <div className="library-title">{selectedCollection ? <h2>{course ? t("课程练习", "Course modules") : t("论文", "Papers")}</h2> : <h1><BilingualText zh="论文题库" en="Papers" /> <span>{listedPapers.length}</span></h1>}</div>
       <AppLink className="text-button" href="#/paper-registry">{t("论文库","Paper registry")}</AppLink>
-      <AppLink className="text-button" href="#/favorites">{t("收藏题目","Saved problems")}</AppLink>
-      <div className="library-progress"><CheckCircle2 size={16} /><BilingualText zh="已通过模块" en="Modules solved" /><b>{companyReady?solvedModules:'—'} / {companyReady?overviewModules.length:'—'}</b></div>
+      {hostedAppAvailable&&<AppLink className="text-button" href="#/favorites">{t("收藏题目","Saved problems")}</AppLink>}
+      {!selectedCollection&&solvedSummary}
     </header>
     {!course && <div className="library-category-browser" data-expanded={categoriesOpen}>
     <div className="paper-categories" id={categoriesId} aria-label={t("论文分类", "Paper categories")}>
-      <button aria-pressed={category === "all"} onClick={() => { change({category:"all",tag:"all"}); }}><Library size={16} /><BilingualText zh="全部" en="All" /><span>{listedPapers.length}</span></button>
+      <button aria-pressed={category === "all"&&!roadmap} onClick={() => { change({category:"all",tag:"all"}); }}><Library size={16} /><BilingualText zh="全部" en="All" /><span>{listedPapers.length}</span></button>
+      {selectedCollection?.roadmap&&<><button className="roadmap-chip" aria-pressed={roadmap} onClick={()=>{if(!roadmap)change({view:'roadmap'},true);}}><BilingualText zh="路线图" en="Roadmap"/></button><span className="paper-categories-divider" aria-hidden="true"/></>}
       {shownCategories.map((item) => {
         const label = [item.name, item.name_en];
         return <button key={item.id} className={`category-${item.id}`} aria-pressed={category === item.id} onClick={() => { change({category:item.id,tag:"all"}); }}><i aria-hidden="true" /><BilingualText zh={label[0]} en={label[1]} /><span>{listedPapers.filter((paper) => paper.category === item.id).length}</span></button>;
       })}
     </div>
-    {visibleCategories.length > 3 && <button type="button" className="library-category-toggle" aria-controls={categoriesId} aria-expanded={categoriesOpen} aria-label={categoriesOpen?t('收起分类','Collapse categories'):t('展开全部分类','Expand all categories')} onClick={() => {if(currentView())setCategoriesOpen(open => !open);}}>{categoriesOpen?t('收起','Collapse'):t('展开','Expand')}<ChevronDown size={14} aria-hidden="true"/></button>}
+    {visibleCategories.length > collapsedCategories && <button type="button" className="library-category-toggle" aria-controls={categoriesId} aria-expanded={categoriesOpen} aria-label={categoriesOpen?t('收起分类','Collapse categories'):t('展开全部分类','Expand all categories')} onClick={() => {if(currentView())setCategoriesOpen(open => !open);}}>{categoriesOpen?t('收起','Collapse'):t('展开','Expand')}<ChevronDown size={14} aria-hidden="true"/></button>}
     </div>}
-    <section className="problem-list" aria-label={course ? t("课程练习", "Course modules") : t("论文列表", "Paper list")}>
+    {roadmap?<CollectionRoadmap collectionId={collectionId!} papers={papers} problems={problems} saved={saved} progressReady={progressReady} returnTo={viewHref}/>:<section className="problem-list" aria-label={course ? t("课程练习", "Course modules") : t("论文列表", "Paper list")}>
       <div className="library-toolbar">
         <div className="search"><Search size={17} aria-hidden="true" /><input ref={searchInput} type="search" maxLength={200} aria-label={t("搜索论文或模块", "Search papers or modules")} aria-controls={listId} aria-keyshortcuts="/" placeholder={directModules?t("题目编号、标题、作者或 arXiv…","Exercise number, title, author or arXiv…"):t("标题、作者、arXiv 或模块…", "Title, author, arXiv or module…")} value={query} onChange={(e) => change({query:e.target.value})} onKeyDown={(e) => { if (e.key === "Escape"&&!e.defaultPrevented&&currentView()&&!e.repeat&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!e.shiftKey&&!e.nativeEvent.isComposing&&e.nativeEvent.keyCode!==229) {e.preventDefault();e.stopPropagation();change({query:''});} }} />{query ? <button type="button" className="search-clear" aria-label={t("清空搜索", "Clear search")} onClick={() => { if(!currentView())return;searchInput.current?.focus({preventScroll:true});change({query:""}); }}><X size={15} /></button> : <kbd aria-hidden="true">/</kbd>}</div>
         <button type="button" className="library-filter-toggle" aria-controls={filtersId} aria-expanded={filtersOpen} onClick={event => {if(currentView()){if(filtersOpen&&libraryMain.current?.querySelector('.library-filter-panel')?.contains(document.activeElement))event.currentTarget.focus({preventScroll:true});setFiltersVisited(true);setFiltersOpen(open => !open);}}}><span className="library-filter-icon" aria-hidden="true"><FilterIcon/></span>{t("筛选", "Filters")}{advancedFilterCount > 0 && <span>{advancedFilterCount}</span>}<ChevronDown size={13} aria-hidden="true" /></button>
@@ -208,10 +213,10 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
           </AppLink>
           <CompanyTools problem={module} route={route} returnTo={viewHref} companyScope={company?companyScope:undefined}/>
         </div>) : filtered.slice(offset,offset+size).map((paper,index) => {
-          const progress = paperProgress(paper, practice);
+          const progress = paperProgress(paper, {problems,saved});
           const matching = matchingPaperModules(paper,problems,query,diff);
           const showMatches = !!query.trim() || diff !== "all";
-          return <div className="paper-result-group" key={paper.id} role="listitem" aria-posinset={offset+index+1} aria-setsize={rowIds.length}><AppLink className="problem-row paper-table-grid" data-paper-id={paper.id} key={paper.id} href={withLibraryContext(`papers/${paper.id}`,viewHref)}>
+          return <div className="paper-result-group" key={paper.id} role="listitem" aria-posinset={offset+index+1} aria-setsize={rowIds.length}><AppLink className="problem-row paper-table-grid" data-paper-id={paper.id} href={withLibraryContext(`papers/${paper.id}`,viewHref)}>
             <StateIcon state={progress.state} />
             <div className="problem-info paper-info"><div className="paper-title-line"><strong><span>{paper.number}.</span><span className="library-row-title"><LibrarySearchMatch text={paper.short_title} query={query}/></span></strong><span className="paper-title-tags">{paper.tags.map(tag => <span key={tag}>{tag}</span>)}</span></div><small title={paper.title}><LibrarySearchMatch text={paper.title} query={query}/></small></div>
             <span className="paper-year">{paper.kind === "course" ? t("专题", "Course") : paper.year || "—"}</span>
@@ -223,7 +228,7 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
       {!waitingForStatus&&outOfRange&&!!rowIds.length&&<div className="no-results library-page-recovery" role="status"><h3>{t('这一页已没有结果','This page is no longer available')}</h3><p>{t(`当前筛选共 ${pageCount} 页，可以返回有效页继续浏览。`,`This view has ${pageCount} pages. Choose an available page to keep browsing.`)}</p><div><button type="button" className="button subtle" onClick={()=>paginate(pageCount)}>{t('返回最后一页','Open last page')}</button><button type="button" className="text-button" onClick={()=>paginate(1)}>{t('回到第一页','Back to first page')}</button></div></div>}
       {!waitingForStatus&&<LibraryPagination {...pagination}/>}
       {!waitingForStatus && !filtered.length && <div className="no-results"><span className="empty-state-icon"><Search size={25} aria-hidden="true" /></span><h3>{moduleView ? t("没有符合条件的练习", "No matching modules") : t("没有符合条件的论文", "No matching papers")}</h3><p>{t("试试其他关键词，或减少筛选条件。", "Try another keyword or remove a filter to broaden your search.")}</p><button className="button subtle" onClick={clear}>{t("清除筛选", "Clear filters")}<ArrowRight size={14} aria-hidden="true" /></button></div>}
-    </section>
+    </section>}
     </div>
     <LibraryOverview showGrowth={!selectedCollection} dailyProblems={problems} companyScope={company?companyScope:undefined} onCompanyFilter={(company:string)=>change({company,company_days:undefined})} problems={overviewModules} practiceProblems={waitingForStatus?[]:filteredModules} scopeReady={!waitingForStatus} returnTo={viewHref} saved={saved} ready={progressReady&&companyReady} difficulty={diff} onDifficulty={difficulty => change({difficulty})} />
     </div>

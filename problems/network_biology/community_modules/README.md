@@ -1,6 +1,6 @@
 # 社区发现与候选生物学模块
 
-沿用“生物互作网络：节点度与度分布”（第 93 题）的图约定。你要用**模块度**给网络的划分打分，并实现一个确定性的贪心算法来提出**社区**，社区可被解读为候选的功能模块。
+沿用“生物互作网络：节点度与度分布”（`network_biology/degree_distribution`）的图约定。你要用**模块度**给网络的划分打分，并实现一个确定性的贪心算法来提出**社区**，社区可被解读为候选的功能模块。
 
 ## 任务与标准约定
 
@@ -55,4 +55,5 @@ T0 检查返回类型。T1 用手算值和矩阵形式的基准检查模块度�
 ## 参考资料
 
 - Ravasz E, Somera AL, Mongru DA, Oltvai ZN, Barabasi AL. [Hierarchical organization of modularity in metabolic networks](https://doi.org/10.1126/science.1073374). *Science* 297(5586), 1551-1555 (2002)。
-- 文献数据集记录：`docs/research/network_biology_literature.json`，id 22。
+- Clauset A, Newman MEJ, Moore C. [Finding community structure in very large networks](https://arxiv.org/abs/cond-mat/0408187). *Physical Review E* 70, 066111 (2004). [DOI: 10.1103/PhysRevE.70.066111](https://doi.org/10.1103/PhysRevE.70.066111)。提供贪心凝聚式模块度优化的算法背景；本题采用明确的舍入、并列与停止约定。
+- Reichardt J, Bornholdt S. [Statistical Mechanics of Community Detection](https://arxiv.org/abs/cond-mat/0603718). *Physical Review E* 74, 016110 (2006). [DOI: 10.1103/PhysRevE.74.016110](https://doi.org/10.1103/PhysRevE.74.016110)。提供带分辨率参数的社区质量目标背景。

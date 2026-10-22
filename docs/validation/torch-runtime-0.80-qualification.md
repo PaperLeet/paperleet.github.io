@@ -111,7 +111,7 @@ cost remains active work. These measurements qualify these workloads, not
 library-wide performance or arbitrary shapes/hardware.
 
 All per-process ratios and evidence hashes are in
-[`qualification-0.80.json`](../../packages/stridetorch/benchmarks/results/qualification-0.80.json).
+[`qualification-0.80.json`](../../packages/torchwasm/benchmarks/results/qualification-0.80.json).
 Earlier rejected source-251 layout changes, source-272 timing regressions,
 control drift and failed harness attempts remain in the experiment archive.
 
@@ -200,7 +200,7 @@ entered matrix/norm/alternating-HVP assertions through CodeMirror and completed
 the real opaque Worker run with 7/7 tests and no page errors. No server submission
 or account mutation occurred.
 
-The [evidence archive](../../packages/stridetorch/benchmarks/results/qualification-0.80-harness.tar.gz)
+The [evidence archive](../../packages/torchwasm/benchmarks/results/qualification-0.80-harness.tar.gz)
 contains 3,096 individually verified files (24,199,023 compressed bytes), including
 selected code, harnesses, raw results and failed attempts. SHA-256:
 `6af44271f4ff13465d7ca69592831278e85553ce81f5fb8de034b072f3eadafd`.
@@ -212,7 +212,7 @@ Later upstream changes were reconciled before adoption. Company-report previews
 and deferred result icons merged at `625a79e49e747ffa9ac90801d5aae029f971644a`;
 the directly affected preview/App checks, the complete current frontend command,
 both builds and real nested Worker all passed again. The additional
-[main-sync archive](../../packages/stridetorch/benchmarks/results/qualification-0.80-main-sync-harness.tar.gz)
+[main-sync archive](../../packages/torchwasm/benchmarks/results/qualification-0.80-main-sync-harness.tar.gz)
 contains 436 verified files, SHA-256
 `98b338519497527416bbf4cab8231af17484cf1d750afb92692538481a163ba1`.
 
@@ -226,7 +226,7 @@ handbook/data-reader check, actual concept journey, both builds/asset checks and
 real Worker passed. The previous complete frontend check carries forward for
 unchanged source; this is not described as a fresh full frontend rerun after the
 content-only append. The
-[content-delta archive](../../packages/stridetorch/benchmarks/results/qualification-0.80-followups-harness.tar.gz)
+[content-delta archive](../../packages/torchwasm/benchmarks/results/qualification-0.80-followups-harness.tar.gz)
 contains 108 verified files, including exact before/after data, SHA-256
 `7929212203456d6c605b54feaada58a89075692727784b5265c30e1db5fffc40`.
 
@@ -240,6 +240,6 @@ wrapper performed an ordinary main push. The first TLS transfer failed without
 advancing main; a fresh guarded retry succeeded. Remote main and all 65 runtime
 files were then verified against the adopted commit tree. No workflow exists for
 that commit, and Pages still publishes from the separate `gh-pages` branch.
-See the [adoption record](../../packages/stridetorch/benchmarks/results/qualification-0.80-main-adoption.json). No CI, release or deployment is part of this local
+See the [adoption record](../../packages/torchwasm/benchmarks/results/qualification-0.80-main-adoption.json). No CI, release or deployment is part of this local
 qualification. Broader core coverage, independent-library readiness, norm-HVP
 efficiency and matched GPU performance work remain active.

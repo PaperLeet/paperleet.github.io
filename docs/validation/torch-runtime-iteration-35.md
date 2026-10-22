@@ -124,8 +124,8 @@ comparisons. No WebGPU backend is enabled by this iteration.
 
 ## Reproduction and adoption boundary
 
-[`iteration-35.json`](../../packages/stridetorch/benchmarks/results/iteration-35.json)
-and [`iteration-35-integration.json`](../../packages/stridetorch/benchmarks/results/iteration-35-integration.json)
+[`iteration-35.json`](../../packages/torchwasm/benchmarks/results/iteration-35.json)
+and [`iteration-35-integration.json`](../../packages/torchwasm/benchmarks/results/iteration-35-integration.json)
 record exact source/test hashes, receipts, initial pilots and hashed reproduction
 archives. Application checks use upstream `e21b136c2431d2aeeea52b0d1b1124a09c413f6a` including its
 current catalog in the rebuilt private wheel.

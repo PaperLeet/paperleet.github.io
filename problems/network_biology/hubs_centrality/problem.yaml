@@ -1,5 +1,5 @@
-﻿id: network_biology/hubs_centrality
-number: 105
+id: network_biology/hubs_centrality
+number: 115
 title: 枢纽蛋白识别：度中心性与介数中心性
 title_en: 'Hub Identification: Degree and Betweenness Centrality'
 paper_id: network-biology
@@ -11,10 +11,6 @@ paper:
   doi: 10.1038/nrg1272
   anchors:
   - 'Box 1 (Network measures): basic descriptors used to compare cellular networks'
-  literature_record:
-    dataset: docs/research/network_biology_literature.json
-    id: 1
-    category: Classic Foundations & Network Topology
 type: implement
 parent: null
 difficulty: M
@@ -40,7 +36,7 @@ conventions:
   seed: 42
   dtype: Python str node names, float scores
   device: CPU; pure Python standard library, no network access or dataset download
-  contract: 'Simple undirected graph with the exercise 93 conventions: unique str nodes, self-loops ignored, each unordered pair counted once, ValueError for duplicate nodes or unknown endpoints. degree_centrality = distinct neighbors/(N-1), all 0.0 when N=1, {} when N=0. betweenness_centrality sums sigma_st(v)/sigma_st over unordered connected pairs {s,t} not containing v, divided by (N-1)(N-2)/2; unconnected pairs contribute nothing; all 0.0 when N<3. rank_hubs sorts by descending score rounded to 12 decimals, ties by ascending node name; k=0 gives [], k>len gives all, k<0 raises ValueError.'
+  contract: 'Simple undirected graph with the network_biology/degree_distribution conventions: unique str nodes, self-loops ignored, each unordered pair counted once, ValueError for duplicate nodes or unknown endpoints. degree_centrality = distinct neighbors/(N-1), all 0.0 when N=1, {} when N=0. betweenness_centrality sums sigma_st(v)/sigma_st over unordered connected pairs {s,t} not containing v, divided by (N-1)(N-2)/2; unconnected pairs contribute nothing; all 0.0 when N<3. rank_hubs sorts by descending score rounded to 12 decimals, ties by ascending node name; k=0 gives [], k>len gives all, k<0 raises ValueError.'
 estimated_minutes: 25
 tests:
   T0: 1

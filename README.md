@@ -13,7 +13,7 @@
 
 Read papers, implement the methods, and test your understanding through mathematical properties and actual behavior.
 
-The catalog includes **67 papers, one introductory course, and 89 focused core modules**. Start with a paper, read its contribution and selected scope, then implement its core modules in a LeetCode-style split workspace. Supporting code is supplied so each exercise focuses on the paper’s key mechanism. Completing a paper means passing its selected core modules. Paper organization lives in `papers.yaml`; statements, implementations, tests, and visualization data live in `problems/`.
+The catalog includes **70 papers, one introductory course, and 92 focused core modules**. Start with a paper, read its contribution and selected scope, then implement its core modules in a LeetCode-style split workspace. Supporting code is supplied so each exercise focuses on the paper’s key mechanism. Completing a paper means passing its selected core modules. Paper organization lives in `papers.yaml`; statements, implementations, tests, and visualization data live in `problems/`.
 
 Search the library by title, author, venue, year, module goal, or arXiv reference. Abstract/PDF links and versioned arXiv IDs find the same catalog paper; queries such as `Vaswani 2017` combine terms. Search and practice links retain the current collection and filters.
 
@@ -27,7 +27,7 @@ Requires Python 3.10+ and Node.js 20.19+. Run these commands from the repository
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -e .
-python -m pip install -e ./packages/stridetorch
+python -m pip install -e ./packages/torchwasm
 paperleet export
 npm --prefix web ci
 make dev
@@ -39,7 +39,7 @@ Open the URL shown in the terminal (default: **http://127.0.0.1:5173**). On subs
 
 This public repository contains the frontend, paper catalog, browser runtime, native local judge, and offline maintainer tools. `make dev` works without an account, email provider, or private repository. Signed-out browser practice automatically saves code and test results in the current browser, so they can be restored after refresh or reopening the site.
 
-The NumPy-based browser tensor/autodiff implementation is also available as the independently buildable [StrideTorch library](packages/stridetorch/README.md). Its standalone package needs NumPy only; existing PaperLeet installations include the same library source and retain their current entry points. Keep ordinary `import torch`, `from torch import nn` and `import torch.nn.functional as F` in your code: run standalone scripts with `stridetorch train.py`. PaperLeet's browser Worker activates those aliases automatically.
+The NumPy-based browser tensor/autodiff implementation is also available as the independently buildable [TorchWasm library](packages/torchwasm/README.md). Its standalone package needs NumPy only; existing PaperLeet installations include the same library source and retain their current entry points. Keep ordinary `import torch`, `from torch import nn` and `import torch.nn.functional as F` in your code: run standalone scripts with `torchwasm train.py`. PaperLeet's browser Worker activates those aliases automatically.
 
 The account/community screens and API contracts are public frontend code. Their server implementations, online storage, hosted judge orchestration, and production deployment tools live in the separate private `PaperLeet/backend` repository. That repository pins this public core as a Git submodule; no private service is installed or fetched by the open edition.
 
@@ -91,7 +91,7 @@ Use **Light / Dark** in the top bar to choose an appearance. The first visit fol
 
 Drag the workspace dividers to resize the description/code columns and the code/results rows. Sizes are remembered in this browser. Double-click a divider or press Enter while it is focused to restore its default; arrow keys fine-tune the split. Run controls stay visible, and narrow screens stack the description above the editor.
 
-The **Featured collections** carousel groups papers into LLM Basics, RL, Diffusion & Flow, Post-training, JEPA / World Models, and Visual Generation. Colorful cards show paper and problem counts; compact category chips below them filter the current collection. Collections can overlap and have shareable routes such as `#/collections/llm-basics` (existing `#/lists/...` links still work). Switching collections clears filters. Membership and bilingual card text live in `web/src/paperCollections.ts`.
+The **Featured collections** carousel groups papers into LLM Basics, RL, Diffusion & Flow, Post-training, JEPA / World Models, and Visual Generation. Colorful cards show paper and problem counts; compact category chips below them filter the current collection. Collections can overlap and have shareable routes such as `#/collections/llm-basics` (existing `#/lists/...` links still work). Switching collections clears filters. Membership and bilingual card text live in `web/src/paperCollections.ts`. Collections with a curated roadmap also have a lazy **Roadmap** view, a small graph of their key papers by release year; see [collection roadmaps](docs/collection-roadmaps.md).
 
 Library search, category, topic, module difficulty and paper status stay in the hash URL, for example `#/collections/diffusion?q=DDPM&difficulty=E`. Refresh, browser Back/Forward, paper details, module navigation and sign-in keep the library return context. Returning also tries to restore the paper you opened, even when the all-paper order changes after refresh. Filters use the active workspace's current progress; a shared link carries filters rather than another person's code or grades. Progress-dependent results wait for workspace loading before declaring the list empty. See [navigation validation](docs/validation/library-navigation.md).
 
@@ -215,6 +215,9 @@ paperleet ci
 | 68 | BERT | 80/10/10 selected-token corruption, original targets and stable masked language-model loss. | 101 |
 | 69 | GAN | Stable discriminator/non-saturating generator objectives and actual alternating Gaussian-location training. | 102 |
 | 70 | Dropout | Explicit keep masks, inverted scaling, endpoint gradients and Monte Carlo moments. | 103 |
+| 71 | [ES at Scale](https://arxiv.org/abs/2509.24372) | Reward standardization and backpropagation-free parameter updates. | 104 |
+| 72 | [Visual Domain Prompt](https://arxiv.org/abs/2212.04145) | Additive visual prompts, historical sensitivity and homeostatic regularization. | 105 |
+| 73 | [Neural Thickets](https://arxiv.org/abs/2603.12228) | Independent random experts, selection-set ranking and majority voting. | 106 |
 
 RMSNorm, GQA and RoPE are part of LLM Frontier. Each includes independent gradient checks, complete CPU/WASM judging and supplied synthetic experiments. See [public-core validation](docs/validation/llm-foundations-public.md).
 

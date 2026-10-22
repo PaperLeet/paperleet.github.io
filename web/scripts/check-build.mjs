@@ -15,7 +15,7 @@ function visit(key) {
   for (const dependency of manifest[key].imports || []) visit(dependency);
 }
 visit('index.html');
-for (const key of ['src/BrowserLearningNotice.tsx', 'src/WorkspacePanelIcon.tsx', 'src/ReadingTabControls.tsx', 'src/BrowserRunProgressDetails.tsx', 'src/PaperDetail.tsx', 'src/PythonEditor.tsx', 'src/RichText.tsx', 'src/Community.tsx', 'src/Account.tsx', 'src/Submissions.tsx', 'src/Lab.tsx', 'src/highlight.ts', 'src/browserLearningController.ts', 'src/browserWorkspaceController.ts', 'src/SolutionHistory.tsx', 'src/AccountLogout.tsx', 'src/WorkspaceBackup.tsx', 'src/libraryPosition.ts', 'src/QueueAdmissionNotice.tsx', 'src/browserJudge.ts', 'src/ReportView.tsx', 'src/WorkspaceTestResults.tsx', 'src/ModuleNavigator.tsx', 'src/InterviewWritingGuide.tsx', 'src/CommunityWritingGuide.tsx', 'src/catalogData.ts', 'src/hostedDraftCache.ts', 'src/SubmissionResultPage.tsx', 'src/OnlinePresence.tsx', 'src/ResizableSplit.tsx', 'src/Messages.tsx', 'src/DraftCenter.tsx', 'src/SubmissionCompletionNotice.tsx']) {
+for (const key of ['src/BrowserFailureMessage.tsx', 'src/legacyCatalogIndex.ts', 'src/BrowserLearningNotice.tsx', 'src/WorkspacePanelIcon.tsx', 'src/ReadingTabControls.tsx', 'src/BrowserRunProgressDetails.tsx', 'src/PaperDetail.tsx', 'src/PythonEditor.tsx', 'src/RichText.tsx', 'src/Community.tsx', 'src/Account.tsx', 'src/Submissions.tsx', 'src/Lab.tsx', 'src/highlight.ts', 'src/browserLearningController.ts', 'src/browserWorkspaceController.ts', 'src/SolutionHistory.tsx', 'src/AccountLogout.tsx', 'src/WorkspaceBackup.tsx', 'src/libraryPosition.ts', 'src/QueueAdmissionNotice.tsx', 'src/browserJudge.ts', 'src/ReportView.tsx', 'src/WorkspaceTestResults.tsx', 'src/ModuleNavigator.tsx', 'src/InterviewWritingGuide.tsx', 'src/CommunityWritingGuide.tsx', 'src/catalogData.ts', 'src/hostedDraftCache.ts', 'src/SubmissionResultPage.tsx', 'src/OnlinePresence.tsx', 'src/ResizableSplit.tsx', 'src/Messages.tsx', 'src/DraftCenter.tsx', 'src/SubmissionCompletionNotice.tsx', 'src/CollectionRoadmap.tsx']) {
   // Rollup can use generated keys when deferred pages also share static imports.
   const sharedPage=key==='src/Community.tsx'?'Community':key==='src/DraftCenter.tsx'?'DraftCenter':undefined;
   const candidates=manifest[key]?[[key,manifest[key]]]:sharedPage?Object.entries(manifest).filter(([,entry])=>entry.name===sharedPage&&entry.isDynamicEntry):[];
@@ -72,7 +72,7 @@ assert(!manifest['src/PaperViews.tsx']?.isDynamicEntry&&files.some(file=>{const 
 const studyLists=manifest['src/StudyLists.tsx']?[['src/StudyLists.tsx',manifest['src/StudyLists.tsx']]]:Object.entries(manifest).filter(([,entry])=>entry.name==='StudyLists'&&entry.isDynamicEntry);
 assert(studyLists.length===1&&studyLists[0][1].isDynamicEntry&&!initial.has(studyLists[0][0]), 'Private study-list reading and editing must remain uniquely deferred');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Could not confirm your private study lists.')), 'Private study-list stores must not grow the library shell');
-assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Company interview practice')), 'Library interview preparation must not grow the initial shell');
+assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('library-interview-guide')), 'Library interview preparation must not grow the initial shell');
 assert(files.every(file => !/\/(editor|markdown|Community|Lab|PythonEditor|RichText|SolutionHistory)-/.test(file)), 'Optional runtime dependencies must not be pulled back into the shell');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Your implementation goal')), 'Problem overview and statistics rendering must stay deferred');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Reference reading actions')), 'Reference reading controls must remain deferred with problem solutions');
@@ -89,6 +89,10 @@ assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('creat
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Snapshot for this company and report publication period')), 'Company row evidence and actions must remain deferred');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('My linked practice')), 'Company preparation progress must remain deferred');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Some filters are unavailable')), 'Interview filter support UI must remain deferred');
+assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('roadmap-node-bar')), 'Collection roadmap rendering must stay out of the initial bundle');
+assert(Object.values(manifest).some(entry=>entry.file.endsWith('.js')&&!initial.has(entry.src||'')&&fs.readFileSync(`dist/${entry.file}`,'utf8').includes('roadmap-node-bar')), 'The deferred collection roadmap must ship its rendering');
+for(const marker of ['roadmap-thumbnails','roadmap-flow']) assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes(marker)), `Collection roadmap ${marker} must stay out of the initial bundle`);
+assert([...initial].flatMap(key=>manifest[key].css||[]).every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('roadmap-flow')),'Collection roadmap flow styles must stay out of initial styles');
 for(const name of ['LibraryPagination','LibraryCollections','LibraryResultControls','CommunitySubmissions','BrowserRunProgress']){
  const entry='src/'+name+'.tsx';
  assert(manifest[entry]?.isDynamicEntry&&!initial.has(entry), `${name} must remain deferred independently of the first usable library list`);
@@ -100,6 +104,8 @@ const raw = files.reduce((sum, file) => sum + fs.statSync(`dist/${file}`).size, 
 const gzip = files.reduce((sum, file) => sum + zlib.gzipSync(fs.readFileSync(`dist/${file}`), { level: 9 }).length, 0);
 assert(raw <= 400 * 1024 && gzip <= 130 * 1024, `Initial JavaScript exceeds the 400 KiB raw / 130 KiB gzip budget: ${raw} / ${gzip}`);
 const css = new Set([...initial].flatMap(key => manifest[key].css || []));
+assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.roadmap-node-bar')),'Collection roadmap styles must stay out of initial styles');
+assert((manifest['src/CollectionRoadmap.tsx']?.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.roadmap-node-bar')),'The deferred collection roadmap must ship its styles');
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.discussion-share-compact')), 'Feed sharing recovery layout must remain deferred with community reading');
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.interview-concept-favorite')), 'Interview bookmark action layout must not grow initial styles');
 for(const selector of ['.problem-interview-reference','.admin-workspace','.admin-review-inbox','.community-tag-picker','.moderation-layout','.moderation-return','.post-report-dialog','.report-history-card','.moderation-comparison']){

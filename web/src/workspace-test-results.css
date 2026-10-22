@@ -1,28 +1,53 @@
 .workspace-test-results { padding:12px 14px; min-width:0; }
-.workspace-test-results > .result-head { flex-wrap:wrap; gap:12px; margin-bottom:20px; }
-.workspace-test-results > .result-head > span > small { display:block; margin-top:4px; color:var(--muted); }
+/* LeetCode-strength verdict: one coloured word, a muted count and a metric row. */
+.workspace-test-results > .result-head { flex-wrap:wrap; justify-content:flex-start; align-items:baseline; gap:2px 12px; margin-bottom:16px; padding:0 0 14px; border-bottom:1px solid var(--line); }
+.workspace-test-results > .result-head.success > div { color:var(--green); }
+.workspace-test-results > .result-head.failure > div { color:var(--red); }
+/* A verdict for code that has since changed is history: keep its hue but step it back. */
+.workspace-test-results > .result-head.success:has(> span > small) > div { color:color-mix(in srgb,var(--green) 55%,var(--text-secondary)); }
+.workspace-test-results > .result-head.failure:has(> span > small) > div { color:color-mix(in srgb,var(--red) 55%,var(--text-secondary)); }
+/* The icon is centred, so the verdict text alone sets the row baseline and the count sits on it. */
+.workspace-test-results > .result-head > div { align-items:baseline; gap:8px; min-width:0; }
+.workspace-test-results > .result-head > div > svg { flex:none; align-self:center; width:20px; height:20px; }
+.workspace-test-results > .result-head h3 { margin:0; font-size:var(--type-title); font-weight:600; letter-spacing:-.01em; line-height:1.3; overflow-wrap:anywhere; }
+.workspace-test-results > .result-head > span { color:var(--text-secondary); font-size:var(--type-meta); font-variant-numeric:tabular-nums; }
+.workspace-test-results > .result-head > span:empty { display:none; }
+.workspace-test-results > .result-head > span > small { display:inline; margin-left:8px; padding:1px 6px; border-radius:var(--radius-xs); background:var(--surface2); color:var(--text-secondary); font-size:var(--type-caption); }
 .workspace-test-results .report-workflow { margin:0; padding:0; border:0; border-radius:0; background:none; box-shadow:none; }
-.workspace-test-results .feedback-heading h3 { margin:0; font-size:var(--type-body); line-height:1.65; }
-.workspace-test-results .feedback-diagnostic { margin:10px 0 0; font-size:var(--type-small); }
-.workspace-test-results .feedback-actions { margin-top:10px; gap:6px; }
-.workspace-test-results .feedback-location-note { margin:7px 0 0; font-size:var(--type-small); line-height:1.75; }
-.workspace-test-results .feedback-actions > .button { min-height:40px; padding:8px 11px; font-size:var(--type-small); }
-.workspace-test-details { margin-top:12px; border-top:1px solid var(--line); }
-.workspace-test-details > summary { display:flex; align-items:center; gap:7px; min-height:40px; color:var(--text-secondary); cursor:pointer; list-style:none; font-size:var(--type-small); }
+.workspace-test-results .report-workflow .feedback-heading h3 { margin:0; font-size:var(--type-small); font-weight:600; line-height:1.6; }
+.workspace-test-results:has(> .result-head.success) .report-workflow .feedback-heading h3 { color:var(--text-secondary); font-weight:500; }
+/* Many failures: the case picker already names the selected test, so its duplicate title stays for screen readers only.
+   Run and changed-code states keep their visible heading (data-duplicate-title is unset then). */
+.workspace-test-results .report-workflow .feedback-heading[data-duplicate-title]:has(> .feedback-error-nav) > div:first-child { position:absolute; width:1px; height:1px; margin:-1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+.workspace-test-results .report-workflow .feedback-heading[data-duplicate-title]:has(> .feedback-error-nav) > .feedback-error-nav { flex:0 1 420px; width:420px; }
+.workspace-test-results .feedback-actions { margin-top:14px; gap:8px; }
+.workspace-test-results .feedback-location-note { margin:7px 0 0; font-size:var(--type-meta); line-height:1.7; }
+.workspace-test-results .feedback-actions > .button { min-height:var(--control-height); padding:6px 12px; font-size:var(--type-meta); border-radius:var(--control-radius); }
+/* After a pass the next step (save/submit, next module) is the one emphasised action. */
+.workspace-test-results:has(> .result-head.success) .feedback-actions > .feedback-rerun { border:1px solid var(--line); background:var(--surface); color:var(--text); box-shadow:none; }
+.workspace-test-results:has(> .result-head.success) .feedback-actions > .feedback-rerun:hover:not(:disabled) { background:var(--surface2); }
+.workspace-test-details { margin-top:16px; border-top:1px solid var(--line); }
+/* Keep "Test details and logs" and the run-details footer row together as one list of disclosures. */
+.workspace-test-results:has(> .workspace-test-details) { padding-bottom:0; }
+.workspace-test-results > .workspace-test-details > summary { display:flex; align-items:center; gap:8px; min-height:40px; color:var(--text-secondary); cursor:pointer; list-style:none; font-size:var(--type-meta); }
 .workspace-test-details > summary::-webkit-details-marker { display:none; }
-.workspace-test-details > summary > svg:last-child { margin-left:auto; }
-.workspace-test-details[open] > summary > svg:last-child { transform:rotate(180deg); }
+.workspace-test-details > summary:hover { color:var(--text); }
 .workspace-test-details > summary:focus-visible { outline:2px solid var(--accent); outline-offset:-2px; border-radius:4px; }
 .workspace-test-detail-body { min-width:0; padding-top:8px; }
-.workspace-test-detail-body .result-head { flex-wrap:wrap; gap:8px; }
+/* The verdict above already states the result; drop ReportView's repeated header in the details. */
+.workspace-test-detail-body .report-view > .result-head,
+.workspace-test-detail-body .report-view > .result-summary-meter,
+.workspace-test-detail-body .report-view > .report-source-notice.current { display:none; }
+.workspace-test-detail-body .report-view > .report-meta { margin:4px 0 12px; padding:0; }
 .workspace-test-detail-body .test-layers { grid-template-columns:repeat(2,minmax(0,1fr)); }
-.workspace-test-results .browser-result-actions { margin-top:12px; }
 .workspace-test-detail-error { padding:8px 0; font-size:var(--type-small); color:var(--text-secondary); }
 .workspace-test-detail-error button { min-height:40px; font-size:var(--type-small); color:var(--accent); }
-@media (pointer:coarse) { .workspace-test-results .feedback-actions > .button,.workspace-test-details > summary,.workspace-test-detail-error button { min-height:44px; } }
+@media (pointer:coarse) { .workspace-test-results .feedback-actions > .button,.workspace-test-results > .workspace-test-details > summary,.workspace-test-detail-error button { min-height:44px; } }
 
-.feedback-test-details{display:inline-flex;align-items:center;gap:6px;min-height:44px;margin-top:8px;color:var(--accent);font-size:var(--type-small)}
+.feedback-test-details{display:inline-flex;align-items:center;gap:6px;min-height:36px;margin-top:6px;color:var(--accent);font-size:var(--type-meta)}
+@media (pointer:coarse){.feedback-test-details{min-height:44px}}
 .report-test-located{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;margin:10px 0;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface2);color:var(--text-secondary);font-size:var(--type-small);line-height:1.65}
 .report-test-located>span{flex:1 1 240px;min-width:0}.report-test-located>button{min-height:44px}
-.report-tests>.test-detail[data-test-revealed]{border-color:var(--accent)}
+/* Outranks the red failed-row border in lc-feedback-report.css, whichever deferred sheet loads last. */
+.report-tests>.test-detail.test-detail[data-test-revealed]{border-color:var(--accent)}
 .report-tests>.test-detail[data-test-revealed]>summary{box-shadow:inset 3px 0 var(--accent)}

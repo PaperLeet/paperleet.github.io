@@ -3,6 +3,7 @@ import {controlIsActive} from './activeControls';
 import {useCommunityTranslation,TranslationNotice,TranslatedReply} from './CommunityTranslation';
 import JoinPrompt from './CommunityJoinPrompt';
 import CommunityHighlights from './CommunityHighlights';
+import CommunityBoardNavigation from './CommunityBoardNavigation';
 import {appLocation} from './appLocation';
 import AppLink from './AppLink';
 import {useCommunityTaxonomy} from './useCommunityTaxonomy';
@@ -79,6 +80,7 @@ import {
   Trash2,
   UserPlus,
   Users,
+  Wrench,
   X,
 } from "lucide-react";
 import { useI18n } from "./i18n";
@@ -126,6 +128,7 @@ import { canEditPost } from './communityEdits';
 import PaperLinkField from './PaperLinkField';
 import PaperPreviewCard from './PaperPreviewCard';
 import { canonicalArxivUrl } from './arxivLinks';
+import './lc-community.css';
 const CommunityWritingGuide=deferredFeature(()=>import('./CommunityWritingGuide'),['写作提示','writing prompts'],{
   failure:(props,retry)=><CommunityWritingFailure onRetry={()=>{props.onRestoreFocus();retry();}}/>,
 });
@@ -142,7 +145,7 @@ type Connection = PublicUser & {
 };
 type Activity = { kind: string; created_at: string; post: Post; reply?: Reply };
 type Page<T> = { items: T[]; total: number; limit?: number; offset?: number };
-const categoryIcons = { papers: BookOpen, implementation: Code2, questions: HelpCircle, admissions: GraduationCap, career: BriefcaseBusiness, lounge: Coffee };
+const categoryIcons = { papers: BookOpen, implementation: Wrench, questions: HelpCircle, admissions: GraduationCap, career: BriefcaseBusiness, lounge: Coffee };
 const CATEGORIES = communityCategories.map(category => ({ ...category, icon: categoryIcons[category.id] }));
 const postHref = communityPostHref;
 const postPath = (id: string) => `community/posts/${encodeURIComponent(id)}`;
@@ -627,7 +630,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
   const returnTo = communityFeedHref(topicId, filters);
   const requestKey = JSON.stringify([topicId, user?.id, solutions, solutionAvailable, category, tag, tag?tagsAvailable:undefined, following, saved, savedGate, search, page, sort, sortingAvailable, days, periodUnavailable]);
   const searchInput=useRef<HTMLInputElement>(null);
-  const boards = useRef<HTMLDivElement>(null),toolbar=useRef<HTMLDivElement>(null),feedList=useRef<HTMLDivElement>(null),resultGeneration=useRef(0);
+  const toolbar=useRef<HTMLDivElement>(null),feedList=useRef<HTMLDivElement>(null),resultGeneration=useRef(0);
   const [data, setData] = useState<Page<Post> & { requestKey?: string;generation?:number }>({ items: [], total: 0 }),
     [loading, setLoading] = useState(true),
     [failure, setFailure] = useState<FeedFailure>(),
@@ -659,20 +662,6 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
     root.focus({preventScroll:true});revealReadingTarget(root);choose({page:next});
   }
   const solutionReading=useSolutionReadingNavigation({enabled:embedded&&solutions&&!!onCode&&solutionAvailable&&!accountLoading,scope:JSON.stringify([user?.id||'guest',topicId,{...filters,page:undefined}]),page,generation:data.generation,ready:!pending&&!error&&feedAccessReady&&!sortingUnavailable&&!solutionUnavailable&&!periodUnavailable&&!tagUnavailable,failed:!!error,total:data.total,items:data.items,root:feedList,toolbar,onPage:page=>choose({page})});
-  useEffect(() => {
-    const board = boards.current;
-    if (!board) return;
-    const reveal = () => {
-      const selected = board.querySelector('button[aria-pressed="true"]');
-      if (!selected || board.scrollWidth <= board.clientWidth) return;
-      const frame = board.getBoundingClientRect(), item = selected.getBoundingClientRect();
-      const delta = item.left < frame.left ? item.left - frame.left : item.right > frame.right ? item.right - frame.right : 0;
-      if (delta) board.scrollBy({ left: delta });
-    };
-    reveal();
-    window.addEventListener('resize', reveal);
-    return () => window.removeEventListener('resize', reveal);
-  }, [category, locale]);
   useEffect(() => {
     let live = true;
     const generation=++resultGeneration.current;
@@ -741,8 +730,8 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
           <div className="social-page-heading community-heading">
             <h1>{solutions?t("社区题解","Community solutions"):topicId ? t("题目讨论", "Module discussions") : category === 'papers' ? t('论文讨论', 'Paper discussions') : t("社区", "Community")}</h1>
           </div>
-          <div ref={boards} className="community-board-scroll">
-            <section className="social-panel board-list">
+          <CommunityBoardNavigation canAct={canChangeFilter}>
+            <section className="social-panel board-list" aria-label={t('社区版位','Community boards')}>
               <span className="sidebar-label">{t("版块", "Boards")}</span>
               <button
                 className={!category&&!solutions ? "selected" : ""}
@@ -765,7 +754,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
                 </button>
               ))}
             </section>
-          </div>
+          </CommunityBoardNavigation>
           {user && (!topicId || topic) ? (
             <button className="button community-compose-button writing-disclosure-trigger" {...writing.triggerProps}>
               <Plus size={16} />
@@ -779,7 +768,7 @@ function CommunityFeed({ route, topicId, topic, catalogLoading, catalogError, re
           ) : null}
         </aside>}
         <section className="community-feed">
-          {embedded&&<div className={`problem-community-heading ${solutions?'problem-solutions-heading':'problem-discussions-heading'}`}><div><h2>{solutions?t("社区题解","Community solutions"):t('题目讨论','Problem discussions')}</h2><p>{solutions?t("阅读不同思路，分享你的推导与实现。","Learn from different approaches and share your own."):t('交流本题的疑问、实现思路与测试结果。','Discuss questions, implementation choices and test results for this problem.')}</p></div><div>{user?<button type="button" className="button writing-disclosure-trigger" disabled={accountLoading||(solutions&&!solutionAvailable)} {...writing.triggerProps}><Plus size={16}/>{draftAvailable?t("继续草稿","Resume draft"):solutions?t("发布题解","Share a solution"):t('发起讨论','Start a discussion')}</button>:<AppLink className="button" href={signInHref(returnTo)}>{solutions?t("登录写题解","Sign in to contribute"):t('登录参与讨论','Sign in to discuss')}</AppLink>}<AppLink href={returnTo}>{solutions?t("全部题解","All solutions"):t('全部讨论','All discussions')}<ArrowRight size={14}/></AppLink></div></div>}
+          {embedded&&<div className={`problem-community-heading ${solutions?'problem-solutions-heading':'problem-discussions-heading'}`}><div><h2>{solutions?t("社区题解","Community solutions"):t('题目讨论','Problem discussions')}</h2><p>{solutions?t("阅读不同思路，分享你的推导与实现。","Learn from different approaches and share your own."):t('交流本题的疑问、实现思路与测试结果。','Discuss questions, implementation choices and test results for this problem.')}</p></div><div>{user?<button type="button" className="button writing-disclosure-trigger" disabled={accountLoading||(solutions&&!solutionAvailable)} {...writing.triggerProps}><Plus size={16}/>{draftAvailable?t("继续草稿","Resume draft"):solutions?t("发布题解","Share a solution"):t('发起讨论','Start a discussion')}</button>:<AppLink className="button" href={signInHref(returnTo)}>{solutions?t("登录写题解","Sign in to contribute"):t('登录参与讨论','Sign in to discuss')}</AppLink>}<AppLink href={returnTo}>{t('在社区打开','Open in Community')}<ArrowRight size={14}/></AppLink></div></div>}
           <div ref={toolbar} className="community-feed-toolbar" role="group" tabIndex={-1} aria-label={solutions?t('题解浏览控制','Solution browsing controls'):t('讨论浏览控制','Discussion browsing controls')}>
             <div className="social-tabs compact">
               <button
@@ -1132,7 +1121,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
         <ArrowLeft size={14} />
         {returnTo&&readReportHistory(returnTo)?t('返回我的举报','Back to my reports'):returnTo&&readProfileRoute(returnTo)?t('返回个人主页','Back to profile'):returnTo&&readInterviewRoute(returnTo) ? t('返回面经','Back to interviews') : readCommunityFeed(returnTo||"")?.state.solutions?t("返回题解列表","Back to solutions"):returnTo ? t('返回讨论列表', 'Back to discussions') : post?.problem ? post.solution?t("返回本题题解","Back to module solutions"):t("返回题目讨论", "Back to module discussions") : t("返回社区", "Back to community")}
       </AppLink><DiscussionLink postId={id}/><button className="button subtle" type="button" disabled={loading || busy} onClick={() => void refresh()}>
-        <RefreshCw size={14} />{loading ? t('正在加载讨论…','Loading discussion…') : error ? t('重试加载讨论','Retry loading discussion') : t('刷新讨论','Refresh discussion')}
+        <RefreshCw size={14} aria-hidden="true"/><span className="discussion-refresh-label">{loading ? t('正在加载讨论…','Loading discussion…') : error ? t('重试加载讨论','Retry loading discussion') : t('刷新讨论','Refresh discussion')}</span>
       </button></div>
       <DiscussionPracticeReturnNotice notice={practiceReading.notice} disabled={!post||loading||busy||!!editingReply||editingPost||accountLoading||!!error||!!catalogLoading} canReveal={!!practiceReading.notice?.row.anchor.reply&&replyList.byId.has(practiceReading.notice.row.anchor.reply)} onRestore={practiceReading.restore} onDismiss={practiceReading.dismiss} onReveal={practiceReading.revealOriginal}/>
       {error && <SocialNotice error={error} />}
@@ -1150,7 +1139,6 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
             <div className="discussion-heading">
               <Category value={post.solution ? "solutions" : post.category} />
               <h1>{translation.title}</h1>
-              <TranslationNotice translation={translation}/>
               <div className="discussion-author">
                 <CommunityAuthor user={post.author}/>
                 <DateLabel value={post.created_at} />
@@ -1166,13 +1154,13 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
                   </button>
                 )}
               </div>
+              <TranslationNotice translation={translation}/>
             </div>
             {post.interview && <InterviewMeta details={post.interview} revealPractice={practiceReading.resumedPractice} revealRequest={practiceReading.notice?.request} returnTo={postHref(id)} browseFrom={returnTo} topics={topics} catalogLoading={catalogLoading} catalogError={catalogError} onRetryCatalog={reloadCatalog}/>}
             <PostTags post={post} returnTo={returnTo}/>
             {post.interview?<PracticeMentions papers={papers} topics={topics} body={post.body} revealPractice={practiceReading.resumedPractice} revealRequest={practiceReading.notice?.request} returnTo={postHref(post.id)}><DiscussionReading body={post.body} displayBody={translation.body} postId={post.id}/></PracticeMentions>:<DiscussionReading body={post.body} displayBody={translation.body} postId={post.id} />}
             <PaperPreviewCard url={post.paper_url} paper={post.paper} />
             <div className="discussion-actions">
-              <PostReport postId={post.id} postTitle={post.title} canAct={currentQuoteContext} returnTo={postHref(id,providedReturnTo,replyTarget)} own={post.viewer.can_edit||post.author.id===owner} disabled={busy||loading||editingPost||!!editingReply}/>
               <button
                 className={post.viewer.liked ? "active" : ""}
                 disabled={busy || loading}
@@ -1183,7 +1171,7 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
                   size={16}
                   fill={post.viewer.liked ? "currentColor" : "none"}
                 />
-                {t("点赞", "Like")}
+                <span className="discussion-action-label">{t("点赞", "Like")}</span>
                 <span>{post.counts.likes}</span>
               </button>
               <button
@@ -1193,16 +1181,17 @@ function Discussion({ id, returnTo:providedReturnTo, replyTarget,topics,papers,c
                 onClick={() => void react("repost")}
               >
                 <Repeat2 size={16} />
-                {post.viewer.reposted
+                <span className="discussion-action-label">{post.viewer.reposted
                   ? t("已转发", "Reposted")
-                  : t("转发", "Repost")}
+                  : t("转发", "Repost")}</span>
                 <span>{post.counts.reposts}</span>
               </button>
               <PostBookmark key={`${id}:${owner}`} postId={id} owner={owner} bookmarked={post.viewer.bookmarked}
                 enabled={capabilities?.community_bookmarks===true} returnTo={postHref(id,providedReturnTo,replyTarget)}
                 disabled={busy||loading||accountLoading||editingPost||!!editingReply} hidden={accountLoading} onBusyChange={setBusy} onAccountRefresh={refreshAccount}
                 onChange={bookmarked=>setPost(previous=>previous&&previous.id===id?{...previous,viewer:{...previous.viewer,bookmarked}}:previous)}/>
-              <button type="button" onClick={()=>{const heading=document.getElementById('discussion-replies-heading');heading?.focus({preventScroll:true});heading?.scrollIntoView({block:'start'});}}><MessageCircle size={15}/>{post.counts.replies} {t('条回复','replies')}</button>
+              <button type="button" onClick={()=>{const heading=document.getElementById('discussion-replies-heading');heading?.focus({preventScroll:true});heading?.scrollIntoView({block:'start'});}}><MessageCircle size={15}/>{post.counts.replies} <span className="discussion-action-label">{t('条回复',post.counts.replies===1?'reply':'replies')}</span></button>
+              <PostReport postId={post.id} postTitle={post.title} canAct={currentQuoteContext} returnTo={postHref(id,providedReturnTo,replyTarget)} own={post.viewer.can_edit||post.author.id===owner} disabled={busy||loading||editingPost||!!editingReply}/>
               {user&&<button type="button" className="discussion-post-quote" aria-label={t('引用正文到回复草稿','Quote post into reply draft')} disabled={repliesLocked||accountLoading||editingPost} onClick={event=>quotePost(event.currentTarget)}><Quote size={15} aria-hidden="true"/>{t('引用正文','Quote post')}</button>}
               {user?<button type="button" className="discussion-compose-action" disabled={repliesLocked} onClick={()=>focusReply()}><MessageCircle size={15}/>{t('写回复','Write a reply')}</button>:<AppLink className="discussion-compose-action" href={signInHref(postHref(id,providedReturnTo,replyTarget))}>{t('登录回复','Sign in to reply')}</AppLink>}
             </div>
@@ -1588,7 +1577,7 @@ function UserProfileContents({ username,route }: { username: string;route:string
               <Avatar user={profile} size={84} />
               <div className="profile-primary">
                 <h1>{profile.display_name}</h1>
-                <span className="profile-handle">@{profile.username}</span>
+                <span className="profile-handle" title={`@${profile.username}`}>@{profile.username}</span>
                 <div className="profile-facts">
                   <TestAccountBadge isTestUser={profile.is_test_user} />
                   {!profile.is_test_user && (resolveAffiliation(profile.affiliation, profile.institution) ? (
@@ -1671,8 +1660,8 @@ function UserProfileContents({ username,route }: { username: string;route:string
           </section>
           </aside>
           <div className="profile-main">
-          <ProfileAchievements username={username} userId={profile.id} isSelf={profile.viewer.is_self} isPublic={profile.show_progress !== false} />
           <ProfileProgress username={username} isSelf={profile.viewer.is_self} />
+          <ProfileAchievements username={username} userId={profile.id} isSelf={profile.viewer.is_self} isPublic={profile.show_progress !== false} />
           <section ref={communityContent} className="profile-community-content" aria-labelledby="profile-community-title">
           <h2 id="profile-community-title">{t("社区动态", "Community activity")}</h2>
           <div className="social-tabs profile-tabs" role="tablist" aria-label={t("社区动态分类", "Community activity categories")}>

@@ -1,6 +1,6 @@
 # 连通分量与最大连通分量
 
-沿用“生物互作网络：节点度与度分布”（第 93 题）的图约定。**连通分量**是一组极大的蛋白质集合，其中任意两个蛋白都能沿互作边相互到达。
+沿用“生物互作网络：节点度与度分布”（`network_biology/degree_distribution`）的图约定。**连通分量**是一组极大的蛋白质集合，其中任意两个蛋白都能沿互作边相互到达。
 
 ## 任务与标准约定
 
@@ -44,4 +44,3 @@ T0 检查返回类型。T1 检查文档中的玩具网络，并用并查集基�
 ## 参考资料
 
 - Barabasi AL, Oltvai ZN. [Network biology: understanding the cell's functional organization](https://doi.org/10.1038/nrg1272). *Nature Reviews Genetics* 5(2), 101-113 (2004)。描述细胞网络结构的一般背景；连通分量练习本身是教学改编。
-- 文献数据集记录：`docs/research/network_biology_literature.json`，id 1。

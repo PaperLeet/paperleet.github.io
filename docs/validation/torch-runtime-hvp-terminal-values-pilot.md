@@ -56,8 +56,8 @@ distribution/application/export checks. The previously documented large-finite
 float32 norm/sine phase discrepancy remains unresolved. Broader core API and
 GPU backend work also remain active.
 
-[Machine-readable pilot](../../packages/stridetorch/benchmarks/results/hvp-terminal-values-pilot.json)
-and [raw harness](../../packages/stridetorch/benchmarks/results/hvp-terminal-values-pilot-harness.tar.gz):
+[Machine-readable pilot](../../packages/torchwasm/benchmarks/results/hvp-terminal-values-pilot.json)
+and [raw harness](../../packages/torchwasm/benchmarks/results/hvp-terminal-values-pilot-harness.tar.gz):
 315 individually verified files, 1,001,825 bytes, SHA-256
 `9d35f9bcfe3e633f1dacdfaae457e97374b5888cd81bc0a0e69a588a63df2c48`.
 The archive contains isolated sources, scripts, existing-test identities,
@@ -85,4 +85,4 @@ not fresh native runs. The expanded raw corpus has not yet been rerun on the
 new candidate in WASM; the previously retained phase discrepancy is not fixed
 by this evidence. Sources, exact comparers/references, path observations and
 raw outputs are retained in the
-[data-follow-up archive](../../packages/stridetorch/benchmarks/results/qualification-0.81-data-followup-harness.tar.gz).
+[data-follow-up archive](../../packages/torchwasm/benchmarks/results/qualification-0.81-data-followup-harness.tar.gz).

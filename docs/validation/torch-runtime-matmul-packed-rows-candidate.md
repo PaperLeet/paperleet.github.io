@@ -14,7 +14,7 @@ The existing dtype, size and exceptional-range guards stay in place, as do the
 normal native CPU route and batched matrix implementation. The candidate replaces
 `einsum('ik,kj->ij', a, b)` with `einsum('ik,jk->ij', contiguous(a), contiguous(b.T))`.
 Output normalization remains unchanged. The
-[candidate patch](../../packages/stridetorch/benchmarks/fixtures/matmul-packed-rows-candidate.patch)
+[candidate patch](../../packages/torchwasm/benchmarks/fixtures/matmul-packed-rows-candidate.patch)
 is retained separately from production sources.
 
 ## Evidence so far
@@ -62,9 +62,9 @@ application and package integration. Guard against packing copies erasing gains
 for other shapes or increasing memory unacceptably. Any later guard or algorithm
 change requires its own frozen candidate and evidence.
 
-The [machine report](../../packages/stridetorch/benchmarks/results/matmul-packed-rows-candidate.json)
+The [machine report](../../packages/torchwasm/benchmarks/results/matmul-packed-rows-candidate.json)
 contains both scans, raw samples and all 65 candidate resource hashes. The
-[raw archive](../../packages/stridetorch/benchmarks/results/matmul-packed-rows-candidate-harness.tar.gz)
+[raw archive](../../packages/torchwasm/benchmarks/results/matmul-packed-rows-candidate-harness.tar.gz)
 contains 577 verified files, 1,673,735 bytes, SHA-256
 `bca1c5b901765ff5ca34af5fc9047a43f894d35063778553e83199c623601004`.
 It retains the original workspace paths and external runtime dependencies;

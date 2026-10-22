@@ -10,8 +10,9 @@ import {filterReadingSections,headingFilterDraft} from './readingSectionSearch';
 import {postSearchQuery} from './postSearchModel';
 import PostSearchMatch from './PostSearchMatch';
 import './discussion-reading.css';
+import PostReadingOverview from './PostReadingOverview';
 
-export default function DiscussionReading({body,displayBody=body,postId,compact=false,instance=false,canAct}:{body:string;displayBody?:string;postId:string;compact?:boolean;instance?:boolean;canAct?:()=>boolean}){
+export default function DiscussionReading({body,displayBody=body,postId,compact=false,instance=false,overview=true,canAct}:{body:string;displayBody?:string;postId:string;compact?:boolean;instance?:boolean;overview?:boolean;canAct?:()=>boolean}){
   const {t}=useI18n(),root=useRef<HTMLDivElement>(null),bodyRoot=useRef<HTMLDivElement>(null),instanceId=useId();
   const suffix=instance?'-instance-'+instanceId.split('').map(character=>character.charCodeAt(0).toString(16).padStart(4,'0')).join(''):'';
   const scope=`reading-${postId}${suffix}`,sections=useMemo(()=>{const source=markdownOutline(body,scope);if(body===displayBody)return source;const display=markdownOutline(displayBody,scope);return source.map((section,index)=>({...section,label:display[index]?.label||section.label}));},[body,displayBody,scope]);
@@ -86,6 +87,7 @@ export default function DiscussionReading({body,displayBody=body,postId,compact=
     if(delta)nav.scrollTop+=delta;
   }
   return <div ref={root} className={`discussion-reading${sections.length>1?' has-outline':''}${compact?' is-compact':''}`}>
+   {overview&&<PostReadingOverview body={displayBody} detailed={!compact}/>}
    <div className="discussion-reading-layout">
     {sections.length>1&&<details className="discussion-outline" open={open} onToggle={event=>setOpen(event.currentTarget.open)} onKeyDown={event=>{
       if(!open||event.key!=='Escape'||event.defaultPrevented||event.repeat||event.nativeEvent.isComposing||event.nativeEvent.keyCode===229||event.altKey||event.ctrlKey||event.metaKey||event.shiftKey||composing.current)return;

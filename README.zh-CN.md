@@ -13,7 +13,7 @@
 
 读论文，写实现，用数学性质和真实行为验证理解。
 
-当前题库包含 **67 篇论文、1 个入门专题、89 个核心模块**。先选择论文，了解核心贡献和本次练习范围，再进入模块的 LeetCode 风格分栏工作区。辅助代码直接提供，练习聚焦论文的关键机制。“论文完成”表示选定核心模块全部通过。论文组织保存在 `papers.yaml`，题面、实现、测试和可视化数据来自 `problems/`。
+当前题库包含 **70 篇论文、1 个入门专题、92 个核心模块**。先选择论文，了解核心贡献和本次练习范围，再进入模块的 LeetCode 风格分栏工作区。辅助代码直接提供，练习聚焦论文的关键机制。“论文完成”表示选定核心模块全部通过。论文组织保存在 `papers.yaml`，题面、实现、测试和可视化数据来自 `problems/`。
 
 ## 本地启动
 
@@ -25,7 +25,7 @@
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -e .
-python -m pip install -e ./packages/stridetorch
+python -m pip install -e ./packages/torchwasm
 paperleet export
 npm --prefix web ci
 make dev
@@ -37,7 +37,7 @@ make dev
 
 本公开仓库包含前端、论文题库、浏览器运行时、本机判题与离线维护工具。`make dev` 无需账号、邮件服务或私有仓库即可独立运行。未登录时，练习代码和浏览器测试结果自动保存在当前浏览器，刷新或重新打开网站后可恢复。
 
-基于 NumPy 的浏览器张量与自动求导内核已拆为可独立打包的 [StrideTorch 库](packages/stridetorch/README.md)。独立包只依赖 NumPy；现有 PaperLeet 安装会包含同一份库源码，原有接入入口继续可用。代码里保留普通的 `import torch`、`from torch import nn` 和 `import torch.nn.functional as F`，独立脚本用 `stridetorch train.py` 启动即可，无需改写导入语句；PaperLeet 的浏览器 Worker 会自动注册这些别名。
+基于 NumPy 的浏览器张量与自动求导内核已拆为可独立打包的 [TorchWasm 库](packages/torchwasm/README.md)。独立包只依赖 NumPy；现有 PaperLeet 安装会包含同一份库源码，原有接入入口继续可用。代码里保留普通的 `import torch`、`from torch import nn` 和 `import torch.nn.functional as F`，独立脚本用 `torchwasm train.py` 启动即可，无需改写导入语句；PaperLeet 的浏览器 Worker 会自动注册这些别名。
 
 账号／社区页面及接口约定属于公开前端代码；其服务端实现、线上数据存储、在线判题编排和生产部署工具维护在独立的私有仓库 `PaperLeet/backend`。私有仓库以 Git 子模块固定引用本仓库的版本；开源版本不会安装或下载私有服务。
 
@@ -81,7 +81,7 @@ LLM Frontier 包含 RMSNorm、GQA 和 RoPE，包含独立梯度测试、完整 C
 
 拖动工作区分隔条，可调整题面与代码区的左右宽度、代码与测试结果区的上下高度，比例会保存在当前浏览器。双击分隔条，或选中后按 Enter，可恢复默认比例；方向键可微调。运行按钮始终保留在底部，窄屏上题面和编辑器自动上下排列。
 
-顶部 **精选合集** 通过彩色卡片呈现 LLM 基础、强化学习、扩散与 Flow、后训练、JEPA / 世界模型和视觉生成，卡片显示论文数与题目数，下方小标签用于分类筛选。合集以论文为单位，可以交叉收录；独立链接例如 `#/collections/llm-basics`，原有 `#/lists/...` 链接继续可用。切换合集会清空筛选，合集成员和双语卡片文案维护在 `web/src/paperCollections.ts`。
+顶部 **精选合集** 通过彩色卡片呈现 LLM 基础、强化学习、扩散与 Flow、后训练、JEPA / 世界模型和视觉生成，卡片显示论文数与题目数，下方小标签用于分类筛选。合集以论文为单位，可以交叉收录；独立链接例如 `#/collections/llm-basics`，原有 `#/lists/...` 链接继续可用。切换合集会清空筛选，合集成员和双语卡片文案维护在 `web/src/paperCollections.ts`。已整理路线图的合集还提供按需加载的 **路线图** 视图，按发表年份展示这个方向的关键论文和它们之间的承接关系，详见 [合集路线图](docs/collection-roadmaps.md)。
 
 **随机一题** 从当前合集及筛选范围内打开一道未开始的模块题，排除有运行记录、已通过记录或已编辑草稿的题目；未修改的初始代码仍可被抽中。按钮会等待学习进度加载，没有符合条件的题目时禁用并提示。
 
@@ -130,7 +130,7 @@ paperleet ci
 
 `init` 默认不覆盖已有代码；确实要重置时使用 `--force`。
 
-`paperleet ci` 检查参考解全部通过、每个 mutant 至少被一个真实失败抓到、每个 mutant 差异不超过 10 行、重复三次一致、T3 CPU 预算与总运行时间。CLI 默认总预算为 300 秒（可通过 `--budget` 设置）；发布 CI 对 89 模块目录使用 `paperleet ci --budget 600`，单个 T3 的时限仍由各题包声明。结果写入 `reports/ci.json`，每题完整参考报告也保存在 `reports/`。导入/语法错误不会被当作有效 mutant 检出。
+`paperleet ci` 检查参考解全部通过、每个 mutant 至少被一个真实失败抓到、每个 mutant 差异不超过 10 行、重复三次一致、T3 CPU 预算与总运行时间。CLI 默认总预算为 300 秒（可通过 `--budget` 设置）；发布 CI 对 92 模块目录使用 `paperleet ci --budget 600`，单个 T3 的时限仍由各题包声明。结果写入 `reports/ci.json`，每题完整参考报告也保存在 `reports/`。导入/语法错误不会被当作有效 mutant 检出。
 
 ## 论文与核心模块
 
@@ -197,6 +197,9 @@ paperleet ci
 | 68 | BERT | 80/10/10 选中词替换、原词标签与稳定 MLM 损失。 | 101 |
 | 69 | GAN | 稳定判别目标、非饱和生成目标与真实交替高斯位置训练。 | 102 |
 | 70 | Dropout | 显式保留掩码、期望保持、端点梯度与 Monte Carlo 矩。 | 103 |
+| 71 | [ES at Scale](https://arxiv.org/abs/2509.24372) | 奖励标准化与无需反向传播的参数更新。 | 104 |
+| 72 | [Visual Domain Prompt](https://arxiv.org/abs/2212.04145) | 视觉提示叠加、历史敏感性与稳态正则。 | 105 |
+| 73 | [Neural Thickets](https://arxiv.org/abs/2603.12228) | 独立随机专家、选择集筛选与多数投票。 | 106 |
 
 首页按研究领域分类。新增模块包含 CPU toy 实验、出处与改编说明，以及 T0–T3 验证；实验页区分参考曲线和用户代码生成的 T3 结果。练习覆盖精选核心算法，不要求完整模型训练或 GPU kernel 性能复现。
 

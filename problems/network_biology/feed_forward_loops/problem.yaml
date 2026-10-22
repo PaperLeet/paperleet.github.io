@@ -1,5 +1,5 @@
-﻿id: network_biology/feed_forward_loops
-number: 108
+id: network_biology/feed_forward_loops
+number: 118
 title: 网络模体：在有向调控网络中检测前馈环
 title_en: 'Network Motifs: Detecting Feed-forward Loops in a Directed Regulatory Network'
 paper_id: network-motifs
@@ -11,10 +11,6 @@ paper:
   doi: 10.1126/science.1078368
   anchors:
   - 'Network motifs: interconnection patterns that occur in a network at numbers significantly higher than in randomized networks; the feed-forward loop is the motif implemented here'
-  literature_record:
-    dataset: docs/research/network_biology_literature.json
-    id: 21
-    category: Network Motifs, Modules, & Community Detection
 type: implement
 parent: null
 difficulty: M
