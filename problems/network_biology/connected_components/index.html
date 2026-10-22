@@ -1,0 +1,164 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Find the connected components and the largest component of an interaction network, handle isolated nodes, and understand that graph disconnection is not biological…">
+    <title>Network Biology: Connected Components and the Largest Connected Component in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/network_biology/connected_components/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/network_biology/connected_components/">
+    <meta property="og:title" content="Network Biology: Connected Components and the Largest Connected Component in Python | PaperLeet">
+    <meta property="og:description" content="Find the connected components and the largest component of an interaction network, handle isolated nodes, and understand that graph disconnection is not biological…">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="Network Biology: Connected Components and the Largest Connected Component in Python | PaperLeet">
+    <meta name="twitter:description" content="Find the connected components and the largest component of an interaction network, handle isolated nodes, and understand that graph disconnection is not biological…">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      /* Boot colours match the theme tokens so the swap to the real shell does not jump. */
+      html { background: #f7f8fa; color: #262626; --startup-bar: #fff; --startup-line: #e5e5e5; --startup-muted: #5c5c5c; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #eff1f6; --startup-bar: #262626; --startup-line: #3d3d3d; --startup-muted: #a8a8ad; }
+      body { margin: 0; }
+      .startup-screen { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; box-sizing: border-box; font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Helvetica, Arial, sans-serif; }
+      .startup-bar { display: flex; align-items: center; gap: 8px; height: 56px; padding: 0 calc(max(0px, (100% - 1480px) / 2) + clamp(16px, 2.8vw, 40px)); box-sizing: border-box; border-bottom: 1px solid var(--startup-line); background: var(--startup-bar); font-size: 20px; font-weight: 700; letter-spacing: -.4px; }
+      .startup-card { box-sizing: border-box; width: 100%; max-width: 440px; margin: auto; padding: 24px; text-align: center; }
+      .startup-spinner { display: inline-block; width: 20px; height: 20px; box-sizing: border-box; border: 2px solid #8883; border-top-color: #ffa116; border-radius: 50%; animation: startup-spin .7s linear infinite; }
+      .startup-card:has(#startup-retry:not([hidden])) .startup-spinner { display: none; }
+      .startup-card h1 { margin: 12px 0 4px; font-size: 16px; font-weight: 600; }
+      .startup-card p { margin: 4px 0 12px; color: var(--startup-muted); font-size: 14px; }
+      .startup-card .startup-brand { color: inherit; font-size: 20px; font-weight: 700; }
+      .startup-card h1 .startup-english { font-size: 14px; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; font-size: 14px; font-weight: 600; color: inherit; border: 1px solid var(--startup-line); border-radius: 8px; padding: 6px 14px; background: var(--startup-bar); cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+      @keyframes startup-spin { to { transform: rotate(360deg); } }
+      @media (prefers-reduced-motion: reduce) { .startup-spinner { animation-duration: 2s; } }
+      /* Phones and tablets: the identity row plus the space the scrolling navigation will take. */
+      @media (max-width: 860px) { .startup-bar { height: 89px; padding: 0 24px 40px; } }
+      @media (max-width: 760px) { .startup-bar { padding-inline: 12px; font-size: 0; } }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-TKTZ59rs.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-BZlE7aZs.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>Connected Components and the Largest Connected Component</h1><p><a href="/papers/network-biology/">Network Biology</a> · Nature Reviews Genetics 5(2), 101–113 (2004) · Easy · 15 minutes</p><p>Find the connected components and the largest component of an interaction network, handle isolated nodes, and understand that graph disconnection is not biological independence.</p><p>Connected components, the largest component and its share on a simple undirected graph, with deterministic ordering and tie rules.</p><h2>Functions to implement</h2><ul><li><code>connected_components(nodes: list[str], edges: list[tuple[str, str]]) -&gt; list[list[str]]</code></li><li><code>largest_component(nodes: list[str], edges: list[tuple[str, str]]) -&gt; list[str]</code></li><li><code>largest_component_fraction(nodes: list[str], edges: list[tuple[str, str]]) -&gt; float</code></li></ul><section aria-label="Problem description"><h1>Connected Components and the Largest Connected Component</h1>
+<p>Uses the graph conventions of <em>Biological Interaction Networks: Node Degree and Degree Distribution</em> (<code>network_biology/degree_distribution</code>). A <strong>connected component</strong> is a maximal set of proteins in which every protein can be reached from every other by following interaction edges.</p>
+<h2>Task and conventions</h2>
+<p>Simple undirected graph: unique <code>str</code> node names, <code>(u, v)</code> pairs in any order, repeated and reversed pairs count once, self-loops are ignored, and a duplicate node name or an unknown endpoint raises <code>ValueError</code>.</p>
+<pre><code class="language-python">connected_components(nodes, edges) -&gt; list[list[str]]
+largest_component(nodes, edges) -&gt; list[str]
+largest_component_fraction(nodes, edges) -&gt; float
+</code></pre>
+<ul>
+<li>Each component is a list of node names sorted in ascending string order.</li>
+<li><code>connected_components</code> orders components by size, largest first; components of equal size are ordered by their smallest node name.</li>
+<li>A node with no partners is a component of size one. A graph with no nodes has no components: <code>[]</code>.</li>
+<li><code>largest_component</code> is the first component (<code>[]</code> if there are no nodes), so equal-size ties are decided by the smallest node name.</li>
+<li><code>largest_component_fraction</code> is the size of the largest component divided by the number of nodes, <code>0.0</code> for no nodes.</li>
+</ul>
+<h2>Example</h2>
+<p>Synthetic toy network (not experimental data): nodes <code>P1</code>...<code>P9</code>, edges <code>P1-P2, P2-P3, P3-P1, P3-P4, P5-P6, P6-P7</code>.</p>
+<pre><code class="language-python">connected_components(nodes, edges)
+# [['P1', 'P2', 'P3', 'P4'], ['P5', 'P6', 'P7'], ['P8'], ['P9']]
+largest_component(nodes, edges)           # ['P1', 'P2', 'P3', 'P4']
+largest_component_fraction(nodes, edges)  # 0.4444... (4 of 9 nodes)
+</code></pre>
+<h2>Before implementing</h2>
+<p>Visit the nodes in sorted order. When you reach an unvisited node, start a depth-first or breadth-first traversal and collect everything it reaches: that set is one component. Isolated nodes fall out naturally as traversals that reach nothing else. Keep a visited set so each node is processed once.</p>
+<h2>What disconnection does and does not say</h2>
+<p>Two proteins in different components have no recorded path of interactions between them <em>in this graph</em>. That is not evidence of biological independence: an interaction may exist but be unmeasured, the assay may miss transient or condition-specific contacts, the network may mix data sources, and proteins can be coupled by mechanisms the graph does not contain (metabolites, signaling, regulation). Likewise, an isolated node is a protein with no <em>recorded</em> partner, which may reflect lack of study rather than lack of function. All graphs here are synthetic.</p>
+<h2>Tests and experiment</h2>
+<p>T0 checks the return types. T1 checks the documented toy network and compares pseudo-random sparse graphs with a disjoint-set oracle. T2 covers isolated nodes, empty graphs, the tie rule, undirected edges and noise, validation, that components partition the graph and no edge crosses them, and the effect of a single bridge edge. T3 runs your functions on a synthetic chain of six 5-node modules and removes the connecting edges one by one, plotting the number of components and the share of the largest one.</p>
+<h2>References</h2>
+<ul>
+<li>Barabasi AL, Oltvai ZN. <a href="https://doi.org/10.1038/nrg1272">Network biology: understanding the cell's functional organization</a>. <em>Nature Reviews Genetics</em> 5(2), 101-113 (2004). General context for describing the structure of cellular networks; the connected-component exercise itself is a teaching adaptation.</li>
+</ul></section><p><a href="https://doi.org/10.1038/nrg1272">Read source material</a></p><h2>Related exercises</h2><ul><li><a href="/problems/network_biology/hubs_centrality/">Hub Identification: Degree and Betweenness Centrality</a></li><li><a href="/papers/network-biology/">All Network Biology exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>

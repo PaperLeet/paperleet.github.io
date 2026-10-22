@@ -76,6 +76,11 @@
   <url><loc>https://paperleet.com/papers/g-zero/</loc></url>
   <url><loc>https://paperleet.com/papers/visplay/</loc></url>
   <url><loc>https://paperleet.com/papers/mm-zero/</loc></url>
+  <url><loc>https://paperleet.com/papers/hierarchical-modularity/</loc></url>
+  <url><loc>https://paperleet.com/papers/network-biology/</loc></url>
+  <url><loc>https://paperleet.com/papers/scale-free-networks/</loc></url>
+  <url><loc>https://paperleet.com/papers/network-motifs/</loc></url>
+  <url><loc>https://paperleet.com/papers/incomplete-interactome/</loc></url>
   <url><loc>https://paperleet.com/problems/rl/gae/</loc></url>
   <url><loc>https://paperleet.com/problems/rl/ppo_clip/</loc></url>
   <url><loc>https://paperleet.com/problems/rl/dpo/</loc></url>
@@ -175,6 +180,12 @@
   <url><loc>https://paperleet.com/problems/self_evolving/visplay_rewards/</loc></url>
   <url><loc>https://paperleet.com/problems/self_evolving/mmzero_proposer/</loc></url>
   <url><loc>https://paperleet.com/problems/self_evolving/mmzero_feedback/</loc></url>
+  <url><loc>https://paperleet.com/problems/network_biology/degree_distribution/</loc></url>
+  <url><loc>https://paperleet.com/problems/network_biology/hubs_centrality/</loc></url>
+  <url><loc>https://paperleet.com/problems/network_biology/connected_components/</loc></url>
+  <url><loc>https://paperleet.com/problems/network_biology/shortest_paths/</loc></url>
+  <url><loc>https://paperleet.com/problems/network_biology/feed_forward_loops/</loc></url>
+  <url><loc>https://paperleet.com/problems/network_biology/community_modules/</loc></url>
   <url><loc>https://paperleet.com/collections/llm-basics/</loc></url>
   <url><loc>https://paperleet.com/collections/llm-frontier/</loc></url>
   <url><loc>https://paperleet.com/collections/self-evolving/</loc></url>
