@@ -76,4 +76,3 @@ mutants:
   bug: 把路径两端点也计入介数。
 - id: m6_ignore_path_counts
   bug: 只要在某条最短路径上就计 1，忽略最短路径条数。
-

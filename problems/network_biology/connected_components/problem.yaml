@@ -75,4 +75,3 @@ mutants:
   bug: 比例的分母错用分量个数而不是节点数。
 - id: m6_no_endpoint_check
   bug: 未校验边端点，未知节点引发 KeyError 而不是 ValueError。
-

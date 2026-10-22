@@ -77,4 +77,3 @@ mutants:
   bug: modularity 忽略 resolution 参数。
 - id: m8_no_partition_check
   bug: 不检查 communities 是否恰好划分所有节点。
-

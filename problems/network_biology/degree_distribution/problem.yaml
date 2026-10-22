@@ -71,4 +71,3 @@ mutants:
   bug: 分母错用边数而不是节点数。
 - id: m5_drop_isolated
   bug: 孤立节点被丢弃，没有以度数 0 出现。
-

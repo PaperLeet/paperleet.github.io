@@ -70,4 +70,3 @@ mutants:
   bug: 返回的三元组没有排序。
 - id: m6_partial_induced_check
   bug: induced 模式只排除 y->x，漏掉 z->x 和 z->y。
-

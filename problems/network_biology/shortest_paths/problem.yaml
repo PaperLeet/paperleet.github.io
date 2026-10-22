@@ -78,4 +78,3 @@ mutants:
   bug: 路径没有反转，返回从终点到起点的顺序。
 - id: m7_unknown_target_silent
   bug: 目标节点不在图中时静默返回 None 而不是抛出 ValueError。
-
