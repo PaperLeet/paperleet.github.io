@@ -12,8 +12,9 @@ export async function decodeCatalogIndex(value:unknown):Promise<Index>{
   if(!record(packed)||!Array.isArray(packed.shapes)||packed.shapes.length>256)throw invalid();
   const shapes=packed.shapes;
   if(shapes.some(keys=>!Array.isArray(keys)||keys.length>256||keys.some(key=>typeof key!=='string')||new Set(keys).size!==keys.length))throw invalid();
-  const strings=dictionary?packed.strings:[];
-  if(!Array.isArray(strings)||strings.length>100000||strings.some(text=>typeof text!=='string'))throw invalid();
+  const table=dictionary?packed.strings:[];
+  if(!Array.isArray(table)||table.length>100000||table.some(text=>typeof text!=='string'))throw invalid();
+  const strings:string[]=table;
   let nodes=0,characters=0;
   const text=(value:string)=>{characters+=value.length;if(characters>2*1024*1024)throw invalid();return value;};
   function unpack(item:unknown,depth=0):unknown{
