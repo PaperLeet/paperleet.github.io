@@ -41,7 +41,7 @@ for (const key of ['src/queuedJudgeController.ts','src/queueAdmission.ts']) {
     assert(!initial.has(entries[0][0]), `${key} must not load with the paper library`);
   }
 }
-for (const key of ['src/ResetCodeButton.tsx', 'src/Settings.tsx', 'src/Achievements.tsx', 'src/AchievementObserver.tsx', 'src/BrowserResultActions.tsx', 'src/JudgeRuntimeDetails.tsx', 'src/WorkspaceTestResults.tsx', 'src/WorkspaceLayoutMenu.tsx', 'src/HeaderAccountMenu.tsx', 'src/Interviews.tsx', 'src/ProblemCompanyTags.tsx', 'src/ProblemOverview.tsx']) {
+for (const key of ['src/ResetCodeButton.tsx', 'src/Settings.tsx', 'src/Achievements.tsx', 'src/AchievementObserver.tsx', 'src/BrowserResultActions.tsx', 'src/JudgeRuntimeDetails.tsx', 'src/WorkspaceTestResults.tsx', 'src/WorkspaceConsole.tsx', 'src/WorkspaceAccessNotice.tsx', 'src/WorkspaceLayoutMenu.tsx', 'src/HeaderAccountMenu.tsx', 'src/Interviews.tsx', 'src/ProblemCompanyTags.tsx', 'src/ProblemOverview.tsx']) {
   assert(manifest[key]?.isDynamicEntry && !initial.has(key), `${key} must load with practice rather than the library`);
 }
 const administration=Object.entries(manifest).filter(([,entry])=>entry.name==='AdminWorkspace'&&entry.isDynamicEntry);
