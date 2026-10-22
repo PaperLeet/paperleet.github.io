@@ -63,7 +63,7 @@
 /* Wide bars keep the back link's destination readable and let the problem title (also the page
    heading) yield first; narrower bars show the back arrow alone (its label stays its name and title). */
 @media (min-width: 1280px) {
-  .workspace-view > .topbar .workspace-toolbar-start > .back-link { flex-shrink: 0; max-width: 200px; }
+  .workspace-view > .topbar .workspace-toolbar-start > .back-link { flex-shrink: 0; max-width: 160px; }
 }
 @media (min-width: 851px) and (max-width: 1279px) {
   .workspace-view > .topbar .workspace-toolbar-start > .back-link { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 32px; min-width: 32px; padding: 0; font-size: 0; }
@@ -139,6 +139,10 @@
 .workspace-toolbar-start > .module-batch-unavailable { flex: 0 1 auto; min-width: 0; max-width: 320px; font-size: var(--type-caption); line-height: 1.4; }
 .workspace-toolbar-start .problem-favorite-button { min-width: 32px; min-height: 32px; padding: 0 8px; border-color: transparent; background: transparent; }
 .workspace-toolbar-start .problem-favorite-button:hover:not(:disabled) { border-color: transparent; background: var(--workspace-ghost-hover); }
+/* Bookmark and private-list actions stay one fixed pair on the bar's single line. The shared
+   control may wrap elsewhere; here a long title ellipsises instead of stacking the icons. */
+.workspace-toolbar-start > .problem-favorite-control { flex: none; flex-wrap: nowrap; gap: 2px; }
+.workspace-toolbar-start > .problem-favorite-control > .study-list-picker { display: flex; flex: none; }
 /* Signed-in study-list practice shares the start column, so it stays on one compact line. */
 .workspace-toolbar-start > .study-list-practice-nav { flex: 0 1 auto; flex-wrap: nowrap; gap: 4px 8px; min-width: 0; overflow: hidden; font-size: var(--type-meta); white-space: nowrap; }
 .workspace-toolbar-start > .study-list-practice-nav small { display: none; }
@@ -432,8 +436,9 @@
 .workspace-view .workspace .editor-status > .editor-cursor:not(:empty)::after { content: " · Python 3"; white-space: pre; }
 .workspace-view .workspace .editor-status > .editor-cursor:empty::after { content: "Python 3"; }
 
-/* Mid widths keep one header row and one tab row. */
-@media (min-width: 851px) and (max-width: 1279px) {
+/* Mid widths keep one header row and one tab row. Below 1440px the bar has no room for a readable
+   title next to the bookmark and private-list pair, so the statement's own heading names the problem. */
+@media (min-width: 851px) and (max-width: 1439px) {
   .workspace-toolbar-start > :is(b, .toolbar-divider) { display: none; }
 }
 @media (min-width: 851px) and (max-width: 1150px) {
