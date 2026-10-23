@@ -6,7 +6,7 @@ export type PaperCollection = {
   name: string;
   name_en: string;
   paperIds: string[];
-  /** Shows the Roadmap chip; the collection then needs a curated roadmap in collectionRoadmaps.ts. */
+  /** Has a curated roadmap in collectionRoadmaps.ts; without it the Roadmap tab shows that the roadmap is still in progress. */
   roadmap?: true;
 };
 

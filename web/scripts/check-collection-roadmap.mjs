@@ -60,7 +60,7 @@ try{
  const {paperCollections}=await server.ssrLoadModule('/src/paperCollections.ts'),catalogIds=new Set(papers.map(p=>p.id));
  assert.deepEqual(data.collectionRoadmaps.map(r=>r.collectionId).sort(),paperCollections.filter(c=>c.roadmap).map(c=>c.id).sort(),'Exactly one roadmap per collection marked roadmap: true, and none for the rest');
  assert(paperCollections.every(c=>!(c.roadmap&&c.kind==='course')),'A course has no roadmap');
- for(const c of paperCollections.filter(c=>!c.roadmap))assert.equal(nav.readLibraryRoute(`#/collections/${c.id}?view=roadmap`),undefined,`${c.id} has no roadmap view`);
+ for(const c of paperCollections)assert.equal(!!nav.readLibraryRoute(`#/collections/${c.id}?view=roadmap`),c.kind!=='course',`${c.id}: every featured collection has a roadmap view, curated or not, and a course has none`);
  // Clutter rules on the page's own geometry: each arrow is the 24-segment polyline of edgePoints, each node its nodeBox grown by
  // CLEAR px (its zone). Segments intersect with a 1e-6 orientation tolerance, so touching counts as crossing.
  // - Pass-through: no arrow segment may enter the zone of a node other than its own two ends.
@@ -143,7 +143,7 @@ try{
   for(const [from,to] of r.edges)for(const q of model.edgePoints(byId.get(from),byId.get(to)))assert.ok(!(q.x>=tb.x&&q.x<=tb.x+tb.width&&q.y>=tb.y&&q.y<=tb.y+tb.height),at+`start tag covers arrow ${from}->${to}`);
   assert.deepEqual(layoutProblems(r),[],at+'no crossing or pass-through arrows');
  }
- console.log('PASS collection roadmap data: one roadmap per collection marked roadmap: true and no roadmap view for the rest, 3-14 papers, an arXiv id on every node, half-step columns, catalog ids, chronology, sparse downward arrows without skips, one start with a clear tag box, short bilingual node and arrow sentences, no crossings or pass-through');
+ console.log('PASS collection roadmap data: one roadmap per collection marked roadmap: true, a roadmap view on every featured collection and none on a course, 3-14 papers, an arXiv id on every node, half-step columns, catalog ids, chronology, sparse downward arrows without skips, one start with a clear tag box, short bilingual node and arrow sentences, no crossings or pass-through');
 
  // Section: paper cards. Every node has card metadata and a small local WebP cover (RIFF size field = file size - 8) 168px wide,
  // twice the 84px card cover, and neither the metadata nor the thumbnail folder holds anything a map does not use. The width comes
@@ -452,7 +452,7 @@ try{
  console.log('PASS collection roadmap styles: 200-320px panel sticky beside the canvas and full width in flow once wrapped under it, scroller capped at the column, roadmap-scoped card (84px cover with the links under it, 4-line title, 3-line authors, stacked under 260px with the links beside the cover, beating every community rule), relation lists with direction-colored dots and AA From/To labels, 6px node padding, focused dimmed nodes, start tag dimmed with its node, forced-colors progress, borders and dots; lineage tokens in both themes, direction-colored lit edges with a flowing overlay (off for reduced motion and forced colors), gradient selected border that hover, state and lineage rules cannot override, yellow progress, spectrum start tag above or left');
 }
 
-// Section: collection page (Roadmap chip, divider and lazy view inside PaperLibrary)
+// Section: collection page (Papers / Roadmap view tabs and the lazy view inside PaperLibrary)
 {
  const errors=[],consoleErrors=[],consoleError=console.error,virtualConsole=new VirtualConsole();virtualConsole.on('jsdomError',error=>errors.push(error));console.error=(...args)=>consoleErrors.push(args.join(' '));
  const home='#/collections/jepa-world-models',roadmapHref=home+'?view=roadmap',dom=new JSDOM('<div id="root"></div>',{url:'https://paperleet.test/'+home,pretendToBeVisual:true,virtualConsole});
@@ -464,6 +464,8 @@ try{
  const cacheDir=await mkdtemp(tmpdir()+'/paperleet-collection-roadmap-page-'),server=await createServer({cacheDir,server:{middlewareMode:true,hmr:false,ws:false},appType:'custom',optimizeDeps:{noDiscovery:true,include:[]},plugins:[{name:'roadmap-chunk-failure',load(id){if(failRoadmap&&id.endsWith('/src/CollectionRoadmap.tsx'))throw new Error('Simulated roadmap chunk failure');}}]});let root;
  try{
   const catalog=JSON.parse(await readFile('public/data/catalog.json','utf8')),{createRoot}=await import('react-dom/client'),{renderToString}=await import('react-dom/server'),{PaperLibrary}=await server.ssrLoadModule('/src/PaperViews.tsx'),{paperCollections}=await server.ssrLoadModule('/src/paperCollections.ts'),{LocaleProvider}=await server.ssrLoadModule('/src/i18n.tsx'),nav=await server.ssrLoadModule('/src/libraryNavigation.ts'),h=React.createElement;
+  // Course rows (company tools) and the global library (featured collections) defer these modules; loading them up front leaves settle() only cached chunks to wait for.
+  for(const module of ['/src/LibraryCompanyEvidence.tsx','/src/LibraryCollections.tsx'])await server.ssrLoadModule(module);
   // The Frame of check-library-filter-continuity, plus the paging flag and a stack of pushed (Back-able) entries.
   let route=home,last;const pushed=[];
   function Frame(){const view=nav.readLibraryRoute(route);return h(PaperLibrary,{...catalog,route,collectionId:view?.collectionId,saved:{},onFilters:(href,paging)=>{last={href,paging};if(paging)pushed.push(href);route=href;history.replaceState(null,'',href);root.render(tree());}});}
@@ -471,7 +473,9 @@ try{
   const render=async href=>act(async()=>{route=href;history.replaceState(null,'',href);root??=createRoot(document.getElementById('root'));root.render(tree());});
   const wait=async(predicate,message)=>{for(let n=0;n<180&&!predicate();n++)await act(async()=>new Promise(resolve=>setTimeout(resolve,10)));assert(predicate(),message);};
   const click=async node=>{assert(node);await act(async()=>{node.focus();node.click();});};
-  const $=selector=>document.querySelector(selector),chip=()=>$('.roadmap-chip'),all=()=>$('.paper-categories').children[0],rows=()=>!!$('[data-paper-id]'),shown=()=>!!$('.collection-roadmap');
+  // Each deferred row tool lazy-loads per mount and renders nothing in this edition, so no element marks it loaded; a few act-wrapped turns let it resolve.
+  const settle=()=>act(async()=>{for(let n=0;n<10;n++)await new Promise(resolve=>setTimeout(resolve,0));});
+  const $=selector=>document.querySelector(selector),tabs=()=>[...document.querySelectorAll('.library-heading .collection-views a')],tab=name=>tabs().find(link=>link.textContent===name),heading=()=>$('.library-heading h2'),rows=()=>!!$('[data-paper-id]'),shown=()=>!!$('.collection-roadmap');
   const slash=async()=>{const event=new dom.window.KeyboardEvent('keydown',{key:'/',bubbles:true,cancelable:true});await act(async()=>document.body.dispatchEvent(event));return event;};
 
   // A roadmap chunk that cannot load shows the shared failure state (alert, Retry, Reload) in place of the list, and Retry recovers.
@@ -482,59 +486,85 @@ try{
   console.log('PASS collection roadmap page load failure: alert names the roadmap, Retry and Reload, Retry recovers');
 
   await render(home);await wait(rows,'The collection page defaults to the paper list');assert(!shown());
+  // A collection with a roadmap titles its section with two view tabs; a hidden heading names the current view for screen readers.
+  const views=()=>tabs().map(link=>[link.textContent,link.getAttribute('href'),link.getAttribute('aria-current')]);
+  assert.deepEqual(views(),[['Papers',home,'page'],['Roadmap',roadmapHref,null]],'Papers and Roadmap tabs, Papers current');
+  assert.equal($('.library-heading .collection-views').getAttribute('aria-label'),'Collection views');assert(tabs().every(link=>link.querySelectorAll('svg[aria-hidden="true"]').length===1),'Each tab has one decorative icon');
+  assert(heading().matches('.sr-only')&&heading().textContent==='Papers','A hidden heading names the list');
   const row=[...$('.paper-categories').children];
   assert(row[0].matches('button:not([class])')&&row[0].querySelector('[lang="en"]').textContent==='All','All comes first');assert.equal(row[0].getAttribute('aria-pressed'),'true');
-  assert(row[1].matches('button.roadmap-chip'),'Roadmap is second');assert.equal(row[1].getAttribute('aria-pressed'),'false');assert.deepEqual([...row[1].querySelectorAll('[lang]')].map(span=>span.textContent),['路线图','Roadmap']);assert(!row[1].querySelector('svg,i,:scope > span:not(.bilingual-text)'),'The chip is text-only, without an icon or count');
-  assert(row[2].matches('span.paper-categories-divider[aria-hidden="true"]:empty'),'A divider follows the Roadmap chip');
-  assert(row.length>3&&row.slice(3).every(node=>node.matches('button[class^="category-"]')),'Category chips follow the divider');
+  assert(row.length>1&&row.slice(1).every(node=>node.matches('button[class^="category-"]')),'Only category chips follow All');
   let event=await slash();assert(event.defaultPrevented&&document.activeElement===$('.library-toolbar .search input'),'/ focuses search in the list');
+  // A modified click is left to the browser, which opens the view in a new tab. The document listener runs after React's root
+  // listener, records whether the tab prevented the default, then stops jsdom from following the link in place.
+  let nativeDefault;const record=clicked=>{nativeDefault=!clicked.defaultPrevented;clicked.preventDefault();};document.addEventListener('click',record);
+  await act(async()=>tab('Roadmap').dispatchEvent(new dom.window.MouseEvent('click',{bubbles:true,cancelable:true,metaKey:true})));document.removeEventListener('click',record);
+  assert(nativeDefault===true&&!last&&!pushed.length,'A modified click does not switch the view in place');
 
-  await click(chip());assert.deepEqual(last,{href:roadmapHref,paging:true});assert.deepEqual(pushed,[roadmapHref]);
-  assert.equal(chip().getAttribute('aria-pressed'),'true');assert.equal(all().getAttribute('aria-pressed'),'false');assert(![...document.querySelectorAll('.paper-categories button[class^="category-"]')].some(node=>node.getAttribute('aria-pressed')==='true'));
+  let plainPrevented;const recordPlain=clicked=>{plainPrevented=clicked.defaultPrevented;};document.addEventListener('click',recordPlain);
+  await click(tab('Roadmap'));document.removeEventListener('click',recordPlain);assert(plainPrevented,'A plain click switches in place instead of following the link');
+  assert.deepEqual(last,{href:roadmapHref,paging:true});assert.deepEqual(pushed,[roadmapHref]);
+  assert.deepEqual(views(),[['Papers',home,null],['Roadmap',roadmapHref,'page']],'Roadmap becomes the current tab');assert.equal(heading().textContent,'Roadmap');
   await wait(shown,'The lazy roadmap renders');
-  for(const selector of ['.library-toolbar','.problem-rows','.library-results'])assert(!$(selector),selector+' is replaced by the roadmap');
-  assert($('.library-main > .library-heading')&&$('.library-main .paper-categories')&&$('.library-main .collection-roadmap'),'Heading, chip row and roadmap share the library column');
+  for(const selector of ['.library-category-browser','.library-toolbar','.problem-rows','.library-results'])assert(!$(selector),selector+' is replaced by the roadmap');
+  assert($('.library-main > .library-heading .collection-views')&&$('.library-main .collection-roadmap'),'Tabs and roadmap share the library column');
   await wait(()=>$('.library-difficulty-list button.difficulty-summary.E'),'The overview sidebar stays mounted');
-  await click(chip());assert.deepEqual(pushed,[roadmapHref],'Pressing the active Roadmap chip does nothing');
-  chip().focus();event=await slash();assert(document.activeElement===chip()&&!event.defaultPrevented,'/ is inert in the roadmap');
-  console.log('PASS collection roadmap page chip: All, Roadmap, divider, categories; pushed view=roadmap; lazy view replaces toolbar/results/rows; / inert');
+  await click(tab('Roadmap'));assert.deepEqual(pushed,[roadmapHref],'Clicking the current tab does nothing');
+  tab('Roadmap').focus();event=await slash();assert(document.activeElement===tab('Roadmap')&&!event.defaultPrevented,'/ is inert in the roadmap');
+  console.log('PASS collection roadmap page tabs: Papers and Roadmap links with a hidden heading; categories follow All; modified clicks stay native; pushed view=roadmap; the roadmap replaces chips, toolbar and rows; / inert');
 
-  const category=$('.paper-categories button[class^="category-"]').className.slice('category-'.length),categoryHref=home+'?category='+category;
-  await click($('.category-'+category));assert.deepEqual(last,{href:categoryHref,paging:true});assert.deepEqual(pushed,[roadmapHref,categoryHref],'Back from the category returns to the roadmap');
-  await wait(()=>rows()&&!shown(),'Rows return after a category chip');assert.equal($('.category-'+category).getAttribute('aria-pressed'),'true');assert.equal(chip().getAttribute('aria-pressed'),'false');
-  await render(roadmapHref);await wait(shown);await click(all());assert.deepEqual(last,{href:home,paging:true});await wait(()=>rows()&&!shown(),'Rows return after All');assert.equal(all().getAttribute('aria-pressed'),'true');
+  await click(tab('Papers'));assert.deepEqual(last,{href:home,paging:true});assert.deepEqual(pushed,[roadmapHref,home],'Back from the list returns to the roadmap');
+  await wait(()=>rows()&&!shown(),'Rows return after the Papers tab');assert.deepEqual(views(),[['Papers',home,'page'],['Roadmap',roadmapHref,null]]);assert.equal(heading().textContent,'Papers');
   // The sidebar disables levels without modules, so the first enabled level is used.
   const level=()=>$('.library-difficulty-list button.difficulty-summary:not([disabled])');
   await render(roadmapHref);await wait(()=>shown()&&level());const difficulty=level().classList[1];await click(level());
   assert.deepEqual(nav.readLibraryRoute(route)?.filters,{...nav.emptyLibraryFilters(),difficulty},'The sidebar leaves the roadmap for the filtered list');await wait(()=>$('.library-toolbar')&&!shown(),'The list returns after a sidebar filter');
   assert.deepEqual(last,{href:route,paging:true},'Leaving through the sidebar pushes, so Back returns to the roadmap');assert.equal(pushed.at(-1),route);
   await click($('.library-difficulty-list button.difficulty-summary.'+difficulty));assert.equal(last.paging,false,'Sidebar filters inside the list still replace the entry');
-  console.log('PASS collection roadmap page exits: category, All and the sidebar difficulty filter push the list; list filters still replace');
+  console.log('PASS collection roadmap page exits: the Papers tab and the sidebar difficulty filter push the list; list filters still replace');
 
-  await render('#/collections/llm-basics');await wait(()=>$('[data-module-id]'),'Course page renders');assert(!chip(),'A course has no Roadmap chip');
-  await render('#');await wait(rows,'Global library renders');assert(!chip()&&!$('.paper-categories-divider'),'The global library has no Roadmap chip');
-  // The Roadmap chip takes one of the three collapsed category slots, so a roadmap collection with three or more categories offers Expand.
+  await render('#/collections/llm-basics');await wait(()=>$('[data-module-id]'),'Course page renders');await settle();assert(!tabs().length&&!heading().matches('.sr-only')&&heading().textContent==='Course modules','A course keeps its visible heading and has no view tabs');
+  await render('#');await wait(rows,'Global library renders');await settle();assert(!tabs().length&&$('.library-heading h1'),'The global library has no view tabs');
+  // With the Roadmap out of the chip row, every collection shows three collapsed category slots, and Expand only when more exist.
   const categoryCount=id=>{const listed=catalog.papers.filter(paper=>paperCollections.find(entry=>entry.id===id).paperIds.includes(paper.id));return catalog.categories.filter(item=>listed.some(paper=>paper.category===item.id)).length;};
   const categoryChips=()=>document.querySelectorAll('.paper-categories button[class^="category-"]').length,toggle=()=>$('.library-category-toggle');
-  const wide=paperCollections.find(entry=>entry.roadmap&&categoryCount(entry.id)>2);assert(wide,'A roadmap collection with three or more categories exists');
-  await render('#/collections/'+wide.id);await wait(rows,wide.id+' renders');assert.equal(categoryChips(),2,'Collapsed, two categories follow All and Roadmap');assert(toggle(),'Expand reveals the rest');
-  await click(toggle());assert.equal(categoryChips(),categoryCount(wide.id),'Expanded, every category shows');await click(toggle());assert.equal(categoryChips(),2);
-  // A featured collection without a curated roadmap (rl, unmarked for this fixture; PaperViews shares this module instance) has no chip,
-  // keeps three collapsed category slots, and its roadmap URL is not a library view (the app shows not found, as for any unknown view).
-  const plain=paperCollections.find(entry=>entry.id==='rl');delete plain.roadmap;
+  assert(paperCollections.some(entry=>entry.roadmap&&categoryCount(entry.id)>=3),'A roadmap collection with three or more categories exists');
+  for(const entry of paperCollections.filter(entry=>entry.kind!=='course')){
+   await render('#/collections/'+entry.id);await wait(rows,entry.id+' renders');
+   assert.deepEqual(tabs().map(link=>link.textContent),['Papers','Roadmap'],entry.id+': every featured collection has Papers and Roadmap tabs');
+   assert.equal(categoryChips(),Math.min(3,categoryCount(entry.id)),entry.id+': three collapsed category slots');assert.equal(!!toggle(),categoryCount(entry.id)>3,entry.id+': Expand only when more categories exist');
+  }
+  // A featured collection without a curated roadmap yet (rl, unmarked for this fixture; PaperViews shares this module instance) keeps
+  // both tabs; its Roadmap view is a short labelled note in place of the chips and list, loads no roadmap code, and the Papers tab leads back.
+  const plain=paperCollections.find(entry=>entry.id==='rl'),plainHome='#/collections/rl',pending=()=>$('.roadmap-pending');delete plain.roadmap;
   try{
-   await render('#/collections/rl');await wait(rows,'A collection without a roadmap renders its list');assert(!chip()&&!$('.paper-categories-divider'),'A collection without a roadmap has no Roadmap chip');
-   assert.equal(categoryChips(),Math.min(3,categoryCount('rl')),'Without the chip, three collapsed category slots');assert.equal(!!toggle(),categoryCount('rl')>3);
-   assert.equal(nav.readLibraryRoute('#/collections/rl?view=roadmap'),undefined,'Its roadmap URL is not a library view');
+   await render(plainHome);await wait(rows,'A collection without a roadmap renders its list');pushed.length=0;
+   await click(tab('Roadmap'));assert.deepEqual(last,{href:plainHome+'?view=roadmap',paging:true},'Its Roadmap tab opens the roadmap view');
+   assert(pending(),'The roadmap view shows the pending note');assert.equal(pending().querySelector('h3').textContent,'Roadmap in progress');
+   const label=pending().getAttribute('aria-labelledby');assert(label&&document.getElementById(label)===pending().querySelector('h3'),'The note is a region named by its heading');
+   assert.equal(pending().querySelector('p').textContent,'The key papers for this collection are still being mapped. Start with the paper list for now.');
+   for(const selector of ['.collection-roadmap','.collection-roadmap-placeholder','.feature-failure','.library-category-browser','.library-toolbar','.problem-rows'])assert(!$(selector),selector+' is absent while the roadmap is pending');
+   assert.equal(heading().textContent,'Roadmap');assert.deepEqual(views().map(([name,,current])=>[name,current]),[['Papers',null],['Roadmap','page']]);
+   await click(tab('Papers'));assert.deepEqual(last,{href:plainHome,paging:true},'The Papers tab returns to the list as a new history entry');await wait(()=>rows()&&!pending(),'The list returns');
+   assert.equal(document.activeElement,tab('Papers'),'Focus stays on the Papers tab, which outlives the switch');
+   // The note in Chinese: the locale is read at mount, so remount under zh, then return to en for the sections below.
+   const remount=async locale=>{localStorage.setItem('paperleet.locale',locale);await act(async()=>root.unmount());root=undefined;};
+   try{await remount('zh');await render(plainHome+'?view=roadmap');await wait(pending,'The zh note renders');assert.deepEqual([pending().querySelector('h3').textContent,pending().querySelector('p').textContent],['路线图整理中','关键论文还在整理中，可以先从论文列表开始。']);}
+   finally{await remount('en');}
   }finally{plain.roadmap=true;}
   const html=renderToString(h(LocaleProvider,null,h(PaperLibrary,{...catalog,route:roadmapHref,collectionId:'jepa-world-models',saved:{}})));
-  assert(html.includes('<div class="collection-roadmap-placeholder" aria-hidden="true">')&&!html.includes('library-toolbar'),'Before its chunk loads, the roadmap holds a sized placeholder in place of the list');
+  assert(html.includes('<div class="collection-roadmap-placeholder" aria-hidden="true">')&&!html.includes('library-toolbar')&&!html.includes('library-category-browser'),'Before its chunk loads, the roadmap holds a sized placeholder in place of the chips and list');
   const css=normalizeCss(await readFile('src/library-workbench.css','utf8'));
-  assert(css.includes('.paper-library .paper-categories-divider{flex:none;align-self:center;width:1px;height:24px;margin-inline:4px;background:var(--line)}'),'Divider rule');assert(css.includes('.paper-library .roadmap-chip .bilingual-text{justify-items:center}'),'The text-only chip centers its label in either language');assert(css.includes('.paper-library .collection-roadmap-placeholder{min-height:740px}'),'The placeholder is about as tall as a roadmap (650-910px)');
+  const declares=(list,...want)=>want.every(item=>list.includes(item)),base=outsideMedia(css),forced=media(css,'@media (forced-colors:active)');
+  const strip='.paper-library .collection-views',tabLink=strip+' a',currentTab=tabLink+'[aria-current="page"]';
+  assert(declares(decls(base,strip),'border-bottom:1px solid var(--line)')&&declares(decls(base,tabLink),'min-height:44px','margin-bottom:-1px','border-bottom:2px solid transparent','color:var(--text-secondary)'),'Each 44px tab reserves an underline that sits on the strip hairline, inactive tabs in the secondary text color');
+  assert(declares(decls(base,currentTab),'color:var(--text)','border-bottom-color:var(--text)'),'The current tab is underlined in the text color');
+  assert(declares(decls(forced,currentTab),'border-bottom-color:Highlight')&&declares(decls(forced,tabLink+':not([aria-current="page"])'),'border-bottom-width:1px','border-bottom-color:CanvasText'),'In forced colors only the current tab keeps a 2px Highlight underline; inactive tabs merge into the hairline');
+  assert(css.includes('.paper-library .collection-roadmap-placeholder{min-height:740px}'),'The placeholder is about as tall as a roadmap (650-910px)');
   // The chip row never wraps or overflows the page: library-filters.css scrolls it at every width, ahead of the workbench rules.
   const filters=outsideMedia(normalizeCss(await readFile('src/library-filters.css','utf8'))),chipRow='.paper-library .library-category-browser .paper-categories';
   assert(['flex-wrap:nowrap','overflow-x:auto','min-width:0'].every(rule=>decls(filters,chipRow).includes(rule))&&decls(filters,chipRow+' button').includes('flex-shrink:0'),'At every width the chip row scrolls instead of overflowing');
   assert.deepEqual(errors,[],'No jsdom errors');assert.deepEqual(consoleErrors,[],'No React warnings');
-  console.log('PASS collection roadmap page scope: the chip takes a collapsed category slot; no chip on courses, the global library or a collection without a roadmap, whose roadmap URL is rejected; SSR placeholder; divider, placeholder and chip-row CSS; no DOM errors or React warnings');
+  console.log('PASS collection roadmap page scope: three collapsed category slots everywhere; tabs on every featured collection except a course, with a labelled in-progress note (en and zh) where no roadmap is curated and the Papers tab keeping focus on the way back; no tabs on a course or the global library; SSR placeholder; tab, placeholder and chip-row CSS; no DOM errors or React warnings');
  }finally{if(root)await act(async()=>root.unmount());await server.close();await rm(cacheDir,{recursive:true,force:true});dom.window.close();for(const[key,value]of original)if(value)Object.defineProperty(globalThis,key,value);else delete globalThis[key];console.error=consoleError;}
 }

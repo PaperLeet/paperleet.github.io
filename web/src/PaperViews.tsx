@@ -5,7 +5,7 @@ import { matchingPaperModules, paperProgress, selectLibraryPractice } from './li
 import { useEffect, useId, useRef, useState } from "react";
 import {
   ArrowLeft, ArrowRight, BookOpen, CheckCircle2, ChevronDown,
-  ChevronRight, Code2, Search, Library, Shuffle, X,
+  ChevronRight, Code2, Search, Library, Route, Shuffle, X,
 } from "lucide-react";
 import { useI18n } from "./i18n";
 import { BilingualText } from "./BilingualText";
@@ -37,7 +37,7 @@ const LibraryOverview = deferredFeature(() => import('./LibraryOverview'), ['练
 const LibraryPagination = deferredFeature<import('./LibraryPagination').Props>(()=>import('./LibraryPagination'), ['题库分页','library pages'], {loading:props=><LibraryPageFallback {...props}/>,failure:(props,retry)=><><LibraryPageFallback {...props}/><FeatureRetry retry={retry}/></>});
 const SearchMatch=deferredFeature<import('react').ComponentProps<typeof import('./LibrarySearchMatch').default>>(()=>import('./LibrarySearchMatch'),['搜索高亮','search highlighting'],{loading:props=><>{props.text}</>,failure:props=><>{props.text}</>});
 function LibrarySearchMatch(props:import('react').ComponentProps<typeof import('./LibrarySearchMatch').default>){return props.query.trim()?<SearchMatch {...props}/>:<>{props.text}</>;}
-/** The roadmap graph, its data and styles load only when a collection opens view=roadmap. */
+/** The roadmap graph, its data and styles load only when a collection with a curated roadmap opens view=roadmap. */
 const CollectionRoadmap=deferredFeature<import('./CollectionRoadmap').Props>(()=>import('./CollectionRoadmap'),['路线图','Roadmap'],{loading:()=><div className="collection-roadmap-placeholder" aria-hidden="true"/>});
 
 function LibraryPageFallback({page,size,total,compact,onPage}:import('./LibraryPagination').Props){
@@ -75,22 +75,28 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
   const companyReady=!company||companyData?.phase==='ready';
   const waitingForStatus = state !== 'all' && !progressReady || !companyReady;
   const viewHref = libraryHref(selectedCollection?.id, filters);
+  // Every featured collection except a course offers a roadmap view beside the paper list; one without a curated roadmap yet says so there.
+  const viewTabs = selectedCollection && !course ? {papers: roadmap ? libraryHref(selectedCollection.id, emptyLibraryFilters()) : viewHref, roadmap: libraryHref(selectedCollection.id, {...emptyLibraryFilters(), view: 'roadmap'})} : undefined;
   const editedHref = useRef<string | undefined>(undefined);
   function change(patch: Partial<LibraryFilters>,paging=false) {
     if(!currentView())return;
-    // Any patch without a view (chips, sidebar filters) leaves the exclusive roadmap for the list, as a new history entry.
+    // Any patch without a view (the Papers tab, sidebar filters) leaves the exclusive roadmap for the list, as a new history entry.
     const next = normalizeLibraryFilters({...filters,...roadmap&&{view:undefined},page:undefined,...patch},listedPapers);
     const href = libraryHref(selectedCollection?.id,next);
     editedHref.current = href;
     onFilters?.(href,paging||roadmap);
   }
+  // The view tabs are real links: a modified click opens a new tab, a plain one switches in place through change().
+  function openView(event: import('react').MouseEvent<HTMLAnchorElement>, view: 'roadmap' | undefined) {
+    if(event.defaultPrevented||event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;
+    event.preventDefault();
+    if((view==='roadmap')!==roadmap)change({view},true);
+  }
   const listedModuleIds = new Set(listedPapers.flatMap((paper) => paper.module_ids));
   const listedModules = problems.filter((problem) => listedModuleIds.has(problem.id));
   const selectedCategory=categories.find(item=>item.id===category);
   const visibleCategories = categories.filter((item) => listedPapers.some((paper) => paper.category === item.id));
-  // The Roadmap chip takes one of the three slots the collapsed row has room for.
-  const collapsedCategories = selectedCollection?.roadmap ? 2 : 3;
-  const shownCategories = categoriesOpen ? visibleCategories : visibleCategories.filter((item,index) => index < collapsedCategories || item.id === category);
+  const shownCategories = categoriesOpen ? visibleCategories : visibleCategories.filter((item,index) => index < 3 || item.id === category);
   const tags = libraryTags(listedPapers, category);
   const selectedTag = tag === 'all' ? 'all' : tags.find(name => sameLibraryTag(name, tag)) ?? tag;
   const overviewModules=company?listedModules.filter(problem=>companyData?.ids.has(problem.id)):listedModules;
@@ -170,23 +176,30 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
     <div className="library-layout">
     <div className="library-main" ref={libraryMain} id="paper-library" data-density={density}>
     <header className="library-heading">
-      <div className="library-title">{selectedCollection ? <h2>{course ? t("课程练习", "Course modules") : t("论文", "Papers")}</h2> : <h1><BilingualText zh="论文题库" en="Papers" /> <span>{listedPapers.length}</span></h1>}</div>
+      {viewTabs ? <nav className="collection-views" aria-label={t("合集视图", "Collection views")}>
+        <h2 className="sr-only">{roadmap ? t("路线图", "Roadmap") : t("论文", "Papers")}</h2>
+        <AppLink href={viewTabs.papers} aria-current={roadmap ? undefined : "page"} onClick={event => openView(event, undefined)}><BookOpen size={18} aria-hidden="true" />{t("论文", "Papers")}</AppLink>
+        <AppLink href={viewTabs.roadmap} aria-current={roadmap ? "page" : undefined} onClick={event => openView(event, "roadmap")}><Route size={18} aria-hidden="true" />{t("路线图", "Roadmap")}</AppLink>
+      </nav> : <div className="library-title">{selectedCollection ? <h2>{course ? t("课程练习", "Course modules") : t("论文", "Papers")}</h2> : <h1><BilingualText zh="论文题库" en="Papers" /> <span>{listedPapers.length}</span></h1>}</div>}
       <AppLink className="text-button" href="#/paper-registry">{t("论文库","Paper registry")}</AppLink>
       {hostedAppAvailable&&<AppLink className="text-button" href="#/favorites">{t("收藏题目","Saved problems")}</AppLink>}
       {!selectedCollection&&solvedSummary}
     </header>
-    {!course && <div className="library-category-browser" data-expanded={categoriesOpen}>
+    {!course && !roadmap && <div className="library-category-browser" data-expanded={categoriesOpen}>
     <div className="paper-categories" id={categoriesId} aria-label={t("论文分类", "Paper categories")}>
-      <button aria-pressed={category === "all"&&!roadmap} onClick={() => { change({category:"all",tag:"all"}); }}><Library size={16} /><BilingualText zh="全部" en="All" /><span>{listedPapers.length}</span></button>
-      {selectedCollection?.roadmap&&<><button className="roadmap-chip" aria-pressed={roadmap} onClick={()=>{if(!roadmap)change({view:'roadmap'},true);}}><BilingualText zh="路线图" en="Roadmap"/></button><span className="paper-categories-divider" aria-hidden="true"/></>}
+      <button aria-pressed={category === "all"} onClick={() => { change({category:"all",tag:"all"}); }}><Library size={16} /><BilingualText zh="全部" en="All" /><span>{listedPapers.length}</span></button>
       {shownCategories.map((item) => {
         const label = [item.name, item.name_en];
         return <button key={item.id} className={`category-${item.id}`} aria-pressed={category === item.id} onClick={() => { change({category:item.id,tag:"all"}); }}><i aria-hidden="true" /><BilingualText zh={label[0]} en={label[1]} /><span>{listedPapers.filter((paper) => paper.category === item.id).length}</span></button>;
       })}
     </div>
-    {visibleCategories.length > collapsedCategories && <button type="button" className="library-category-toggle" aria-controls={categoriesId} aria-expanded={categoriesOpen} aria-label={categoriesOpen?t('收起分类','Collapse categories'):t('展开全部分类','Expand all categories')} onClick={() => {if(currentView())setCategoriesOpen(open => !open);}}>{categoriesOpen?t('收起','Collapse'):t('展开','Expand')}<ChevronDown size={14} aria-hidden="true"/></button>}
+    {visibleCategories.length > 3 && <button type="button" className="library-category-toggle" aria-controls={categoriesId} aria-expanded={categoriesOpen} aria-label={categoriesOpen?t('收起分类','Collapse categories'):t('展开全部分类','Expand all categories')} onClick={() => {if(currentView())setCategoriesOpen(open => !open);}}>{categoriesOpen?t('收起','Collapse'):t('展开','Expand')}<ChevronDown size={14} aria-hidden="true"/></button>}
     </div>}
-    {roadmap?<CollectionRoadmap collectionId={collectionId!} papers={papers} problems={problems} saved={saved} progressReady={progressReady} returnTo={viewHref}/>:<section className="problem-list" aria-label={course ? t("课程练习", "Course modules") : t("论文列表", "Paper list")}>
+    {roadmap?selectedCollection?.roadmap?<CollectionRoadmap collectionId={collectionId!} papers={papers} problems={problems} saved={saved} progressReady={progressReady} returnTo={viewHref}/>:<section className="roadmap-pending" aria-labelledby={listId+'-pending'}>
+      <Route size={22} aria-hidden="true" />
+      <h3 id={listId+'-pending'}>{t("路线图整理中", "Roadmap in progress")}</h3>
+      <p>{t("关键论文还在整理中，可以先从论文列表开始。", "The key papers for this collection are still being mapped. Start with the paper list for now.")}</p>
+    </section>:<section className="problem-list" aria-label={course ? t("课程练习", "Course modules") : t("论文列表", "Paper list")}>
       <div className="library-toolbar">
         <div className="search"><Search size={17} aria-hidden="true" /><input ref={searchInput} type="search" maxLength={200} aria-label={t("搜索论文或模块", "Search papers or modules")} aria-controls={listId} aria-keyshortcuts="/" placeholder={directModules?t("题目编号、标题、作者或 arXiv…","Exercise number, title, author or arXiv…"):t("标题、作者、arXiv 或模块…", "Title, author, arXiv or module…")} value={query} onChange={(e) => change({query:e.target.value})} onKeyDown={(e) => { if (e.key === "Escape"&&!e.defaultPrevented&&currentView()&&!e.repeat&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!e.shiftKey&&!e.nativeEvent.isComposing&&e.nativeEvent.keyCode!==229) {e.preventDefault();e.stopPropagation();change({query:''});} }} />{query ? <button type="button" className="search-clear" aria-label={t("清空搜索", "Clear search")} onClick={() => { if(!currentView())return;searchInput.current?.focus({preventScroll:true});change({query:""}); }}><X size={15} /></button> : <kbd aria-hidden="true">/</kbd>}</div>
         <button type="button" className="library-filter-toggle" aria-controls={filtersId} aria-expanded={filtersOpen} onClick={event => {if(currentView()){if(filtersOpen&&libraryMain.current?.querySelector('.library-filter-panel')?.contains(document.activeElement))event.currentTarget.focus({preventScroll:true});setFiltersVisited(true);setFiltersOpen(open => !open);}}}><span className="library-filter-icon" aria-hidden="true"><FilterIcon/></span>{t("筛选", "Filters")}{advancedFilterCount > 0 && <span>{advancedFilterCount}</span>}<ChevronDown size={13} aria-hidden="true" /></button>

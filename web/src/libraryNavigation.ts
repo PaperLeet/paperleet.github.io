@@ -52,7 +52,7 @@ export function readLibraryRoute(route: string): { collectionId?: string; filter
   const companyScope=company?{company,...(days&&days!=='365'?{company_days:days}:{})}:{};
   const view=value.params.get('view');
   if(view!==null&&!['papers','modules','roadmap'].includes(view))return;
-  if(view==='roadmap'){if(!collectionId||value.params.size!==1||!paperCollections.find(item=>item.id===collectionId)?.roadmap)return;return{collectionId,filters:{...emptyLibraryFilters(),view}};}
+  if(view==='roadmap'){const collection=paperCollections.find(item=>item.id===collectionId);if(!collection||collection.kind==='course'||value.params.size!==1)return;return{collectionId:collection.id,filters:{...emptyLibraryFilters(),view}};}
   const sort = value.params.get('sort');
   if (sort && !['default', 'newest', 'oldest', 'title'].includes(sort)&&!isExerciseSort(sort)) return;
   if(isExerciseSort(sort)&&(view!=='modules'||company||paperCollections.find(item=>item.id===collectionId)?.kind==='course'))return;
