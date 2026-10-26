@@ -21,7 +21,7 @@
 .group-chat-wechat h3 svg { color:#26a568; }
 /* Present only the QR region; the downloadable original remains byte-for-byte intact. */
 .group-chat-qr { position:relative; width:min(100%,280px); aspect-ratio:1; overflow:hidden; margin:16px auto 8px; border:1px solid #e5e5e5; border-radius:var(--control-radius); background:#fafafa; }
-.group-chat-qr img { position:absolute; width:138.461538%; max-width:none; height:auto; left:-18.846154%; top:-81.538462%; }
+.group-chat-qr img { position:absolute; width:138.461538%; max-width:none; height:auto; left:-19.230769%; top:-78.846154%; }
 .group-chat-dialog .group-chat-expiry { text-align:center; font-size:var(--type-meta); }
 .group-chat-image-actions { display:flex; justify-content:center; flex-wrap:wrap; gap:20px; margin-top:8px; }
 .group-chat-image-actions a { display:inline-flex; align-items:center; gap:5px; min-height:36px; color:var(--text-secondary); font-size:var(--type-small); text-decoration:none; }
