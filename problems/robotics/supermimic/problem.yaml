@@ -1,0 +1,99 @@
+id: robotics/supermimic
+number: 115
+title: SuperMimic 可微想象回报与价值目标
+title_en: SuperMimic Differentiable Imagination Returns and Critic Targets
+paper:
+  title: 'SuperMimic: Scaling Humanoid Whole-Body Control with One Differentiable
+    World Model'
+  authors: Qiayuan Liao et al.
+  venue: CoRL 2026
+  arxiv: '2610.28480'
+  url: https://arxiv.org/abs/2610.28480
+  anchors:
+  - 'Section 3.3, Eq. (2): differentiable survival-weighted bootstrapped actor return'
+  - 'Section 3.3, Eq. (3): backward lambda-return targets held fixed during critic
+    fitting'
+paper_id: supermimic
+difficulty: M
+functions:
+- name: imagined_return
+  signature: 'imagined_return(rewards: Tensor, termination: Tensor, bootstrap: Tensor,
+    gamma: float) -> Tensor'
+- name: lambda_return_targets
+  signature: 'lambda_return_targets(rewards: Tensor, termination: Tensor, values:
+    Tensor, gamma: float, lam: float) -> Tensor'
+type: implement
+parent: null
+module:
+  goal: 通过可微存活概率累积短时想象回报，并为 critic 构造冻结的 λ-return 目标。
+  goal_en: Accumulate short imagined returns through differentiable survival probabilities
+    and construct frozen lambda-return critic targets.
+  scope: 实现论文 Eq.(2) 和 Eq.(3) 的回报核心；小实验通过固定一维动力学学习反馈策略，不涉及人形机器人仿真、数据收集或世界模型拟合。
+  scope_en: Implement the return core of Eq. (2) and Eq. (3); a tiny policy learns
+    through fixed 1D dynamics. Humanoid simulation, replay collection and world-model
+    fitting are outside this exercise.
+  required_functions:
+  - imagined_return
+  - lambda_return_targets
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: CPU float32/float64; preserve dtype/device and never mutate inputs
+  device: CPU; no pretrained weights or downloads
+  shape: rewards and termination are (B,H), bootstrap is (B,), values is (B,H+1);
+    B,H positive.
+  indexing: rewards[:,t] means r_(t+1); termination[:,t] means d_(t+1); values[:,t]
+    means V_t.
+  discount: Finite gamma in [0,1); finite lambda in [0,1]. Termination probabilities
+    lie in [0,1].
+  survival: Start c_0=1. Count r_(t+1) with c_t, then set c_(t+1)=c_t*(1-d_(t+1));
+    terminal value uses gamma^H*c_H.
+  autograd: Actor objective preserves reward, termination and bootstrap graphs. World-model/critic
+    weights are frozen by the caller, but their input Jacobians remain active. Lambda-return
+    targets detach rewards, termination and values internally.
+  reduction: Sum over the horizon; mean actor return over batch. Critic targets retain
+    every (B,H) entry.
+tests:
+  T0: 2
+  T1: 2
+  T2: 4
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+tags:
+- Robotics
+- World Models
+- Analytic Policy Gradients
+- Actor-Critic
+viz:
+- toy_experiment
+sources_verified: '2026-10-27'
+verified_sources:
+  checked_at: '2026-10-27'
+  links:
+  - https://supermimic.github.io/
+  - https://arxiv.org/abs/2610.28480
+  - https://arxiv.org/pdf/2610.28480
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2610.28480
+  anchor: 'Section 3.3, Eq. (2): differentiable survival-weighted bootstrapped actor
+    return; Section 3.3, Eq. (3): backward lambda-return targets held fixed during
+    critic fitting'
+  adaptation: One shared feedback gain controls four scalar states through an eight-step
+    fixed differentiable world model. Analytic reward, termination and terminal-value
+    heads isolate the return and target computations.
+mutants:
+- id: m1_current_survival
+  bug: 提前用当前终止概率屏蔽到达奖励
+- id: m2_detach_terminal_value
+  bug: 错误切断终点价值到策略的梯度
+- id: m3_ignore_soft_termination
+  bug: 忽略软终止的存活权重
+- id: m4_current_value_target
+  bug: λ-return 使用当前状态价值而不是下一状态价值
+- id: m5_unfrozen_critic_targets
+  bug: critic 监督目标未停止梯度
+browser:
+  backend: numpy-autograd-wasm

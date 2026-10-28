@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "reviewed_on": "2026-10-20",
+  "reviewed_on": "2026-10-27",
   "modules": [
     {
       "id": "architecture/attention",
@@ -6617,6 +6617,409 @@
           "hint": {
             "zh": "区分固定观测记录上的局部更新和生成新数据的完整循环；需要独立测试集、真实标签检查与多轮实验。",
             "en": "Distinguish a local update on fixed observations from the full loop that generates fresh data. Use held-out evaluation, independent label checks and multiple training rounds."
+          }
+        }
+      ]
+    },
+    {
+      "id": "robotics/diffusion_policy",
+      "source": "problems/robotics/diffusion_policy/README.md",
+      "functions": [
+        "add_action_noise",
+        "action_denoising_loss",
+        "action_chunk"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "观察长度、预测长度与执行长度分别控制什么，为什么执行片段从 To−1 开始？",
+            "en": "What do observation, prediction and execution horizons control, and why does the execution chunk start at To−1?"
+          },
+          "hint": {
+            "zh": "先在同一时间轴标出已观察状态、当前动作与未来动作。按题目的观测—动作对齐约定，当前动作位于 To−1，随后只执行 Ta 个位置。",
+            "en": "Place observed states, the current action and future actions on one timeline. Under this exercise’s alignment convention the current action is at To−1, followed by Ta executed positions."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "如何把每个样本的累计 alpha 广播到整个动作序列，同时保持噪声目标的冻结边界？",
+            "en": "How do you broadcast each example’s cumulative alpha over its action sequence while preserving the frozen noise-target boundary?"
+          },
+          "hint": {
+            "zh": "动作形状为 B×T×D，alpha 需扩成 B×1×1。前向加噪保留输入梯度；噪声回归损失对目标噪声停止梯度，且对全部元素取均值。",
+            "en": "Actions have shape B×T×D, so alpha broadcasts as B×1×1. Forward noising preserves input gradients; noise regression stops gradients into target noise and averages all elements."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样同时发现累计 alpha 被误当标准差，以及动作切片偏移一位这两种错误？",
+            "en": "How can tests detect both treating cumulative alpha as a standard deviation and shifting the action chunk by one position?"
+          },
+          "hint": {
+            "zh": "使用可手算的动作与噪声检查两个平方根系数，再让每个预测时间位置带唯一数值，核对 To−1 到 To−1+Ta 的半开区间。",
+            "en": "Use hand-computable actions and noise to check both square-root coefficients. Give each predicted time position a unique value and inspect the half-open interval from To−1 to To−1+Ta."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "prediction-vs-execution",
+          "question": {
+            "zh": "为什么预测整段动作后，只执行短片段就重新观测？本题能验证哪一部分？",
+            "en": "Why predict a full action sequence but execute only a short chunk before observing again, and which part can this exercise verify?"
+          },
+          "hint": {
+            "zh": "短片段执行为下一轮观测条件更新留出机会。这里验证执行索引与动作去噪；真实机器人反馈、观测编码和完整闭环成功率需要额外环境。",
+            "en": "Short execution chunks allow the next prediction to use updated observations. This exercise checks execution indexing and action denoising; robot feedback, perception and full closed-loop success require an environment."
+          }
+        },
+        {
+          "id": "action-loss-reduction",
+          "question": {
+            "zh": "若把同一动作序列的特征维复制一遍，噪声回归损失和对应梯度应怎样变化？",
+            "en": "What happens to the noise-regression loss and corresponding gradients if every action feature is duplicated?"
+          },
+          "hint": {
+            "zh": "题目对 B、T、D 的所有元素取均值，复制特征后损失不变；每个副本承担原坐标的一半梯度，两个副本的贡献相加恢复原梯度。",
+            "en": "The loss averages over B, T and D, so duplicating features leaves its value unchanged. Each copy receives half the original coordinate’s gradient; summing both copies recovers it."
+          }
+        }
+      ]
+    },
+    {
+      "id": "robotics/supermimic",
+      "source": "problems/robotics/supermimic/README.md",
+      "functions": [
+        "imagined_return",
+        "lambda_return_targets"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "软终止概率如何影响本次到达奖励、后续奖励和终点价值？",
+            "en": "How does a soft termination probability affect the current arrival reward, later rewards and terminal value?"
+          },
+          "hint": {
+            "zh": "先用当前存活权重计入到达奖励，再乘本次的 1−d 更新后续存活权重；终止转移仍获得奖励，只有未来贡献被削弱。",
+            "en": "Include the arrival reward with the current survival weight, then multiply survival by 1−d for subsequent terms. A terminating transition still receives its reward; future contributions are reduced."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "为什么 actor 的 imagined_return 不能直接 detach 终点价值，而 lambda_return_targets 需要冻结全部输入？",
+            "en": "Why must imagined_return preserve the terminal-value gradient while lambda_return_targets freezes all inputs?"
+          },
+          "hint": {
+            "zh": "冻结 critic 或世界模型参数不等于切断其状态导数。actor 通过展开状态获得价值梯度；critic 的 lambda-return 是固定监督目标，不应再反传进 rollout 数据。",
+            "en": "Freezing critic or world-model parameters does not remove their derivatives with respect to state. The actor needs that value gradient through imagined states; critic lambda returns are fixed supervision and should not backpropagate into rollout data."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样用 lambda 的两个端点与一个硬终止例子检查回报的时间对齐？",
+            "en": "How do lambda’s two endpoints and a hard-termination example check the temporal alignment of returns?"
+          },
+          "hint": {
+            "zh": "lambda=0 还原单步 bootstrap；lambda=1 还原完整 bootstrap 回报。构造终止发生在中间的轨迹，确认终止那一步的奖励保留，之后的奖励与终点价值消失。",
+            "en": "Lambda zero gives one-step bootstrapping; lambda one gives the full bootstrapped return. Terminate a trajectory in the middle and check that its arrival reward remains while later rewards and terminal value disappear."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "soft-survival-gradient",
+          "question": {
+            "zh": "将终止概率先阈值化成布尔值，会怎样改变策略梯度？",
+            "en": "How would thresholding termination probabilities into booleans change policy gradients?"
+          },
+          "hint": {
+            "zh": "比较软生存乘积关于每个 d 的导数与硬阈值的导数。阈值会移除通过终止概率影响未来价值的平滑梯度路径，即使部分前向回报看起来相近。",
+            "en": "Compare derivatives of the soft survival product with those of a hard threshold. Thresholding removes the smooth path by which termination probabilities affect future value, even when some forward returns look similar."
+          }
+        },
+        {
+          "id": "bootstrap-column",
+          "question": {
+            "zh": "values 为什么有 H+1 列，而 lambda 目标只返回 H 列？",
+            "en": "Why does values contain H+1 columns while the lambda-target function returns only H?"
+          },
+          "hint": {
+            "zh": "值序列含初始状态到终点状态的 V0…VH；递推以 RH=VH 起步，再生成 H 个转移的目标 R0…R(H−1)，初始化列不是额外训练样本。",
+            "en": "Values cover states V0 through VH. Initialize RH=VH, then compute targets R0 through R(H−1) for H transitions; the initialization is not an additional training example."
+          }
+        }
+      ]
+    },
+    {
+      "id": "diffusion_rl/diffusion_dpo",
+      "source": "problems/diffusion_rl/diffusion_dpo/README.md",
+      "functions": [
+        "paired_noising",
+        "diffusion_dpo_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "Diffusion-DPO 的偏好方向由哪两个误差差值决定，为什么要减去参考模型差值？",
+            "en": "Which two error gaps determine the Diffusion-DPO preference direction, and why subtract the reference gap?"
+          },
+          "hint": {
+            "zh": "分别计算当前与参考模型的 winner-minus-loser 去噪误差，再比较两者。间隔带负 beta/2，因此相对参考模型降低偏好侧的误差差值会增加偏好间隔。",
+            "en": "Compute winner-minus-loser denoising-error gaps for current and reference models, then compare them. The margin uses negative beta/2, so reducing the preferred-side gap relative to reference increases the margin."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "同一偏好对共享噪声与累计 alpha 时，广播和梯度边界应该怎样设置？",
+            "en": "How should broadcasting and gradient boundaries work when both preference members share noise and cumulative alpha?"
+          },
+          "hint": {
+            "zh": "每个 pair 使用同一个噪声张量和时间步，alpha 从 B 维扩展到所有特征维。加噪函数返回固定训练数据；损失只训练当前两侧预测，冻结参考预测和噪声。",
+            "en": "Each pair uses identical noise and timestep, with alpha broadcast from B across all feature axes. Noising returns fixed training data; the loss trains only current predictions and freezes reference predictions and noise."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "当前模型等于参考模型时损失是多少，怎样验证偏好方向而不依赖参考实现？",
+            "en": "What is the loss when current and reference predictions agree, and how can you verify preference direction independently?"
+          },
+          "hint": {
+            "zh": "此时间隔为零，损失为 log 2。再选零噪声和可手算的标量预测，仅降低偏好侧误差，核对间隔增加、损失下降以及对应梯度符号。",
+            "en": "The margin is zero and the loss is log 2. Then choose zero noise and simple scalar predictions, reduce only the preferred-side error, and check the larger margin, smaller loss and gradient signs."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "relative-preference",
+          "question": {
+            "zh": "偏好损失下降是否保证 winner 和 loser 的绝对去噪误差都下降？",
+            "en": "Does a lower preference loss guarantee lower absolute denoising error for both winner and loser?"
+          },
+          "hint": {
+            "zh": "目标约束的是相对参考模型的误差差值。通过分别记录两侧误差和偏好间隔判断更新，不能仅凭 logistic 损失下降推断两侧都获得更准确的噪声预测。",
+            "en": "The objective constrains an error gap relative to reference. Record both errors and the preference margin; a lower logistic loss alone does not imply more accurate noise prediction on both sides."
+          }
+        },
+        {
+          "id": "dimension-normalization",
+          "question": {
+            "zh": "为什么本题在特征轴取均方误差，同时把时间步常数吸收到有效 beta？",
+            "en": "Why does this exercise average squared errors across features and absorb timestep constants into an effective beta?"
+          },
+          "hint": {
+            "zh": "先固定发布代码采用的特征均值和显式 1/2 约定，再比较尺度。复制特征不会放大损失；若改为误差求和，必须重新解释 beta，不能保持数值不变直接替换。",
+            "en": "First fix the released-code convention of feature means and an explicit factor of one half. Duplicating features should not enlarge the loss. Replacing means with sums changes the effective beta and is not a drop-in equivalent."
+          }
+        }
+      ]
+    },
+    {
+      "id": "diffusion_rl/flow_grpo",
+      "source": "problems/diffusion_rl/flow_grpo/README.md",
+      "functions": [
+        "sde_transition",
+        "flow_grpo_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "数据到噪声的时间约定下，为什么采样的 dt 为负而随机项使用 sqrt(−dt)？",
+            "en": "Under data-to-noise time, why is sampling dt negative while the stochastic term uses sqrt(−dt)?"
+          },
+          "hint": {
+            "zh": "采样向更小时间移动，均值更新保留有符号 dt；高斯方差必须非负，所以标准差使用步长绝对值的平方根。零噪声极限应还原对应 ODE 更新。",
+            "en": "Sampling moves toward smaller times. The mean update retains signed dt, while Gaussian variance must be nonnegative, so its standard deviation uses the square root of the absolute step. Zero noise recovers the corresponding ODE update."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "怎样在 P×G×T×D 的转移张量上区分组内优势、联合高斯比率与最终损失归约？",
+            "en": "How do you separate group advantages, joint Gaussian ratios and final reduction for transitions shaped P×G×T×D?"
+          },
+          "hint": {
+            "zh": "每个 prompt 在 G 维独立归一化奖励，并沿 T 广播同一轨迹优势；联合 log-density 在 D 维求和，最终对 P、G、T 求均值。",
+            "en": "Normalize rewards independently over G for each prompt and broadcast each trajectory’s advantage across T. Sum joint log density over D, then average the objective over P, G and T."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "哪些小测试能同时发现错误的时间方向、跨 prompt 归一化和截断分支？",
+            "en": "Which small tests detect the wrong time direction, cross-prompt normalization and incorrect clipping branches?"
+          },
+          "hint": {
+            "zh": "用零噪声检查 ODE 均值；只平移一个 prompt 的奖励检查组内平移不变性；分别使用正负优势与越界概率比，核对 min 选择和被截断区域的梯度。",
+            "en": "Check the ODE mean at zero noise, shift rewards for only one prompt to test within-group invariance, then use positive and negative advantages with out-of-range ratios to inspect the minimum branch and clipped gradients."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "joint-vs-geometric-ratio",
+          "question": {
+            "zh": "对特征 log-density 求均值与求和，会得到相同的重要性比率吗？",
+            "en": "Do averaging and summing feature log densities produce the same importance ratio?"
+          },
+          "hint": {
+            "zh": "本题使用坐标求和定义的联合高斯密度；先取均值得到的是逐坐标比率的几何平均。维度增加会改变两者关系，测试与 KL 都必须遵守同一明确约定。",
+            "en": "This exercise uses joint Gaussian density, defined by summing coordinates. Averaging first yields the geometric mean of coordinate ratios. Their relationship depends on dimension, so ratio and KL tests must follow an explicit consistent convention."
+          }
+        },
+        {
+          "id": "deterministic-limit",
+          "question": {
+            "zh": "SDE 的零噪声极限为何可以返回均值，却不能直接输入当前高斯策略损失？",
+            "en": "Why can the SDE return a mean at zero noise while that limit cannot be passed to this Gaussian policy loss?"
+          },
+          "hint": {
+            "zh": "零噪声可定义确定性 ODE 转移，但分布退化后没有这里使用的普通高斯密度。损失中的 std 必须严格为正，概率比和 KL 分母也依赖这一条件。",
+            "en": "Zero noise defines a deterministic ODE transition, but the degenerate distribution lacks the ordinary Gaussian density used here. The loss requires strictly positive std, including for ratio and KL denominators."
+          }
+        }
+      ]
+    },
+    {
+      "id": "multimodal/siglip",
+      "source": "problems/multimodal/siglip/README.md",
+      "functions": [
+        "pairwise_logits",
+        "siglip_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "SigLIP 如何给整个图文配对矩阵指定正负标签，最终除数为什么是 B？",
+            "en": "How does SigLIP label the full image-text pair matrix, and why is the final divisor B?"
+          },
+          "hint": {
+            "zh": "同下标图文为正，其余 B²−B 个配对为负。所有 logistic 项求和后按 batch 大小归约；四个样本的零 logits 对应 4 log 2。",
+            "en": "Matching indices are positive and the remaining B²−B pairs are negative. Sum all logistic terms, then normalize by batch size; zero logits for four examples give 4 log 2."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "怎样实现逐行归一化、指数温度与加性偏置，同时保留两个特征塔的梯度？",
+            "en": "How do you implement row normalization, exponential scale and additive bias while preserving gradients into both towers?"
+          },
+          "hint": {
+            "zh": "每行 L2 范数下界为 1e−12；图文单位向量矩阵相乘后乘 exp(log_scale)，再加 bias。两个标量应保持 Tensor，不能用 item 或 detach。",
+            "en": "Clamp each row’s L2 norm below by 1e−12, multiply the unit-feature similarity matrix by exp(log_scale), then add bias. Keep both scalars as tensors rather than calling item or detach."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样用解析梯度和极端 logits 检查标签符号、归约以及数值稳定性？",
+            "en": "How do analytic gradients and extreme logits check label signs, reduction and numerical stability?"
+          },
+          "hint": {
+            "zh": "以对角线为 1 的标签矩阵 y，梯度为 (sigmoid(logits)−y)/B。输入正负 1000 时损失与梯度应有限；正配对梯度推动 logit 上升。",
+            "en": "With binary diagonal targets y, the gradient is (sigmoid(logits)−y)/B. Loss and gradient must remain finite at ±1000; positive-pair gradients should push logits upward."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "negative-pair-supervision",
+          "question": {
+            "zh": "只保留对角线正配对，为什么不足以学习图文匹配关系？",
+            "en": "Why is keeping only positive diagonal pairs insufficient to learn image-text matching?"
+          },
+          "hint": {
+            "zh": "提高所有配对分数也能满足仅正样本目标。构造两个仅非对角元素不同的矩阵，检查完整损失如何惩罚不匹配图文分数升高。",
+            "en": "Raising every pair score can satisfy a positive-only objective. Compare two matrices differing only off diagonal and inspect how the full loss penalizes higher scores for mismatched image-text pairs."
+          }
+        },
+        {
+          "id": "feature-scale-invariance",
+          "question": {
+            "zh": "分别对每个图像或文本特征乘正数，logits 应该变化吗？",
+            "en": "Should logits change if each image or text feature is multiplied by its own positive scale?"
+          },
+          "hint": {
+            "zh": "非零特征逐行归一化会消除正比例缩放，配对相似度保持不变。用不同的行缩放区分正确逐行归一化与跨 batch 统计；零行遵守题目的 epsilon 约定。",
+            "en": "Row normalization removes positive rescaling of nonzero features, preserving similarities. Different per-row scales distinguish this from batch statistics; zero rows follow the stated epsilon convention."
+          }
+        }
+      ]
+    },
+    {
+      "id": "ai_infra/paged_attention",
+      "source": "problems/ai_infra/paged_attention/README.md",
+      "functions": [
+        "gather_paged_kv",
+        "paged_attention"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "给定页大小 S 与块表，逻辑 token t 应读取哪个物理位置？",
+            "en": "Given page size S and a block table, which physical position stores logical token t?"
+          },
+          "hint": {
+            "zh": "逻辑页号为 t//S，页内偏移为 t%S，再用块表将逻辑页号映射到物理页。不能把物理页排序，也不能默认页号连续。",
+            "en": "The logical page is t//S and its slot is t%S. Use the table to map that logical page to a physical page; do not sort page IDs or assume contiguous physical storage."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "跨多个物理页计算 attention 时，softmax 的范围与最后一页的有效长度如何处理？",
+            "en": "When attention spans several physical pages, what is the softmax scope and how is the final page’s valid length handled?"
+          },
+          "hint": {
+            "zh": "只取 context_len 个逻辑 token，再对全部有效 token 使用一个归一化分母。未使用的尾槽和块表项可以含占位值，必须在有限性检查与点积前排除。",
+            "en": "Read only context_len logical tokens and use one normalization denominator across all of them. Unused tail slots and table entries may contain sentinels and must be excluded before finite checks and dot products."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样验证物理页重排与共享前缀不会破坏输出和梯度？",
+            "en": "How do you verify that physical-page relocation and shared prefixes preserve outputs and gradients?"
+          },
+          "hint": {
+            "zh": "重排 cache 后同步重映射块表，输出应不变。再用零 query/key 制造均匀权重，检查共享 value 收到多个请求贡献之和，未读槽位梯度为零。",
+            "en": "Permute cache pages and remap the block table; outputs should remain unchanged. Then use zero queries and keys for uniform weights, checking summed shared-value contributions and zero gradients on unread slots."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "pagewise-softmax",
+          "question": {
+            "zh": "每页单独 softmax 后把输出相加，为什么通常不等于完整 attention？",
+            "en": "Why does summing outputs from separate per-page softmax operations generally differ from full attention?"
+          },
+          "hint": {
+            "zh": "每页单独归一化会错误地让每页获得总权重 1。用一页整体 logits 更高的两页示例，比较统一分母与逐页分母给出的权重。",
+            "en": "Separate normalization incorrectly gives each page total weight one. Use two pages with systematically larger logits on one page and compare shared-denominator weights against per-page normalization."
+          }
+        },
+        {
+          "id": "slot-count-vs-throughput",
+          "question": {
+            "zh": "共享物理页减少了槽位计数，是否足以说明某个实现更快？",
+            "en": "Does a lower allocated-slot count from shared physical pages establish that an implementation is faster?"
+          },
+          "hint": {
+            "zh": "槽位计数只说明此布局中实际引用的物理存储量。速度还受 kernel、访存、调度与硬件影响；本题验证索引和数值等价，不把 CPU 回放解释成吞吐量评测。",
+            "en": "Slot counts describe referenced physical storage in this layout. Speed also depends on kernels, access patterns, scheduling and hardware; this exercise verifies indexing and numerical equivalence rather than throughput."
           }
         }
       ]

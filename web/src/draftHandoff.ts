@@ -9,7 +9,7 @@ export function parseHandoff(raw: string | null, now = Date.now()): DraftHandoff
     if (!raw || raw.length > MAX_CODE_BYTES * 6) return;
     const value = JSON.parse(raw);
     if (!value || value.version !== 1 || typeof value.id !== 'string' || !/^[a-zA-Z0-9_-]{8,100}$/.test(value.id) ||
-        typeof value.problem !== 'string' || !/^(foundations|rl|architecture|diffusion|finetuning|optimization|representation|world_models|retrieval|self_evolving)\/[a-z0-9_-]+$/.test(value.problem) ||
+        typeof value.problem !== 'string' || !/^(foundations|rl|architecture|diffusion|finetuning|optimization|representation|world_models|retrieval|self_evolving|multimodal|robotics|ai_infra|diffusion_rl)\/[a-z0-9_-]+$/.test(value.problem) ||
         typeof value.code !== 'string' || new TextEncoder().encode(value.code).length > MAX_CODE_BYTES ||
         !Number.isSafeInteger(value.created) || value.created > now || now - value.created >= HANDOFF_TTL ||
         (value.owner !== undefined && (typeof value.owner !== 'string' || !/^user:[a-zA-Z0-9_-]{1,100}$/.test(value.owner)))) return;

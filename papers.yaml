@@ -244,7 +244,7 @@ papers:
     module_ids: [optimization/adamw]
   - id: flash-attention
     number: 23
-    category: architecture
+    category: ai-infra
     short_title: FlashAttention
     year: 2022
     tags: [Attention, Online Softmax]
@@ -255,7 +255,7 @@ papers:
     module_ids: [architecture/flash_attention]
   - id: clip
     number: 24
-    category: representation
+    category: multimodal
     short_title: CLIP
     year: 2021
     tags: [Contrastive Learning, Multimodal]
@@ -423,7 +423,7 @@ papers:
     - diffusion/daps
   - id: diffusion-nft
     number: 38
-    category: generative-models
+    category: diffusion-rl
     short_title: DiffusionNFT
     year: 2026
     tags: [Diffusion RL, Flow Matching, Negative-aware Finetuning]
@@ -949,3 +949,69 @@ papers:
     module_ids:
     - self_evolving/mmzero_proposer
     - self_evolving/mmzero_feedback
+  - id: diffusion-policy
+    number: 78
+    category: robotics
+    short_title: Diffusion Policy
+    year: 2023
+    tags: [Robotics, Imitation Learning, Action Diffusion, Receding Horizon]
+    summary: 将动作序列建模为条件扩散过程，并滚动执行预测序列中的短动作片段。
+    summary_en: Model action sequences with conditional diffusion and execute short chunks with receding-horizon control.
+    scope: 实现动作前向加噪、噪声回归损失与动作片段索引，运行小型 CPU 动作学习实验。
+    scope_en: Implement action noising, noise-regression loss and execution-chunk indexing, with a small CPU action-learning experiment.
+    module_ids: [robotics/diffusion_policy]
+  - id: supermimic
+    number: 79
+    category: robotics
+    short_title: SuperMimic
+    year: 2026
+    tags: [Robotics, World Models, Differentiable Control, Lambda Returns]
+    summary: 在可微世界模型中展开策略，使用软生存概率和价值自举学习控制行为。
+    summary_en: Unroll a policy through a differentiable world model, using soft survival probabilities and value bootstrapping to learn control.
+    scope: 实现软生存加权的可微回报与冻结的 lambda-return 目标，并在微型动力学中更新策略。
+    scope_en: Implement differentiable soft-survival returns and frozen lambda-return targets, then update a policy through tiny dynamics.
+    module_ids: [robotics/supermimic]
+  - id: diffusion-dpo
+    number: 80
+    category: diffusion-rl
+    short_title: Diffusion-DPO
+    year: 2024
+    tags: [Diffusion RL, Preference Learning, DPO, Denoising]
+    summary: 用偏好对上的去噪误差差值构造扩散模型的直接偏好优化目标。
+    summary_en: Optimize diffusion-model preferences using differences in denoising errors on preferred and rejected samples.
+    scope: 实现偏好对共享加噪与参考模型校正的 DPO 损失，验证偏好方向和冻结梯度。
+    scope_en: Implement shared pair noising and reference-corrected DPO loss; verify preference direction and gradient boundaries.
+    module_ids: [diffusion_rl/diffusion_dpo]
+  - id: flow-grpo
+    number: 81
+    category: diffusion-rl
+    short_title: Flow-GRPO
+    year: 2025
+    tags: [Diffusion RL, Flow Matching, GRPO, Stochastic Sampling]
+    summary: 将生成流转化为随机转移，通过组相对优势和截断策略目标优化生成奖励。
+    summary_en: Convert a generative flow into stochastic transitions and optimize rewards with group-relative advantages and a clipped policy objective.
+    scope: 实现反向时间 SDE 转移、高斯策略比率、组内优势和 KL 正则，运行小型奖励优化实验。
+    scope_en: Implement reverse-time SDE transitions, Gaussian policy ratios, within-group advantages and KL regularization, with a small reward-optimization experiment.
+    module_ids: [diffusion_rl/flow_grpo]
+  - id: siglip
+    number: 82
+    category: multimodal
+    short_title: SigLIP
+    year: 2023
+    tags: [Multimodal, Vision-Language, Sigmoid Loss, Image-Text Alignment]
+    summary: 用逐图文对的 sigmoid 目标学习图像与文本的共享表征。
+    summary_en: Learn shared image-text representations with a pairwise sigmoid objective.
+    scope: 实现归一化图文 logits 与按 batch 大小归约的 sigmoid 损失，验证配对关系、缩放与梯度。
+    scope_en: Implement normalized image-text logits and batch-normalized sigmoid loss; verify pair assignments, scaling and gradients.
+    module_ids: [multimodal/siglip]
+  - id: paged-attention
+    number: 83
+    category: ai-infra
+    short_title: vLLM · PagedAttention
+    year: 2023
+    tags: [AI Infra, LLM Serving, KV Cache, PagedAttention]
+    summary: 通过块表将逻辑 token 映射到物理 KV 缓存块，使注意力读取无需连续内存。
+    summary_en: Map logical tokens to physical KV-cache blocks through block tables so attention can read noncontiguous storage.
+    scope: 实现分页 KV 读取和批量单 token 注意力，验证共享块、尾块掩码和物理重排不变性。
+    scope_en: Implement paged KV gathering and batched single-token attention; verify shared blocks, partial-block masking and invariance to physical layout.
+    module_ids: [ai_infra/paged_attention]

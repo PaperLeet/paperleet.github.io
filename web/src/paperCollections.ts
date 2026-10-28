@@ -24,6 +24,30 @@ export const paperCollections: PaperCollection[] = [
     paperIds: ["transformer", "rmsnorm", "roformer", "gqa", "adamw", "flash-attention", "lora", "kimi-k3", "glm-5", "es-at-scale", "neural-thickets"],
   },
   {
+    id: "multimodal",
+    name: "多模态",
+    name_en: "Multimodal",
+    paperIds: ["clip", "siglip"],
+  },
+  {
+    id: "robotics",
+    name: "机器人学习",
+    name_en: "Robotics",
+    paperIds: ["diffusion-policy", "supermimic"],
+  },
+  {
+    id: "ai-infra",
+    name: "AI 基础设施",
+    name_en: "AI Infra",
+    paperIds: ["flash-attention", "paged-attention", "gqa", "qlora", "svdquant"],
+  },
+  {
+    id: "diffusion-rl",
+    name: "扩散强化学习",
+    name_en: "Diffusion RL",
+    paperIds: ["diffusion-dpo", "flow-grpo", "diffusion-nft"],
+  },
+  {
     id: "self-evolving",
     name: "自演化",
     name_en: "Self-Evolving",

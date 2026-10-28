@@ -1130,6 +1130,82 @@
         "ml",
         "research"
       ]
+    },
+    {
+      "id": "multimodal",
+      "name": "多模态图文对齐",
+      "name_en": "Multimodal image-text alignment",
+      "description": "从 CLIP 对比目标到 SigLIP 成对 sigmoid，练习特征归一化、配对监督和标定参数。",
+      "description_en": "Connect CLIP contrastive alignment with SigLIP pairwise sigmoid loss, feature normalization, paired supervision and calibration.",
+      "modules": [
+        "representation/clip",
+        "multimodal/siglip"
+      ],
+      "roles": [
+        "ml",
+        "llm",
+        "research"
+      ]
+    },
+    {
+      "id": "robotics",
+      "name": "机器人动作学习与可微控制",
+      "name_en": "Robotics actions & differentiable control",
+      "description": "从扩散动作去噪和滚动执行，走到优势估计、软生存回报与可微世界模型控制。",
+      "description_en": "Connect diffusion action denoising and receding-horizon execution with advantage estimation, soft-survival returns and differentiable world-model control.",
+      "modules": [
+        "diffusion/schedules",
+        "diffusion/ddpm_sampling",
+        "robotics/diffusion_policy",
+        "rl/gae",
+        "robotics/supermimic"
+      ],
+      "roles": [
+        "ml",
+        "research"
+      ]
+    },
+    {
+      "id": "ai-infra",
+      "name": "AI 基础设施与 KV 缓存",
+      "name_en": "AI infrastructure & KV caches",
+      "description": "从注意力和 KV 头共享，练到在线 softmax、分页缓存与推理量化。",
+      "description_en": "Practice attention and shared KV heads, then online softmax, paged caches and inference quantization.",
+      "modules": [
+        "architecture/attention",
+        "architecture/gqa",
+        "architecture/flash_attention",
+        "ai_infra/paged_attention",
+        "finetuning/qlora",
+        "finetuning/svdquant"
+      ],
+      "roles": [
+        "llm",
+        "ml",
+        "research",
+        "software"
+      ]
+    },
+    {
+      "id": "diffusion-rl",
+      "name": "扩散与 Flow 奖励优化",
+      "name_en": "Diffusion & flow reward optimization",
+      "description": "连接扩散路径、DPO 与组内优势，练习去噪偏好、随机流策略和正负流匹配。",
+      "description_en": "Connect diffusion paths, DPO and group-relative advantages with denoising preferences, stochastic flow policies and positive/negative flow matching.",
+      "modules": [
+        "diffusion/schedules",
+        "diffusion/flow_matching",
+        "rl/dpo",
+        "rl/grpo",
+        "diffusion_rl/diffusion_dpo",
+        "diffusion_rl/flow_grpo",
+        "diffusion/diffusion_nft"
+      ],
+      "roles": [
+        "ml",
+        "llm",
+        "research"
+      ]
     }
   ]
 }

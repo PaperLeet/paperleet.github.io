@@ -1,0 +1,98 @@
+id: robotics/diffusion_policy
+number: 114
+title: Diffusion Policy 动作去噪与滚动执行
+title_en: Diffusion Policy Action Denoising and Receding-Horizon Execution
+paper:
+  title: 'Diffusion Policy: Visuomotor Policy Learning via Action Diffusion'
+  authors: Cheng Chi et al.
+  venue: RSS 2023
+  arxiv: '2303.04137'
+  url: https://arxiv.org/abs/2303.04137
+  anchors:
+  - 'Section 2.3, Eq. (5): observation-conditioned action noise prediction'
+  - 'Official diffusion_unet_lowdim_policy.py: noise_scheduler.add_noise and predict_action
+    with oa_step_convention'
+paper_id: diffusion-policy
+difficulty: M
+functions:
+- name: add_action_noise
+  signature: 'add_action_noise(actions: Tensor, noise: Tensor, alpha_bar: Tensor)
+    -> Tensor'
+- name: action_denoising_loss
+  signature: 'action_denoising_loss(prediction: Tensor, noise: Tensor) -> Tensor'
+- name: action_chunk
+  signature: 'action_chunk(actions: Tensor, observation_horizon: int, execution_horizon:
+    int) -> Tensor'
+type: implement
+parent: null
+module:
+  goal: 实现动作序列的前向加噪、条件噪声预测损失，以及与最后一帧观测对齐的执行片段。
+  goal_en: Implement action-sequence noising, the conditional epsilon loss and execution
+    chunks aligned with the last observation.
+  scope: 选取动作扩散训练与滚动执行核心；提供条件去噪小实验，不包含视觉编码器、完整反向采样器或机器人仿真。
+  scope_en: Implement the action diffusion training and receding-horizon core; a conditional
+    denoising experiment is supplied. Vision encoders, full reverse sampling and robot
+    simulation are outside this module.
+  required_functions:
+  - add_action_noise
+  - action_denoising_loss
+  - action_chunk
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: CPU float32/float64; preserve dtype/device and never mutate inputs
+  device: CPU; no pretrained weights or downloads
+  shape: Action and noise tensors have identical nonempty (B,T,D) shapes; alpha_bar
+    has shape (B,).
+  alpha_bar: Cumulative product of DDPM alphas, strictly in (0,1); independent per
+    example.
+  reduction: Mean squared epsilon error across B, T and D. All action coordinates
+    are predicted; no observation inpainting mask.
+  alignment: With oa_step_convention=True, execute indices [To-1, To-1+Ta); require
+    To>=1, Ta>=1 and To-1+Ta<=T.
+  autograd: Forward noising preserves all input gradient paths. Noise-MSE stops the
+    target noise; slicing preserves action gradients.
+  conditioning: The prediction input already comes from an observation-conditioned
+    network; encoder and scheduler are supplied by the caller.
+tests:
+  T0: 2
+  T1: 2
+  T2: 4
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+tags:
+- Robotics
+- Imitation Learning
+- Diffusion Policy
+- Action Diffusion
+viz:
+- toy_experiment
+sources_verified: '2026-10-27'
+verified_sources:
+  checked_at: '2026-10-27'
+  links:
+  - https://diffusion-policy.cs.columbia.edu/
+  - https://arxiv.org/abs/2303.04137
+  - https://github.com/real-stanford/diffusion_policy/blob/main/diffusion_policy/policy/diffusion_unet_lowdim_policy.py
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2303.04137
+  anchor: 'Section 2.3, Eq. (5): observation-conditioned action noise prediction;
+    Official diffusion_unet_lowdim_policy.py: noise_scheduler.add_noise and predict_action
+    with oa_step_convention'
+  adaptation: A two-coefficient conditional denoiser learns one fixed-noise-level
+    batch of analytic 2D action trajectories. The execution slice is checked against
+    separately indexed clean actions.
+mutants:
+- id: m1_missing_square_roots
+  bug: 加噪时遗漏方差平方根
+- id: m2_sum_action_coordinates
+  bug: 损失对动作维求和而不是求均值
+- id: m3_shift_execution_chunk
+  bug: 执行起点错移一帧
+- id: m4_train_noise_target
+  bug: 未冻结噪声监督目标
+browser:
+  backend: numpy-autograd-wasm

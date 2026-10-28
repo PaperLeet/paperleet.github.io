@@ -1,0 +1,93 @@
+difficulty: M
+type: implement
+parent: null
+tests:
+  T0: 2
+  T1: 2
+  T2: 4
+  T3: 1
+t3_budget_s: 10
+sources_verified: '2026-10-27'
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+id: multimodal/siglip
+number: 118
+paper_id: siglip
+title: SigLIP 图文成对 Sigmoid 对齐
+title_en: SigLIP Pairwise Image-Text Alignment
+paper:
+  title: Sigmoid Loss for Language Image Pre-Training
+  authors: Xiaohua Zhai, Basil Mustafa, Alexander Kolesnikov, Lucas Beyer
+  venue: ICCV 2023 Oral
+  arxiv: '2303.15343'
+  url: https://arxiv.org/abs/2303.15343
+  anchors:
+  - 'Section 3.2: pairwise sigmoid loss'
+  - 'Algorithm 1: normalized embeddings, exponential scale, additive bias and batch
+    normalization'
+functions:
+- name: pairwise_logits
+  signature: 'pairwise_logits(images: Tensor, texts: Tensor, log_scale: Tensor, bias:
+    Tensor) -> Tensor'
+  returns: (B,B) Tensor of calibrated cosine logits; preserve dtype/device and gradients
+    into both feature batches, log_scale and bias.
+- name: siglip_loss
+  signature: 'siglip_loss(logits: Tensor) -> Tensor'
+  returns: 'Scalar Tensor: sum stable logistic losses over B*B pairs and divide by
+    B; diagonal pairs positive.'
+module:
+  goal: 实现归一化图文相似度与成对 sigmoid 目标，训练匹配关系。
+  goal_en: Implement normalized image-text similarities and the pairwise sigmoid objective
+    to learn matching pairs.
+  scope: 逐行 L2 归一化、可学习温度与偏置、按 batch 归约的稳定损失，以及四对合成向量训练。
+  scope_en: Row-wise L2 normalization, learnable scale and bias, stable batch-normalized
+    loss, and training on four synthetic pairs.
+  required_functions:
+  - pairwise_logits
+  - siglip_loss
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: CPU float32/float64; all floating inputs share dtype/device; no mutation
+  features: images and texts both have nonempty (B,D) shape; pair i is image i and
+    text i
+  normalization: Divide each feature row by max(L2 norm, 1e-12); zero rows remain
+    zero
+  calibration: log_scale and bias are scalar tensors; logits=exp(log_scale)*cosine+bias;
+    finite exponential scale required
+  labels: Diagonal +1, off-diagonal -1; every pair participates
+  reduction: Sum B*B pair losses and divide by B, not B squared
+  autograd: Both towers and both calibration scalars receive gradients; logits are
+    never detached
+estimated_minutes: 30
+tags:
+- Multimodal
+- Vision-Language
+- Sigmoid Loss
+- Contrastive Learning
+verified_sources:
+  checked_at: '2026-10-27'
+  links:
+  - https://arxiv.org/abs/2303.15343
+  - https://arxiv.org/pdf/2303.15343v4
+  - https://github.com/google-research/big_vision/blob/main/big_vision/trainers/proj/image_text/siglip.py
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2303.15343
+  anchor: Section 3.2 and Algorithm 1
+  adaptation: 120 deterministic CPU gradient steps on four paired embedding vectors,
+    log scale and bias; no pretrained towers or dataset benchmark.
+mutants:
+- id: m1_pair_mean
+  bug: 按 B*B 平均，额外缩小梯度
+- id: m2_no_normalization
+  bug: 使用未归一化的特征
+- id: m3_wrong_bias_sign
+  bug: 减去 bias 而不是加上
+- id: m4_detached_text
+  bug: 截断文本塔梯度
+- id: m5_positive_only
+  bug: 漏掉负样本对

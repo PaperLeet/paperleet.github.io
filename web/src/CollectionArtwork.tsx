@@ -39,8 +39,33 @@ export default function CollectionArtwork({ kind }: { kind: string }) {
   let artwork;
 
   switch (kind) {
+    case "multimodal":
+      artwork = (
+        <g stroke="white" strokeWidth="2" strokeLinejoin="round">
+          <rect x="19" y="37" width="69" height="67" rx="10" fill="white" fillOpacity=".12" strokeOpacity=".6" />
+          <circle cx="66" cy="56" r="7" fill="white" fillOpacity=".8" stroke="none" />
+          <path d="m27 92 18-24 13 14 10-9 13 19" fill="none" strokeOpacity=".7" />
+          <rect x="100" y="83" width="66" height="63" rx="10" fill="white" fillOpacity=".16" strokeOpacity=".65" />
+          <path d="M113 100h39m-39 13h30m-30 13h35M72 119l19 10m-19-10 2 8m-2-8 8-3M110 64 91 54m19 10-2-8m2 8-8 3" fill="none" strokeLinecap="round" strokeOpacity=".8" />
+        </g>
+      );
+      break;
+    case "robotics":
+      artwork = (
+        <g fill="none" stroke="white" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M36 153h75M73 145v-29l-30-40 42-38 43 31" strokeWidth="12" strokeOpacity=".2" />
+          <path d="M36 153h75M73 145v-29l-30-40 42-38 43 31" strokeWidth="3" strokeOpacity=".85" />
+          {[[73,116],[43,76],[85,38]].map(([cx,cy],i)=>(<circle key={i} cx={cx} cy={cy} r="9" fill="white" fillOpacity=".7" strokeWidth="2" />))}
+          <path d="m125 63 14 2 14 20m-25-11 1 14 14 12" strokeWidth="3" strokeOpacity=".9" />
+          <rect x="137" y="117" width="24" height="24" rx="4" fill="white" fillOpacity=".12" strokeOpacity=".65" />
+          <path d="M148 107c-1-9-4-14-10-17" strokeWidth="2" strokeDasharray="3 5" strokeOpacity=".5" />
+        </g>
+      );
+      break;
+
     case "llm-basics":
     case "llm-frontier":
+    case "ai-infra":
       artwork = (
         <>
           <path d="M18 130 89 165 161 126 91 92Z" fill="white" fillOpacity=".07" />
@@ -95,6 +120,7 @@ export default function CollectionArtwork({ kind }: { kind: string }) {
       );
       break;
     case "diffusion":
+    case "diffusion-rl":
       artwork = (
         <>
           <g fill="none" stroke="white" strokeLinecap="round">

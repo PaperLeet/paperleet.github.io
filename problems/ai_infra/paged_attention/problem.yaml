@@ -1,0 +1,98 @@
+difficulty: M
+type: implement
+parent: null
+tests:
+  T0: 2
+  T1: 2
+  T2: 4
+  T3: 1
+t3_budget_s: 10
+sources_verified: '2026-10-27'
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+id: ai_infra/paged_attention
+number: 119
+paper_id: paged-attention
+title: PagedAttention 分页 KV 缓存与解码注意力
+title_en: PagedAttention KV Pages and Decode Attention
+paper:
+  title: Efficient Memory Management for Large Language Model Serving with PagedAttention
+  authors: Woosuk Kwon et al.
+  venue: SOSP 2023
+  arxiv: '2309.06180'
+  url: https://arxiv.org/abs/2309.06180
+  anchors:
+  - 'Section 4.1, Eq. (4): attention over non-contiguous KV blocks'
+  - 'Sections 4.2–4.3: logical-to-physical block tables and partial final blocks'
+  - 'Section 4.4: sharing physical prefix blocks across requests'
+functions:
+- name: gather_paged_kv
+  signature: 'gather_paged_kv(key_cache: Tensor, value_cache: Tensor, block_table:
+    Tensor, context_len: int) -> tuple[Tensor, Tensor]'
+  returns: (keys, values), each (context_len,H,D), in logical token order; preserve
+    cache dtype/device and autograd.
+- name: paged_attention
+  signature: 'paged_attention(query: Tensor, key_cache: Tensor, value_cache: Tensor,
+    block_tables: Tensor, context_lens: Tensor) -> Tensor'
+  returns: (B,H,D) Tensor of scaled dot-product decode attention, respecting each
+    logical context and preserving autograd.
+module:
+  goal: 通过逻辑块表访问离散的 KV 物理页，并保持与连续注意力相同的结果。
+  goal_en: Read scattered physical KV pages through logical block tables while preserving
+    dense-attention results.
+  scope: 分页索引、共享前缀、尾页长度与多头单步注意力的 CPU 规格实现；提供解码回放和存储槽计数。
+  scope_en: A CPU specification of page indexing, shared prefixes, partial tails and
+    multihead decode attention, with replay and slot accounting.
+  required_functions:
+  - gather_paged_kv
+  - paged_attention
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: CPU float32/float64 cache/query; int64 tables and lengths; preserve dtype/device
+    and inputs
+  cache: key_cache and value_cache share (P,S,H,D); P physical pages, S tokens per
+    page, H heads, D features
+  logical_mapping: Token t reads physical page block_table[t//S], slot t%S; duplicate/shared
+    page IDs are allowed
+  lengths: Every context length is positive and at most M*S; gather uses a Python
+    int, batched attention uses int64 (B,)
+  padding: Only active table entries need valid page IDs; unused table entries and
+    unused KV slots are ignored and can contain sentinels or NaN
+  attention: One query (B,H,D) per request; softmax over the full logical context,
+    scale 1/sqrt(D), cache already contains every visible token
+  autograd: Gradients reach queries and physical KV tensors; shared-page uses accumulate
+    gradients; no gradients to integer metadata
+estimated_minutes: 35
+tags:
+- AI Infra
+- PagedAttention
+- KV Cache
+- LLM Serving
+verified_sources:
+  checked_at: '2026-10-27'
+  links:
+  - https://arxiv.org/abs/2309.06180
+  - https://arxiv.org/html/2309.06180v1#S4
+  - https://docs.vllm.ai/en/latest/design/paged_attention/
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2309.06180
+  anchor: Sections 4.1–4.4
+  adaptation: Two synthetic CPU decode requests with scattered pages and one shared
+    prefix are replayed for nine context lengths. Slot counts are analytic; no GPU
+    throughput or CUDA speedup is claimed.
+mutants:
+- id: m1_physical_order
+  bug: 忽略块表，直接读取物理页顺序
+- id: m2_include_tail
+  bug: 把尾页未填充位置也用于注意力
+- id: m3_missing_scale
+  bug: 遗漏 head 维度缩放
+- id: m4_wrong_softmax_axis
+  bug: 在 head 维度上归一化
+- id: m5_detached_cache
+  bug: 截断 KV cache 梯度

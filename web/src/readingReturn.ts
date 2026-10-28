@@ -24,7 +24,7 @@ export function readingListHref(route:string){
  const interviews=readInterviewRoute(route);
  return interviews&&(interviews.view==='reports'||interviews.view==='questions')?interviewHref(interviews):undefined;
 }
-const moduleId=/^(?:foundations|rl|architecture|diffusion|finetuning|optimization|representation|world_models|retrieval|self_evolving)\/[a-z0-9_-]{1,100}$/;
+const moduleId=/^(?:foundations|rl|architecture|diffusion|finetuning|optimization|representation|world_models|retrieval|self_evolving|multimodal|robotics|ai_infra|diffusion_rl)\/[a-z0-9_-]{1,100}$/;
 /** Recommendations belong only to the first, unfiltered community or board feed. */
 export function readingHighlightsScope(href:string){
  const feed=readCommunityFeed(href);if(!feed||feed.topicId)return false;

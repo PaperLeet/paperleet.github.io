@@ -3719,6 +3719,10 @@ html { scrollbar-gutter: stable; }
 .collection-post-training { background: linear-gradient(115deg, #9f3d17, #d16d27 65%, #f2a654); }
 .collection-jepa-world-models { background: linear-gradient(115deg, #075469, #0b8397 65%, #38b9bc); }
 .collection-visual-generation { background: linear-gradient(115deg, #942354, #cc4177 65%, #f67d9d); }
+.collection-multimodal { background: linear-gradient(115deg, #82317e, #b43a98 75%, #e37dc0); }
+.collection-robotics { background: linear-gradient(115deg, #17635c, #218d79 75%, #57baa2); }
+.collection-ai-infra { background: linear-gradient(115deg, #263f86, #4167b0 75%, #73a2db); }
+.collection-diffusion-rl { background: linear-gradient(115deg, #8d3d15, #bd632a 75%, #e5a64f); }
 .collection-copy { position: relative; z-index: 1; pointer-events: none; }
 .collection-count { display: block; color: #ffffffd9; font-size: var(--type-small); font-variant-numeric: tabular-nums; }
 .collection-copy h3 { max-width: calc(100% - 45px); margin: 18px 0 8px; font-size: 26px; line-height: 1.2; letter-spacing: -.4px; font-weight: 650; }
@@ -3747,6 +3751,10 @@ html { scrollbar-gutter: stable; }
 .paper-categories .category-retrieval i { background: #48b49b; }
 .paper-categories .category-world-models i { background: #3db8c6; }
 .paper-categories .category-representation i { background: #df769f; }
+.paper-categories .category-multimodal i { background: #d875bd; }
+.paper-categories .category-robotics i { background: #41ae97; }
+.paper-categories .category-ai-infra i { background: #719ae5; }
+.paper-categories .category-diffusion-rl i { background: #de9b4e; }
 .library-toolbar { display: flex; align-items: stretch; gap: 12px; }
 .library-toolbar .search { flex: 1; min-width: 150px; height: 40px; background: var(--surface); }
 .library-toolbar .search input { width: 100%; font-size: var(--type-body); }

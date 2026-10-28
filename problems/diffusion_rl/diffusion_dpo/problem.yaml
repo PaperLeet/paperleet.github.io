@@ -1,0 +1,67 @@
+id: diffusion_rl/diffusion_dpo
+number: 116
+title: Diffusion-DPO 成对去噪偏好优化
+title_en: Diffusion-DPO Paired Denoising Preference Optimization
+paper:
+  title: Diffusion Model Alignment Using Direct Preference Optimization
+  authors: Bram Wallace et al.
+  venue: CVPR 2024
+  arxiv: '2311.12908'
+  url: https://arxiv.org/abs/2311.12908
+  anchors:
+  - 'Section 4: diffusion preference objective'
+  - 'Official train.py: shared pair noise/timestep, feature-mean errors and half-beta scaling'
+paper_id: diffusion-dpo
+difficulty: M
+functions:
+- name: paired_noising
+  signature: 'paired_noising(winner: Tensor, loser: Tensor, noise: Tensor, alpha_bar: Tensor) -> tuple[Tensor, Tensor]'
+- name: diffusion_dpo_loss
+  signature: 'diffusion_dpo_loss(model_w: Tensor, model_l: Tensor, ref_w: Tensor, ref_l: Tensor, noise: Tensor, beta: float) -> Tensor'
+type: implement
+parent: null
+module:
+  goal: 共享偏好对的噪声，并相对冻结参考模型优化去噪误差差值。
+  goal_en: Share noise within each preference pair and optimize denoising error gaps against a frozen reference.
+  scope: 实现成对前向加噪与稳定 Diffusion-DPO 损失，训练两参数去噪器；使用官方实现的特征均值与 beta/2 约定。
+  scope_en: Implement paired forward noising and stable Diffusion-DPO loss, then train a two-parameter denoiser using the official feature-mean and beta/2 convention.
+  required_functions: [paired_noising, diffusion_dpo_loss]
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: CPU float32/float64; preserve dtype/device; no mutation
+  device: CPU; no pretrained weights or downloads
+  shape: All predictions, latents and shared noise have identical nonempty (B,...) shapes; alpha_bar has shape (B,).
+  noising: Square roots of cumulative alpha; both pair members use identical noise and alpha. Outputs are frozen training data.
+  loss: Feature-mean squared errors; margin = -beta/2 * (current winner-minus-loser gap minus reference gap); mean softplus(-margin) over pairs.
+  beta: Finite positive beta; timestep and dimensional constants are absorbed in this effective scale.
+  autograd: Loss gradients flow only to current model_w and model_l; references and noise are frozen.
+tests: {T0: 2, T1: 3, T2: 3, T3: 1}
+t3_budget_s: 10
+estimated_minutes: 35
+tags: [Diffusion RL, Preference Learning, DPO, Denoising]
+viz: [toy_experiment]
+sources_verified: '2026-10-27'
+verified_sources:
+  checked_at: '2026-10-27'
+  links:
+  - https://arxiv.org/html/2311.12908v1
+  - https://github.com/SalesforceAIResearch/DiffusionDPO/blob/main/train.py
+  - https://openaccess.thecvf.com/content/CVPR2024/html/Wallace_Diffusion_Model_Alignment_Using_Direct_Preference_Optimization_CVPR_2024_paper.html
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2311.12908
+  anchor: Section 4; official paired noise and loss implementation
+  adaptation: Four fixed scalar latent pairs and an affine denoiser; 80 actual gradient updates, without image generation or a preference dataset.
+mutants:
+- id: m1_preference_sign
+  bug: 偏好 margin 符号反转
+- id: m2_feature_sum
+  bug: 对特征求和而不是均值
+- id: m3_reference_gradient
+  bug: 参考模型未冻结
+- id: m4_noising_variance
+  bug: 加噪使用方差而不是标准差
+browser:
+  backend: numpy-autograd-wasm

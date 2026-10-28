@@ -1,0 +1,73 @@
+id: diffusion_rl/flow_grpo
+number: 117
+title: Flow-GRPO 随机流转移与组相对策略优化
+title_en: Flow-GRPO Stochastic Flow Transitions and Group-Relative Updates
+paper:
+  title: 'Flow-GRPO: Training Flow Matching Models via Online RL'
+  authors: Jie Liu et al.
+  venue: NeurIPS 2025
+  arxiv: '2505.05470'
+  url: https://arxiv.org/abs/2505.05470
+  anchors:
+  - 'Section 4.1, Eqs. (4)-(6): group advantages and per-transition clipped policy ratios'
+  - 'Section 4.2, Eqs. (9)-(13): reverse-time SDE, Gaussian transitions and exact KL'
+paper_id: flow-grpo
+difficulty: H
+functions:
+- name: sde_transition
+  signature: 'sde_transition(state: Tensor, velocity: Tensor, time: float, next_time: float, noise_level: float) -> tuple[Tensor, Tensor]'
+- name: flow_grpo_loss
+  signature: 'flow_grpo_loss(current: Tensor, old: Tensor, reference: Tensor, actions: Tensor, std: Tensor, rewards: Tensor, clip_epsilon: float, beta: float, eps: float = 1e-8) -> Tensor'
+type: implement
+parent: null
+module:
+  goal: 将 rectified flow 变为可计算概率的随机高斯转移，再按组奖励优化策略。
+  goal_en: Convert rectified flow into stochastic Gaussian transitions with tractable densities and optimize them using group rewards.
+  scope: 实现反向时间的 SDE 均值与方差、按 prompt 归一化奖励、逐转移截断目标和精确高斯 KL；提供小型在线 rollout 训练。
+  scope_en: Implement reverse-time SDE statistics, per-prompt reward normalization, per-transition clipping and exact Gaussian KL with a tiny online rollout experiment.
+  required_functions: [sde_transition, flow_grpo_loss]
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: CPU float32/float64; preserve dtype/device; no mutation
+  device: CPU; no pretrained weights or downloads
+  transition: 'State/velocity: nonempty (B,...); scalar times satisfy 0 <= next_time < time < 1. dt is negative; std uses sqrt(-dt). Zero noise returns ODE statistics.'
+  loss_shapes: 'Means/actions: (P,G,T,D), G >= 2; std: positive (T,); terminal rewards: (P,G).'
+  density: Exact joint Gaussian density sums over D; the official implementation's mean-log-density heuristic is not used.
+  advantage: Population group standard deviation plus eps, independently for each prompt; tied groups have zero advantage.
+  reduction: Average over prompts, group members and transitions; exact equal-variance Gaussian KL sums over features.
+  autograd: Only velocity or current means receive gradients; state, old/reference means, sampled actions, rewards and standard deviations are frozen.
+tests: {T0: 2, T1: 2, T2: 5, T3: 1}
+t3_budget_s: 10
+estimated_minutes: 50
+tags: [Diffusion RL, Flow Matching, GRPO, Stochastic Sampling]
+viz: [toy_experiment]
+sources_verified: '2026-10-27'
+verified_sources:
+  checked_at: '2026-10-27'
+  links:
+  - https://arxiv.org/html/2505.05470v1
+  - https://github.com/yifan123/flow_grpo/blob/main/flow_grpo/diffusers_patch/sd3_sde_with_logprob.py
+  - https://gongyeliu.github.io/Flow-GRPO/
+  - https://proceedings.neurips.cc/paper_files/paper/2025/hash/3a10c46572628d58cb44fb705f25cbbf-Abstract-Conference.html
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2505.05470
+  anchor: Section 4.1 Eqs. (4)-(6); Section 4.2 Eqs. (11)-(13)
+  adaptation: Three scalar prompts with 24 fresh one-transition trajectories per prompt and 80 policy updates; no image model, image rewards or full denoising-reduction benchmark.
+mutants:
+- id: m1_omit_score_drift
+  bug: 丢弃 ODE 转 SDE 的 score 漂移修正
+- id: m2_noise_timestep
+  bug: 标准差使用时间步而不是平方根
+- id: m3_global_rewards
+  bug: 跨 prompt 归一化奖励
+- id: m4_density_feature_mean
+  bug: 联合 log density 错误取特征均值
+- id: m5_optimistic_clipping
+  bug: 使用 max 截断代理目标
+- id: m6_reference_gradient
+  bug: KL 参考均值未冻结
+browser:
+  backend: numpy-autograd-wasm
