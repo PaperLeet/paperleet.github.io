@@ -1,0 +1,68 @@
+id: robotics/pi0_5
+number: 148
+title: π0.5 混合动作头防泄漏注意力
+title_en: π0.5 Leakage-Free Hybrid Action Attention
+paper:
+  title: 'π₀.₅: a Vision-Language-Action Model with Open-World Generalization'
+  authors: Physical Intelligence et al.
+  venue: arXiv 2025
+  url: https://arxiv.org/abs/2504.16054
+  anchors:
+  - 'Appendix E, Figure 18: attention mask for discrete and continuous action training'
+  arxiv: '2504.16054'
+paper_id: pi0-5
+difficulty: M
+type: implement
+parent: null
+module:
+  goal: π0.5 混合动作头防泄漏注意力：实现下列接口并通过数值、边界和实验检查。
+  goal_en: 'π0.5 Leakage-Free Hybrid Action Attention: implement the interfaces below and verify numerical,
+    boundary and experimental behavior.'
+  scope: 实现论文附录E/Figure18的训练注意力连接；prefix、离散FAST标签和连续动作expert的内容由调用者给定，省略模型预训练。
+  scope_en: Implement Appendix E / Figure 18 training attention connectivity. Prefix, discrete FAST labels
+    and continuous action-expert contents are supplied; omit model pretraining.
+  required_functions:
+  - hybrid_attention_mask
+  provided_functions: []
+  optional: false
+functions:
+- name: hybrid_attention_mask
+  signature: 'hybrid_attention_mask(valid: Tensor, prefix_length: int, fast_length: int) -> Tensor'
+conventions:
+  seed: 42
+  device: CPU float32/float64; no downloads; preserve floating dtype/device; do not mutate inputs
+  contract: Valid is bool (B,L), prefix_length>=1, fast_length>=0 and at least one expert token remains.
+    Return bool (B,L,L), rows=query, columns=key. FAST inputs are shifted teacher-forcing tokens and may
+    attend themselves; expert attention is bidirectional but cannot see FAST.
+tests:
+  T0: 1
+  T1: 1
+  T2: 1
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+tags:
+- Robotics
+- VLA
+- Attention Mask
+viz:
+- toy_experiment
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2504.16054
+  - https://arxiv.org/html/2504.16054v1
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2504.16054
+  anchor: 'Appendix E, Figure 18: attention mask for discrete and continuous action training'
+  adaptation: Implement Appendix E / Figure 18 training attention connectivity. Prefix, discrete FAST
+    labels and continuous action-expert contents are supplied; omit model pretraining.
+mutants:
+- id: m1_fast_leak
+  bug: Action-expert queries can read clean FAST action labels.
+- id: m2_expert_causal
+  bug: The continuous action expert incorrectly uses causal rather than bidirectional attention.
+browser:
+  backend: numpy-autograd-wasm

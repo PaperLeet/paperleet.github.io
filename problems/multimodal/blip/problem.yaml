@@ -1,0 +1,78 @@
+id: multimodal/blip
+number: 128
+paper_id: blip
+title: BLIP 动量软目标混合
+title_en: BLIP momentum soft-target mixing
+difficulty: M
+type: implement
+parent: null
+paper:
+  title: 'BLIP: Bootstrapping Language-Image Pre-training for Unified Vision-Language
+    Understanding and Generation'
+  authors: Junnan Li et al.
+  venue: arXiv 2022
+  arxiv: '2201.12086'
+  url: https://arxiv.org/abs/2201.12086
+  anchors:
+  - 'Section 3.1: image-text contrastive learning with momentum encoders and soft
+    targets'
+functions:
+- name: momentum_target_loss
+  signature: 'momentum_target_loss(logits: Tensor, teacher_logits: Tensor, positives:
+    Tensor, alpha: float) -> Tensor'
+  returns: logits and teacher_logits are [B,N], where N may include queued negatives.
+    positives is int64 [B] of positive columns. alpha is in [0,1]; targets mix alpha*teacher_softmax
+    with (1-alpha)*one_hot. Stop teacher gradients and average over B, not B*N. Inputs
+    are already temperature-scaled.
+module:
+  goal: BLIP 动量软目标混合
+  goal_en: BLIP momentum soft-target mixing
+  scope: 实现 BLIP 一个检索方向的动量软标签蒸馏；支持非方形负样本队列，不实现队列更新、动量编码器或 CapFilt 数据生成。
+  scope_en: Implement BLIP momentum soft-target distillation for one retrieval direction
+    with rectangular negative queues; omit queue updates, momentum encoders, and CapFilt
+    data generation.
+  required_functions:
+  - momentum_target_loss
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: CPU float32/float64; metadata indices are int64
+  contract: logits and teacher_logits are [B,N], where N may include queued negatives.
+    positives is int64 [B] of positive columns. alpha is in [0,1]; targets mix alpha*teacher_softmax
+    with (1-alpha)*one_hot. Stop teacher gradients and average over B, not B*N. Inputs
+    are already temperature-scaled.
+  mutation: Inputs are never modified in place
+tests:
+  T0: 1
+  T1: 1
+  T2: 3
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2201.12086
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2201.12086
+  anchor: 'Section 3.1: image-text contrastive learning with momentum encoders and
+    soft targets'
+  adaptation: Implement BLIP momentum soft-target distillation for one retrieval direction
+    with rectangular negative queues; omit queue updates, momentum encoders, and CapFilt
+    data generation. Deterministic CPU float64 synthetic inputs; no benchmark reproduction.
+tags:
+- Multimodal
+- BLIP
+- Paper-to-Code
+mutants:
+- id: m1_reversed_alpha
+  bug: Reverses teacher and hard-label weights
+- id: m2_teacher_gradient
+  bug: Updates momentum teacher through targets

@@ -1,0 +1,72 @@
+id: ai_infra/gptq
+number: 162
+paper_id: gptq
+title: GPTQ Cholesky 误差补偿量化
+title_en: GPTQ Cholesky Error-Compensated Quantization
+difficulty: H
+type: implement
+parent: null
+paper:
+  title: 'GPTQ: Accurate Post-Training Quantization for Generative Pre-trained Transformers'
+  authors: Elias Frantar et al.
+  venue: ICLR 2023
+  url: https://arxiv.org/abs/2210.17323
+  anchors:
+  - Section 4, Algorithm 1; official gptq.py fasterquant inner column loop
+  arxiv: '2210.17323'
+module:
+  goal: 按固定列顺序量化权重，并用逆Hessian的Cholesky因子补偿剩余列误差。
+  goal_en: Quantize columns in fixed order and compensate remaining columns using the inverse-Hessian
+    Cholesky factor.
+  scope: 给定上三角Cholesky因子的单块GPTQ核心；量化网格固定，Hessian估计、阻尼与分解由题外提供。
+  scope_en: The single-block GPTQ core with a supplied upper Cholesky factor and fixed quantization grid;
+    Hessian estimation, damping and factorization are supplied externally.
+  required_functions:
+  - gptq_quantize
+  provided_functions: []
+  optional: false
+functions:
+- name: gptq_quantize
+  signature: 'gptq_quantize(weight: Tensor, upper: Tensor, scales: Tensor, qmin: int = -7, qmax: int =
+    7) -> Tensor'
+  returns: Dequantized weights after sequential second-order error compensation.
+conventions:
+  seed: 42
+  contract: weight:(O,D), upper:(D,D), scales:(O,). upper has zeros below its positive diagonal and represents
+    H^{-1}=U^T U. Use ties-to-even rounding and inclusive integer bounds. Quantize left to right and compensate
+    the current and all later columns. Return dequantized floating weights without mutating inputs; offline
+    PTQ has no gradients.
+  dtype: CPU float32/float64 for tensors; Python integers for discrete scheduling; preserve caller inputs
+tests:
+  T0: 1
+  T1: 2
+  T2: 2
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 40
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2210.17323
+  - https://raw.githubusercontent.com/IST-DASLab/gptq/main/gptq.py
+  - https://arxiv.org/html/2210.17323
+tags:
+- AI Infra
+- GPTQ
+- Numerical Methods
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2210.17323
+  anchor: Section 4, Algorithm 1; official gptq.py fasterquant inner column loop
+  adaptation: Use two correlated calibration features and two weight rows, sweep fixed quantization steps,
+    and compare output-reconstruction MSE against independent round-to-nearest.
+mutants:
+- id: m1_no_compensation
+  bug: 量化后没有补偿后续列
+- id: m2_wrong_error_sign
+  bug: 误差补偿使用相反符号

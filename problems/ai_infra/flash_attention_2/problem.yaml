@@ -1,0 +1,69 @@
+id: ai_infra/flash_attention_2
+number: 157
+paper_id: flash-attention-2
+title: FlashAttention-2 延后归一化与行块
+title_en: FlashAttention-2 Delayed Normalization and Query Blocks
+difficulty: H
+type: implement
+parent: null
+paper:
+  title: 'FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning'
+  authors: Tri Dao
+  venue: ICLR 2024
+  url: https://arxiv.org/abs/2307.08691
+  anchors:
+  - Section 3.1.1, Algorithm 1; Section 3.3, query-row work partitioning
+  arxiv: '2307.08691'
+module:
+  goal: 按查询块流式处理 K/V，维护未归一化输出并返回 logsumexp。
+  goal_en: Stream K/V for each query block, maintaining unnormalized outputs and returning logsumexp.
+  scope: 单头方形注意力的 CPU 规格实现，含因果 mask、尾块、数值稳定性与自动微分；不计 GPU warp 时间。
+  scope_en: A CPU specification of single-head square attention, including causal masks, tail blocks,
+    numerical stability and autograd; no GPU warp timing.
+  required_functions:
+  - flash2_forward
+  provided_functions: []
+  optional: false
+functions:
+- name: flash2_forward
+  signature: 'flash2_forward(q: Tensor, k: Tensor, v: Tensor, query_block: int, key_block: int, causal:
+    bool = False) -> tuple[Tensor, Tensor]'
+  returns: Attention output and per-row logsumexp.
+conventions:
+  seed: 42
+  contract: q,k:(N,D), v:(N,V), returning O:(N,V) and L:(N,). Scores include 1/sqrt(D). query_block and
+    key_block are positive integers. Causal visibility is key_index<=query_index; each row sees itself.
+    Normalize U by l only after streaming. Both outputs retain gradients.
+  dtype: CPU float32/float64 for tensors; Python integers for discrete scheduling; preserve caller inputs
+tests:
+  T0: 1
+  T1: 2
+  T2: 2
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 40
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2307.08691
+  - https://arxiv.org/html/2307.08691
+tags:
+- AI Infra
+- FlashAttention-2
+- Numerical Methods
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2307.08691
+  anchor: Section 3.1.1, Algorithm 1; Section 3.3, query-row work partitioning
+  adaptation: Sweep five uneven block sizes on 13 deterministic tokens, four query/key features and three
+    value features, for causal and full attention; compare outputs and LSE with dense execution.
+mutants:
+- id: m1_missing_numerator_rescale
+  bug: 最大值变化时没有重缩放旧分子
+- id: m2_unscaled_logits
+  bug: 忘记head维度缩放

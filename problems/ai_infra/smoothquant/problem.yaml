@@ -1,0 +1,74 @@
+id: ai_infra/smoothquant
+number: 163
+paper_id: smoothquant
+title: SmoothQuant 激活与权重等价平滑
+title_en: SmoothQuant Equivalent Activation and Weight Smoothing
+difficulty: M
+type: implement
+parent: null
+paper:
+  title: 'SmoothQuant: Accurate and Efficient Post-Training Quantization for Large Language Models'
+  authors: Guangxuan Xiao et al.
+  venue: ICML 2023
+  url: https://arxiv.org/abs/2211.10438
+  anchors:
+  - Section 4, Equations (3) and (4); official smooth.py offline scale construction
+  arxiv: '2211.10438'
+module:
+  goal: 计算逐输入通道平滑因子，并验证相反方向缩放保持线性层输出与梯度。
+  goal_en: Compute input-channel smoothing factors and preserve linear-layer outputs and gradients under
+    reciprocal scaling.
+  scope: 校准最大值、离线scale与可微等价变换；实验用对称INT8模拟量化，未实现整数GEMM或LayerNorm融合。
+  scope_en: Calibration maxima, offline scales and differentiable equivalent transforms; the experiment
+    simulates symmetric INT8 without integer GEMM or LayerNorm fusion.
+  required_functions:
+  - smooth_scales
+  - smooth_transform
+  provided_functions: []
+  optional: false
+functions:
+- name: smooth_scales
+  signature: 'smooth_scales(x: Tensor, weight: Tensor, alpha: float = 0.5, eps: float = 1e-5) -> Tensor'
+  returns: Detached positive per-input-channel calibration scales.
+- name: smooth_transform
+  signature: 'smooth_transform(x: Tensor, weight: Tensor, scales: Tensor) -> tuple[Tensor, Tensor]'
+  returns: Differentiable reciprocally rescaled activations and weights.
+conventions:
+  seed: 42
+  contract: x:(N,D), weight:(D,O), alpha in [0,1], eps>0. Clamp weight-channel absolute maxima to eps,
+    then clamp final scales to eps. Zero activation channels follow this formula. Calibration scales are
+    detached; smooth_transform is differentiable in x, weight and scale. Inputs are unchanged.
+  dtype: CPU float32/float64 for tensors; Python integers for discrete scheduling; preserve caller inputs
+tests:
+  T0: 1
+  T1: 2
+  T2: 2
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 40
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2211.10438
+  - https://raw.githubusercontent.com/mit-han-lab/smoothquant/main/smoothquant/smooth.py
+  - https://arxiv.org/html/2211.10438
+tags:
+- AI Infra
+- SmoothQuant
+- Numerical Methods
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2211.10438
+  anchor: Section 4, Equations (3) and (4); official smooth.py offline scale construction
+  adaptation: Use 17 samples with one activation channel amplified by 100 and correspondingly small weights;
+    sweep alpha and compare direct and smoothed INT8 reconstruction errors.
+mutants:
+- id: m1_weight_wrong_direction
+  bug: 权重也除以scale破坏等价变换
+- id: m2_mean_instead_of_max
+  bug: 校准激活使用均值而非最大值

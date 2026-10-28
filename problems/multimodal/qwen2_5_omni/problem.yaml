@@ -1,0 +1,80 @@
+id: multimodal/qwen2_5_omni
+number: 139
+paper_id: qwen2-5-omni
+title: Qwen2.5-Omni 音视频时间对齐与交错
+title_en: Qwen2.5-Omni time-aligned audio-video interleaving
+difficulty: M
+type: implement
+parent: null
+paper:
+  title: Qwen2.5-Omni Technical Report
+  authors: Qwen Team
+  venue: arXiv 2025
+  arxiv: '2503.20215'
+  url: https://arxiv.org/abs/2503.20215
+  anchors:
+  - 'Section 2.2 Video and TMRoPE: 40 ms temporal IDs and video-first 2-second chunks'
+functions:
+- name: time_aligned_interleave
+  signature: 'time_aligned_interleave(video_times: Tensor, audio_times: Tensor) ->
+    tuple[Tensor, Tensor]'
+  returns: video_times [V] and audio_times [A] are separately nondecreasing, nonnegative
+    floating seconds, with at least one nonempty stream and shared dtype/device. Chunks
+    are half-open [2c,2c+2). Order chunks increasingly; place all video before all
+    audio within each chunk, preserving each stream’s order. Return int64 permutation
+    into concat(video,audio) and reordered temporal_ids=floor(time*25). Spatial H/W
+    axes are excluded; quantized times and indices are not differentiable.
+module:
+  goal: Qwen2.5-Omni 音视频时间对齐与交错
+  goal_en: Qwen2.5-Omni time-aligned audio-video interleaving
+  scope: 两秒块内视频优先的流交错和 40ms 时间格映射；不包含音视频编码器、Thinker–Talker 或语音波形生成。
+  scope_en: Video-first stream interleaving within two-second chunks and a shared
+    40 ms temporal grid; exclude audiovisual encoders, Thinker–Talker, and waveform
+    generation.
+  required_functions:
+  - time_aligned_interleave
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: CPU float32/float64; metadata indices are int64
+  contract: video_times [V] and audio_times [A] are separately nondecreasing, nonnegative
+    floating seconds, with at least one nonempty stream and shared dtype/device. Chunks
+    are half-open [2c,2c+2). Order chunks increasingly; place all video before all
+    audio within each chunk, preserving each stream’s order. Return int64 permutation
+    into concat(video,audio) and reordered temporal_ids=floor(time*25). Spatial H/W
+    axes are excluded; quantized times and indices are not differentiable.
+  mutation: Inputs are never modified in place
+tests:
+  T0: 1
+  T1: 1
+  T2: 3
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2503.20215
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2503.20215
+  anchor: 'Section 2.2 Video and TMRoPE: 40 ms temporal IDs and video-first 2-second
+    chunks'
+  adaptation: Video-first stream interleaving within two-second chunks and a shared
+    40 ms temporal grid; exclude audiovisual encoders, Thinker–Talker, and waveform
+    generation. Deterministic CPU float64 synthetic inputs; no benchmark reproduction.
+tags:
+- Multimodal
+- Qwen2.5-Omni
+- Paper-to-Code
+mutants:
+- id: m1_wrong_clock
+  bug: Uses 20 ms instead of 40 ms time IDs
+- id: m2_audio_first
+  bug: Places audio before video within a chunk

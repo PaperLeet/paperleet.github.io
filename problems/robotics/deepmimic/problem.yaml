@@ -1,0 +1,69 @@
+id: robotics/deepmimic
+number: 152
+title: DeepMimic 四分量动作模仿奖励
+title_en: DeepMimic Four-Component Motion Imitation Reward
+paper:
+  title: 'DeepMimic: Example-Guided Deep Reinforcement Learning of Physics-Based Character Skills'
+  authors: Xue Bin Peng, Pieter Abbeel, Sergey Levine, Michiel van de Panne
+  venue: ACM TOG / SIGGRAPH 2018
+  url: https://arxiv.org/abs/1804.02717
+  anchors:
+  - 'Section 5.3 Reward Function: weighted pose, velocity, end-effector and center-of-mass imitation terms'
+  arxiv: '1804.02717'
+paper_id: deepmimic
+difficulty: M
+type: implement
+parent: null
+module:
+  goal: DeepMimic 四分量动作模仿奖励：实现下列接口并通过数值、边界和实验检查。
+  goal_en: 'DeepMimic Four-Component Motion Imitation Reward: implement the interfaces below and verify
+    numerical, boundary and experimental behavior.'
+  scope: 实现姿态、角速度、末端与质心四项模仿奖励；姿态输入为预先计算的四元数测地角误差，不实现PPO、姿态解析或物理仿真。
+  scope_en: Implement pose, angular-velocity, end-effector and center-of-mass imitation rewards. Pose
+    inputs are precomputed quaternion geodesic angle errors; omit PPO, pose parsing and physical simulation.
+  required_functions:
+  - imitation_reward
+  provided_functions: []
+  optional: false
+functions:
+- name: imitation_reward
+  signature: 'imitation_reward(pose_angles: Tensor, velocity_errors: Tensor, end_errors: Tensor, com_errors:
+    Tensor) -> Tensor'
+conventions:
+  seed: 42
+  device: CPU float32/float64; no downloads; preserve floating dtype/device; do not mutate inputs
+  contract: Pose angles are (B,J) in [0,pi], velocity_errors (B,J,3), end_errors (B,E,3), com_errors (B,3),
+    same dtype/device. Return (B,) rewards without batch averaging. Preserve error gradients.
+tests:
+  T0: 1
+  T1: 1
+  T2: 1
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+tags:
+- Robotics
+- Motion Imitation
+- Reward Design
+viz:
+- toy_experiment
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/1804.02717
+  - https://arxiv.org/html/1804.02717
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/1804.02717
+  anchor: 'Section 5.3 Reward Function: weighted pose, velocity, end-effector and center-of-mass imitation
+    terms'
+  adaptation: Implement pose, angular-velocity, end-effector and center-of-mass imitation rewards. Pose
+    inputs are precomputed quaternion geodesic angle errors; omit PPO, pose parsing and physical simulation.
+mutants:
+- id: m1_end_scale
+  bug: End-effector position errors use the angular-velocity scale.
+- id: m2_joint_mean
+  bug: Pose error averages joints instead of summing them.
+browser:
+  backend: numpy-autograd-wasm

@@ -1,5 +1,5 @@
 id: robotics/diffusion_policy
-number: 114
+number: 120
 title: Diffusion Policy 动作去噪与滚动执行
 title_en: Diffusion Policy Action Denoising and Receding-Horizon Execution
 paper:

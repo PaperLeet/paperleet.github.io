@@ -1,0 +1,65 @@
+id: diffusion_rl/pc_flow
+number: 168
+title: PC-Flow 分类器的相邻时刻偏好比率
+title_en: PC-Flow Adjacent-Time Classifier Preference Ratios
+paper:
+  title: 'PC-Flow: Preference Alignment in Flow Matching via Classifier'
+  authors: Shaomeng Wang et al.
+  venue: 2026 preprint / linked proceedings
+  url: https://ojs.aaai.org/index.php/AAAI/article/view/37971
+  anchors:
+  - Preference Classifier Training Objective, Eq. (10)
+paper_id: pc-flow
+difficulty: M
+functions:
+- name: pcflow_loss
+  signature: 'pcflow_loss(winner_next: Tensor, winner_now: Tensor, loser_next: Tensor, loser_now: Tensor,
+    beta: float, total_steps: int) -> Tensor'
+type: implement
+parent: null
+module:
+  goal: 从相邻时刻的分类器 logits 构造参考模型无关的偏好训练目标。
+  goal_en: Build a reference-free preference objective from classifier logits at adjacent sampling times.
+  scope: 只训练偏好分类器的相邻时刻目标；基座 flow 与引导采样器不在范围内。
+  scope_en: Implement the adjacent-time classifier objective; the base flow and guided sampler are outside
+    the exercise.
+  required_functions:
+  - pcflow_loss
+  provided_functions: []
+  optional: false
+conventions:
+  tensors: CPU float32/float64, preserve dtype/device; finite nonempty inputs. No in-place mutation.
+  contract: winner_next/winner_now/loser_next/loser_now are equal (B,) classifier logits. beta>0, total_steps
+    is positive integer. Classifier probabilities are sigmoid(logit), not raw logits.
+  autograd: All four classifier evaluations differentiate because both adjacent states contribute to each
+    log probability ratio.
+tests:
+  T0: 1
+  T1: 2
+  T2: 3
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 35
+tags:
+- Diffusion RL
+- PC-Flow
+viz:
+- toy_experiment
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://ojs.aaai.org/index.php/AAAI/article/view/37971
+toy:
+  kind: teaching_adaptation
+  source: https://ojs.aaai.org/index.php/AAAI/article/view/37971
+  anchor: Preference Classifier Training Objective, Eq. (10)
+  adaptation: A linear classifier learns opposite next-state changes for winner and loser transitions
+    over 50 actual updates.
+mutants:
+- id: m1_contract
+  bug: Use raw logits instead of log classifier probabilities
+- id: m2_contract
+  bug: Drop total sampling-step factor
+browser:
+  backend: numpy-autograd-wasm

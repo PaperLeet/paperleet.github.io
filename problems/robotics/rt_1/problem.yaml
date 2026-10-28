@@ -1,0 +1,67 @@
+id: robotics/rt_1
+number: 143
+title: RT-1 TokenLearner 空间汇聚
+title_en: RT-1 TokenLearner Spatial Pooling
+paper:
+  title: 'RT-1: Robotics Transformer for Real-World Control at Scale'
+  authors: Anthony Brohan et al.
+  venue: arXiv 2022 / RSS 2023
+  url: https://arxiv.org/abs/2212.06817
+  anchors:
+  - 'Official tokenizers/token_learner.py: spatial softmax and einsum over original features'
+  arxiv: '2212.06817'
+paper_id: rt-1
+difficulty: M
+type: implement
+parent: null
+module:
+  goal: RT-1 TokenLearner 空间汇聚：实现下列接口并通过数值、边界和实验检查。
+  goal_en: 'RT-1 TokenLearner Spatial Pooling: implement the interfaces below and verify numerical, boundary
+    and experimental behavior.'
+  scope: 提取视觉token压缩器；MLP注意力logits作为输入，不训练EfficientNet、Transformer或真实机器人。
+  scope_en: Isolate visual-token compression with supplied MLP attention logits; omit EfficientNet, the
+    Transformer and physical robots.
+  required_functions:
+  - token_learner_pool
+  provided_functions: []
+  optional: false
+functions:
+- name: token_learner_pool
+  signature: 'token_learner_pool(features: Tensor, logits: Tensor) -> Tensor'
+conventions:
+  seed: 42
+  device: CPU float32/float64; no downloads; preserve floating dtype/device; do not mutate inputs
+  contract: Features are (B,L,C), logits (B,L,K); softmax only over spatial L. Return (B,K,C), preserving
+    gradients of both inputs.
+tests:
+  T0: 1
+  T1: 1
+  T2: 1
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+tags:
+- Robotics
+- TokenLearner
+- Attention
+viz:
+- toy_experiment
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2212.06817
+  - https://github.com/google-research/robotics_transformer/blob/master/tokenizers/token_learner.py
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2212.06817
+  anchor: 'Official tokenizers/token_learner.py: spatial softmax and einsum over original features'
+  adaptation: Isolate visual-token compression with supplied MLP attention logits; omit EfficientNet,
+    the Transformer and physical robots.
+mutants:
+- id: m1_token_axis
+  bug: Softmax normalizes learned tokens rather than spatial positions.
+- id: m2_uniform_pool
+  bug: The learned spatial weights are discarded.
+browser:
+  backend: numpy-autograd-wasm

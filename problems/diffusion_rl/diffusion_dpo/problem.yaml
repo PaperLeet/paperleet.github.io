@@ -1,5 +1,5 @@
 id: diffusion_rl/diffusion_dpo
-number: 116
+number: 122
 title: Diffusion-DPO 成对去噪偏好优化
 title_en: Diffusion-DPO Paired Denoising Preference Optimization
 paper:

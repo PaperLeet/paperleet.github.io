@@ -1,0 +1,70 @@
+id: diffusion_rl/ddpo
+number: 169
+title: DDPO 高斯转移密度与逐步 PPO
+title_en: DDPO Gaussian Transition Densities and Stepwise PPO
+paper:
+  title: Training Diffusion Models with Reinforcement Learning
+  authors: Kevin Black et al.
+  venue: 2023 preprint / linked proceedings
+  url: https://arxiv.org/abs/2305.13301
+  anchors:
+  - Section 4.3 Eq. (6), importance-sampled DDPO; Appendix D.1
+  arxiv: '2305.13301'
+paper_id: ddpo
+difficulty: M
+functions:
+- name: gaussian_log_prob
+  signature: 'gaussian_log_prob(mean: Tensor, actions: Tensor, std: Tensor) -> Tensor'
+- name: ddpo_loss
+  signature: 'ddpo_loss(current: Tensor, old: Tensor, advantages: Tensor, clip: float) -> Tensor'
+type: implement
+parent: null
+module:
+  goal: 计算高斯去噪转移的联合 log 密度，并实现终点优势广播的 clipped PPO 损失。
+  goal_en: Compute joint Gaussian denoising-transition log densities and clipped PPO with terminal advantages
+    broadcast over steps.
+  scope: 使用固定方差高斯转移实现 DDPO 的策略目标，包含在线小型 bandit；不加载扩散骨干。
+  scope_en: Implement the DDPO objective for fixed-variance Gaussian transitions and an online toy bandit,
+    without a diffusion backbone.
+  required_functions:
+  - gaussian_log_prob
+  - ddpo_loss
+  provided_functions: []
+  optional: false
+conventions:
+  tensors: CPU float32/float64, preserve dtype/device; finite nonempty inputs. No in-place mutation.
+  contract: 'gaussian_log_prob: means/actions (B,T,D), std (T,) strictly positive; return (B,T) summing
+    D. ddpo_loss: current/old (B,T), advantages (B,), 0<clip<1. Average B,T.'
+  autograd: Gaussian actions and std are detached; current means differentiate. PPO old log probabilities
+    and advantages are detached. Very large unfavorable log ratios may overflow; finite tested ratios
+    stay within the declared numerical domain |current-old|<=40.
+tests:
+  T0: 1
+  T1: 2
+  T2: 3
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 35
+tags:
+- Diffusion RL
+- DDPO
+viz:
+- toy_experiment
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2305.13301
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2305.13301
+  anchor: Section 4.3 Eq. (6), importance-sampled DDPO; Appendix D.1
+  adaptation: A scalar Gaussian policy with standard deviation 0.6 draws 128 fresh actions per update;
+    60 PPO gradient updates optimize a quadratic terminal reward toward target 1.
+mutants:
+- id: m1_contract
+  bug: Average action coordinates instead of joint density
+- id: m2_contract
+  bug: Reverse conservative clipping
+browser:
+  backend: numpy-autograd-wasm

@@ -20,11 +20,72 @@ try {
   const {parseHandoff} = await server.ssrLoadModule('/src/draftHandoff.ts');
   const {discussionPracticeTarget} = await server.ssrLoadModule('/src/discussionPracticeReturn.ts');
   const sections = {
-    multimodal: ['multimodal/siglip'],
-    robotics: ['robotics/diffusion_policy', 'robotics/supermimic'],
-    'ai-infra': ['ai_infra/paged_attention'],
-    'diffusion-rl': ['diffusion_rl/diffusion_dpo', 'diffusion_rl/flow_grpo'],
+    "multimodal": [
+      "multimodal/siglip",
+      "multimodal/align",
+      "multimodal/siglip_2",
+      "multimodal/blip",
+      "multimodal/blip_2",
+      "multimodal/flamingo",
+      "multimodal/llava",
+      "multimodal/instructblip",
+      "multimodal/imagebind",
+      "multimodal/chameleon",
+      "multimodal/qwen2_vl",
+      "multimodal/qwen2_5_vl",
+      "multimodal/internvl3",
+      "multimodal/qwen3_vl",
+      "multimodal/qwen2_5_omni"
+    ],
+    "robotics": [
+      "robotics/diffusion_policy",
+      "robotics/supermimic",
+      "robotics/dagger",
+      "robotics/act",
+      "robotics/rdt_1b",
+      "robotics/rt_1",
+      "robotics/rt_2",
+      "robotics/octo",
+      "robotics/openvla",
+      "robotics/pi0",
+      "robotics/pi0_5",
+      "robotics/dreamerv3",
+      "robotics/daydreamer",
+      "robotics/td_mpc2",
+      "robotics/deepmimic",
+      "robotics/diffmimic"
+    ],
+    "ai-infra": [
+      "ai_infra/paged_attention",
+      "ai_infra/gpipe",
+      "ai_infra/megatron_lm",
+      "ai_infra/zero",
+      "ai_infra/flash_attention_2",
+      "ai_infra/orca",
+      "ai_infra/sglang",
+      "ai_infra/sarathi_serve",
+      "ai_infra/distserve",
+      "ai_infra/gptq",
+      "ai_infra/smoothquant",
+      "ai_infra/awq"
+    ],
+    "diffusion-rl": [
+      "diffusion_rl/diffusion_dpo",
+      "diffusion_rl/flow_grpo",
+      "diffusion_rl/imagereward",
+      "diffusion_rl/diffusion_kto",
+      "diffusion_rl/d3po",
+      "diffusion_rl/pc_flow",
+      "diffusion_rl/ddpo",
+      "diffusion_rl/dpok",
+      "diffusion_rl/alignprop",
+      "diffusion_rl/draft",
+      "diffusion_rl/dancegrpo",
+      "diffusion_rl/mixgrpo",
+      "diffusion_rl/flow_dppo"
+    ]
   };
+  assert.equal(Object.values(sections).flat().length, 56, "All six initial and fifty expansion modules must stay covered");
   const props = {...catalog, saved: {}, progressReady: true};
   for (const [section, newIds] of Object.entries(sections)) {
     const collection = paperCollections.find(item => item.id === section);
@@ -73,7 +134,7 @@ try {
     const handoff = {version: 1, id: 'invalid', problem: bad, code: 'draft', created: 1000};
     assert.equal(parseHandoff(JSON.stringify(handoff), 1000), undefined);
   }
-  console.log('PASS research sections: bilingual discovery, executable content, section-scoped practice, numbered/canonical sign-in returns, private draft handoff and discussion returns');
+  console.log('PASS research sections: all 56 new modules, bilingual discovery, executable content, section-scoped practice, numbered/canonical sign-in returns, private draft handoff and discussion returns');
 } finally {
   await server.close();
 }

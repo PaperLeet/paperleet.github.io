@@ -1,0 +1,68 @@
+id: diffusion_rl/draft
+number: 172
+title: DRaFT-LV 重加噪奖励梯度平均
+title_en: DRaFT-LV Reward Gradients from Re-Noised Samples
+paper:
+  title: Directly Fine-Tuning Diffusion Models on Differentiable Rewards
+  authors: Kevin Clark et al.
+  venue: 2023 preprint / linked proceedings
+  url: https://arxiv.org/abs/2309.17400
+  anchors:
+  - Section 4, DRaFT-LV and Algorithm 1 re-noising lines
+  arxiv: '2309.17400'
+paper_id: draft
+difficulty: M
+functions:
+- name: draft_lv_loss
+  signature: 'draft_lv_loss(generated: Tensor, noises: Tensor, alpha: float, sigma: float, denoiser, reward)
+    -> Tensor'
+type: implement
+parent: null
+module:
+  goal: 复用生成样本，通过多次重加噪和单步去噪构造低方差奖励梯度。
+  goal_en: Reuse generated samples via re-noising and one-step denoising to aggregate reward gradients.
+  scope: 实现 DRaFT-LV 额外样本的停止梯度与平均；初始生成过程由调用者提供。
+  scope_en: Implement DRaFT-LV stop-gradient and averaging for extra samples; the initial differentiable
+    generated sample is supplied.
+  required_functions:
+  - draft_lv_loss
+  provided_functions: []
+  optional: false
+conventions:
+  tensors: CPU float32/float64, preserve dtype/device; finite nonempty inputs. No in-place mutation.
+  contract: generated (B,D), noises (K,B,D), K>=1; alpha>0 and sigma>=0 amplitudes. denoiser(x) returns
+    (B,D); reward(x) returns (B,). Include original reward and K reconstructed rewards, averaged over
+    K+1 and B.
+  autograd: Original generated samples retain their reward gradient. Re-noising uses generated.detach()
+    and frozen noises; additional gradients reach only the denoiser. Reward parameters are supplied/frozen
+    by caller but input gradients remain live.
+tests:
+  T0: 1
+  T1: 2
+  T2: 3
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 35
+tags:
+- Diffusion RL
+- DRaFT
+viz:
+- toy_experiment
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2309.17400
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2309.17400
+  anchor: Section 4, DRaFT-LV and Algorithm 1 re-noising lines
+  adaptation: A scalar generator and epsilon denoiser share one parameter; two fixed symmetric re-noising
+    draws provide extra differentiable quadratic rewards over 55 updates.
+mutants:
+- id: m1_contract
+  bug: Backpropagate through reused generated anchor
+- id: m2_contract
+  bug: Omit original branch from averaging denominator
+browser:
+  backend: numpy-autograd-wasm

@@ -1,0 +1,75 @@
+id: robotics/dreamerv3
+number: 149
+title: DreamerV3 symlog与two-hot价值编码
+title_en: DreamerV3 Symlog and Two-Hot Value Encoding
+paper:
+  title: Mastering Diverse Domains through World Models
+  authors: Danijar Hafner, Jurgis Pasukonis, Jimmy Ba, Timothy Lillicrap
+  venue: arXiv 2023
+  url: https://arxiv.org/abs/2301.04104
+  anchors:
+  - Symlog predictions and two-hot distribution; Appendix Distributions
+  arxiv: '2301.04104'
+paper_id: dreamerv3
+difficulty: M
+type: implement
+parent: null
+module:
+  goal: DreamerV3 symlog与two-hot价值编码：实现下列接口并通过数值、边界和实验检查。
+  goal_en: 'DreamerV3 Symlog and Two-Hot Value Encoding: implement the interfaces below and verify numerical,
+    boundary and experimental behavior.'
+  scope: 实现跨数量级标量变换与离散支持编码；不训练RSSM、想象策略或Minecraft。two_hot输入已经位于symlog空间，中心由调用者指定。
+  scope_en: Implement scale-robust scalar transforms and discrete-support encoding; omit the RSSM, imagined
+    policy and Minecraft. two_hot receives values already in symlog space and caller-supplied centers.
+  required_functions:
+  - symlog
+  - symexp
+  - two_hot
+  provided_functions: []
+  optional: false
+functions:
+- name: symlog
+  signature: 'symlog(values: Tensor) -> Tensor'
+- name: symexp
+  signature: 'symexp(values: Tensor) -> Tensor'
+- name: two_hot
+  signature: 'two_hot(values: Tensor, bins: Tensor) -> Tensor'
+conventions:
+  seed: 42
+  device: CPU float32/float64; no downloads; preserve floating dtype/device; do not mutate inputs
+  contract: Symlog/symexp accept nonempty floating tensors. two_hot values have any nonempty shape, bins
+    are strictly increasing 1-D, length>=2, same dtype/device. Labels detach and values outside support
+    clip to endpoints; output shape is values.shape+(N,).
+tests:
+  T0: 1
+  T1: 1
+  T2: 1
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+tags:
+- Robotics
+- World Models
+- Distributional Values
+viz:
+- toy_experiment
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2301.04104
+  - https://arxiv.org/html/2301.04104v2
+  - https://github.com/danijar/dreamerv3/blob/main/embodied/jax/outs.py
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2301.04104
+  anchor: Symlog predictions and two-hot distribution; Appendix Distributions
+  adaptation: Implement scale-robust scalar transforms and discrete-support encoding; omit the RSSM, imagined
+    policy and Minecraft. two_hot receives values already in symlog space and caller-supplied centers.
+mutants:
+- id: m1_lose_sign
+  bug: Negative rewards lose their sign under symlog.
+- id: m2_uniform_support
+  bug: Two-hot weights assume uniform spacing even for a nonuniform support.
+browser:
+  backend: numpy-autograd-wasm

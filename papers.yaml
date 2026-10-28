@@ -950,7 +950,7 @@ papers:
     - self_evolving/mmzero_proposer
     - self_evolving/mmzero_feedback
   - id: diffusion-policy
-    number: 78
+    number: 84
     category: robotics
     short_title: Diffusion Policy
     year: 2023
@@ -961,7 +961,7 @@ papers:
     scope_en: Implement action noising, noise-regression loss and execution-chunk indexing, with a small CPU action-learning experiment.
     module_ids: [robotics/diffusion_policy]
   - id: supermimic
-    number: 79
+    number: 85
     category: robotics
     short_title: SuperMimic
     year: 2026
@@ -972,7 +972,7 @@ papers:
     scope_en: Implement differentiable soft-survival returns and frozen lambda-return targets, then update a policy through tiny dynamics.
     module_ids: [robotics/supermimic]
   - id: diffusion-dpo
-    number: 80
+    number: 86
     category: diffusion-rl
     short_title: Diffusion-DPO
     year: 2024
@@ -983,7 +983,7 @@ papers:
     scope_en: Implement shared pair noising and reference-corrected DPO loss; verify preference direction and gradient boundaries.
     module_ids: [diffusion_rl/diffusion_dpo]
   - id: flow-grpo
-    number: 81
+    number: 87
     category: diffusion-rl
     short_title: Flow-GRPO
     year: 2025
@@ -994,7 +994,7 @@ papers:
     scope_en: Implement reverse-time SDE transitions, Gaussian policy ratios, within-group advantages and KL regularization, with a small reward-optimization experiment.
     module_ids: [diffusion_rl/flow_grpo]
   - id: siglip
-    number: 82
+    number: 88
     category: multimodal
     short_title: SigLIP
     year: 2023
@@ -1005,7 +1005,7 @@ papers:
     scope_en: Implement normalized image-text logits and batch-normalized sigmoid loss; verify pair assignments, scaling and gradients.
     module_ids: [multimodal/siglip]
   - id: paged-attention
-    number: 83
+    number: 89
     category: ai-infra
     short_title: vLLM · PagedAttention
     year: 2023
@@ -1015,3 +1015,822 @@ papers:
     scope: 实现分页 KV 读取和批量单 token 注意力，验证共享块、尾块掩码和物理重排不变性。
     scope_en: Implement paged KV gathering and batched single-token attention; verify shared blocks, partial-block masking and invariance to physical layout.
     module_ids: [ai_infra/paged_attention]
+
+  - id: align
+    category: multimodal
+    number: 90
+    short_title: ALIGN
+    year: 2021
+    tags:
+    - Multimodal
+    - ALIGN
+    summary: 用大规模含噪图文配对训练双编码器，比较数据规模与清洗方式。
+    summary_en: Train dual encoders on large-scale noisy image-text pairs to study the roles of data scale
+      and filtering.
+    scope: 归一化双编码器特征、可微温度与双向 batch softmax；以合成图文配对演示训练，不包含含噪网络数据采集。
+    scope_en: Normalized dual-encoder features, differentiable temperature, and bidirectional batch softmax;
+      train synthetic image-text pairs without web-scale noisy-data collection.
+    module_ids:
+    - multimodal/align
+  - id: siglip-2
+    category: multimodal
+    number: 91
+    short_title: SigLIP 2
+    year: 2025
+    tags:
+    - Multimodal
+    - SigLIP 2
+    summary: 将描述生成、自蒸馏、掩码预测和在线数据筛选纳入表征学习。
+    summary_en: Combine captioning, self-distillation, masked prediction, and online data curation to improve
+      visual representations.
+    scope: 实现 SigLIP 2 辅助掩码预测中的概率蒸馏核；teacher 概率已给定，不实现 EMA 编码器、增强、投影头或完整多目标训练。
+    scope_en: Implement the probability-distillation kernel of SigLIP 2 masked prediction with supplied
+      teacher targets; exclude EMA encoders, augmentation, projection heads, and the full training recipe.
+    module_ids:
+    - multimodal/siglip_2
+  - id: blip
+    category: multimodal
+    number: 92
+    short_title: BLIP
+    year: 2022
+    tags:
+    - Multimodal
+    - BLIP
+    summary: 用生成与过滤改善图文监督，同时支持理解与生成。
+    summary_en: Improve image-text supervision through caption generation and filtering while supporting
+      both understanding and generation.
+    scope: 实现 BLIP 一个检索方向的动量软标签蒸馏；支持非方形负样本队列，不实现队列更新、动量编码器或 CapFilt 数据生成。
+    scope_en: Implement BLIP momentum soft-target distillation for one retrieval direction with rectangular
+      negative queues; omit queue updates, momentum encoders, and CapFilt data generation.
+    module_ids:
+    - multimodal/blip
+  - id: blip-2
+    category: multimodal
+    number: 93
+    short_title: BLIP-2
+    year: 2023
+    tags:
+    - Multimodal
+    - BLIP-2
+    summary: 用 Q-Former 连接冻结视觉编码器和语言模型；适合练习查询 token 与跨注意力。
+    summary_en: Connect frozen image encoders and language models with a Q-Former, exposing query tokens
+      and cross-attention as exercise components.
+    scope: Q-Former 输出的归一化、逐文本 max-query 相似度与梯度路由；不包含 Transformer 或冻结大模型。
+    scope_en: Normalize Q-Former outputs, compute per-text maximum-query similarities, and route gradients
+      through winning queries; omit Transformer and frozen large-model execution.
+    module_ids:
+    - multimodal/blip_2
+  - id: flamingo
+    category: multimodal
+    number: 94
+    short_title: Flamingo
+    year: 2022
+    tags:
+    - Multimodal
+    - Flamingo
+    summary: 连接预训练视觉与语言模型，处理交错图文和少样本上下文。
+    summary_en: Connect pretrained vision and language models to handle interleaved image-text inputs and
+      few-shot context.
+    scope: 最近媒体掩码、无媒体行的安全 softmax 和零初始化 tanh 门控；简化为单头恒等投影的交叉注意力。
+    scope_en: Immediately preceding media masks, safe softmax for rows without media, and zero-initialized
+      tanh gating in single-head identity-projection cross-attention.
+    module_ids:
+    - multimodal/flamingo
+  - id: llava
+    category: multimodal
+    number: 95
+    short_title: LLaVA
+    year: 2023
+    tags:
+    - Multimodal
+    - LLaVA
+    summary: 视觉编码器与语言模型连接，并用视觉指令数据训练。
+    summary_en: Connect a vision encoder to a language model and train the combined model on visual instruction
+      data.
+    scope: 单图单样本的视觉序列打包与监督标签对齐；输入特征已经投影，不实现视觉编码器、语言模型或训练数据构建。
+    scope_en: Pack one image into one sample and align supervision labels; features are already projected,
+      excluding the vision encoder, language model, and data construction.
+    module_ids:
+    - multimodal/llava
+  - id: instructblip
+    category: multimodal
+    number: 96
+    short_title: InstructBLIP
+    year: 2023
+    tags:
+    - Multimodal
+    - InstructBLIP
+    summary: 让视觉特征提取依赖指令，比较指令感知与固定特征查询。
+    summary_en: Condition visual feature extraction on instructions to compare instruction-aware queries
+      with fixed feature queries.
+    scope: 恒等投影的两级查询自注意力和视觉交叉注意力，验证指令影响与 padding 隔离；不声称复现完整 Q-Former。
+    scope_en: Two-stage query self-attention and visual cross-attention with identity projections, testing
+      instruction influence and padding isolation; not a full Q-Former reproduction.
+    module_ids:
+    - multimodal/instructblip
+  - id: imagebind
+    category: multimodal
+    number: 97
+    short_title: ImageBind
+    year: 2023
+    tags:
+    - Multimodal
+    - ImageBind
+    summary: 以图像配对为桥梁，将文本、音频、深度、热成像、IMU 等模态对齐。
+    summary_en: Use image-paired data to align text, audio, depth, thermal images, and IMU signals in one
+      embedding space.
+    scope: 多模态共用图像锚点的配对图和归约；以合成模态演示无需非图像配对的对齐，不复现六种编码器。
+    scope_en: Implement the image-anchored pairing graph and reduction across modalities; align synthetic
+      modalities without direct nonimage pairs, excluding the six encoders.
+    module_ids:
+    - multimodal/imagebind
+  - id: chameleon
+    category: multimodal
+    number: 98
+    short_title: Chameleon
+    year: 2024
+    tags:
+    - Multimodal
+    - Chameleon
+    summary: 将图像与文本 token 提前融合，统一理解与混合模态生成。
+    summary_en: Fuse image and text tokens early to support unified understanding and mixed-modal generation.
+    scope: 逐头 LayerNorm 的统计轴、总体方差和仿射参数；用注意力熵实验观察输入范数增长下的稳定性。
+    scope_en: Per-head LayerNorm statistics, population variance, and affine parameters, with an attention-entropy
+      experiment under growing input norms.
+    module_ids:
+    - multimodal/chameleon
+  - id: qwen2-vl
+    category: multimodal
+    number: 99
+    short_title: Qwen2-VL
+    year: 2024
+    tags:
+    - Multimodal
+    - Qwen2-VL
+    summary: 动态分辨率与多模态 RoPE；适合抽取时间、高度、宽度位置编码练习。
+    summary_en: Use dynamic resolution and multimodal RoPE, with temporal, height, and width positions as
+      exercise components.
+    scope: 连续频率分段的三轴旋转位置编码；使用等宽三轴的教学配置，不包含动态分辨率编码器。
+    scope_en: Contiguous frequency chunks for three-axis rotary positions in an equal-axis teaching configuration;
+      exclude the dynamic-resolution encoder.
+    module_ids:
+    - multimodal/qwen2_vl
+  - id: qwen2-5-vl
+    category: multimodal
+    number: 100
+    short_title: Qwen2.5-VL
+    year: 2025
+    tags:
+    - Multimodal
+    - Qwen2.5-VL
+    summary: 原生动态分辨率视觉编码、窗口注意力与视频绝对时间定位。
+    summary_en: Combine native dynamic-resolution visual encoding, window attention, and absolute temporal
+      localization in video.
+    scope: 动态分辨率下的窗口分组、空间合并顺序与累计长度；不实现完整 ViT 或 GPU 内核。
+    scope_en: Window grouping, spatial-merge ordering, and cumulative lengths for dynamic resolutions; exclude
+      the complete ViT and GPU kernels.
+    module_ids:
+    - multimodal/qwen2_5_vl
+  - id: internvl3
+    category: multimodal
+    number: 101
+    short_title: InternVL3
+    year: 2025
+    tags:
+    - Multimodal
+    - InternVL3
+    summary: 原生多模态预训练、可变视觉位置编码与偏好优化。
+    summary_en: Study native multimodal pretraining, variable visual positional encoding, and preference
+      optimization.
+    scope: 每图像可变增量的位置递推、跨模态累计与梯度；原点明确固定为 -1，不实现完整旋转嵌入或 InternVL 训练。
+    scope_en: Per-image position increments, cumulative multimodal offsets, and gradients with an explicit
+      origin of -1; exclude full rotary embeddings and InternVL training.
+    module_ids:
+    - multimodal/internvl3
+  - id: qwen3-vl
+    category: multimodal
+    number: 102
+    short_title: Qwen3-VL
+    year: 2025
+    tags:
+    - Multimodal
+    - Qwen3-VL
+    summary: 交错 MRoPE、多层视觉特征注入和文本时间戳对齐。
+    summary_en: Combine interleaved MRoPE, multilevel visual feature injection, and text-based timestamp
+      alignment.
+    scope: 交错频率轴分配与半维配对旋转；使用等宽三轴的教学配置，不包含 DeepStack 或完整视频模型。
+    scope_en: Interleaved frequency-axis allocation and half-split rotary pairs in an equal-axis teaching
+      configuration; exclude DeepStack and the full video model.
+    module_ids:
+    - multimodal/qwen3_vl
+  - id: qwen2-5-omni
+    category: multimodal
+    number: 103
+    short_title: Qwen2.5-Omni
+    year: 2025
+    tags:
+    - Multimodal
+    - Qwen2.5-Omni
+    summary: Thinker–Talker 架构、音视频时间对齐和流式语音输出。
+    summary_en: Use a Thinker–Talker architecture for temporally aligned audio-video understanding and streaming
+      speech output.
+    scope: 两秒块内视频优先的流交错和 40ms 时间格映射；不包含音视频编码器、Thinker–Talker 或语音波形生成。
+    scope_en: Video-first stream interleaving within two-second chunks and a shared 40 ms temporal grid;
+      exclude audiovisual encoders, Thinker–Talker, and waveform generation.
+    module_ids:
+    - multimodal/qwen2_5_omni
+  - id: dagger
+    category: robotics
+    number: 104
+    short_title: DAgger
+    year: 2011
+    tags:
+    - Robotics
+    - Imitation Learning
+    - Dataset Aggregation
+    summary: 在当前策略访问的状态上收集专家动作并聚合数据，处理分布偏移。
+    summary_en: Aggregate expert actions at states visited by the current policy to address distribution
+      shift.
+    scope: 提取 DAgger Algorithm 3.1 的数据闭环；标量线性环境中重新拟合策略，不实现完整交互式专家或分类器。
+    scope_en: Isolate Algorithm 3.1 in a scalar linear environment with policy refitting; no interactive
+      human expert or full classifier.
+    module_ids:
+    - robotics/dagger
+  - id: act
+    category: robotics
+    number: 105
+    short_title: ACT
+    year: 2023
+    tags:
+    - Robotics
+    - Action Chunking
+    - CVAE
+    summary: Transformer 与条件 VAE 预测动作块；可练动作块重叠执行和时间集成。
+    summary_en: Predict action chunks with a Transformer and conditional VAE, with overlapping execution
+      and temporal ensembling as exercise components.
+    scope: 实现ACT的两个张量核心；输入已经对齐到同一执行时刻，省略视觉Transformer、动作块网络和遥操作系统。
+    scope_en: Implement two ACT tensor cores with predictions already aligned to one execution time; omit
+      the visual Transformer, action-chunk network and teleoperation system.
+    module_ids:
+    - robotics/act
+  - id: rdt-1b
+    category: robotics
+    number: 106
+    short_title: RDT-1B
+    year: 2024
+    tags:
+    - Robotics
+    - Diffusion
+    - Cross-Embodiment
+    summary: 统一具有物理意义的动作空间，用扩散 Transformer 学习双臂动作。
+    summary_en: Unify physically meaningful action spaces and use a diffusion Transformer to learn bimanual
+      actions.
+    scope: 提取RDT统一动作空间与采样输出mask；使用可配置小槽表，不复制完整128维schema或12亿参数Transformer。
+    scope_en: Isolate unified action placement and final sampling masks using a configurable small slot
+      map, not the complete 128D schema or 1.2B Transformer.
+    module_ids:
+    - robotics/rdt_1b
+  - id: rt-1
+    category: robotics
+    number: 107
+    short_title: RT-1
+    year: 2022
+    tags:
+    - Robotics
+    - TokenLearner
+    - Attention
+    summary: 语言条件视觉 token 输入与离散动作预测。
+    summary_en: Predict discrete actions from language-conditioned visual tokens.
+    scope: 提取视觉token压缩器；MLP注意力logits作为输入，不训练EfficientNet、Transformer或真实机器人。
+    scope_en: Isolate visual-token compression with supplied MLP attention logits; omit EfficientNet, the
+      Transformer and physical robots.
+    module_ids:
+    - robotics/rt_1
+  - id: rt-2
+    category: robotics
+    number: 108
+    short_title: RT-2
+    year: 2023
+    tags:
+    - Robotics
+    - VLA
+    - Constrained Decoding
+    summary: 把动作表示为文本 token，联合视觉语言任务与机器人轨迹训练。
+    summary_en: Represent actions as text tokens and jointly train on vision-language tasks and robot trajectories.
+    scope: 实现机器人任务与视觉语言任务共享logits时的输出约束；动作token集合由调用者提供，不运行PaLI-X、PaLM-E或语义推理。
+    scope_en: Implement output constraints for robot and vision-language rows sharing logits; callers supply
+      action-token identities. Omit PaLI-X, PaLM-E and semantic reasoning.
+    module_ids:
+    - robotics/rt_2
+  - id: octo
+    category: robotics
+    number: 109
+    short_title: Octo
+    year: 2024
+    tags:
+    - Robotics
+    - Generalist Policy
+    - Padding Masks
+    summary: Transformer 加扩散动作解码器，支持不同观测与动作空间的适配。
+    summary_en: Combine a Transformer with a diffusion action decoder to adapt across observation and action
+      spaces.
+    scope: 提取官方动作头的masked_mean及时间/动作padding交集；计算未乘额外action_dim系数的逐坐标平方误差，不实现扩散网络。
+    scope_en: Isolate the action head masked_mean and intersection of timestep/action padding. Compute coordinatewise
+      squared error before any head-specific action_dim scaling; omit the diffusion network.
+    module_ids:
+    - robotics/octo
+  - id: openvla
+    category: robotics
+    number: 110
+    short_title: OpenVLA
+    year: 2024
+    tags:
+    - Robotics
+    - VLA
+    - Action Tokenization
+    summary: 视觉语言表征到动作 token，适合练习动作离散化和反归一化。
+    summary_en: Map vision-language representations to action tokens, with action discretization and unnormalization
+      as exercise components.
+    scope: 复现官方ActionTokenizer的离散约定及动作反归一化；不加载7B模型。边界数组可缩小以便手算，默认论文规模为256个边界、255个中心。
+    scope_en: Reproduce official ActionTokenizer conventions and action unnormalization without a 7B model.
+      Smaller edge arrays make examples inspectable; the official default has 256 edges and 255 centers.
+    module_ids:
+    - robotics/openvla
+  - id: pi0
+    category: robotics
+    number: 111
+    short_title: π₀
+    year: 2024
+    tags:
+    - Robotics
+    - VLA
+    - Flow Matching
+    summary: 在 VLM 上增加通过 flow matching 生成连续动作块的动作专家。
+    summary_en: Add a flow-matching action expert to a vision-language model to generate continuous action
+      chunks.
+    scope: 提取官方openpi的线性流路径和Euler采样方向；显式给定噪声与时间，用线性速度回归替代VLA动作专家。
+    scope_en: Isolate the official openpi linear flow path and Euler sampling direction; explicit noise/time
+      and a linear velocity regressor replace the VLA action expert.
+    module_ids:
+    - robotics/pi0
+  - id: pi0-5
+    category: robotics
+    number: 112
+    short_title: π₀.₅
+    year: 2025
+    tags:
+    - Robotics
+    - VLA
+    - Attention Mask
+    summary: 联合高层语义任务与低层动作学习，扩展开放环境泛化。
+    summary_en: Jointly learn high-level semantic tasks and low-level actions to improve generalization
+      in open environments.
+    scope: 实现论文附录E/Figure18的训练注意力连接；prefix、离散FAST标签和连续动作expert的内容由调用者给定，省略模型预训练。
+    scope_en: Implement Appendix E / Figure 18 training attention connectivity. Prefix, discrete FAST labels
+      and continuous action-expert contents are supplied; omit model pretraining.
+    module_ids:
+    - robotics/pi0_5
+  - id: dreamerv3
+    category: robotics
+    number: 113
+    short_title: DreamerV3
+    year: 2023
+    tags:
+    - Robotics
+    - World Models
+    - Distributional Values
+    summary: 在潜在世界模型的想象轨迹上学习策略，使用跨任务稳定化机制。
+    summary_en: Learn policies from imagined trajectories in a latent world model using stabilization mechanisms
+      that transfer across tasks.
+    scope: 实现跨数量级标量变换与离散支持编码；不训练RSSM、想象策略或Minecraft。two_hot输入已经位于symlog空间，中心由调用者指定。
+    scope_en: Implement scale-robust scalar transforms and discrete-support encoding; omit the RSSM, imagined
+      policy and Minecraft. two_hot receives values already in symlog space and caller-supplied centers.
+    module_ids:
+    - robotics/dreamerv3
+  - id: daydreamer
+    category: robotics
+    number: 114
+    short_title: DayDreamer
+    year: 2022
+    tags:
+    - Robotics
+    - World Models
+    - KL Balancing
+    summary: 将世界模型学习和想象策略训练用于真实机器人在线交互。
+    summary_en: Apply world-model learning and imagined policy training to online interaction with physical
+      robots.
+    scope: 提取DayDreamer继承DreamerV2的KL balancing核心，固定alpha默认0.8；计算free-nats截断之前的KL，不实现RSSM或机器人在线训练。
+    scope_en: Isolate the DreamerV2-style KL balancing used by DayDreamer, with default alpha=0.8. Compute
+      KL before free-nats clipping; omit the RSSM and online robot training.
+    module_ids:
+    - robotics/daydreamer
+  - id: td-mpc2
+    category: robotics
+    number: 115
+    short_title: TD-MPC2
+    year: 2023
+    tags:
+    - Robotics
+    - Model Predictive Control
+    - SimNorm
+    summary: 在潜在世界模型内进行局部轨迹优化，结合模型预测和价值估计。
+    summary_en: Optimize local trajectories inside a latent world model by combining model predictions with
+      value estimates.
+    scope: 提取SimNorm与MPPI已选精英的加权矩更新；候选轨迹与价值作为输入，不学习动力学/Q网络或执行真实MPC。
+    scope_en: Isolate SimNorm and MPPI weighted moments for already-selected elites. Candidate trajectories
+      and values are supplied; omit learned dynamics/Q networks and real MPC.
+    module_ids:
+    - robotics/td_mpc2
+  - id: deepmimic
+    category: robotics
+    number: 116
+    short_title: DeepMimic
+    year: 2018
+    tags:
+    - Robotics
+    - Motion Imitation
+    - Reward Design
+    summary: 结合动作模仿与任务奖励学习物理角色控制。
+    summary_en: Learn physics-based character control by combining motion imitation with task rewards.
+    scope: 实现姿态、角速度、末端与质心四项模仿奖励；姿态输入为预先计算的四元数测地角误差，不实现PPO、姿态解析或物理仿真。
+    scope_en: Implement pose, angular-velocity, end-effector and center-of-mass imitation rewards. Pose
+      inputs are precomputed quaternion geodesic angle errors; omit PPO, pose parsing and physical simulation.
+    module_ids:
+    - robotics/deepmimic
+  - id: diffmimic
+    category: robotics
+    number: 117
+    short_title: DiffMimic
+    year: 2023
+    tags:
+    - Robotics
+    - Differentiable Physics
+    - Demonstration Replay
+    summary: 通过可微物理对状态匹配损失反传，并用示范回放稳定长时域优化。
+    summary_en: Backpropagate state-matching losses through differentiable physics and stabilize long-horizon
+      optimization with demonstration replay.
+    scope: 实现论文状态误差触发的示范回放、PD力矩和时域状态匹配；实验是标量可微积分器，不是Brax人形机器人复现。
+    scope_en: Implement error-triggered demonstration replay, PD torque and temporal state matching. The
+      experiment uses a scalar differentiable integrator, not a Brax humanoid reproduction.
+    module_ids:
+    - robotics/diffmimic
+  - id: gpipe
+    number: 118
+    category: ai-infra
+    short_title: GPipe
+    year: 2018
+    tags:
+    - AI Infra
+    - GPipe
+    - Systems
+    summary: 按层分配设备，拆分 microbatch，以流水线和梯度累积训练大模型。
+    summary_en: Partition layers across devices and split batches into microbatches for pipelined execution
+      with gradient accumulation.
+    scope: 等时分段、同步更新的 CPU 调度模型与线性回归；不模拟通信、BatchNorm或重计算。
+    scope_en: A CPU model of equal-duration stages and synchronous updates, with linear regression; communication,
+      BatchNorm and rematerialization are outside this kernel.
+    module_ids:
+    - ai_infra/gpipe
+  - id: megatron-lm
+    number: 119
+    category: ai-infra
+    short_title: Megatron-LM
+    year: 2019
+    tags:
+    - AI Infra
+    - Megatron-LM
+    - Numerical Methods
+    summary: 将注意力和 MLP 的矩阵运算分布到多个设备；可练列／行并行线性层。
+    summary_en: Distribute attention and MLP matrix operations across devices, with column- and row-parallel
+      linear layers as exercise components.
+    scope: 单进程模拟两层 tensor-parallel MLP，包括偏置与反向梯度；采用 tanh GeLU 近似，不实现分布式通信。
+    scope_en: A single-process tensor-parallel two-layer MLP including biases and gradients, with tanh-approximate
+      GeLU and no distributed communication.
+    module_ids:
+    - ai_infra/megatron_lm
+  - id: zero
+    number: 120
+    category: ai-infra
+    short_title: ZeRO
+    year: 2019
+    tags:
+    - AI Infra
+    - ZeRO
+    - Systems
+    summary: 分片优化器状态、梯度和参数，逐步消除数据并行副本的冗余。
+    summary_en: Shard optimizer states, gradients, and parameters to progressively remove redundancy across
+      data-parallel replicas.
+    scope: 等长参数分片的单进程 ZeRO-2 语义与 mixed-precision Adam 状态字节模型；不包含激活和通信缓冲区。
+    scope_en: Single-process ZeRO-2 semantics with equal-sized shards and a mixed-precision Adam-state byte
+      model; activations and communication buffers are excluded.
+    module_ids:
+    - ai_infra/zero
+  - id: flash-attention-2
+    number: 121
+    category: ai-infra
+    short_title: FlashAttention-2
+    year: 2023
+    tags:
+    - AI Infra
+    - FlashAttention-2
+    - Numerical Methods
+    summary: 优化线程块和 warp 工作划分，减少非矩阵乘运算与通信。
+    summary_en: Improve thread-block and warp work partitioning while reducing non-matmul operations and
+      communication.
+    scope: 单头方形注意力的 CPU 规格实现，含因果 mask、尾块、数值稳定性与自动微分；不计 GPU warp 时间。
+    scope_en: A CPU specification of single-head square attention, including causal masks, tail blocks,
+      numerical stability and autograd; no GPU warp timing.
+    module_ids:
+    - ai_infra/flash_attention_2
+  - id: orca
+    number: 122
+    category: ai-infra
+    short_title: Orca
+    year: 2022
+    tags:
+    - AI Infra
+    - Orca
+    - Systems
+    summary: 按生成迭代调度，让请求动态加入和离开批次。
+    summary_en: Schedule at generation-iteration granularity so requests can dynamically join and leave
+      batches.
+    scope: 已完成prefill的离散生成迭代模拟，固定每轮一时间单位、每个活跃请求生成一token；不模拟selective batching算子。
+    scope_en: Discrete generation replay after prefill, with unit-duration iterations and one token per
+      active request; selective-batching operators are outside this kernel.
+    module_ids:
+    - ai_infra/orca
+  - id: sglang
+    number: 123
+    category: ai-infra
+    short_title: SGLang
+    year: 2023
+    tags:
+    - AI Infra
+    - SGLang
+    - Systems
+    summary: RadixAttention 复用前缀 KV 缓存，并优化结构化解码。
+    summary_en: Use RadixAttention to reuse prefix KV caches and optimize structured decoding.
+    scope: 将 radix tree 展开为每token一个节点的语义模型；模拟前缀共享、LRU和活动请求pin，不存储真实KV tensor。
+    scope_en: A token-node expansion of radix-tree semantics modeling shared prefixes, LRU and active-request
+      pins, without storing actual KV tensors.
+    module_ids:
+    - ai_infra/sglang
+  - id: sarathi-serve
+    number: 124
+    category: ai-infra
+    short_title: Sarathi-Serve
+    year: 2024
+    tags:
+    - AI Infra
+    - Sarathi-Serve
+    - Systems
+    summary: 将 prefill 分块并与 decode 混合调度，降低长 prompt 对逐 token 延迟的干扰。
+    summary_en: Mix chunked prefill with decode scheduling to reduce the impact of long prompts on per-token
+      latency.
+    scope: 一次混合批次的预算分配和多轮回放；以固定token预算与最大块长替代论文的性能模型。
+    scope_en: One hybrid-batch budget allocation and repeated replay; fixed token budgets and maximum chunks
+      replace the paper performance model.
+    module_ids:
+    - ai_infra/sarathi_serve
+  - id: distserve
+    number: 125
+    category: ai-infra
+    short_title: DistServe
+    year: 2024
+    tags:
+    - AI Infra
+    - DistServe
+    - Systems
+    summary: 分离 prefill/decode 的资源与并行配置，在延迟约束下优化有效吞吐。
+    summary_en: Separate prefill and decode resources and parallelism settings to optimize goodput under
+      latency constraints.
+    scope: 一个prefill worker与一个decode worker的FCFS离散事件模型，包含KV传输等待；decode按请求串行，非实际批处理优化器。
+    scope_en: An FCFS discrete-event model with one prefill worker and one decode worker, including KV-transfer
+      waits; request-serial decoding is a teaching simplification.
+    module_ids:
+    - ai_infra/distserve
+  - id: gptq
+    number: 126
+    category: ai-infra
+    short_title: GPTQ
+    year: 2022
+    tags:
+    - AI Infra
+    - GPTQ
+    - Numerical Methods
+    summary: 利用近似二阶信息与误差补偿完成低比特训练后量化。
+    summary_en: Use approximate second-order information and error compensation for low-bit post-training
+      quantization.
+    scope: 给定上三角Cholesky因子的单块GPTQ核心；量化网格固定，Hessian估计、阻尼与分解由题外提供。
+    scope_en: The single-block GPTQ core with a supplied upper Cholesky factor and fixed quantization grid;
+      Hessian estimation, damping and factorization are supplied externally.
+    module_ids:
+    - ai_infra/gptq
+  - id: smoothquant
+    number: 127
+    category: ai-infra
+    short_title: SmoothQuant
+    year: 2022
+    tags:
+    - AI Infra
+    - SmoothQuant
+    - Numerical Methods
+    summary: 逐通道等价缩放，把激活离群值的量化难度迁移到权重。
+    summary_en: Apply equivalent per-channel scaling to shift the quantization difficulty of activation
+      outliers into weights.
+    scope: 校准最大值、离线scale与可微等价变换；实验用对称INT8模拟量化，未实现整数GEMM或LayerNorm融合。
+    scope_en: Calibration maxima, offline scales and differentiable equivalent transforms; the experiment
+      simulates symmetric INT8 without integer GEMM or LayerNorm fusion.
+    module_ids:
+    - ai_infra/smoothquant
+  - id: awq
+    number: 128
+    category: ai-infra
+    short_title: AWQ
+    year: 2023
+    tags:
+    - AI Infra
+    - AWQ
+    - Numerical Methods
+    summary: 根据激活统计选择重要通道，通过等价缩放保护低比特权重量化精度。
+    summary_en: Use activation statistics to identify important channels and equivalent scaling to protect
+      low-bit weight quantization accuracy.
+    scope: 单线性层AWQ网格搜索与分组非对称量化，使用平均绝对激活统计；不包含权重clipping搜索或TinyChat内核。
+    scope_en: Single-linear-layer AWQ grid search and asymmetric group quantization using mean absolute
+      activation statistics; clipping search and TinyChat kernels are excluded.
+    module_ids:
+    - ai_infra/awq
+  - id: imagereward
+    category: diffusion-rl
+    number: 129
+    short_title: ImageReward / ReFL
+    year: 2023
+    tags:
+    - Diffusion RL
+    - ImageReward / ReFL
+    summary: 从人类偏好学习奖励模型，再用 ReFL 将奖励反馈给生成器。
+    summary_en: Learn a reward model from human preferences, then use ReFL to feed reward signals back to
+      the generator.
+    scope: 训练小型奖励评分器并通过冻结奖励函数更新单步噪声预测；不加载 BLIP 或图像解码器。
+    scope_en: Train a small reward scorer and update an epsilon predictor through a fixed differentiable
+      reward; no BLIP or image decoder.
+    module_ids:
+    - diffusion_rl/imagereward
+  - id: diffusion-kto
+    category: diffusion-rl
+    number: 130
+    short_title: Diffusion-KTO
+    year: 2024
+    tags:
+    - Diffusion RL
+    - Diffusion-KTO
+    summary: 从单张图像的喜欢／不喜欢反馈优化效用，不要求成对偏好。
+    summary_en: Optimize utility from likes and dislikes on individual images without requiring paired preferences.
+    scope: 输入已计算的每步 log-prob；实现 KTO 效用与停止梯度约定，不训练图像骨干。
+    scope_en: Work with precomputed per-transition log probabilities; implement KTO utility and stop-gradient
+      semantics without an image backbone.
+    module_ids:
+    - diffusion_rl/diffusion_kto
+  - id: d3po
+    category: diffusion-rl
+    number: 131
+    short_title: D3PO
+    year: 2023
+    tags:
+    - Diffusion RL
+    - D3PO
+    summary: 用直接偏好优化更新去噪策略，省去显式奖励模型。
+    summary_en: Apply direct preference optimization to the denoising policy without training an explicit
+      reward model.
+    scope: 实现给定轨迹 log-prob 的逐步 D3PO 损失；不把多步概率先相乘。
+    scope_en: Implement stepwise D3PO from trajectory log probabilities, without collapsing them into one
+      trajectory-level likelihood.
+    module_ids:
+    - diffusion_rl/d3po
+  - id: pc-flow
+    category: diffusion-rl
+    number: 132
+    short_title: PC-Flow
+    year: 2026
+    tags:
+    - Diffusion RL
+    - PC-Flow
+    summary: 使用轻量偏好分类器引导 flow 分布，无需参考模型。
+    summary_en: Guide the flow distribution with a lightweight preference classifier without a reference
+      model.
+    scope: 只训练偏好分类器的相邻时刻目标；基座 flow 与引导采样器不在范围内。
+    scope_en: Implement the adjacent-time classifier objective; the base flow and guided sampler are outside
+      the exercise.
+    module_ids:
+    - diffusion_rl/pc_flow
+  - id: ddpo
+    category: diffusion-rl
+    number: 133
+    short_title: DDPO
+    year: 2023
+    tags:
+    - Diffusion RL
+    - DDPO
+    summary: 将去噪链视为多步决策过程，优化轨迹概率与终点奖励。
+    summary_en: Treat the denoising chain as a multistep decision process and optimize trajectory probabilities
+      using terminal rewards.
+    scope: 使用固定方差高斯转移实现 DDPO 的策略目标，包含在线小型 bandit；不加载扩散骨干。
+    scope_en: Implement the DDPO objective for fixed-variance Gaussian transitions and an online toy bandit,
+      without a diffusion backbone.
+    module_ids:
+    - diffusion_rl/ddpo
+  - id: dpok
+    category: diffusion-rl
+    number: 134
+    short_title: DPOK
+    year: 2023
+    tags:
+    - Diffusion RL
+    - DPOK
+    summary: 在线策略优化结合 KL 正则，控制奖励提升和参考策略偏移。
+    summary_en: Combine online policy optimization with KL regularization to balance reward improvement
+      and drift from the reference policy.
+    scope: 实现论文 Eq. (9) 的高效梯度近似；不声称包含 Eq. (8) 状态访问分布的完整导数。
+    scope_en: Implement the efficient gradient approximation in Eq. (9), not the full state-visitation derivative
+      of Eq. (8).
+    module_ids:
+    - diffusion_rl/dpok
+  - id: alignprop
+    category: diffusion-rl
+    number: 135
+    short_title: AlignProp
+    year: 2023
+    tags:
+    - Diffusion RL
+    - AlignProp
+    summary: 将可微奖励反传穿过生成过程，使用 LoRA 与梯度检查点控制内存。
+    summary_en: Backpropagate differentiable rewards through generation while using LoRA and gradient checkpointing
+      to manage memory.
+    scope: 调用传入的小型 epsilon 模型，练习时间方向和梯度截断；不实现 LoRA 或 checkpoint 内存优化。
+    scope_en: Call a supplied small epsilon model to study time direction and gradient truncation; LoRA
+      and activation checkpointing are outside scope.
+    module_ids:
+    - diffusion_rl/alignprop
+  - id: draft
+    category: diffusion-rl
+    number: 136
+    short_title: DRaFT
+    year: 2023
+    tags:
+    - Diffusion RL
+    - DRaFT
+    summary: 可微奖励直接反传、末尾 K 步截断与低方差梯度估计。
+    summary_en: Backpropagate differentiable rewards directly, with last-K-step truncation and low-variance
+      gradient estimation.
+    scope: 实现 DRaFT-LV 额外样本的停止梯度与平均；初始生成过程由调用者提供。
+    scope_en: Implement DRaFT-LV stop-gradient and averaging for extra samples; the initial differentiable
+      generated sample is supplied.
+    module_ids:
+    - diffusion_rl/draft
+  - id: dancegrpo
+    category: diffusion-rl
+    number: 137
+    short_title: DanceGRPO
+    year: 2025
+    tags:
+    - Diffusion RL
+    - DanceGRPO
+    summary: 将 GRPO 统一应用于扩散、rectified flow、图像和视频任务。
+    summary_en: Apply GRPO across diffusion and rectified-flow models for image and video generation.
+    scope: 在小型高斯生成策略中检验多奖励与共享初始条件；不运行视频骨干或视觉奖励模型。
+    scope_en: Test multiple rewards and shared initial conditions in a small Gaussian policy; no video backbone
+      or visual reward model.
+    module_ids:
+    - diffusion_rl/dancegrpo
+  - id: mixgrpo
+    category: diffusion-rl
+    number: 138
+    short_title: MixGRPO
+    year: 2025
+    tags:
+    - Diffusion RL
+    - MixGRPO
+    summary: 窗口内使用 SDE 与 GRPO，窗口外使用 ODE，减少训练开销。
+    summary_en: Use SDE sampling and GRPO within a window and ODE sampling outside it to reduce training
+      overhead.
+    scope: 使用论文的基础混合 ODE-SDE 形式；不包含后续 CPS 扩展或高阶求解器。
+    scope_en: Implement the basic mixed ODE-SDE formulation, excluding the later CPS extension and high-order
+      solvers.
+    module_ids:
+    - diffusion_rl/mixgrpo
+  - id: flow-dppo
+    category: diffusion-rl
+    number: 139
+    short_title: Flow-DPPO
+    year: 2026
+    tags:
+    - Diffusion RL
+    - Flow-DPPO
+    summary: 利用高斯策略精确 KL 和非对称 divergence mask 约束更新。
+    summary_en: Constrain updates with exact Gaussian-policy KL divergence and an asymmetric divergence
+      mask.
+    scope: 实现固定协方差的散度掩码与策略目标，包含可选 reference KL；不实现附录中的预测式掩码。
+    scope_en: Implement a fixed-covariance divergence mask and policy objective with optional reference
+      KL, excluding predictive-mask variants.
+    module_ids:
+    - diffusion_rl/flow_dppo

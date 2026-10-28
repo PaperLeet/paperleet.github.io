@@ -1,0 +1,71 @@
+id: ai_infra/sglang
+number: 159
+paper_id: sglang
+title: SGLang 前缀 KV 缓存与叶节点 LRU
+title_en: SGLang Prefix KV Cache and Leaf-Only LRU
+difficulty: H
+type: implement
+parent: null
+paper:
+  title: 'SGLang: Efficient Execution of Structured Language Model Programs'
+  authors: Lianmin Zheng et al.
+  venue: NeurIPS 2024
+  url: https://arxiv.org/abs/2312.07104
+  anchors:
+  - 'Section 3: RadixAttention, longest-prefix reuse, leaf-first LRU and reference counters'
+  arxiv: '2312.07104'
+module:
+  goal: 寻找最长缓存前缀，并在容量限制下只驱逐未被占用的叶节点。
+  goal_en: Find the longest cached prefix and evict only unpinned leaves under a capacity limit.
+  scope: 将 radix tree 展开为每token一个节点的语义模型；模拟前缀共享、LRU和活动请求pin，不存储真实KV tensor。
+  scope_en: A token-node expansion of radix-tree semantics modeling shared prefixes, LRU and active-request
+    pins, without storing actual KV tensors.
+  required_functions:
+  - radix_cache_step
+  provided_functions: []
+  optional: false
+functions:
+- name: radix_cache_step
+  signature: 'radix_cache_step(cache: dict, prompt: tuple[int, ...], capacity: int, clock: int, pinned:
+    tuple = ()) -> tuple[dict, int]'
+  returns: Copied cache after prefix reuse/insertion/eviction, and matched prefix length.
+conventions:
+  seed: 42
+  contract: cache maps nonempty token tuples to integer last-use times and must be prefix-closed. prompt
+    is a nonempty tuple of nonnegative ints; capacity counts nonroot token nodes. clock is at least existing
+    timestamps. pinned names cached nodes whose ancestors are also protected. Protect the current prompt
+    path too; break LRU ties lexicographically by token tuple. Return (new_cache, reused_tokens), never
+    mutating input even on failure.
+  dtype: CPU float32/float64 for tensors; Python integers for discrete scheduling; preserve caller inputs
+tests:
+  T0: 1
+  T1: 2
+  T2: 2
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 40
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2312.07104
+  - https://arxiv.org/html/2312.07104
+tags:
+- AI Infra
+- SGLang
+- Systems
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2312.07104
+  anchor: 'Section 3: RadixAttention, longest-prefix reuse, leaf-first LRU and reference counters'
+  adaptation: Replay six prompts sharing system prefixes with capacities seven and twelve; compare prefill
+    token counts with no caching and verify node capacity.
+mutants:
+- id: m1_evict_internal
+  bug: 允许驱逐仍有子节点的内部节点
+- id: m2_ignore_pins
+  bug: 忽略运行请求的受保护路径

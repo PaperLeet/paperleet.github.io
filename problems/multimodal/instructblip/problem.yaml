@@ -1,0 +1,80 @@
+id: multimodal/instructblip
+number: 132
+paper_id: instructblip
+title: InstructBLIP 指令感知查询块
+title_en: InstructBLIP instruction-aware query block
+difficulty: M
+type: implement
+parent: null
+paper:
+  title: 'InstructBLIP: Towards General-purpose Vision-Language Models with Instruction
+    Tuning'
+  authors: Wenliang Dai et al.
+  venue: arXiv 2023
+  arxiv: '2305.06500'
+  url: https://arxiv.org/abs/2305.06500
+  anchors:
+  - 'Section 3.2 and Figure 2: instruction-aware visual feature extraction with query-text
+    self-attention'
+functions:
+- name: instruction_query_block
+  signature: 'instruction_query_block(queries: Tensor, instruction: Tensor, visual:
+    Tensor, instruction_mask: Tensor) -> Tensor'
+  returns: queries is [Q,D], instruction [I,D], visual [N,D], and instruction_mask
+    boolean [I]. First let queries attend to themselves and valid instruction tokens,
+    with a residual. Then use updated queries for visual cross-attention, with another
+    residual. Identity projections, one head, no LayerNorm/FFN define this reduced
+    teaching block. All-masked instructions still leave query self-attention valid.
+module:
+  goal: InstructBLIP 指令感知查询块
+  goal_en: InstructBLIP instruction-aware query block
+  scope: 恒等投影的两级查询自注意力和视觉交叉注意力，验证指令影响与 padding 隔离；不声称复现完整 Q-Former。
+  scope_en: Two-stage query self-attention and visual cross-attention with identity
+    projections, testing instruction influence and padding isolation; not a full Q-Former
+    reproduction.
+  required_functions:
+  - instruction_query_block
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: CPU float32/float64; metadata indices are int64
+  contract: queries is [Q,D], instruction [I,D], visual [N,D], and instruction_mask
+    boolean [I]. First let queries attend to themselves and valid instruction tokens,
+    with a residual. Then use updated queries for visual cross-attention, with another
+    residual. Identity projections, one head, no LayerNorm/FFN define this reduced
+    teaching block. All-masked instructions still leave query self-attention valid.
+  mutation: Inputs are never modified in place
+tests:
+  T0: 1
+  T1: 1
+  T2: 3
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2305.06500
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2305.06500
+  anchor: 'Section 3.2 and Figure 2: instruction-aware visual feature extraction with
+    query-text self-attention'
+  adaptation: Two-stage query self-attention and visual cross-attention with identity
+    projections, testing instruction influence and padding isolation; not a full Q-Former
+    reproduction. Deterministic CPU float64 synthetic inputs; no benchmark reproduction.
+tags:
+- Multimodal
+- InstructBLIP
+- Paper-to-Code
+mutants:
+- id: m1_ignore_instruction
+  bug: Removes instruction influence
+- id: m2_allow_padding
+  bug: Lets padded instructions attend

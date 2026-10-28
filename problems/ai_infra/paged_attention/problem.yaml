@@ -13,7 +13,7 @@ viz:
 browser:
   backend: numpy-autograd-wasm
 id: ai_infra/paged_attention
-number: 119
+number: 125
 paper_id: paged-attention
 title: PagedAttention 分页 KV 缓存与解码注意力
 title_en: PagedAttention KV Pages and Decode Attention

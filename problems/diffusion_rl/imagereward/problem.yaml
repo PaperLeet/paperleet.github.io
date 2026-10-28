@@ -1,0 +1,68 @@
+id: diffusion_rl/imagereward
+number: 165
+title: ImageReward 排序学习与 ReFL 单步反馈
+title_en: ImageReward Ranking and ReFL One-Step Feedback
+paper:
+  title: 'ImageReward: Learning and Evaluating Human Preferences for Text-to-Image Generation'
+  authors: Jiazheng Xu et al.
+  venue: 2023 preprint / linked proceedings
+  url: https://arxiv.org/abs/2304.05977
+  anchors:
+  - Section 2.2 Eq. (1); Section 3 Algorithm 1
+  arxiv: '2304.05977'
+paper_id: imagereward
+difficulty: M
+functions:
+- name: ranking_loss
+  signature: 'ranking_loss(preferred: Tensor, rejected: Tensor) -> Tensor'
+- name: refl_clean
+  signature: 'refl_clean(latent: Tensor, epsilon: Tensor, alpha: float, sigma: float) -> Tensor'
+type: implement
+parent: null
+module:
+  goal: 实现偏好排序损失，以及冻结前缀后的单步干净样本预测。
+  goal_en: Implement pairwise reward ranking and one-step clean prediction from a frozen rollout prefix.
+  scope: 训练小型奖励评分器并通过冻结奖励函数更新单步噪声预测；不加载 BLIP 或图像解码器。
+  scope_en: Train a small reward scorer and update an epsilon predictor through a fixed differentiable
+    reward; no BLIP or image decoder.
+  required_functions:
+  - ranking_loss
+  - refl_clean
+  provided_functions: []
+  optional: false
+conventions:
+  tensors: CPU float32/float64, preserve dtype/device; finite nonempty inputs. No in-place mutation.
+  contract: ranking_loss accepts equal (B,) preferred/rejected scores. refl_clean accepts equal (B,D)
+    latent/epsilon, alpha and sigma are amplitude coefficients (not cumulative variances), alpha>0, sigma>=0.
+  autograd: Ranking differentiates both scores. ReFL stops the rollout latent and differentiates epsilon;
+    the frozen reward model must still propagate gradients to its input.
+tests:
+  T0: 1
+  T1: 2
+  T2: 3
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 35
+tags:
+- Diffusion RL
+- ImageReward / ReFL
+viz:
+- toy_experiment
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2304.05977
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2304.05977
+  anchor: Section 2.2 Eq. (1); Section 3 Algorithm 1
+  adaptation: Eight scalar preference pairs train a linear reward scorer; 30 subsequent reward-gradient
+    steps update a one-step epsilon model. This tests feedback mechanics, not image quality.
+mutants:
+- id: m1_contract
+  bug: Reverse preference direction
+- id: m2_contract
+  bug: Use noise variance instead of amplitude
+browser:
+  backend: numpy-autograd-wasm

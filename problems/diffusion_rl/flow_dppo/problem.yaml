@@ -1,0 +1,73 @@
+id: diffusion_rl/flow_dppo
+number: 175
+title: Flow-DPPO 精确散度与方向性掩码
+title_en: Flow-DPPO Exact Divergence and Directional Masks
+paper:
+  title: 'Flow-DPPO: Divergence Proximal Policy Optimization for Flow Matching Models'
+  authors: Bowen Ping et al.
+  venue: 2026 preprint / linked proceedings
+  url: https://arxiv.org/abs/2606.11025
+  anchors:
+  - 'Section 3.3 Eqs. (14), (17)-(18): Gaussian divergence and directional mask'
+  arxiv: '2606.11025'
+paper_id: flow-dppo
+difficulty: M
+functions:
+- name: policy_kl
+  signature: 'policy_kl(current: Tensor, old: Tensor, std: Tensor) -> Tensor'
+- name: flow_dppo_loss
+  signature: 'flow_dppo_loss(log_ratios: Tensor, advantages: Tensor, old_kl: Tensor, reference_kl: Tensor,
+    threshold: float, beta: float) -> Tensor'
+type: implement
+parent: null
+module:
+  goal: 用精确高斯 KL 限制已经远离旧策略的更新，同时保留朝旧策略恢复的方向。
+  goal_en: Use exact Gaussian KL to block updates already moving farther from the old policy while retaining
+    corrective directions.
+  scope: 实现固定协方差的散度掩码与策略目标，包含可选 reference KL；不实现附录中的预测式掩码。
+  scope_en: Implement a fixed-covariance divergence mask and policy objective with optional reference
+    KL, excluding predictive-mask variants.
+  required_functions:
+  - policy_kl
+  - flow_dppo_loss
+  provided_functions: []
+  optional: false
+conventions:
+  tensors: CPU float32/float64, preserve dtype/device; finite nonempty inputs. No in-place mutation.
+  contract: policy_kl current/old (B,T,D), positive std (T,) returns (B,T). flow_dppo_loss log_ratios/old_kl/reference_kl
+    equal (B,T), advantages (B,), threshold>=0,beta>=0. Old KL must be nonnegative; strict > threshold
+    and >/< ratio=1; unmasked log ratios bounded to +/-40.
+  autograd: Only log_ratios and reference_kl differentiate in loss. Advantages and divergence decisions
+    are frozen. The mask is zero only for favorable-direction updates beyond the divergence threshold;
+    blocked ratios are replaced before exponentiation.
+tests:
+  T0: 1
+  T1: 2
+  T2: 3
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 35
+tags:
+- Diffusion RL
+- Flow-DPPO
+viz:
+- toy_experiment
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2606.11025
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2606.11025
+  anchor: 'Section 3.3 Eqs. (14), (17)-(18): Gaussian divergence and directional mask'
+  adaptation: A scalar Gaussian policy draws 128 fresh actions per update and optimizes a quadratic reward
+    with beta=0.1 reference KL for 65 iterations. Independent tests exercise nonzero old-policy divergence
+    masks.
+mutants:
+- id: m1_contract
+  bug: Block corrective updates as well as outward updates
+- id: m2_contract
+  bug: Block equality at the divergence boundary
+browser:
+  backend: numpy-autograd-wasm

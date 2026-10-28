@@ -1,0 +1,68 @@
+id: robotics/octo
+number: 145
+title: Octo 双重padding掩码归约
+title_en: Octo Dual Padding-Mask Reduction
+paper:
+  title: 'Octo: An Open-Source Generalist Robot Policy'
+  authors: Octo Model Team et al.
+  venue: RSS 2024
+  url: https://arxiv.org/abs/2405.12213
+  anchors:
+  - Official action_heads.py masked_mean and timestep/action pad-mask intersection
+  arxiv: '2405.12213'
+paper_id: octo
+difficulty: M
+type: implement
+parent: null
+module:
+  goal: Octo 双重padding掩码归约：实现下列接口并通过数值、边界和实验检查。
+  goal_en: 'Octo Dual Padding-Mask Reduction: implement the interfaces below and verify numerical, boundary
+    and experimental behavior.'
+  scope: 提取官方动作头的masked_mean及时间/动作padding交集；计算未乘额外action_dim系数的逐坐标平方误差，不实现扩散网络。
+  scope_en: Isolate the action head masked_mean and intersection of timestep/action padding. Compute coordinatewise
+    squared error before any head-specific action_dim scaling; omit the diffusion network.
+  required_functions:
+  - masked_action_loss
+  provided_functions: []
+  optional: false
+functions:
+- name: masked_action_loss
+  signature: 'masked_action_loss(prediction: Tensor, target: Tensor, timestep_valid: Tensor, action_valid:
+    Tensor) -> Tensor'
+conventions:
+  seed: 42
+  device: CPU float32/float64; no downloads; preserve floating dtype/device; do not mutate inputs
+  contract: Prediction/target are (B,W,H,D), timestep_valid bool (B,W), action_valid bool (B,W,H,D). Detach
+    targets. All-padding returns differentiable zero. Retain the source denominator floor 1e-5.
+tests:
+  T0: 1
+  T1: 1
+  T2: 1
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+tags:
+- Robotics
+- Generalist Policy
+- Padding Masks
+viz:
+- toy_experiment
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2405.12213
+  - https://github.com/octo-models/octo/blob/main/octo/model/components/action_heads.py
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2405.12213
+  anchor: Official action_heads.py masked_mean and timestep/action pad-mask intersection
+  adaptation: Isolate the action head masked_mean and intersection of timestep/action padding. Compute
+    coordinatewise squared error before any head-specific action_dim scaling; omit the diffusion network.
+mutants:
+- id: m1_ignore_timestep
+  bug: Observation-window padding is ignored.
+- id: m2_padding_dilution
+  bug: Padding dilutes the loss because the valid fraction is omitted.
+browser:
+  backend: numpy-autograd-wasm

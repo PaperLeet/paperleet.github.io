@@ -1,0 +1,67 @@
+id: diffusion_rl/d3po
+number: 167
+title: D3PO 逐去噪步骤偏好优化
+title_en: D3PO Per-Transition Preference Optimization
+paper:
+  title: Using Human Feedback to Fine-tune Diffusion Models without Any Reward Model
+  authors: Kai Yang et al.
+  venue: 2023 preprint / linked proceedings
+  url: https://arxiv.org/abs/2311.13231
+  anchors:
+  - 'Section 4.3 Eq. (14): a preference objective for every state-action pair'
+  arxiv: '2311.13231'
+paper_id: d3po
+difficulty: M
+functions:
+- name: d3po_loss
+  signature: 'd3po_loss(preferred: Tensor, rejected: Tensor, ref_preferred: Tensor, ref_rejected: Tensor,
+    beta: float) -> Tensor'
+type: implement
+parent: null
+module:
+  goal: 把终点偏好传到各去噪步骤，并在每一步计算参考策略校正的偏好损失。
+  goal_en: Propagate terminal preferences to denoising transitions and compute reference-corrected preference
+    losses per step.
+  scope: 实现给定轨迹 log-prob 的逐步 D3PO 损失；不把多步概率先相乘。
+  scope_en: Implement stepwise D3PO from trajectory log probabilities, without collapsing them into one
+    trajectory-level likelihood.
+  required_functions:
+  - d3po_loss
+  provided_functions: []
+  optional: false
+conventions:
+  tensors: CPU float32/float64, preserve dtype/device; finite nonempty inputs. No in-place mutation.
+  contract: 'preferred/rejected/ref_preferred/ref_rejected: equal (B,T) finite log probabilities. beta>0.
+    Return a scalar mean over B and T after the per-step softplus.'
+  autograd: Both current preferred and rejected log probabilities differentiate; both reference tensors
+    are detached.
+tests:
+  T0: 1
+  T1: 2
+  T2: 3
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 35
+tags:
+- Diffusion RL
+- D3PO
+viz:
+- toy_experiment
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2311.13231
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2311.13231
+  anchor: 'Section 4.3 Eq. (14): a preference objective for every state-action pair'
+  adaptation: A three-step preference model learns independently signed transition margins through 60
+    gradient updates.
+mutants:
+- id: m1_contract
+  bug: Apply logistic after trajectory summation
+- id: m2_contract
+  bug: Wrong rejected reference sign
+browser:
+  backend: numpy-autograd-wasm

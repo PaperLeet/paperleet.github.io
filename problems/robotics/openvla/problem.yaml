@@ -1,0 +1,77 @@
+id: robotics/openvla
+number: 146
+title: OpenVLA 动作token与分位数还原
+title_en: OpenVLA Action Tokens and Quantile Unnormalization
+paper:
+  title: 'OpenVLA: An Open-Source Vision-Language-Action Model'
+  authors: Moo Jin Kim et al.
+  venue: CoRL 2024
+  url: https://arxiv.org/abs/2406.09246
+  anchors:
+  - Official action_tokenizer.py digitize / reversed IDs; OpenVLA.predict_action quantile unnormalization
+  arxiv: '2406.09246'
+paper_id: openvla
+difficulty: M
+type: implement
+parent: null
+module:
+  goal: OpenVLA 动作token与分位数还原：实现下列接口并通过数值、边界和实验检查。
+  goal_en: 'OpenVLA Action Tokens and Quantile Unnormalization: implement the interfaces below and verify
+    numerical, boundary and experimental behavior.'
+  scope: 复现官方ActionTokenizer的离散约定及动作反归一化；不加载7B模型。边界数组可缩小以便手算，默认论文规模为256个边界、255个中心。
+  scope_en: Reproduce official ActionTokenizer conventions and action unnormalization without a 7B model.
+    Smaller edge arrays make examples inspectable; the official default has 256 edges and 255 centers.
+  required_functions:
+  - encode_actions
+  - decode_actions
+  - unnormalize_actions
+  provided_functions: []
+  optional: false
+functions:
+- name: encode_actions
+  signature: 'encode_actions(actions: Tensor, edges: Tensor, vocab_size: int) -> Tensor'
+- name: decode_actions
+  signature: 'decode_actions(tokens: Tensor, edges: Tensor, vocab_size: int) -> Tensor'
+- name: unnormalize_actions
+  signature: 'unnormalize_actions(actions: Tensor, q01: Tensor, q99: Tensor, mask: Tensor) -> Tensor'
+conventions:
+  seed: 42
+  device: CPU float32/float64; no downloads; preserve floating dtype/device; do not mutate inputs
+  contract: Actions are any nonempty floating tensor; edges is strictly increasing 1-D with endpoints
+    -1/+1, vocab_size>=number of edges. Tokens are int64 in [0,V); non-action vocabulary IDs clip to endpoint
+    centers on decoding. Unnormalization takes (B,D), q01/q99 (D,) with q99>q01, and bool mask (D,).
+tests:
+  T0: 1
+  T1: 1
+  T2: 1
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+tags:
+- Robotics
+- VLA
+- Action Tokenization
+viz:
+- toy_experiment
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2406.09246
+  - https://github.com/openvla/openvla/blob/main/prismatic/vla/action_tokenizer.py
+  - https://github.com/openvla/openvla/blob/main/prismatic/models/vlas/openvla.py
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2406.09246
+  anchor: Official action_tokenizer.py digitize / reversed IDs; OpenVLA.predict_action quantile unnormalization
+  adaptation: Reproduce official ActionTokenizer conventions and action unnormalization without a 7B model.
+    Smaller edge arrays make examples inspectable; the official default has 256 edges and 255 centers.
+mutants:
+- id: m1_edge_left
+  bug: Exact edges use the wrong digitize boundary convention.
+- id: m2_forward_ids
+  bug: Action IDs are not reversed from the vocabulary end.
+- id: m3_scale_all
+  bug: Unmasked coordinates are incorrectly converted to physical units.
+browser:
+  backend: numpy-autograd-wasm

@@ -1,0 +1,67 @@
+id: robotics/rt_2
+number: 144
+title: RT-2 动作词表约束解码
+title_en: RT-2 Action-Vocabulary Constrained Decoding
+paper:
+  title: 'RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control'
+  authors: Anthony Brohan et al.
+  venue: CoRL 2023
+  url: https://arxiv.org/abs/2307.15818
+  anchors:
+  - Section 3.2 Output Constraint
+  arxiv: '2307.15818'
+paper_id: rt-2
+difficulty: M
+type: implement
+parent: null
+module:
+  goal: RT-2 动作词表约束解码：实现下列接口并通过数值、边界和实验检查。
+  goal_en: 'RT-2 Action-Vocabulary Constrained Decoding: implement the interfaces below and verify numerical,
+    boundary and experimental behavior.'
+  scope: 实现机器人任务与视觉语言任务共享logits时的输出约束；动作token集合由调用者提供，不运行PaLI-X、PaLM-E或语义推理。
+  scope_en: Implement output constraints for robot and vision-language rows sharing logits; callers supply
+    action-token identities. Omit PaLI-X, PaLM-E and semantic reasoning.
+  required_functions:
+  - action_probabilities
+  provided_functions: []
+  optional: false
+functions:
+- name: action_probabilities
+  signature: 'action_probabilities(logits: Tensor, action_tokens: Tensor, is_robot: Tensor) -> Tensor'
+conventions:
+  seed: 42
+  device: CPU float32/float64; no downloads; preserve floating dtype/device; do not mutate inputs
+  contract: Logits are (B,V), action_tokens is bool (V,) with at least one true, is_robot bool (B,). Robot
+    rows allow action tokens only; other rows allow the full vocabulary.
+tests:
+  T0: 1
+  T1: 1
+  T2: 1
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+tags:
+- Robotics
+- VLA
+- Constrained Decoding
+viz:
+- toy_experiment
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2307.15818
+  - https://arxiv.org/html/2307.15818
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2307.15818
+  anchor: Section 3.2 Output Constraint
+  adaptation: Implement output constraints for robot and vision-language rows sharing logits; callers
+    supply action-token identities. Omit PaLI-X, PaLM-E and semantic reasoning.
+mutants:
+- id: m1_no_constraint
+  bug: Robot rows retain forbidden language tokens.
+- id: m2_constrain_all
+  bug: The action-only vocabulary is incorrectly applied to vision-language rows.
+browser:
+  backend: numpy-autograd-wasm

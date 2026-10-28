@@ -1,0 +1,73 @@
+id: robotics/td_mpc2
+number: 151
+title: TD-MPC2 单纯形潜变量与精英轨迹更新
+title_en: TD-MPC2 Simplex Latents and Elite Trajectory Updates
+paper:
+  title: 'TD-MPC2: Scalable, Robust World Models for Continuous Control'
+  authors: Nicklas Hansen, Hao Su, Xiaolong Wang
+  venue: ICLR 2024
+  url: https://arxiv.org/abs/2310.16828
+  anchors:
+  - SimNorm and official _plan elite weighted mean/std update
+  arxiv: '2310.16828'
+paper_id: td-mpc2
+difficulty: M
+type: implement
+parent: null
+module:
+  goal: TD-MPC2 单纯形潜变量与精英轨迹更新：实现下列接口并通过数值、边界和实验检查。
+  goal_en: 'TD-MPC2 Simplex Latents and Elite Trajectory Updates: implement the interfaces below and verify
+    numerical, boundary and experimental behavior.'
+  scope: 提取SimNorm与MPPI已选精英的加权矩更新；候选轨迹与价值作为输入，不学习动力学/Q网络或执行真实MPC。
+  scope_en: Isolate SimNorm and MPPI weighted moments for already-selected elites. Candidate trajectories
+    and values are supplied; omit learned dynamics/Q networks and real MPC.
+  required_functions:
+  - simnorm
+  - elite_moments
+  provided_functions: []
+  optional: false
+functions:
+- name: simnorm
+  signature: 'simnorm(values: Tensor, group_dim: int) -> Tensor'
+- name: elite_moments
+  signature: 'elite_moments(actions: Tensor, values: Tensor, temperature: float, min_std: float, max_std:
+    float) -> tuple'
+conventions:
+  seed: 42
+  device: CPU float32/float64; no downloads; preserve floating dtype/device; do not mutate inputs
+  contract: Simnorm accepts rank>=1 floating inputs with last dimension divisible by group_dim>=2. Actions
+    are (H,E,D), values (E,), temperature>=0 is a multiplier, 0<min_std<=max_std. Return mean/std of shape
+    (H,D).
+tests:
+  T0: 1
+  T1: 1
+  T2: 1
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+tags:
+- Robotics
+- Model Predictive Control
+- SimNorm
+viz:
+- toy_experiment
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2310.16828
+  - https://github.com/nicklashansen/tdmpc2/blob/main/tdmpc2/common/layers.py
+  - https://github.com/nicklashansen/tdmpc2/blob/main/tdmpc2/tdmpc2.py
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2310.16828
+  anchor: SimNorm and official _plan elite weighted mean/std update
+  adaptation: Isolate SimNorm and MPPI weighted moments for already-selected elites. Candidate trajectories
+    and values are supplied; omit learned dynamics/Q networks and real MPC.
+mutants:
+- id: m1_inverse_temperature
+  bug: Temperature divides elite values instead of multiplying them.
+- id: m2_uncentered_variance
+  bug: Second moment is mistaken for centered variance.
+browser:
+  backend: numpy-autograd-wasm

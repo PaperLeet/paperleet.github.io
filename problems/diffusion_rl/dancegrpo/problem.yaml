@@ -1,0 +1,73 @@
+id: diffusion_rl/dancegrpo
+number: 173
+title: DanceGRPO 共享初噪与组内奖励
+title_en: DanceGRPO Shared Initial Noise and Group Rewards
+paper:
+  title: 'DanceGRPO: Unleashing GRPO on Visual Generation'
+  authors: Zeyue Xue et al.
+  venue: 2025 preprint / linked proceedings
+  url: https://arxiv.org/abs/2505.07818
+  anchors:
+  - Section 2.2 Eqs. (9)-(10), Initialization Noise; Section 2.3 combined rewards
+  arxiv: '2505.07818'
+paper_id: dancegrpo
+difficulty: M
+functions:
+- name: shared_noise
+  signature: 'shared_noise(base: Tensor, group_size: int) -> Tensor'
+- name: group_advantages
+  signature: 'group_advantages(rewards: Tensor, eps: float=1e-8) -> Tensor'
+- name: dance_loss
+  signature: 'dance_loss(log_ratios: Tensor, advantages: Tensor, clip: float) -> Tensor'
+type: implement
+parent: null
+module:
+  goal: 构造同 prompt 共享的初始噪声、逐奖励通道组内优势，以及逐转移 GRPO 目标。
+  goal_en: Construct shared initial noise per prompt, per-reward group advantages and a transition-level
+    GRPO objective.
+  scope: 在小型高斯生成策略中检验多奖励与共享初始条件；不运行视频骨干或视觉奖励模型。
+  scope_en: Test multiple rewards and shared initial conditions in a small Gaussian policy; no video backbone
+    or visual reward model.
+  required_functions:
+  - shared_noise
+  - group_advantages
+  - dance_loss
+  provided_functions: []
+  optional: false
+conventions:
+  tensors: CPU float32/float64, preserve dtype/device; finite nonempty inputs. No in-place mutation.
+  contract: shared_noise accepts base (P,D) and group_size>=2, returns (P,G,D). group_advantages accepts
+    rewards (P,G,K), G>=2; population variance plus eps outside sqrt, sum K. dance_loss log_ratios (P,G,T),
+    advantages (P,G), clip in (0,1), abs(log_ratio)<=40.
+  autograd: Noise and reward-derived advantages are frozen. Only current log ratios differentiate in the
+    policy loss; each prompt is normalized independently.
+tests:
+  T0: 1
+  T1: 2
+  T2: 3
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 35
+tags:
+- Diffusion RL
+- DanceGRPO
+viz:
+- toy_experiment
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2505.07818
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2505.07818
+  anchor: Section 2.2 Eqs. (9)-(10), Initialization Noise; Section 2.3 combined rewards
+  adaptation: Two prompt groups share initial states but draw independent Gaussian actions. Two differently
+    scaled quadratic reward channels train a scalar conditional policy for 70 updates.
+mutants:
+- id: m1_contract
+  bug: Normalize rewards across prompts
+- id: m2_contract
+  bug: Give group members different initial noise
+browser:
+  backend: numpy-autograd-wasm

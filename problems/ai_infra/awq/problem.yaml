@@ -1,0 +1,81 @@
+id: ai_infra/awq
+number: 164
+paper_id: awq
+title: AWQ 激活感知缩放校准
+title_en: AWQ Activation-Aware Scaling Calibration
+difficulty: H
+type: implement
+parent: null
+paper:
+  title: 'AWQ: Activation-aware Weight Quantization for LLM Compression and Acceleration'
+  authors: Ji Lin et al.
+  venue: MLSys 2024
+  url: https://arxiv.org/abs/2306.00978
+  anchors:
+  - 'Section 3.2: activation-aware scaling search; official auto_scale.py _search_module_scale'
+  arxiv: '2306.00978'
+module:
+  goal: 实现分组反量化，并以校准输出误差选择激活感知缩放指数。
+  goal_en: Implement groupwise fake quantization and select activation-aware scale exponents by calibration
+    output error.
+  scope: 单线性层AWQ网格搜索与分组非对称量化，使用平均绝对激活统计；不包含权重clipping搜索或TinyChat内核。
+  scope_en: Single-linear-layer AWQ grid search and asymmetric group quantization using mean absolute
+    activation statistics; clipping search and TinyChat kernels are excluded.
+  required_functions:
+  - group_quantize
+  - awq_search
+  provided_functions: []
+  optional: false
+functions:
+- name: group_quantize
+  signature: 'group_quantize(weight: Tensor, bits: int, group_size: int) -> Tensor'
+  returns: Detached dequantized weights under asymmetric groupwise quantization.
+- name: awq_search
+  signature: 'awq_search(x: Tensor, weight: Tensor, bits: int, group_size: int, alphas: list[float]) ->
+    tuple[Tensor, Tensor, float, float]'
+  returns: Best input-channel scales, dequantized weights, exponent and output MSE.
+conventions:
+  seed: 42
+  contract: x:(N,D), weight:(O,D); D is divisible by group_size. bits is an integer 2..8, and alphas is
+    nonempty within [0,1]. Groups contain consecutive input channels of each output row. Quantizer step=max((max-min)/(2^bits-1),1e-5),
+    zero=clip(round(-min/step),0,2^bits-1), with ties-to-even rounding. Clamp raw scales to 1e-4, then
+    normalize by sqrt(max*min). Break equal-error ties by supplied alpha order. Return (scales,dequantized_weight,alpha,float
+    MSE); offline calibration is detached.
+  dtype: CPU float32/float64 for tensors; Python integers for discrete scheduling; preserve caller inputs
+tests:
+  T0: 1
+  T1: 2
+  T2: 2
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 40
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2306.00978
+  - https://raw.githubusercontent.com/mit-han-lab/llm-awq/main/awq/quantize/auto_scale.py
+  - https://raw.githubusercontent.com/mit-han-lab/llm-awq/main/awq/quantize/quantizer.py
+  - https://arxiv.org/html/2306.00978
+tags:
+- AI Infra
+- AWQ
+- Numerical Methods
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2306.00978
+  anchor: 'Section 3.2: activation-aware scaling search; official auto_scale.py _search_module_scale'
+  adaptation: Use 16 deterministic calibration samples with one channel amplified eightfold and 3×4 weights
+    under three-bit group quantization. Sweep eleven alpha values from zero to one and compare the selected
+    candidate with alpha zero.
+mutants:
+- id: m1_no_inverse_scale
+  bug: 量化后未撤销通道缩放
+- id: m2_peak_activation
+  bug: 使用最大激活而不是平均绝对激活
+- id: m3_weight_mse
+  bug: 以权重MSE替代校准输出MSE

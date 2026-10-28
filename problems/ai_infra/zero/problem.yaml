@@ -1,0 +1,75 @@
+id: ai_infra/zero
+number: 156
+paper_id: zero
+title: ZeRO-2 分片 Adam 与状态内存
+title_en: ZeRO-2 Sharded Adam and State Memory
+difficulty: M
+type: implement
+parent: null
+paper:
+  title: 'ZeRO: Memory Optimizations Toward Training Trillion Parameter Models'
+  authors: Samyam Rajbhandari et al.
+  venue: SC 2020
+  url: https://arxiv.org/abs/1910.02054
+  anchors:
+  - 'Sections 5.1–5.3: optimizer, gradient and parameter partitioning'
+  arxiv: '1910.02054'
+module:
+  goal: 先平均梯度并按所有者分片，再更新局部 Adam 状态和汇总参数。
+  goal_en: Average and scatter gradients to owners, then update local Adam states and gather parameters.
+  scope: 等长参数分片的单进程 ZeRO-2 语义与 mixed-precision Adam 状态字节模型；不包含激活和通信缓冲区。
+  scope_en: Single-process ZeRO-2 semantics with equal-sized shards and a mixed-precision Adam-state byte
+    model; activations and communication buffers are excluded.
+  required_functions:
+  - zero2_adam_step
+  - state_bytes
+  provided_functions: []
+  optional: false
+functions:
+- name: zero2_adam_step
+  signature: 'zero2_adam_step(params: Tensor, gradients: Tensor, first: Tensor, second: Tensor, step:
+    int, lr: float, beta1: float = 0.9, beta2: float = 0.999, eps: float = 1e-8) -> tuple[Tensor, Tensor,
+    Tensor]'
+  returns: New sharded parameters and Adam moments, without input mutation.
+- name: state_bytes
+  signature: 'state_bytes(parameters: int, world_size: int, stage: int) -> int'
+  returns: Per-rank model-state bytes for ZeRO stage 0, 1, 2 or 3.
+conventions:
+  seed: 42
+  contract: Parameters and moments have shape (R,S); replicated gradients have shape (R,R*S). Return updated
+    parameter shards and both moments. Average across data-parallel ranks; step starts at one and weight
+    decay is absent. Byte accounting uses two-byte weights, two-byte gradients, and twelve bytes for master
+    weights plus two moments. Parameter count is divisible by R.
+  dtype: CPU float32/float64 for tensors; Python integers for discrete scheduling; preserve caller inputs
+tests:
+  T0: 1
+  T1: 2
+  T2: 2
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 40
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/1910.02054
+  - https://arxiv.org/html/1910.02054
+tags:
+- AI Infra
+- ZeRO
+- Systems
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/1910.02054
+  anchor: 'Sections 5.1–5.3: optimizer, gradient and parameter partitioning'
+  adaptation: Two ranks process deterministic regression examples for 45 Adam steps at learning rate 0.04.
+    Compare with an independent unsharded Adam update and report losses and model-state bytes.
+mutants:
+- id: m1_local_grad
+  bug: 使用每rank自己的梯度而未做跨rank归约
+- id: m2_missing_bias_correction
+  bug: 遗漏Adam第一矩偏差校正

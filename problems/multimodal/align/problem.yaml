@@ -1,0 +1,74 @@
+id: multimodal/align
+number: 126
+paper_id: align
+title: ALIGN 双向温度对比目标
+title_en: ALIGN bidirectional temperature contrast
+difficulty: M
+type: implement
+parent: null
+paper:
+  title: Scaling Up Visual and Vision-Language Representation Learning With Noisy
+    Text Supervision
+  authors: Chao Jia et al.
+  venue: arXiv 2021
+  arxiv: '2102.05918'
+  url: https://arxiv.org/abs/2102.05918
+  anchors:
+  - 'Section 3: normalized embeddings and symmetric image-text contrastive loss'
+functions:
+- name: align_loss
+  signature: 'align_loss(images: Tensor, texts: Tensor, temperature: Tensor) -> Tensor'
+  returns: images and texts are nonempty floating [B,D] tensors; temperature is a
+    positive scalar tensor. Matching indices are positive pairs. Normalize rows with
+    norm floor 1e-12, keeping zero rows zero. Average over the batch in each retrieval
+    direction, then average the two directions. Preserve all three gradients.
+module:
+  goal: ALIGN 双向温度对比目标
+  goal_en: ALIGN bidirectional temperature contrast
+  scope: 归一化双编码器特征、可微温度与双向 batch softmax；以合成图文配对演示训练，不包含含噪网络数据采集。
+  scope_en: Normalized dual-encoder features, differentiable temperature, and bidirectional
+    batch softmax; train synthetic image-text pairs without web-scale noisy-data collection.
+  required_functions:
+  - align_loss
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: CPU float32/float64; metadata indices are int64
+  contract: images and texts are nonempty floating [B,D] tensors; temperature is a
+    positive scalar tensor. Matching indices are positive pairs. Normalize rows with
+    norm floor 1e-12, keeping zero rows zero. Average over the batch in each retrieval
+    direction, then average the two directions. Preserve all three gradients.
+  mutation: Inputs are never modified in place
+tests:
+  T0: 1
+  T1: 1
+  T2: 3
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2102.05918
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2102.05918
+  anchor: 'Section 3: normalized embeddings and symmetric image-text contrastive loss'
+  adaptation: Normalized dual-encoder features, differentiable temperature, and bidirectional
+    batch softmax; train synthetic image-text pairs without web-scale noisy-data collection.
+    Deterministic CPU float64 synthetic inputs; no benchmark reproduction.
+tags:
+- Multimodal
+- ALIGN
+- Paper-to-Code
+mutants:
+- id: m1_one_direction
+  bug: Drops text-to-image contrast
+- id: m2_raw_features
+  bug: Omits image normalization

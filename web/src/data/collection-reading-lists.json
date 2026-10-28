@@ -31,7 +31,8 @@
               "url": "https://arxiv.org/abs/2102.05918",
               "summary": "用大规模含噪图文配对训练双编码器，比较数据规模与清洗方式。",
               "summary_en": "Train dual encoders on large-scale noisy image-text pairs to study the roles of data scale and filtering.",
-              "priority": false
+              "priority": false,
+              "paper_id": "align"
             },
             {
               "id": "siglip",
@@ -52,7 +53,8 @@
               "url": "https://arxiv.org/abs/2502.14786",
               "summary": "将描述生成、自蒸馏、掩码预测和在线数据筛选纳入表征学习。",
               "summary_en": "Combine captioning, self-distillation, masked prediction, and online data curation to improve visual representations.",
-              "priority": true
+              "priority": true,
+              "paper_id": "siglip-2"
             }
           ]
         },
@@ -69,7 +71,8 @@
               "url": "https://arxiv.org/abs/2201.12086",
               "summary": "用生成与过滤改善图文监督，同时支持理解与生成。",
               "summary_en": "Improve image-text supervision through caption generation and filtering while supporting both understanding and generation.",
-              "priority": false
+              "priority": false,
+              "paper_id": "blip"
             },
             {
               "id": "blip-2",
@@ -79,7 +82,8 @@
               "url": "https://arxiv.org/abs/2301.12597",
               "summary": "用 Q-Former 连接冻结视觉编码器和语言模型；适合练习查询 token 与跨注意力。",
               "summary_en": "Connect frozen image encoders and language models with a Q-Former, exposing query tokens and cross-attention as exercise components.",
-              "priority": true
+              "priority": true,
+              "paper_id": "blip-2"
             },
             {
               "id": "flamingo",
@@ -89,7 +93,8 @@
               "url": "https://arxiv.org/abs/2204.14198",
               "summary": "连接预训练视觉与语言模型，处理交错图文和少样本上下文。",
               "summary_en": "Connect pretrained vision and language models to handle interleaved image-text inputs and few-shot context.",
-              "priority": true
+              "priority": true,
+              "paper_id": "flamingo"
             }
           ]
         },
@@ -106,7 +111,8 @@
               "url": "https://arxiv.org/abs/2304.08485",
               "summary": "视觉编码器与语言模型连接，并用视觉指令数据训练。",
               "summary_en": "Connect a vision encoder to a language model and train the combined model on visual instruction data.",
-              "priority": true
+              "priority": true,
+              "paper_id": "llava"
             },
             {
               "id": "instructblip",
@@ -116,7 +122,8 @@
               "url": "https://arxiv.org/abs/2305.06500",
               "summary": "让视觉特征提取依赖指令，比较指令感知与固定特征查询。",
               "summary_en": "Condition visual feature extraction on instructions to compare instruction-aware queries with fixed feature queries.",
-              "priority": false
+              "priority": false,
+              "paper_id": "instructblip"
             }
           ]
         },
@@ -133,7 +140,8 @@
               "url": "https://arxiv.org/abs/2305.05665",
               "summary": "以图像配对为桥梁，将文本、音频、深度、热成像、IMU 等模态对齐。",
               "summary_en": "Use image-paired data to align text, audio, depth, thermal images, and IMU signals in one embedding space.",
-              "priority": true
+              "priority": true,
+              "paper_id": "imagebind"
             },
             {
               "id": "chameleon",
@@ -143,7 +151,8 @@
               "url": "https://arxiv.org/abs/2405.09818",
               "summary": "将图像与文本 token 提前融合，统一理解与混合模态生成。",
               "summary_en": "Fuse image and text tokens early to support unified understanding and mixed-modal generation.",
-              "priority": true
+              "priority": true,
+              "paper_id": "chameleon"
             },
             {
               "id": "qwen2-vl",
@@ -153,7 +162,8 @@
               "url": "https://arxiv.org/abs/2409.12191",
               "summary": "动态分辨率与多模态 RoPE；适合抽取时间、高度、宽度位置编码练习。",
               "summary_en": "Use dynamic resolution and multimodal RoPE, with temporal, height, and width positions as exercise components.",
-              "priority": true
+              "priority": true,
+              "paper_id": "qwen2-vl"
             },
             {
               "id": "qwen2-5-vl",
@@ -163,7 +173,8 @@
               "url": "https://arxiv.org/abs/2502.13923",
               "summary": "原生动态分辨率视觉编码、窗口注意力与视频绝对时间定位。",
               "summary_en": "Combine native dynamic-resolution visual encoding, window attention, and absolute temporal localization in video.",
-              "priority": false
+              "priority": false,
+              "paper_id": "qwen2-5-vl"
             },
             {
               "id": "internvl3",
@@ -173,7 +184,8 @@
               "url": "https://arxiv.org/abs/2504.10479",
               "summary": "原生多模态预训练、可变视觉位置编码与偏好优化。",
               "summary_en": "Study native multimodal pretraining, variable visual positional encoding, and preference optimization.",
-              "priority": false
+              "priority": false,
+              "paper_id": "internvl3"
             },
             {
               "id": "qwen3-vl",
@@ -183,7 +195,8 @@
               "url": "https://arxiv.org/abs/2511.21631",
               "summary": "交错 MRoPE、多层视觉特征注入和文本时间戳对齐。",
               "summary_en": "Combine interleaved MRoPE, multilevel visual feature injection, and text-based timestamp alignment.",
-              "priority": false
+              "priority": false,
+              "paper_id": "qwen3-vl"
             },
             {
               "id": "qwen2-5-omni",
@@ -193,7 +206,8 @@
               "url": "https://arxiv.org/abs/2503.20215",
               "summary": "Thinker–Talker 架构、音视频时间对齐和流式语音输出。",
               "summary_en": "Use a Thinker–Talker architecture for temporally aligned audio-video understanding and streaming speech output.",
-              "priority": true
+              "priority": true,
+              "paper_id": "qwen2-5-omni"
             }
           ]
         }
@@ -217,7 +231,8 @@
               "url": "https://proceedings.mlr.press/v15/ross11a.html",
               "summary": "在当前策略访问的状态上收集专家动作并聚合数据，处理分布偏移。",
               "summary_en": "Aggregate expert actions at states visited by the current policy to address distribution shift.",
-              "priority": true
+              "priority": true,
+              "paper_id": "dagger"
             },
             {
               "id": "act",
@@ -227,7 +242,8 @@
               "url": "https://arxiv.org/abs/2304.13705",
               "summary": "Transformer 与条件 VAE 预测动作块；可练动作块重叠执行和时间集成。",
               "summary_en": "Predict action chunks with a Transformer and conditional VAE, with overlapping execution and temporal ensembling as exercise components.",
-              "priority": true
+              "priority": true,
+              "paper_id": "act"
             }
           ]
         },
@@ -255,7 +271,8 @@
               "url": "https://arxiv.org/abs/2410.07864",
               "summary": "统一具有物理意义的动作空间，用扩散 Transformer 学习双臂动作。",
               "summary_en": "Unify physically meaningful action spaces and use a diffusion Transformer to learn bimanual actions.",
-              "priority": true
+              "priority": true,
+              "paper_id": "rdt-1b"
             }
           ]
         },
@@ -272,7 +289,8 @@
               "url": "https://arxiv.org/abs/2212.06817",
               "summary": "语言条件视觉 token 输入与离散动作预测。",
               "summary_en": "Predict discrete actions from language-conditioned visual tokens.",
-              "priority": false
+              "priority": false,
+              "paper_id": "rt-1"
             },
             {
               "id": "rt-2",
@@ -282,7 +300,8 @@
               "url": "https://arxiv.org/abs/2307.15818",
               "summary": "把动作表示为文本 token，联合视觉语言任务与机器人轨迹训练。",
               "summary_en": "Represent actions as text tokens and jointly train on vision-language tasks and robot trajectories.",
-              "priority": false
+              "priority": false,
+              "paper_id": "rt-2"
             },
             {
               "id": "octo",
@@ -292,7 +311,8 @@
               "url": "https://arxiv.org/abs/2405.12213",
               "summary": "Transformer 加扩散动作解码器，支持不同观测与动作空间的适配。",
               "summary_en": "Combine a Transformer with a diffusion action decoder to adapt across observation and action spaces.",
-              "priority": false
+              "priority": false,
+              "paper_id": "octo"
             },
             {
               "id": "openvla",
@@ -302,7 +322,8 @@
               "url": "https://arxiv.org/abs/2406.09246",
               "summary": "视觉语言表征到动作 token，适合练习动作离散化和反归一化。",
               "summary_en": "Map vision-language representations to action tokens, with action discretization and unnormalization as exercise components.",
-              "priority": true
+              "priority": true,
+              "paper_id": "openvla"
             },
             {
               "id": "pi0",
@@ -312,7 +333,8 @@
               "url": "https://arxiv.org/abs/2410.24164",
               "summary": "在 VLM 上增加通过 flow matching 生成连续动作块的动作专家。",
               "summary_en": "Add a flow-matching action expert to a vision-language model to generate continuous action chunks.",
-              "priority": true
+              "priority": true,
+              "paper_id": "pi0"
             },
             {
               "id": "pi0-5",
@@ -322,7 +344,8 @@
               "url": "https://arxiv.org/abs/2504.16054",
               "summary": "联合高层语义任务与低层动作学习，扩展开放环境泛化。",
               "summary_en": "Jointly learn high-level semantic tasks and low-level actions to improve generalization in open environments.",
-              "priority": false
+              "priority": false,
+              "paper_id": "pi0-5"
             }
           ]
         },
@@ -339,7 +362,8 @@
               "url": "https://arxiv.org/abs/2301.04104",
               "summary": "在潜在世界模型的想象轨迹上学习策略，使用跨任务稳定化机制。",
               "summary_en": "Learn policies from imagined trajectories in a latent world model using stabilization mechanisms that transfer across tasks.",
-              "priority": true
+              "priority": true,
+              "paper_id": "dreamerv3"
             },
             {
               "id": "daydreamer",
@@ -349,7 +373,8 @@
               "url": "https://arxiv.org/abs/2206.14176",
               "summary": "将世界模型学习和想象策略训练用于真实机器人在线交互。",
               "summary_en": "Apply world-model learning and imagined policy training to online interaction with physical robots.",
-              "priority": false
+              "priority": false,
+              "paper_id": "daydreamer"
             },
             {
               "id": "td-mpc2",
@@ -359,7 +384,8 @@
               "url": "https://arxiv.org/abs/2310.16828",
               "summary": "在潜在世界模型内进行局部轨迹优化，结合模型预测和价值估计。",
               "summary_en": "Optimize local trajectories inside a latent world model by combining model predictions with value estimates.",
-              "priority": true
+              "priority": true,
+              "paper_id": "td-mpc2"
             }
           ]
         },
@@ -376,7 +402,8 @@
               "url": "https://arxiv.org/abs/1804.02717",
               "summary": "结合动作模仿与任务奖励学习物理角色控制。",
               "summary_en": "Learn physics-based character control by combining motion imitation with task rewards.",
-              "priority": false
+              "priority": false,
+              "paper_id": "deepmimic"
             },
             {
               "id": "diffmimic",
@@ -386,7 +413,8 @@
               "url": "https://arxiv.org/abs/2304.03274",
               "summary": "通过可微物理对状态匹配损失反传，并用示范回放稳定长时域优化。",
               "summary_en": "Backpropagate state-matching losses through differentiable physics and stabilize long-horizon optimization with demonstration replay.",
-              "priority": true
+              "priority": true,
+              "paper_id": "diffmimic"
             },
             {
               "id": "supermimic",
@@ -421,7 +449,8 @@
               "url": "https://arxiv.org/abs/1811.06965",
               "summary": "按层分配设备，拆分 microbatch，以流水线和梯度累积训练大模型。",
               "summary_en": "Partition layers across devices and split batches into microbatches for pipelined execution with gradient accumulation.",
-              "priority": true
+              "priority": true,
+              "paper_id": "gpipe"
             },
             {
               "id": "megatron-lm",
@@ -431,7 +460,8 @@
               "url": "https://arxiv.org/abs/1909.08053",
               "summary": "将注意力和 MLP 的矩阵运算分布到多个设备；可练列／行并行线性层。",
               "summary_en": "Distribute attention and MLP matrix operations across devices, with column- and row-parallel linear layers as exercise components.",
-              "priority": true
+              "priority": true,
+              "paper_id": "megatron-lm"
             },
             {
               "id": "zero",
@@ -441,7 +471,8 @@
               "url": "https://arxiv.org/abs/1910.02054",
               "summary": "分片优化器状态、梯度和参数，逐步消除数据并行副本的冗余。",
               "summary_en": "Shard optimizer states, gradients, and parameters to progressively remove redundancy across data-parallel replicas.",
-              "priority": true
+              "priority": true,
+              "paper_id": "zero"
             }
           ]
         },
@@ -469,7 +500,8 @@
               "url": "https://arxiv.org/abs/2307.08691",
               "summary": "优化线程块和 warp 工作划分，减少非矩阵乘运算与通信。",
               "summary_en": "Improve thread-block and warp work partitioning while reducing non-matmul operations and communication.",
-              "priority": false
+              "priority": false,
+              "paper_id": "flash-attention-2"
             },
             {
               "id": "gqa",
@@ -508,7 +540,8 @@
               "url": "https://www.usenix.org/conference/osdi22/presentation/yu",
               "summary": "按生成迭代调度，让请求动态加入和离开批次。",
               "summary_en": "Schedule at generation-iteration granularity so requests can dynamically join and leave batches.",
-              "priority": true
+              "priority": true,
+              "paper_id": "orca"
             },
             {
               "id": "sglang",
@@ -518,7 +551,8 @@
               "url": "https://arxiv.org/abs/2312.07104",
               "summary": "RadixAttention 复用前缀 KV 缓存，并优化结构化解码。",
               "summary_en": "Use RadixAttention to reuse prefix KV caches and optimize structured decoding.",
-              "priority": true
+              "priority": true,
+              "paper_id": "sglang"
             },
             {
               "id": "sarathi-serve",
@@ -528,7 +562,8 @@
               "url": "https://arxiv.org/abs/2403.02310",
               "summary": "将 prefill 分块并与 decode 混合调度，降低长 prompt 对逐 token 延迟的干扰。",
               "summary_en": "Mix chunked prefill with decode scheduling to reduce the impact of long prompts on per-token latency.",
-              "priority": false
+              "priority": false,
+              "paper_id": "sarathi-serve"
             },
             {
               "id": "distserve",
@@ -538,7 +573,8 @@
               "url": "https://www.usenix.org/conference/osdi24/presentation/zhong-yinmin",
               "summary": "分离 prefill/decode 的资源与并行配置，在延迟约束下优化有效吞吐。",
               "summary_en": "Separate prefill and decode resources and parallelism settings to optimize goodput under latency constraints.",
-              "priority": true
+              "priority": true,
+              "paper_id": "distserve"
             }
           ]
         },
@@ -555,7 +591,8 @@
               "url": "https://arxiv.org/abs/2210.17323",
               "summary": "利用近似二阶信息与误差补偿完成低比特训练后量化。",
               "summary_en": "Use approximate second-order information and error compensation for low-bit post-training quantization.",
-              "priority": true
+              "priority": true,
+              "paper_id": "gptq"
             },
             {
               "id": "smoothquant",
@@ -565,7 +602,8 @@
               "url": "https://arxiv.org/abs/2211.10438",
               "summary": "逐通道等价缩放，把激活离群值的量化难度迁移到权重。",
               "summary_en": "Apply equivalent per-channel scaling to shift the quantization difficulty of activation outliers into weights.",
-              "priority": false
+              "priority": false,
+              "paper_id": "smoothquant"
             },
             {
               "id": "awq",
@@ -575,7 +613,8 @@
               "url": "https://arxiv.org/abs/2306.00978",
               "summary": "根据激活统计选择重要通道，通过等价缩放保护低比特权重量化精度。",
               "summary_en": "Use activation statistics to identify important channels and equivalent scaling to protect low-bit weight quantization accuracy.",
-              "priority": true
+              "priority": true,
+              "paper_id": "awq"
             },
             {
               "id": "qlora",
@@ -621,7 +660,8 @@
               "url": "https://arxiv.org/abs/2304.05977",
               "summary": "从人类偏好学习奖励模型，再用 ReFL 将奖励反馈给生成器。",
               "summary_en": "Learn a reward model from human preferences, then use ReFL to feed reward signals back to the generator.",
-              "priority": true
+              "priority": true,
+              "paper_id": "imagereward"
             },
             {
               "id": "diffusion-dpo",
@@ -642,7 +682,8 @@
               "url": "https://arxiv.org/abs/2404.04465",
               "summary": "从单张图像的喜欢／不喜欢反馈优化效用，不要求成对偏好。",
               "summary_en": "Optimize utility from likes and dislikes on individual images without requiring paired preferences.",
-              "priority": true
+              "priority": true,
+              "paper_id": "diffusion-kto"
             },
             {
               "id": "d3po",
@@ -652,7 +693,8 @@
               "url": "https://arxiv.org/abs/2311.13231",
               "summary": "用直接偏好优化更新去噪策略，省去显式奖励模型。",
               "summary_en": "Apply direct preference optimization to the denoising policy without training an explicit reward model.",
-              "priority": false
+              "priority": false,
+              "paper_id": "d3po"
             },
             {
               "id": "pc-flow",
@@ -662,7 +704,8 @@
               "url": "https://ojs.aaai.org/index.php/AAAI/article/view/37971",
               "summary": "使用轻量偏好分类器引导 flow 分布，无需参考模型。",
               "summary_en": "Guide the flow distribution with a lightweight preference classifier without a reference model.",
-              "priority": false
+              "priority": false,
+              "paper_id": "pc-flow"
             }
           ]
         },
@@ -679,7 +722,8 @@
               "url": "https://arxiv.org/abs/2305.13301",
               "summary": "将去噪链视为多步决策过程，优化轨迹概率与终点奖励。",
               "summary_en": "Treat the denoising chain as a multistep decision process and optimize trajectory probabilities using terminal rewards.",
-              "priority": true
+              "priority": true,
+              "paper_id": "ddpo"
             },
             {
               "id": "dpok",
@@ -689,7 +733,8 @@
               "url": "https://arxiv.org/abs/2305.16381",
               "summary": "在线策略优化结合 KL 正则，控制奖励提升和参考策略偏移。",
               "summary_en": "Combine online policy optimization with KL regularization to balance reward improvement and drift from the reference policy.",
-              "priority": true
+              "priority": true,
+              "paper_id": "dpok"
             }
           ]
         },
@@ -706,7 +751,8 @@
               "url": "https://arxiv.org/abs/2310.03739",
               "summary": "将可微奖励反传穿过生成过程，使用 LoRA 与梯度检查点控制内存。",
               "summary_en": "Backpropagate differentiable rewards through generation while using LoRA and gradient checkpointing to manage memory.",
-              "priority": false
+              "priority": false,
+              "paper_id": "alignprop"
             },
             {
               "id": "draft",
@@ -716,7 +762,8 @@
               "url": "https://arxiv.org/abs/2309.17400",
               "summary": "可微奖励直接反传、末尾 K 步截断与低方差梯度估计。",
               "summary_en": "Backpropagate differentiable rewards directly, with last-K-step truncation and low-variance gradient estimation.",
-              "priority": true
+              "priority": true,
+              "paper_id": "draft"
             }
           ]
         },
@@ -744,7 +791,8 @@
               "url": "https://arxiv.org/abs/2505.07818",
               "summary": "将 GRPO 统一应用于扩散、rectified flow、图像和视频任务。",
               "summary_en": "Apply GRPO across diffusion and rectified-flow models for image and video generation.",
-              "priority": true
+              "priority": true,
+              "paper_id": "dancegrpo"
             }
           ]
         },
@@ -761,7 +809,8 @@
               "url": "https://arxiv.org/abs/2507.21802",
               "summary": "窗口内使用 SDE 与 GRPO，窗口外使用 ODE，减少训练开销。",
               "summary_en": "Use SDE sampling and GRPO within a window and ODE sampling outside it to reduce training overhead.",
-              "priority": true
+              "priority": true,
+              "paper_id": "mixgrpo"
             },
             {
               "id": "diffusion-nft",
@@ -782,7 +831,8 @@
               "url": "https://arxiv.org/abs/2606.11025",
               "summary": "利用高斯策略精确 KL 和非对称 divergence mask 约束更新。",
               "summary_en": "Constrain updates with exact Gaussian-policy KL divergence and an asymmetric divergence mask.",
-              "priority": true
+              "priority": true,
+              "paper_id": "flow-dppo"
             }
           ]
         }

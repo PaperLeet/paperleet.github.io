@@ -1,0 +1,76 @@
+id: robotics/diffmimic
+number: 153
+title: DiffMimic 示范回放与可微PD控制
+title_en: DiffMimic Demonstration Replay and Differentiable PD Control
+paper:
+  title: 'DiffMimic: Efficient Motion Mimicking with Differentiable Physics'
+  authors: Jiawei Ren, Cunjun Yu, Siwei Chen, Xiao Ma, Liang Pan, Ziwei Liu
+  venue: ICLR 2023
+  url: https://arxiv.org/abs/2304.03274
+  anchors:
+  - 'Equations 3.1, 3.3, 3.5 and Algorithm 1: PD torque, state matching and demonstration replay'
+  arxiv: '2304.03274'
+paper_id: diffmimic
+difficulty: M
+type: implement
+parent: null
+module:
+  goal: DiffMimic 示范回放与可微PD控制：实现下列接口并通过数值、边界和实验检查。
+  goal_en: 'DiffMimic Demonstration Replay and Differentiable PD Control: implement the interfaces below
+    and verify numerical, boundary and experimental behavior.'
+  scope: 实现论文状态误差触发的示范回放、PD力矩和时域状态匹配；实验是标量可微积分器，不是Brax人形机器人复现。
+  scope_en: Implement error-triggered demonstration replay, PD torque and temporal state matching. The
+    experiment uses a scalar differentiable integrator, not a Brax humanoid reproduction.
+  required_functions:
+  - replay_state
+  - pd_torque
+  - state_matching_loss
+  provided_functions: []
+  optional: false
+functions:
+- name: replay_state
+  signature: 'replay_state(state: Tensor, reference: Tensor, threshold: float) -> Tensor'
+- name: pd_torque
+  signature: 'pd_torque(position: Tensor, velocity: Tensor, target: Tensor, kp: float, kd: float) -> Tensor'
+- name: state_matching_loss
+  signature: 'state_matching_loss(states: Tensor, reference: Tensor) -> Tensor'
+conventions:
+  seed: 42
+  device: CPU float32/float64; no downloads; preserve floating dtype/device; do not mutate inputs
+  contract: Replay state/reference are (B,D), threshold>=0. Retain state only for strictly smaller squared
+    error; replay equality. References detach. PD tensors are matching (B,J), kp/kd nonnegative. Loss
+    takes (B,T,D), sums time and coordinates, averages batch, and detaches reference.
+tests:
+  T0: 1
+  T1: 1
+  T2: 1
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+tags:
+- Robotics
+- Differentiable Physics
+- Demonstration Replay
+viz:
+- toy_experiment
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2304.03274
+  - https://arxiv.org/html/2304.03274
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2304.03274
+  anchor: 'Equations 3.1, 3.3, 3.5 and Algorithm 1: PD torque, state matching and demonstration replay'
+  adaptation: Implement error-triggered demonstration replay, PD torque and temporal state matching. The
+    experiment uses a scalar differentiable integrator, not a Brax humanoid reproduction.
+mutants:
+- id: m1_inclusive_threshold
+  bug: States exactly at the threshold are kept instead of replayed.
+- id: m2_no_damping
+  bug: PD control omits velocity damping.
+- id: m3_time_mean
+  bug: State matching averages the time horizon instead of summing it.
+browser:
+  backend: numpy-autograd-wasm

@@ -1,0 +1,68 @@
+id: ai_infra/megatron_lm
+number: 155
+paper_id: megatron-lm
+title: Megatron 列并行与行并行 MLP
+title_en: Megatron Column- and Row-Parallel MLP
+difficulty: M
+type: implement
+parent: null
+paper:
+  title: 'Megatron-LM: Training Multi-Billion Parameter Language Models Using Model Parallelism'
+  authors: Mohammad Shoeybi et al.
+  venue: arXiv 2019
+  url: https://arxiv.org/abs/1909.08053
+  anchors:
+  - 'Section 3, Figure 3: column-partitioned first GEMM and row-partitioned second GEMM'
+  arxiv: '1909.08053'
+module:
+  goal: 对齐分片的隐藏通道，局部计算 GeLU 后归约第二层输出。
+  goal_en: Align hidden-channel shards, apply local GeLU, and reduce second-layer outputs.
+  scope: 单进程模拟两层 tensor-parallel MLP，包括偏置与反向梯度；采用 tanh GeLU 近似，不实现分布式通信。
+  scope_en: A single-process tensor-parallel two-layer MLP including biases and gradients, with tanh-approximate
+    GeLU and no distributed communication.
+  required_functions:
+  - parallel_mlp
+  provided_functions: []
+  optional: false
+functions:
+- name: parallel_mlp
+  signature: 'parallel_mlp(x: Tensor, w1: Tensor, b1: Tensor, w2: Tensor, b2: Tensor, parts: int) -> Tensor'
+  returns: (N,O) output with autograd through every floating input.
+conventions:
+  seed: 42
+  contract: x:(N,D), w1:(D,H), b1:(H,), w2:(H,O), b2:(O,). H is divisible by parts. Partition first-layer
+    columns and corresponding second-layer rows. Add b2 once after reduction. Preserve gradients, dtype
+    and input values.
+  dtype: CPU float32/float64 for tensors; Python integers for discrete scheduling; preserve caller inputs
+tests:
+  T0: 1
+  T1: 2
+  T2: 2
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 40
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/1909.08053
+  - https://arxiv.org/html/1909.08053
+tags:
+- AI Infra
+- Megatron-LM
+- Numerical Methods
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/1909.08053
+  anchor: 'Section 3, Figure 3: column-partitioned first GEMM and row-partitioned second GEMM'
+  adaptation: Use fixed 9×3 inputs and eight hidden channels; train output weights with two shards for
+    30 steps and compare loss, weights and gradients against dense execution.
+mutants:
+- id: m1_average_reduce
+  bug: 错误地平均各分片输出
+- id: m2_bias_per_rank
+  bug: 输出偏置按分片数重复加入

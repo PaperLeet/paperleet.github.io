@@ -1,0 +1,79 @@
+id: multimodal/imagebind
+number: 133
+paper_id: imagebind
+title: ImageBind 图像锚点跨模态目标
+title_en: ImageBind image-anchored multimodal objective
+difficulty: M
+type: implement
+parent: null
+paper:
+  title: 'ImageBind: One Embedding Space To Bind Them All'
+  authors: Rohit Girdhar et al.
+  venue: arXiv 2023
+  arxiv: '2305.05665'
+  url: https://arxiv.org/abs/2305.05665
+  anchors:
+  - 'Section 3 and Equation 1: binding modalities using image-paired contrastive learning'
+functions:
+- name: image_anchor_loss
+  signature: 'image_anchor_loss(images: Tensor, modalities: Tensor, temperature: Tensor)
+    -> Tensor'
+  returns: images is [B,D] and modalities [M,B,D], with positive dimensions. Every
+    modality is paired with the same image batch; do not add direct losses between
+    nonimage modalities. Normalize features, compute bidirectional batch-softmax losses
+    per image-modality pair, and average over M. temperature is a positive scalar.
+    This teaching kernel permits image gradients; freezing the image encoder is the
+    caller’s responsibility.
+module:
+  goal: ImageBind 图像锚点跨模态目标
+  goal_en: ImageBind image-anchored multimodal objective
+  scope: 多模态共用图像锚点的配对图和归约；以合成模态演示无需非图像配对的对齐，不复现六种编码器。
+  scope_en: Implement the image-anchored pairing graph and reduction across modalities;
+    align synthetic modalities without direct nonimage pairs, excluding the six encoders.
+  required_functions:
+  - image_anchor_loss
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: CPU float32/float64; metadata indices are int64
+  contract: images is [B,D] and modalities [M,B,D], with positive dimensions. Every
+    modality is paired with the same image batch; do not add direct losses between
+    nonimage modalities. Normalize features, compute bidirectional batch-softmax losses
+    per image-modality pair, and average over M. temperature is a positive scalar.
+    This teaching kernel permits image gradients; freezing the image encoder is the
+    caller’s responsibility.
+  mutation: Inputs are never modified in place
+tests:
+  T0: 1
+  T1: 1
+  T2: 3
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2305.05665
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2305.05665
+  anchor: 'Section 3 and Equation 1: binding modalities using image-paired contrastive
+    learning'
+  adaptation: Implement the image-anchored pairing graph and reduction across modalities;
+    align synthetic modalities without direct nonimage pairs, excluding the six encoders.
+    Deterministic CPU float64 synthetic inputs; no benchmark reproduction.
+tags:
+- Multimodal
+- ImageBind
+- Paper-to-Code
+mutants:
+- id: m1_sum_modalities
+  bug: Uses a sum instead of averaging modality losses
+- id: m2_missing_modalities
+  bug: Trains only the first modality

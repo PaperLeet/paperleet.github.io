@@ -13,7 +13,7 @@ viz:
 browser:
   backend: numpy-autograd-wasm
 id: multimodal/siglip
-number: 118
+number: 124
 paper_id: siglip
 title: SigLIP 图文成对 Sigmoid 对齐
 title_en: SigLIP Pairwise Image-Text Alignment

@@ -1,0 +1,70 @@
+id: ai_infra/sarathi_serve
+number: 160
+paper_id: sarathi-serve
+title: Sarathi-Serve Decode 优先与分块 Prefill
+title_en: Sarathi-Serve Decode Priority and Chunked Prefill
+difficulty: M
+type: implement
+parent: null
+paper:
+  title: Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve
+  authors: Amey Agrawal et al.
+  venue: OSDI 2024
+  url: https://arxiv.org/abs/2403.02310
+  anchors:
+  - Section 4.1–4.2; Algorithm 3, stall-free batching
+  arxiv: '2403.02310'
+module:
+  goal: 先为所有decode保留token预算，再为队首prefill分配不超过上限的块。
+  goal_en: Reserve tokens for every ongoing decode before assigning bounded chunks to FIFO prefills.
+  scope: 一次混合批次的预算分配和多轮回放；以固定token预算与最大块长替代论文的性能模型。
+  scope_en: One hybrid-batch budget allocation and repeated replay; fixed token budgets and maximum chunks
+    replace the paper performance model.
+  required_functions:
+  - hybrid_batch
+  provided_functions: []
+  optional: false
+functions:
+- name: hybrid_batch
+  signature: 'hybrid_batch(decodes: list[int], prefills: list[int], budget: int, chunk_size: int) -> dict'
+  returns: Decode IDs, scheduled (prefill_index,token_count) pairs, and remaining tokens.
+conventions:
+  seed: 42
+  contract: decodes is a list of distinct nonnegative IDs; prefills contains positive remaining token
+    counts in FIFO order. budget>=len(decodes), chunk_size>=1. Every decode runs once. Give the head prefill
+    min(remaining,chunk_size,budget_left); if unfinished, stop admitting later prefills. At most one chunk
+    per request per iteration. Return decodes, prefills as (index,count), and remaining with zeros for
+    completed items.
+  dtype: CPU float32/float64 for tensors; Python integers for discrete scheduling; preserve caller inputs
+tests:
+  T0: 1
+  T1: 2
+  T2: 2
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 40
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2403.02310
+  - https://arxiv.org/html/2403.02310
+tags:
+- AI Infra
+- Sarathi-Serve
+- Systems
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2403.02310
+  anchor: Section 4.1–4.2; Algorithm 3, stall-free batching
+  adaptation: Keep two decodes active with prefill lengths 13, 3 and 9, budget eight and chunk cap four.
+    Consume the queue over multiple iterations and check uninterrupted decodes and conserved prefill work.
+mutants:
+- id: m1_no_decode_reservation
+  bug: prefill误用decode保留的预算
+- id: m2_unchunked_prefill
+  bug: 忽略prefill块大小上限

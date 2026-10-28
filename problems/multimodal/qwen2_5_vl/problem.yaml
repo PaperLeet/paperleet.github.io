@@ -1,0 +1,81 @@
+id: multimodal/qwen2_5_vl
+number: 136
+paper_id: qwen2-5-vl
+title: Qwen2.5-VL 视觉窗口重排
+title_en: Qwen2.5-VL visual window permutation
+difficulty: M
+type: implement
+parent: null
+paper:
+  title: Qwen2.5-VL Technical Report
+  authors: Qwen Team
+  venue: arXiv 2025
+  arxiv: '2502.13923'
+  url: https://arxiv.org/abs/2502.13923
+  anchors:
+  - 'Section 2.1.1 Fast and Efficient Vision Encoder: window attention and spatial
+    merging'
+functions:
+- name: window_permutation
+  signature: 'window_permutation(frames: int, height: int, width: int, merge_size:
+    int, window_size: int) -> tuple[Tensor, Tensor]'
+  returns: All arguments are positive integers. height/width describe the original
+    patch grid and are divisible by merge_size; window_size counts merged cells. Iterate
+    frames, window rows/columns, merged-cell rows/columns within a window, then patch
+    rows/columns within a cell. Return original row-major patch indices without boundary
+    padding. Outputs are CPU int64 permutation [T*H*W] and cu_seqlens counted in original
+    patches, starting at zero.
+module:
+  goal: Qwen2.5-VL 视觉窗口重排
+  goal_en: Qwen2.5-VL visual window permutation
+  scope: 动态分辨率下的窗口分组、空间合并顺序与累计长度；不实现完整 ViT 或 GPU 内核。
+  scope_en: Window grouping, spatial-merge ordering, and cumulative lengths for dynamic
+    resolutions; exclude the complete ViT and GPU kernels.
+  required_functions:
+  - window_permutation
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: CPU float32/float64; metadata indices are int64
+  contract: All arguments are positive integers. height/width describe the original
+    patch grid and are divisible by merge_size; window_size counts merged cells. Iterate
+    frames, window rows/columns, merged-cell rows/columns within a window, then patch
+    rows/columns within a cell. Return original row-major patch indices without boundary
+    padding. Outputs are CPU int64 permutation [T*H*W] and cu_seqlens counted in original
+    patches, starting at zero.
+  mutation: Inputs are never modified in place
+tests:
+  T0: 1
+  T1: 1
+  T2: 3
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2502.13923
+  - https://github.com/huggingface/transformers/blob/main/src/transformers/models/qwen2_5_vl/modeling_qwen2_5_vl.py
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2502.13923
+  anchor: 'Section 2.1.1 Fast and Efficient Vision Encoder: window attention and spatial
+    merging'
+  adaptation: Window grouping, spatial-merge ordering, and cumulative lengths for
+    dynamic resolutions; exclude the complete ViT and GPU kernels. Deterministic CPU
+    float64 synthetic inputs; no benchmark reproduction.
+tags:
+- Multimodal
+- Qwen2.5-VL
+- Paper-to-Code
+mutants:
+- id: m1_missing_frame_offset
+  bug: Reuses first-frame indices for every frame
+- id: m2_wrong_cumulative_units
+  bug: Counts merged cells rather than original patches

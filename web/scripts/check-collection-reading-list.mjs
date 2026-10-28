@@ -8,12 +8,12 @@ import {JSDOM} from 'jsdom';
 import {createServer} from 'vite';
 import {localizedRenderer} from './render-locale.mjs';
 
-// Reading records have no executable module contract. Test their separate data,
-// actual rendered affordances, and one search/navigation journey with real UI.
+// Reading metadata remains separate from executable modules. Verify all 62
+// curated papers now resolve to practice, plus safe behavior for a missing paper.
 const data = JSON.parse(fs.readFileSync('src/data/collection-reading-lists.json', 'utf8'));
 const catalog = JSON.parse(fs.readFileSync('public/data/catalog.json', 'utf8'));
 const expectedCounts = {multimodal: 16, robotics: 16, 'ai-infra': 16, 'diffusion-rl': 14};
-const expectedAvailable = {multimodal: 2, robotics: 2, 'ai-infra': 5, 'diffusion-rl': 3};
+const expectedAvailable = {...expectedCounts};
 const expectedStages = {multimodal: 4, robotics: 5, 'ai-infra': 4, 'diffusion-rl': 5};
 const flat = collection => collection.stages.flatMap(stage => stage.papers);
 const normalizedTitle = value => value.normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
@@ -70,8 +70,8 @@ for (const collection of data.collections) {
   }
 }
 assert.equal(ids.size, 62);
-assert.equal(availableIds.size, 12);
-assert.equal(ids.size - availableIds.size, 50);
+assert.equal(availableIds.size, 62);
+assert.equal(ids.size - availableIds.size, 0);
 
 const dom = new JSDOM('<!doctype html><div id="root"></div>', {url: 'https://paperleet.test/#/collections/diffusion-rl', pretendToBeVisual: true});
 const globals = {
@@ -82,7 +82,7 @@ const globals = {
   innerHeight: 900, scrollY: 0, scrollTo() {},
   ResizeObserver: class {observe() {} disconnect() {}},
   requestAnimationFrame: callback => setTimeout(callback, 0), cancelAnimationFrame: clearTimeout,
-  IS_REACT_ACT_ENVIRONMENT: true,
+  IS_REACT_ACT_ENVIRONMENT: false,
 };
 const originals = new Map(Object.keys(globals).map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]));
 for (const [key, value] of Object.entries(globals)) Object.defineProperty(globalThis, key, {value, writable: true, configurable: true});
@@ -167,6 +167,25 @@ try {
           }
         }
       }
+      // Preserve the no-exercise fallback with a deliberate incomplete catalog.
+      // A paper_id alone must never manufacture practice or completion progress.
+      const unavailable = flat(reading)[0];
+      const missingPaper = catalog.papers.find(paper => paper.id === unavailable.paper_id);
+      const incompletePapers = catalog.papers.filter(paper => paper.id !== missingPaper.id);
+      const incomplete = parsed(render(React.createElement(ReadingList, {...props, papers: incompletePapers, collectionId: reading.id, route})));
+      const missingCard = incomplete.querySelector(`[data-reading-id="${unavailable.id}"]`);
+      assert.equal(missingCard.dataset.practiceState, 'missing');
+      assert.equal(missingCard.dataset.progress, undefined);
+      assert.equal(missingCard.querySelector('.reading-no-exercise').textContent, locale === 'zh' ? '暂无练习' : 'No exercise yet');
+      assert(!missingCard.querySelector('.reading-practice-link, button, a[href^="#"]'));
+      assert.equal(missingCard.querySelectorAll('a').length, 1);
+      assert.equal(missingCard.querySelector('.reading-source-link').getAttribute('href'), unavailable.url);
+      assert.equal(incomplete.querySelectorAll('.reading-practice-link').length, expectedAvailable[reading.id] - 1);
+      const incompletePractice = selectLibraryPractice(incompletePapers, catalog.problems, {}, navigation.readLibraryRoute(modulesRoute));
+      assert.deepEqual(sorted(incompletePractice.problems.map(problem => problem.id)), sorted([...moduleIds].filter(id => !missingPaper.module_ids.includes(id))));
+      assert(eligibleUnattemptedProblems(incompletePractice.problems, {}).every(problem => !missingPaper.module_ids.includes(problem.id)));
+      const incompleteModules = parsed(render(React.createElement(PaperLibrary, {...props, papers: incompletePapers, collectionId: reading.id, route: modulesRoute})));
+      assert.equal(incompleteModules.querySelector('.library-progress b').textContent, `0 / ${incompletePractice.problems.length}`);
       const cards = parsed(render(React.createElement(LibraryCollections, props)));
       const collectionCard = cards.querySelector(`.collection-card.collection-${reading.id}`);
       assert.equal(collectionCard.getAttribute('href'), route);
@@ -184,6 +203,9 @@ try {
 
   // Exercise the lazy default route, real controlled input, clear button, and
   // actual navigation anchors. The harness supplies only the app's route owner.
+  // Static renders above do not own client subscriptions; enable act tracking
+  // only for the mounted interaction journey below.
+  globalThis.IS_REACT_ACT_ENVIRONMENT = true;
   const {createRoot} = await import('react-dom/client');
   let route = '#/collections/diffusion-rl', setLocale;
   const changes = [];
@@ -221,14 +243,14 @@ try {
   };
   await type('DDPO');
   assert.deepEqual([...document.querySelectorAll('.collection-reading-paper')].map(card => card.dataset.readingId), ['ddpo']);
-  assert(!document.querySelector('[data-reading-id="ddpo"] .reading-practice-link'));
+  assert.equal(document.querySelector('[data-reading-id="ddpo"] .reading-practice-link').dataset.paperId, 'ddpo');
   await click(document.querySelector('.search-clear'));
   assert.equal(document.querySelectorAll('.collection-reading-paper').length, 14);
   await act(async () => {setLocale('zh');});
   await type('前向');
   assert.deepEqual([...document.querySelectorAll('.collection-reading-paper')].map(card => card.dataset.readingId), ['diffusion-nft']);
   assert(document.querySelector('.reading-paper-summary').textContent.includes('前向'));
-  // A reading-only summary need not appear in exercise metadata. Use the
+  // A reading summary need not appear verbatim in exercise metadata. Use the
   // shared paper title when checking filtered practice results across tabs.
   await type('DiffusionNFT');
   const filteredOrigin = route;
@@ -239,7 +261,7 @@ try {
   assert.equal(navigation.readLibraryRoute(route).filters.view, 'modules');
   assert.equal(navigation.readLibraryRoute(route).filters.query, 'DiffusionNFT');
   assert.equal(document.querySelector('.collection-reading-list'), null);
-  assert.equal(document.querySelector('.library-progress b').textContent, '0 / 3');
+  assert.equal(document.querySelector('.library-progress b').textContent, '0 / 14');
   await click(document.querySelector('.collection-reading-views a:not([aria-current])'));
   await wait(() => document.querySelector('[data-reading-id="diffusion-nft"]'), 'Reading tab must restore the filtered reading list');
   assert.equal(route, filteredOrigin);
@@ -250,13 +272,15 @@ try {
   assert.equal(document.querySelectorAll('.collection-reading-paper').length, 14);
   assert(changes.some(href => href.includes('q=DDPO')) && changes.some(href => href.includes('q=%E5%89%8D%E5%90%91')));
   document.getElementById('root').removeEventListener('click', onNavigation);
-  console.log('PASS collection reading lists: 62 verified records / 12 practice papers / 50 reading-only; bilingual stages and sources; unchanged practice/random/progress; live search and reading/practice navigation');
+  console.log('PASS collection reading lists: 62 verified records / 62 practice papers; missing-catalog fallback without fake practice; bilingual stages and sources; scoped practice/random/progress; live search and reading/practice navigation');
 } finally {
   if (root) await act(async () => {
     // Let optional chunks resolve while their subscriptions still belong to act.
     await new Promise(resolve => setTimeout(resolve, 80));
     root.unmount();
   });
+  // Client subscriptions are gone; remaining lazy SSR work is teardown only.
+  globalThis.IS_REACT_ACT_ENVIRONMENT = false;
   await server.close();
   rmSync(cacheDir, {recursive: true, force: true});
   dom.window.close();

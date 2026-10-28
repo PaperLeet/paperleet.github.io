@@ -1,0 +1,69 @@
+id: diffusion_rl/dpok
+number: 170
+title: DPOK 高斯 KL 上界与策略梯度
+title_en: DPOK Gaussian KL Bound and Policy Gradient
+paper:
+  title: 'DPOK: Reinforcement Learning for Fine-tuning Text-to-Image Diffusion Models'
+  authors: Ying Fan et al.
+  venue: 2023 preprint / linked proceedings
+  url: https://arxiv.org/abs/2305.16381
+  anchors:
+  - Section 4.1 Lemma 4.2 and Eqs. (7)-(9), efficient gradient approximation
+  arxiv: '2305.16381'
+paper_id: dpok
+difficulty: M
+functions:
+- name: gaussian_kl
+  signature: 'gaussian_kl(current: Tensor, reference: Tensor, std: Tensor) -> Tensor'
+- name: dpok_surrogate
+  signature: 'dpok_surrogate(logp: Tensor, rewards: Tensor, kl: Tensor, alpha: float, beta: float) ->
+    Tensor'
+type: implement
+parent: null
+module:
+  goal: 计算逐步高斯 KL，并实现奖励 score 梯度与直接 KL 梯度的组合。
+  goal_en: Compute per-step Gaussian KL and combine reward score gradients with direct KL gradients.
+  scope: 实现论文 Eq. (9) 的高效梯度近似；不声称包含 Eq. (8) 状态访问分布的完整导数。
+  scope_en: Implement the efficient gradient approximation in Eq. (9), not the full state-visitation derivative
+    of Eq. (8).
+  required_functions:
+  - gaussian_kl
+  - dpok_surrogate
+  provided_functions: []
+  optional: false
+conventions:
+  tensors: CPU float32/float64, preserve dtype/device; finite nonempty inputs. No in-place mutation.
+  contract: 'gaussian_kl: current/reference (B,T,D), shared std (T,)>0; return (B,T). dpok_surrogate:
+    logp/kl (B,T), terminal rewards (B,), alpha>0, beta>=0; sum time and mean batch.'
+  autograd: Current Gaussian means and KL penalties differentiate. Reference means, scales and terminal
+    rewards are frozen; supplied logp differentiates. State-visitation gradients omitted as in Eq. (9).
+tests:
+  T0: 1
+  T1: 2
+  T2: 3
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 35
+tags:
+- Diffusion RL
+- DPOK
+viz:
+- toy_experiment
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2305.16381
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2305.16381
+  anchor: Section 4.1 Lemma 4.2 and Eqs. (7)-(9), efficient gradient approximation
+  adaptation: A Gaussian scalar policy with variance 1 learns a quadratic target under beta=0.4 KL to
+    a zero-mean reference; 70 updates are compared against the analytic regularized optimum 2/(2+beta).
+mutants:
+- id: m1_contract
+  bug: Omit one half in Gaussian KL
+- id: m2_contract
+  bug: Average score gradients over trajectory time
+browser:
+  backend: numpy-autograd-wasm

@@ -1,0 +1,76 @@
+id: multimodal/qwen3_vl
+number: 138
+paper_id: qwen3-vl
+title: Qwen3-VL 交错 MRoPE
+title_en: Qwen3-VL interleaved MRoPE
+difficulty: M
+type: implement
+parent: null
+paper:
+  title: Qwen3-VL Technical Report
+  authors: Qwen Team
+  venue: arXiv 2025
+  arxiv: '2511.21631'
+  url: https://arxiv.org/abs/2511.21631
+  anchors:
+  - Section 2.1 Interleaved MRoPE
+functions:
+- name: interleaved_mrope
+  signature: 'interleaved_mrope(x: Tensor, positions: Tensor, inv_freq: Tensor) ->
+    Tensor'
+  returns: x is [N,2R], positions [3,N] ordered time/height/width, and inv_freq [R].
+    R is a positive multiple of 3. This equal-width teaching configuration assigns
+    frequency r to axis r%3. Rotate matching coordinates in the first and second feature
+    halves, not adjacent coordinates. Floating positions are differentiable; finite
+    inputs share dtype/device.
+module:
+  goal: Qwen3-VL 交错 MRoPE
+  goal_en: Qwen3-VL interleaved MRoPE
+  scope: 交错频率轴分配与半维配对旋转；使用等宽三轴的教学配置，不包含 DeepStack 或完整视频模型。
+  scope_en: Interleaved frequency-axis allocation and half-split rotary pairs in an
+    equal-axis teaching configuration; exclude DeepStack and the full video model.
+  required_functions:
+  - interleaved_mrope
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: CPU float32/float64; metadata indices are int64
+  contract: x is [N,2R], positions [3,N] ordered time/height/width, and inv_freq [R].
+    R is a positive multiple of 3. This equal-width teaching configuration assigns
+    frequency r to axis r%3. Rotate matching coordinates in the first and second feature
+    halves, not adjacent coordinates. Floating positions are differentiable; finite
+    inputs share dtype/device.
+  mutation: Inputs are never modified in place
+tests:
+  T0: 1
+  T1: 1
+  T2: 3
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2511.21631
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2511.21631
+  anchor: Section 2.1 Interleaved MRoPE
+  adaptation: Interleaved frequency-axis allocation and half-split rotary pairs in
+    an equal-axis teaching configuration; exclude DeepStack and the full video model.
+    Deterministic CPU float64 synthetic inputs; no benchmark reproduction.
+tags:
+- Multimodal
+- Qwen3-VL
+- Paper-to-Code
+mutants:
+- id: m1_wrong_axis_layout
+  bug: Uses the other MRoPE axis-allocation layout
+- id: m2_wrong_rotation_sign
+  bug: Flips the sine sign in the first half

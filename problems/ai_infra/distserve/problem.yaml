@@ -1,0 +1,73 @@
+id: ai_infra/distserve
+number: 161
+paper_id: distserve
+title: DistServe 分离队列与双延迟 SLO
+title_en: DistServe Disaggregated Queues and Dual Latency SLOs
+difficulty: M
+type: implement
+parent: null
+paper:
+  title: 'DistServe: Disaggregating Prefill and Decoding for Goodput-optimized Large Language Model Serving'
+  authors: Yinmin Zhong et al.
+  venue: OSDI 2024
+  url: https://www.usenix.org/conference/osdi24/presentation/zhong-yinmin
+  anchors:
+  - 'Sections 2 and 3: TTFT/TPOT, disaggregated prefill and decoding, goodput'
+module:
+  goal: 回放独立prefill/decode服务队列，并按TTFT与TPOT共同约束计算goodput。
+  goal_en: Replay separate prefill/decode queues and compute goodput subject to both TTFT and TPOT.
+  scope: 一个prefill worker与一个decode worker的FCFS离散事件模型，包含KV传输等待；decode按请求串行，非实际批处理优化器。
+  scope_en: An FCFS discrete-event model with one prefill worker and one decode worker, including KV-transfer
+    waits; request-serial decoding is a teaching simplification.
+  required_functions:
+  - disaggregated_trace
+  - slo_goodput
+  provided_functions: []
+  optional: false
+functions:
+- name: disaggregated_trace
+  signature: 'disaggregated_trace(arrivals: list[float], prefill: list[float], decode: list[float], transfer:
+    list[float], tokens: list[int]) -> tuple[list[float], list[float]]'
+  returns: First- and last-token times under independent FCFS workers.
+- name: slo_goodput
+  signature: 'slo_goodput(arrivals: list[float], first: list[float], last: list[float], tokens: list[int],
+    ttft_limit: float, tpot_limit: float) -> float'
+  returns: Joint TTFT/TPOT-compliant request rate over the observation horizon.
+conventions:
+  seed: 42
+  contract: 'Equal-length numeric lists: nonnegative sorted arrivals, positive prefill/decode costs, nonnegative
+    transfer costs, integer tokens>=2. Prefill completion F produces the first token; KV transfer affects
+    later decoding. Each worker follows input FCFS order and transfer may overlap. Return (first,last).
+    Goodput is jointly compliant requests divided by max(last)-min(arrivals), with inclusive thresholds.'
+  dtype: CPU float32/float64 for tensors; Python integers for discrete scheduling; preserve caller inputs
+tests:
+  T0: 1
+  T1: 2
+  T2: 2
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 40
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://www.usenix.org/conference/osdi24/presentation/zhong-yinmin
+tags:
+- AI Infra
+- DistServe
+- Systems
+toy:
+  kind: teaching_adaptation
+  source: https://www.usenix.org/conference/osdi24/presentation/zhong-yinmin
+  anchor: 'Sections 2 and 3: TTFT/TPOT, disaggregated prefill and decoding, goodput'
+  adaptation: Replay three simultaneous requests with prefill cost four, decode cost one and three output
+    tokens, sweeping KV-transfer time. Report first/last-token times and jointly compliant goodput.
+mutants:
+- id: m1_colocated_clock
+  bug: 让prefill错误等待decode完成
+- id: m2_ignore_transfer
+  bug: 忽略KV传输延迟

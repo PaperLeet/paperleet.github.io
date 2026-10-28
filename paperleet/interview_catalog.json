@@ -1139,7 +1139,21 @@
       "description_en": "Connect CLIP contrastive alignment with SigLIP pairwise sigmoid loss, feature normalization, paired supervision and calibration.",
       "modules": [
         "representation/clip",
-        "multimodal/siglip"
+        "multimodal/siglip",
+        "multimodal/align",
+        "multimodal/siglip_2",
+        "multimodal/blip",
+        "multimodal/blip_2",
+        "multimodal/flamingo",
+        "multimodal/llava",
+        "multimodal/instructblip",
+        "multimodal/imagebind",
+        "multimodal/chameleon",
+        "multimodal/qwen2_vl",
+        "multimodal/qwen2_5_vl",
+        "multimodal/internvl3",
+        "multimodal/qwen3_vl",
+        "multimodal/qwen2_5_omni"
       ],
       "roles": [
         "ml",
@@ -1158,7 +1172,21 @@
         "diffusion/ddpm_sampling",
         "robotics/diffusion_policy",
         "rl/gae",
-        "robotics/supermimic"
+        "robotics/supermimic",
+        "robotics/dagger",
+        "robotics/act",
+        "robotics/rdt_1b",
+        "robotics/rt_1",
+        "robotics/rt_2",
+        "robotics/octo",
+        "robotics/openvla",
+        "robotics/pi0",
+        "robotics/pi0_5",
+        "robotics/dreamerv3",
+        "robotics/daydreamer",
+        "robotics/td_mpc2",
+        "robotics/deepmimic",
+        "robotics/diffmimic"
       ],
       "roles": [
         "ml",
@@ -1177,7 +1205,18 @@
         "architecture/flash_attention",
         "ai_infra/paged_attention",
         "finetuning/qlora",
-        "finetuning/svdquant"
+        "finetuning/svdquant",
+        "ai_infra/gpipe",
+        "ai_infra/megatron_lm",
+        "ai_infra/zero",
+        "ai_infra/flash_attention_2",
+        "ai_infra/orca",
+        "ai_infra/sglang",
+        "ai_infra/sarathi_serve",
+        "ai_infra/distserve",
+        "ai_infra/gptq",
+        "ai_infra/smoothquant",
+        "ai_infra/awq"
       ],
       "roles": [
         "llm",
@@ -1199,7 +1238,18 @@
         "rl/grpo",
         "diffusion_rl/diffusion_dpo",
         "diffusion_rl/flow_grpo",
-        "diffusion/diffusion_nft"
+        "diffusion/diffusion_nft",
+        "diffusion_rl/imagereward",
+        "diffusion_rl/diffusion_kto",
+        "diffusion_rl/d3po",
+        "diffusion_rl/pc_flow",
+        "diffusion_rl/ddpo",
+        "diffusion_rl/dpok",
+        "diffusion_rl/alignprop",
+        "diffusion_rl/draft",
+        "diffusion_rl/dancegrpo",
+        "diffusion_rl/mixgrpo",
+        "diffusion_rl/flow_dppo"
       ],
       "roles": [
         "ml",

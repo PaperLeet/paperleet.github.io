@@ -1,0 +1,74 @@
+id: ai_infra/gpipe
+number: 154
+paper_id: gpipe
+title: GPipe 填充排空与微批次梯度
+title_en: GPipe Fill-Drain Scheduling and Microbatch Gradients
+difficulty: M
+type: implement
+parent: null
+paper:
+  title: 'GPipe: Efficient Training of Giant Neural Networks using Pipeline Parallelism'
+  authors: Yanping Huang et al.
+  venue: NeurIPS 2019
+  url: https://arxiv.org/abs/1811.06965
+  anchors:
+  - Section 2.2, Algorithm; Figure 2, synchronous microbatch pipeline
+  arxiv: '1811.06965'
+module:
+  goal: 实现填充排空事件表，以及保持整批均值梯度的微批次损失。
+  goal_en: Build fill-drain events and preserve full-batch mean gradients under microbatching.
+  scope: 等时分段、同步更新的 CPU 调度模型与线性回归；不模拟通信、BatchNorm或重计算。
+  scope_en: A CPU model of equal-duration stages and synchronous updates, with linear regression; communication,
+    BatchNorm and rematerialization are outside this kernel.
+  required_functions:
+  - pipeline_schedule
+  - microbatch_mse
+  provided_functions: []
+  optional: false
+functions:
+- name: pipeline_schedule
+  signature: 'pipeline_schedule(stages: int, microbatches: int) -> list[tuple]'
+  returns: Unit-duration forward/backward event records.
+- name: microbatch_mse
+  signature: 'microbatch_mse(x: Tensor, y: Tensor, weight: Tensor, chunk_size: int) -> Tensor'
+  returns: Differentiable scalar sample-mean squared error.
+conventions:
+  seed: 42
+  contract: stages, microbatches and chunk_size are positive integers. Events are (phase, stage, microbatch,
+    start), with phase F/B and unit duration. All forward events finish before reverse-order backward
+    events. x is (N,D), y (N,), w (D,); a short final chunk is allowed. Divide total squared error by
+    N.
+  dtype: CPU float32/float64 for tensors; Python integers for discrete scheduling; preserve caller inputs
+tests:
+  T0: 1
+  T1: 2
+  T2: 2
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 40
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/1811.06965
+  - https://arxiv.org/html/1811.06965
+tags:
+- AI Infra
+- GPipe
+- Systems
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/1811.06965
+  anchor: Section 2.2, Algorithm; Figure 2, synchronous microbatch pipeline
+  adaptation: Train a four-feature linear model on 11 deterministic samples for 35 SGD steps at learning
+    rate 0.08; compare full-batch and size-four chunks. Also compute useful-slot fractions for four stages
+    as microbatch count varies.
+mutants:
+- id: m1_chunk_mean
+  bug: 把样本均值替换为微批次数归一化
+- id: m2_overlap_backward
+  bug: 反向阶段提前启动，破坏填充排空屏障

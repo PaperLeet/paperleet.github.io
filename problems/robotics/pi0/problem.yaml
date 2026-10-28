@@ -1,0 +1,71 @@
+id: robotics/pi0
+number: 147
+title: π0 反向时间流与动作积分
+title_en: π0 Reverse-Time Action Flow
+paper:
+  title: 'π₀: A Vision-Language-Action Flow Model for General Robot Control'
+  authors: Kevin Black et al.
+  venue: RSS 2025
+  url: https://arxiv.org/abs/2410.24164
+  anchors:
+  - Official openpi Pi0.compute_loss and sample_actions time orientation
+  arxiv: '2410.24164'
+paper_id: pi0
+difficulty: M
+type: implement
+parent: null
+module:
+  goal: π0 反向时间流与动作积分：实现下列接口并通过数值、边界和实验检查。
+  goal_en: 'π0 Reverse-Time Action Flow: implement the interfaces below and verify numerical, boundary
+    and experimental behavior.'
+  scope: 提取官方openpi的线性流路径和Euler采样方向；显式给定噪声与时间，用线性速度回归替代VLA动作专家。
+  scope_en: Isolate the official openpi linear flow path and Euler sampling direction; explicit noise/time
+    and a linear velocity regressor replace the VLA action expert.
+  required_functions:
+  - flow_interpolate
+  - euler_step
+  provided_functions: []
+  optional: false
+functions:
+- name: flow_interpolate
+  signature: 'flow_interpolate(actions: Tensor, noise: Tensor, time: Tensor) -> tuple'
+- name: euler_step
+  signature: 'euler_step(state: Tensor, velocity: Tensor, dt: float) -> Tensor'
+conventions:
+  seed: 42
+  device: CPU float32/float64; no downloads; preserve floating dtype/device; do not mutate inputs
+  contract: Actions/noise are (B,H,D), time (B,) in [0,1]. Return interpolated state and detached velocity
+    target; retain state gradients. Euler inputs match shapes, dt is finite and <=0. Noise is t=1 and
+    sampling moves to t=0.
+tests:
+  T0: 1
+  T1: 1
+  T2: 1
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+tags:
+- Robotics
+- VLA
+- Flow Matching
+viz:
+- toy_experiment
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2410.24164
+  - https://github.com/Physical-Intelligence/openpi/blob/main/src/openpi/models/pi0.py
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2410.24164
+  anchor: Official openpi Pi0.compute_loss and sample_actions time orientation
+  adaptation: Isolate the official openpi linear flow path and Euler sampling direction; explicit noise/time
+    and a linear velocity regressor replace the VLA action expert.
+mutants:
+- id: m1_wrong_velocity
+  bug: Flow labels use the opposite time direction.
+- id: m2_wrong_euler
+  bug: Reverse-time Euler changes the sign twice.
+browser:
+  backend: numpy-autograd-wasm

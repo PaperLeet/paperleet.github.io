@@ -1,0 +1,80 @@
+id: multimodal/siglip_2
+number: 127
+paper_id: siglip-2
+title: SigLIP 2 掩码 Patch 自蒸馏
+title_en: SigLIP 2 masked patch self-distillation
+difficulty: M
+type: implement
+parent: null
+paper:
+  title: 'SigLIP 2: Multilingual Vision-Language Encoders with Improved Semantic Understanding,
+    Localization, and Dense Features'
+  authors: Michael Tschannen et al.
+  venue: arXiv 2025
+  arxiv: '2502.14786'
+  url: https://arxiv.org/abs/2502.14786
+  anchors:
+  - 'Section 2.3: masked prediction uses stopped teacher targets at masked patch locations'
+functions:
+- name: masked_patch_distillation
+  signature: 'masked_patch_distillation(student: Tensor, teacher_prob: Tensor, mask:
+    Tensor, temperature: float) -> Tensor'
+  returns: student and teacher_prob have shape [B,P,K]. Teacher probabilities are
+    nonnegative and sum to one over K; teacher projection and normalization are already
+    done. mask is boolean [B,P] with at least one selected patch. temperature is a
+    positive Python float. Average cross-entropy only over masked patches, stop teacher
+    gradients, and preserve student gradients.
+module:
+  goal: SigLIP 2 掩码 Patch 自蒸馏
+  goal_en: SigLIP 2 masked patch self-distillation
+  scope: 实现 SigLIP 2 辅助掩码预测中的概率蒸馏核；teacher 概率已给定，不实现 EMA 编码器、增强、投影头或完整多目标训练。
+  scope_en: Implement the probability-distillation kernel of SigLIP 2 masked prediction
+    with supplied teacher targets; exclude EMA encoders, augmentation, projection
+    heads, and the full training recipe.
+  required_functions:
+  - masked_patch_distillation
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: CPU float32/float64; metadata indices are int64
+  contract: student and teacher_prob have shape [B,P,K]. Teacher probabilities are
+    nonnegative and sum to one over K; teacher projection and normalization are already
+    done. mask is boolean [B,P] with at least one selected patch. temperature is a
+    positive Python float. Average cross-entropy only over masked patches, stop teacher
+    gradients, and preserve student gradients.
+  mutation: Inputs are never modified in place
+tests:
+  T0: 1
+  T1: 1
+  T2: 3
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2502.14786
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2502.14786
+  anchor: 'Section 2.3: masked prediction uses stopped teacher targets at masked patch
+    locations'
+  adaptation: Implement the probability-distillation kernel of SigLIP 2 masked prediction
+    with supplied teacher targets; exclude EMA encoders, augmentation, projection
+    heads, and the full training recipe. Deterministic CPU float64 synthetic inputs;
+    no benchmark reproduction.
+tags:
+- Multimodal
+- SigLIP 2
+- Paper-to-Code
+mutants:
+- id: m1_all_patch_mean
+  bug: Divides by all patches
+- id: m2_teacher_gradient
+  bug: Backpropagates through teacher

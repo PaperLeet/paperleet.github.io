@@ -1,5 +1,5 @@
 id: diffusion_rl/flow_grpo
-number: 117
+number: 123
 title: Flow-GRPO 随机流转移与组相对策略优化
 title_en: Flow-GRPO Stochastic Flow Transitions and Group-Relative Updates
 paper:

@@ -1,0 +1,78 @@
+id: multimodal/llava
+number: 131
+paper_id: llava
+title: LLaVA 视觉 Token 注入与标签对齐
+title_en: LLaVA visual-token insertion and label alignment
+difficulty: M
+type: implement
+parent: null
+paper:
+  title: Visual Instruction Tuning
+  authors: Haotian Liu et al.
+  venue: arXiv 2023
+  arxiv: '2304.08485'
+  url: https://arxiv.org/abs/2304.08485
+  anchors:
+  - Section 4.1 architecture; official llava_arch.py prepare_inputs_labels_for_multimodal
+functions:
+- name: pack_visual_tokens
+  signature: 'pack_visual_tokens(text: Tensor, visual: Tensor, labels: Tensor, image_index:
+    int) -> tuple[Tensor, Tensor]'
+  returns: 'One sequence: text is [T,D] with one image placeholder, visual is projected
+    [P,D], and labels is int64 [T]. Replace the token at image_index with all P visual
+    tokens; fill their labels with -100 and retain all other labels. Return length
+    T+P-1 embeddings and labels. Gradients reach retained text and visual features;
+    the removed placeholder receives zero gradient.'
+module:
+  goal: LLaVA 视觉 Token 注入与标签对齐
+  goal_en: LLaVA visual-token insertion and label alignment
+  scope: 单图单样本的视觉序列打包与监督标签对齐；输入特征已经投影，不实现视觉编码器、语言模型或训练数据构建。
+  scope_en: Pack one image into one sample and align supervision labels; features
+    are already projected, excluding the vision encoder, language model, and data
+    construction.
+  required_functions:
+  - pack_visual_tokens
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: CPU float32/float64; metadata indices are int64
+  contract: 'One sequence: text is [T,D] with one image placeholder, visual is projected
+    [P,D], and labels is int64 [T]. Replace the token at image_index with all P visual
+    tokens; fill their labels with -100 and retain all other labels. Return length
+    T+P-1 embeddings and labels. Gradients reach retained text and visual features;
+    the removed placeholder receives zero gradient.'
+  mutation: Inputs are never modified in place
+tests:
+  T0: 1
+  T1: 1
+  T2: 3
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2304.08485
+  - https://github.com/haotian-liu/LLaVA/blob/main/llava/model/llava_arch.py
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2304.08485
+  anchor: Section 4.1 architecture; official llava_arch.py prepare_inputs_labels_for_multimodal
+  adaptation: Pack one image into one sample and align supervision labels; features
+    are already projected, excluding the vision encoder, language model, and data
+    construction. Deterministic CPU float64 synthetic inputs; no benchmark reproduction.
+tags:
+- Multimodal
+- LLaVA
+- Paper-to-Code
+mutants:
+- id: m1_keep_placeholder
+  bug: Keeps the image placeholder in the embedding sequence
+- id: m2_visual_supervision
+  bug: Assigns language targets to image features

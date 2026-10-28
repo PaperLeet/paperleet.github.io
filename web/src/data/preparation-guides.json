@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "reviewed_on": "2026-10-27",
+  "reviewed_on": "2026-10-28",
   "modules": [
     {
       "id": "architecture/attention",
@@ -7020,6 +7020,3330 @@
           "hint": {
             "zh": "槽位计数只说明此布局中实际引用的物理存储量。速度还受 kernel、访存、调度与硬件影响；本题验证索引和数值等价，不把 CPU 回放解释成吞吐量评测。",
             "en": "Slot counts describe referenced physical storage in this layout. Speed also depends on kernels, access patterns, scheduling and hardware; this exercise verifies indexing and numerical equivalence rather than throughput."
+          }
+        }
+      ]
+    },
+    {
+      "id": "multimodal/align",
+      "source": "problems/multimodal/align/README.md",
+      "functions": [
+        "align_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "为什么 ALIGN 要计算两个方向的 softmax？",
+            "en": "Why does ALIGN use two softmax directions?"
+          },
+          "hint": {
+            "zh": "图找文和文找图的候选分母不同。",
+            "en": "Image-to-text and text-to-image retrieval normalize over different candidate sets."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "如何让温度和两个编码器都收到梯度？",
+            "en": "How do temperature and both encoders receive gradients?"
+          },
+          "hint": {
+            "zh": "归一化保留计算图，温度作为张量参与除法。",
+            "en": "Keep normalization differentiable and divide by the temperature tensor."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "零特征和单样本 batch 应得到什么损失？",
+            "en": "What losses should zero features and a singleton batch produce?"
+          },
+          "hint": {
+            "zh": "分别考虑均匀候选分布和没有负样本。",
+            "en": "Consider uniform candidate probabilities and the absence of negatives."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "只交换文本样本顺序是否应保持损失？",
+            "en": "Should permuting only text examples preserve the loss?"
+          },
+          "hint": {
+            "zh": "区分公共配对置换与破坏正样本对应关系。",
+            "en": "Distinguish a common pair permutation from breaking positive correspondences."
+          }
+        },
+        {
+          "id": "implementation-extension",
+          "question": {
+            "zh": "正比例放大图像特征会改变结果吗？",
+            "en": "Does positive rescaling of image features change the result?"
+          },
+          "hint": {
+            "zh": "逐行余弦归一化应消除长度变化。",
+            "en": "Rowwise cosine normalization removes feature-length changes."
+          }
+        }
+      ]
+    },
+    {
+      "id": "multimodal/siglip_2",
+      "source": "problems/multimodal/siglip_2/README.md",
+      "functions": [
+        "masked_patch_distillation"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "掩码预测怎样把 teacher 的局部语义传给 student？",
+            "en": "How does masked prediction transfer local teacher semantics to the student?"
+          },
+          "hint": {
+            "zh": "监督位置对应同一图像的 patch，目标概率来自未掩码 teacher。",
+            "en": "Supervised locations match image patches; target probabilities come from the unmasked teacher."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "损失应除以全部 patch 数还是选中 patch 数？",
+            "en": "Should the loss divide by all patches or selected patches?"
+          },
+          "hint": {
+            "zh": "本题每个被选 patch 等权，mask 稀疏度不应额外缩小梯度。",
+            "en": "Selected patches have equal weight; mask sparsity should not introduce an extra gradient reduction."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样检查 teacher 停梯度和未选 patch 的零梯度？",
+            "en": "How would you test stopped teacher gradients and zero gradients at unselected patches?"
+          },
+          "hint": {
+            "zh": "同时令 teacher 和 student 可导，观察梯度归属。",
+            "en": "Make both inputs require gradients and inspect where derivatives appear."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "teacher_prob 能否再经过一次 softmax？",
+            "en": "Can teacher_prob be passed through softmax again?"
+          },
+          "hint": {
+            "zh": "它已经是归一化分布；再次变换会改变监督。",
+            "en": "It is already a normalized distribution; another transformation changes supervision."
+          }
+        },
+        {
+          "id": "implementation-extension",
+          "question": {
+            "zh": "mask 全 False 时应该静默返回零吗？",
+            "en": "Should an all-false mask silently return zero?"
+          },
+          "hint": {
+            "zh": "题目要求显式拒绝空监督集合。",
+            "en": "The contract explicitly rejects an empty supervision set."
+          }
+        }
+      ]
+    },
+    {
+      "id": "multimodal/blip",
+      "source": "problems/multimodal/blip/README.md",
+      "functions": [
+        "momentum_target_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "BLIP 的动量软目标为什么同时保留硬正样本？",
+            "en": "Why does BLIP mix momentum soft targets with hard positives?"
+          },
+          "hint": {
+            "zh": "alpha 控制两个来源的权重，正样本列可以不在对角线。",
+            "en": "Alpha balances two target sources, and positive columns need not lie on the diagonal."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "队列使 logits 非方形时，应该沿哪个轴归一化？",
+            "en": "Which axis is normalized when the negative queue makes logits rectangular?"
+          },
+          "hint": {
+            "zh": "每行代表一个查询，列包含全部候选。",
+            "en": "Each row is a query; columns contain all candidates."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "alpha 的两个端点分别能检查什么？",
+            "en": "What do the two alpha endpoints test?"
+          },
+          "hint": {
+            "zh": "一个端点忽略 teacher，另一个忽略硬标签位置。",
+            "en": "One endpoint ignores the teacher; the other ignores hard-label locations."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "teacher_logits 在这次反向传播中应更新吗？",
+            "en": "Should teacher_logits update during this backward pass?"
+          },
+          "hint": {
+            "zh": "动量参数更新发生在损失之外。",
+            "en": "Momentum parameter updates happen outside the loss."
+          }
+        },
+        {
+          "id": "implementation-extension",
+          "question": {
+            "zh": "复制整个 batch 会使损失变成两倍吗？",
+            "en": "Does duplicating the entire batch double the loss?"
+          },
+          "hint": {
+            "zh": "检查先按候选求和，再按查询取平均的归约。",
+            "en": "Check the reduction: sum over candidates, then average over queries."
+          }
+        }
+      ]
+    },
+    {
+      "id": "multimodal/blip_2",
+      "source": "problems/multimodal/blip_2/README.md",
+      "functions": [
+        "max_query_similarity"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "为什么每个文本需要独立选择最匹配的 query？",
+            "en": "Why must each text choose its own best query?"
+          },
+          "hint": {
+            "zh": "多个查询槽可以覆盖不同视觉语义。",
+            "en": "Different query slots can cover different visual semantics."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "从 [B,Q,D] 到 [B,N] 应在哪个阶段取最大值？",
+            "en": "Where should the maximum be taken when mapping [B,Q,D] to [B,N]?"
+          },
+          "hint": {
+            "zh": "先保留全部图像—查询—文本相似度。",
+            "en": "First retain every image-query-text similarity."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何确认只有获胜 query 收到该文本的梯度？",
+            "en": "How can you confirm that only the winning query gets a text’s gradient?"
+          },
+          "hint": {
+            "zh": "使用没有并列最大值的例子，逐槽检查导数。",
+            "en": "Choose an example without tied maxima and inspect derivatives per slot."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "重复同一个 query 会提高相似度吗？",
+            "en": "Does duplicating a query increase similarity?"
+          },
+          "hint": {
+            "zh": "最大值与求和的重复行为不同。",
+            "en": "Max reduction and sum reduction react differently to duplication."
+          }
+        },
+        {
+          "id": "implementation-extension",
+          "question": {
+            "zh": "为什么梯度数值检查应避开并列最大值？",
+            "en": "Why should numerical gradient checks avoid tied maxima?"
+          },
+          "hint": {
+            "zh": "最大值在切换获胜槽的位置可能不可微。",
+            "en": "Max can be nondifferentiable where the winning slot changes."
+          }
+        }
+      ]
+    },
+    {
+      "id": "multimodal/flamingo",
+      "source": "problems/multimodal/flamingo/README.md",
+      "functions": [
+        "gated_media_attention"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "媒体因果掩码为什么用 ID 相等而不是小于等于？",
+            "en": "Why does media-causal masking use equal IDs rather than less-than-or-equal IDs?"
+          },
+          "hint": {
+            "zh": "每个文本位置只直接读取最近出现的媒体。",
+            "en": "A text position directly reads only its immediately preceding medium."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "如何处理首张图像之前的全屏蔽行？",
+            "en": "How should fully masked rows before the first image be handled?"
+          },
+          "hint": {
+            "zh": "避免全负无穷 softmax，再确保视觉权重严格为零。",
+            "en": "Avoid softmax over all negative infinities, then ensure visual weights are exactly zero."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "gate=0 时输出和 gate 梯度应有什么性质？",
+            "en": "What properties should output and gate gradients have at gate=0?"
+          },
+          "hint": {
+            "zh": "视觉残差为零，但门控导数仍能接收学习信号。",
+            "en": "The visual residual is zero while the gate derivative can still receive a learning signal."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "去掉 tanh 而直接乘 gate 会有什么变化？",
+            "en": "What changes if gate is used directly without tanh?"
+          },
+          "hint": {
+            "zh": "考虑大幅度 gate 时残差的边界。",
+            "en": "Consider the residual bound for large gate values."
+          }
+        },
+        {
+          "id": "implementation-extension",
+          "question": {
+            "zh": "改变未来图像的 values 能影响前面的文本吗？",
+            "en": "Can changing future-image values affect earlier text?"
+          },
+          "hint": {
+            "zh": "根据 text_media 和 visual_media 的可见关系判断。",
+            "en": "Use visibility defined by text_media and visual_media."
+          }
+        }
+      ]
+    },
+    {
+      "id": "multimodal/llava",
+      "source": "problems/multimodal/llava/README.md",
+      "functions": [
+        "pack_visual_tokens"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "图像占位 token 为什么必须被视觉块替换？",
+            "en": "Why must the image placeholder be replaced by the visual block?"
+          },
+          "hint": {
+            "zh": "长度增加 P-1，而不是 P。",
+            "en": "The sequence grows by P-1, not P."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "怎样保持扩展后的 embedding 与 labels 对齐？",
+            "en": "How do you keep expanded embeddings and labels aligned?"
+          },
+          "hint": {
+            "zh": "两者使用完全相同的左右切片边界，视觉部分填忽略标签。",
+            "en": "Use identical left/right slice boundaries and ignore labels for the visual span."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "删除的占位 embedding 应收到梯度吗？",
+            "en": "Should the removed placeholder embedding receive a gradient?"
+          },
+          "hint": {
+            "zh": "输出不依赖该位置；保留文本和视觉 token 仍参与计算。",
+            "en": "The output does not depend on it; retained text and visual tokens still participate."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "占位在开头或结尾时会出现什么切片边界？",
+            "en": "Which slice boundaries occur when the placeholder is first or last?"
+          },
+          "hint": {
+            "zh": "空的前缀或后缀应自然参与拼接。",
+            "en": "An empty prefix or suffix should concatenate naturally."
+          }
+        },
+        {
+          "id": "implementation-extension",
+          "question": {
+            "zh": "视觉标签为 -100 是否意味着视觉特征被冻结？",
+            "en": "Do -100 visual labels mean visual features are frozen?"
+          },
+          "hint": {
+            "zh": "忽略语言目标与切断上下文梯度是两回事。",
+            "en": "Ignoring language targets and stopping contextual gradients are different operations."
+          }
+        }
+      ]
+    },
+    {
+      "id": "multimodal/instructblip",
+      "source": "problems/multimodal/instructblip/README.md",
+      "functions": [
+        "instruction_query_block"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "指令在哪一步影响最终视觉查询？",
+            "en": "At which stage do instructions affect the final visual queries?"
+          },
+          "hint": {
+            "zh": "先更新 query，再让更新后的 query 检索视觉特征。",
+            "en": "Update queries first, then use them to retrieve visual features."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "为什么指令 padding 屏蔽后 query 自身仍需可见？",
+            "en": "Why must queries remain visible after masking instruction padding?"
+          },
+          "hint": {
+            "zh": "保证每个注意力行仍有有效候选。",
+            "en": "Ensure every attention row still has valid candidates."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何区别真正的指令感知和仅传递视觉特征？",
+            "en": "How can a test distinguish instruction awareness from passing through visual features?"
+          },
+          "hint": {
+            "zh": "固定图像和 query，只改变指令方向。",
+            "en": "Fix the image and queries while changing the instruction direction."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "全屏蔽指令是否等价于全屏蔽自注意力？",
+            "en": "Do all-masked instructions imply all-masked self-attention?"
+          },
+          "hint": {
+            "zh": "query token 仍然构成合法上下文。",
+            "en": "Query tokens still form valid context."
+          }
+        },
+        {
+          "id": "implementation-extension",
+          "question": {
+            "zh": "本题的两个残差是否可随意省略？",
+            "en": "Can either of the two residuals be omitted?"
+          },
+          "hint": {
+            "zh": "缩小块明确保留这两个阶段的残差，但省略完整 FFN 和 LayerNorm。",
+            "en": "The reduced block explicitly retains both residuals while omitting full FFNs and LayerNorms."
+          }
+        }
+      ]
+    },
+    {
+      "id": "multimodal/imagebind",
+      "source": "problems/multimodal/imagebind/README.md",
+      "functions": [
+        "image_anchor_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "为什么 ImageBind 不需要所有模态两两配对？",
+            "en": "Why does ImageBind not require every pair of modalities?"
+          },
+          "hint": {
+            "zh": "共同图像身份连接了不同模态的表示。",
+            "en": "Shared image identities connect representations from different modalities."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "M 个模态的损失应怎样组合？",
+            "en": "How should losses from M modalities be combined?"
+          },
+          "hint": {
+            "zh": "每条图像—模态边做双向检索，再对模态取平均。",
+            "en": "Use bidirectional retrieval per image-modality edge, then average across modalities."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何检查实现没有忽略后面的模态？",
+            "en": "How do you test that later modalities are not ignored?"
+          },
+          "hint": {
+            "zh": "逐模态检查梯度，并扰动非首个模态。",
+            "en": "Inspect gradients per modality and perturb a modality other than the first."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "重复全部模态会改变目标尺度吗？",
+            "en": "Does duplicating all modalities change the objective scale?"
+          },
+          "hint": {
+            "zh": "本题使用模态平均，不是模态求和。",
+            "en": "This contract uses a modality mean, not a sum."
+          }
+        },
+        {
+          "id": "implementation-extension",
+          "question": {
+            "zh": "冻结图像编码器应由损失内部处理吗？",
+            "en": "Should freezing the image encoder happen inside the loss?"
+          },
+          "hint": {
+            "zh": "本题核保留图像梯度，外部训练配置决定冻结。",
+            "en": "The kernel preserves image gradients; external training configuration controls freezing."
+          }
+        }
+      ]
+    },
+    {
+      "id": "multimodal/chameleon",
+      "source": "problems/multimodal/chameleon/README.md",
+      "functions": [
+        "qk_layer_norm"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "QK LayerNorm 如何控制注意力 softmax 输入的范数？",
+            "en": "How does QK LayerNorm control the norms entering attention softmax?"
+          },
+          "hint": {
+            "zh": "分别处理 query 和 key 的均值与尺度。",
+            "en": "Normalize the mean and scale of queries and keys separately."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "统计量应该沿 token、head 还是特征轴计算？",
+            "en": "Should statistics reduce tokens, heads, or features?"
+          },
+          "hint": {
+            "zh": "每个 token/head 各自使用最后一维。",
+            "en": "Each token/head uses only its final feature dimension."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "常量 head 和 D=1 能检查哪些错误？",
+            "en": "What bugs do constant heads and D=1 expose?"
+          },
+          "hint": {
+            "zh": "检查均值中心化、总体方差与 eps 位置。",
+            "en": "Check mean-centering, population variance, and epsilon placement."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "用 RMSNorm 代替 LayerNorm 是否保持本题契约？",
+            "en": "Does replacing LayerNorm with RMSNorm preserve this contract?"
+          },
+          "hint": {
+            "zh": "RMSNorm 不去掉每个 head 的均值。",
+            "en": "RMSNorm does not remove each head’s mean."
+          }
+        },
+        {
+          "id": "implementation-extension",
+          "question": {
+            "zh": "放大输入一百倍后，注意力熵应该如何变化？",
+            "en": "How should attention entropy change after scaling inputs by one hundred?"
+          },
+          "hint": {
+            "zh": "比较归一化前后的分布饱和趋势，注意 eps 的有限影响。",
+            "en": "Compare saturation with and without normalization, allowing finite epsilon effects."
+          }
+        }
+      ]
+    },
+    {
+      "id": "multimodal/qwen2_vl",
+      "source": "problems/multimodal/qwen2_vl/README.md",
+      "functions": [
+        "chunked_mrope"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "三轴 MRoPE 如何把时间与空间位置放进同一个向量？",
+            "en": "How does three-axis MRoPE place temporal and spatial positions in one vector?"
+          },
+          "hint": {
+            "zh": "不同频率区间选择不同轴的位置值。",
+            "en": "Different frequency ranges select positions from different axes."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "旋转配对是相邻维度还是前后半维度？",
+            "en": "Are rotary pairs adjacent dimensions or matching halves?"
+          },
+          "hint": {
+            "zh": "本题固定 r 与 r+R 配对。",
+            "en": "The contract pairs r with r+R."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样让测试发现轴分段错误？",
+            "en": "How can a test detect incorrect axis chunks?"
+          },
+          "hint": {
+            "zh": "三个轴使用不同位置，且每轴分配多个频率。",
+            "en": "Use distinct positions on all three axes and multiple frequencies per axis."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "为什么共享位置平移保持 query-key 内积？",
+            "en": "Why does a shared position shift preserve query-key dot products?"
+          },
+          "hint": {
+            "zh": "同一二维旋转作用在双方，只有相对角度留下。",
+            "en": "The same rotation acts on both vectors, leaving only the relative angle."
+          }
+        },
+        {
+          "id": "implementation-extension",
+          "question": {
+            "zh": "该等宽练习是否等于全部 Qwen2-VL 位置配置？",
+            "en": "Does this equal-width exercise represent every Qwen2-VL position configuration?"
+          },
+          "hint": {
+            "zh": "这里只固定三轴等宽，完整模型还涉及配置和序列位置构建。",
+            "en": "This exercise fixes equal axis widths; full models also need configuration and sequence-position construction."
+          }
+        }
+      ]
+    },
+    {
+      "id": "multimodal/qwen2_5_vl",
+      "source": "problems/multimodal/qwen2_5_vl/README.md",
+      "functions": [
+        "window_permutation"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "窗口为什么先按空间合并格分组？",
+            "en": "Why are windows grouped using spatial-merge cells first?"
+          },
+          "hint": {
+            "zh": "一个合并格包含多个原始 patch，需要保留格内顺序。",
+            "en": "A merged cell contains multiple original patches whose internal order must be retained."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "cu_seqlens 应按原 patch 还是合并格计数？",
+            "en": "Should cu_seqlens count original patches or merged cells?"
+          },
+          "hint": {
+            "zh": "本题的下游注意力仍处理原 patch 序列。",
+            "en": "Downstream attention in this exercise still consumes original patch sequences."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "边界窗口和多帧输入分别应检查什么？",
+            "en": "What should boundary-window and multiframe tests check?"
+          },
+          "hint": {
+            "zh": "边界不含 padding；每帧索引必须有正确偏移。",
+            "en": "Boundary windows contain no padding; each frame needs the correct index offset."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "如何确认重排没有丢失或重复 patch？",
+            "en": "How can you verify that permutation neither drops nor duplicates patches?"
+          },
+          "hint": {
+            "zh": "排序后应等于完整原始索引范围。",
+            "en": "Sorted indices should equal the complete original index range."
+          }
+        },
+        {
+          "id": "implementation-extension",
+          "question": {
+            "zh": "索引没有梯度时，下游 patch 特征还能训练吗？",
+            "en": "Can patch features still train when indices are nondifferentiable?"
+          },
+          "hint": {
+            "zh": "检查 gather 把梯度送回原始位置的方式。",
+            "en": "Inspect how gather routes gradients to original feature positions."
+          }
+        }
+      ]
+    },
+    {
+      "id": "multimodal/internvl3",
+      "source": "problems/multimodal/internvl3/README.md",
+      "functions": [
+        "variable_visual_positions"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "减小视觉位置增量怎样压缩上下文位置范围？",
+            "en": "How do smaller visual increments compress the positional span?"
+          },
+          "hint": {
+            "zh": "文本仍加一，视觉只增加对应图像的 delta。",
+            "en": "Text increments remain one; visual increments use the image’s delta."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "跨图像边界应重置累计位置吗？",
+            "en": "Should accumulated positions reset at image boundaries?"
+          },
+          "hint": {
+            "zh": "图像选择自己的 delta，整条序列的前缀和持续累计。",
+            "en": "Images select their deltas while the sequence prefix sum continues."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "delta=1 应恢复什么结果？",
+            "en": "What should delta=1 recover?"
+          },
+          "hint": {
+            "zh": "在声明的原点下，应恢复从零开始的整数位置。",
+            "en": "Under the declared origin, it recovers integer positions starting at zero."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "同一图像的 delta 为什么影响后续文本位置？",
+            "en": "Why does an image delta affect subsequent text positions?"
+          },
+          "hint": {
+            "zh": "每个后续前缀都包含前面的视觉增量。",
+            "en": "Every later prefix contains the preceding visual increments."
+          }
+        },
+        {
+          "id": "implementation-extension",
+          "question": {
+            "zh": "第一枚 token 是视觉时位置一定是零吗？",
+            "en": "Must the first position be zero when the first token is visual?"
+          },
+          "hint": {
+            "zh": "本题 p_-1=-1，所以先按当前模态增加。",
+            "en": "The contract starts at p_-1=-1 and then adds the current modality’s increment."
+          }
+        }
+      ]
+    },
+    {
+      "id": "multimodal/qwen3_vl",
+      "source": "problems/multimodal/qwen3_vl/README.md",
+      "functions": [
+        "interleaved_mrope"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "交错 MRoPE 相对连续三段分配改变了什么？",
+            "en": "What does interleaved MRoPE change relative to three contiguous chunks?"
+          },
+          "hint": {
+            "zh": "各轴跨越多个频段，而不是占据一整段频率。",
+            "en": "Each axis spans multiple frequency bands instead of occupying one contiguous range."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "频率索引 r 与轴索引应如何对应？",
+            "en": "How should frequency index r map to an axis?"
+          },
+          "hint": {
+            "zh": "本题等宽配置使用 r mod 3；频率本身仍按 r 取值。",
+            "en": "The equal-width contract uses r mod 3 while retaining frequency index r."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "为什么普通一维 RoPE 测试不足以检查交错布局？",
+            "en": "Why are ordinary one-dimensional RoPE tests insufficient for interleaving?"
+          },
+          "hint": {
+            "zh": "当三个轴坐标相同，错误轴分配可能被隐藏。",
+            "en": "Equal coordinates on all axes can hide incorrect axis allocation."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "负位置应怎样作用于已经旋转的特征？",
+            "en": "What should negative positions do to already rotated features?"
+          },
+          "hint": {
+            "zh": "每对坐标的旋转应被逆转。",
+            "en": "They should invert each coordinate-pair rotation."
+          }
+        },
+        {
+          "id": "implementation-extension",
+          "question": {
+            "zh": "本题包含 DeepStack 多层特征注入吗？",
+            "en": "Does this exercise include DeepStack feature injection?"
+          },
+          "hint": {
+            "zh": "范围只覆盖频率分配与位置旋转。",
+            "en": "The scope covers only frequency allocation and rotary positions."
+          }
+        }
+      ]
+    },
+    {
+      "id": "multimodal/qwen2_5_omni",
+      "source": "problems/multimodal/qwen2_5_omni/README.md",
+      "functions": [
+        "time_aligned_interleave"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "为什么音频和视频必须共享实际时间格？",
+            "en": "Why must audio and video share a real-time grid?"
+          },
+          "hint": {
+            "zh": "视频帧率可变，帧号不能代替时间。",
+            "en": "Video frame rates vary, so frame indices cannot replace time."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "两秒块内视频优先是否等于全局按时间排序？",
+            "en": "Is video-first ordering within two-second chunks equivalent to global time sorting?"
+          },
+          "hint": {
+            "zh": "同一块的视频全部在前，但音频仍保留原绝对时间 ID。",
+            "en": "All video comes first within a chunk, while audio retains absolute time IDs."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "恰好位于 2 秒的 token 属于哪个块？",
+            "en": "Which chunk contains a token exactly at two seconds?"
+          },
+          "hint": {
+            "zh": "区间是左闭右开的 [2c,2c+2)。",
+            "en": "Chunks are half-open intervals [2c,2c+2)."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "40ms 对应每秒多少位置，是否等于音频采样率？",
+            "en": "How many positions per second does 40 ms imply, and is that the audio sample rate?"
+          },
+          "hint": {
+            "zh": "区分编码器 token 时间格与原始波形采样率。",
+            "en": "Distinguish the encoder-token time grid from the raw waveform sample rate."
+          }
+        },
+        {
+          "id": "implementation-extension",
+          "question": {
+            "zh": "只有一个模态或相同时间戳重复出现时如何排序？",
+            "en": "How should one-modality inputs and repeated timestamps be ordered?"
+          },
+          "hint": {
+            "zh": "保留每个流内的原始顺序，不凭空增加 token。",
+            "en": "Preserve the original order within each stream without adding tokens."
+          }
+        }
+      ]
+    },
+    {
+      "id": "robotics/dagger",
+      "source": "problems/robotics/dagger/README.md",
+      "functions": [
+        "mixture_actions",
+        "aggregate_dataset"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "为什么混合策略不是把专家与学习者动作数值平均？",
+            "en": "Why is a policy mixture different from averaging expert and learner actions?"
+          },
+          "hint": {
+            "zh": "考虑同一状态实际执行哪一个策略，以及beta的概率含义。",
+            "en": "Consider which policy actually acts at one state and the probability meaning of beta."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "聚合新一轮数据时哪些轴和梯度路径需要特别处理？",
+            "en": "Which axes and gradient paths need care when aggregating another data round?"
+          },
+          "hint": {
+            "zh": "样本数增长，状态/标签维度保持；存储数据无需保留旧策略图。",
+            "en": "The sample count grows while feature widths stay fixed; stored data need not retain old policy graphs."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样区分真正的数据聚合与只保留最后一轮？",
+            "en": "How can you distinguish aggregation from retaining only the latest round?"
+          },
+          "hint": {
+            "zh": "构造标签不重叠的两轮数据，并检查旧样本的顺序与总数。",
+            "en": "Use two rounds with distinct labels and inspect the old-sample order and total count."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "expert-labels",
+          "question": {
+            "zh": "如果执行的是学习者动作，新数据标签应该记录哪个动作？",
+            "en": "When the learner acts, which action belongs in the new training label?"
+          },
+          "hint": {
+            "zh": "区分访问状态的来源与专家对该状态的监督；实际执行动作不是自动正确的标签。",
+            "en": "Separate how a state was visited from the expert supervision for that state; the executed action is not automatically the correct label."
+          }
+        },
+        {
+          "id": "coverage",
+          "question": {
+            "zh": "初始数据只包含零状态时，为什么单纯重复行为克隆可能无法修正闭环偏移？",
+            "en": "Why can repeated behavioral cloning on only zero states fail to correct closed-loop drift?"
+          },
+          "hint": {
+            "zh": "检查训练分布是否覆盖学习者实际访问的非零状态。",
+            "en": "Check whether the training distribution covers nonzero states actually visited by the learner."
+          }
+        }
+      ]
+    },
+    {
+      "id": "robotics/act",
+      "source": "problems/robotics/act/README.md",
+      "functions": [
+        "temporal_ensemble",
+        "style_kl"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "按旧到新排列时，ACT官方指数权重偏向哪个预测？",
+            "en": "With oldest-to-newest predictions, which prediction does the official ACT exponent favor?"
+          },
+          "hint": {
+            "zh": "先写两个时间序号的权重，再讨论decay为零的极限。",
+            "en": "Write weights for two temporal ranks, then consider zero decay."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "如何在保留合法零动作时处理缺失预测，并正确归约风格KL？",
+            "en": "How do you handle missing predictions without dropping valid zero actions and reduce style KL correctly?"
+          },
+          "hint": {
+            "zh": "valid是显式布尔；区分潜变量维与batch维。",
+            "en": "Validity is explicit and Boolean; separate latent coordinates from the batch axis."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "哪些小例能检查padding序号、KL尺度和梯度？",
+            "en": "Which small cases check padding ranks, KL scale and gradients?"
+          },
+          "hint": {
+            "zh": "插入无效行、复制batch、增加独立潜变量，分别观察结果。",
+            "en": "Insert invalid rows, duplicate the batch, and add independent latent coordinates."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "decay-limits",
+          "question": {
+            "zh": "decay趋近零或很大时，集成动作趋向什么？",
+            "en": "What does the ensemble approach as decay becomes zero or very large?"
+          },
+          "hint": {
+            "zh": "先移除padding，再对两个有效预测比较权重比。",
+            "en": "Remove padding first and compare the weight ratio for two valid predictions."
+          }
+        },
+        {
+          "id": "zero-sentinel",
+          "question": {
+            "zh": "为什么本题用显式valid而没有复制源码的非零哨兵？",
+            "en": "Why does this exercise use explicit validity instead of the source nonzero sentinel?"
+          },
+          "hint": {
+            "zh": "静止控制也可能产生合法的全零动作；数据有效性与数值大小无关。",
+            "en": "Stationary control may produce a valid all-zero action; validity is distinct from numerical magnitude."
+          }
+        }
+      ]
+    },
+    {
+      "id": "robotics/rdt_1b",
+      "source": "problems/robotics/rdt_1b/README.md",
+      "functions": [
+        "pack_actions",
+        "mask_actions"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "跨机器人统一动作空间为什么需要语义槽位而不只是补零？",
+            "en": "Why does a unified robot action space need semantic slots rather than zero padding alone?"
+          },
+          "hint": {
+            "zh": "同一个局部下标在不同机器人中未必表示同一物理量。",
+            "en": "The same local index need not represent the same physical quantity on different robots."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "怎样同时返回统一动作与有效坐标掩码？",
+            "en": "How can you return unified actions together with their coordinate-validity mask?"
+          },
+          "hint": {
+            "zh": "槽位必须唯一；零动作仍然可能是有效坐标。",
+            "en": "Slots must be unique; a zero action may still occupy a valid coordinate."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何证明语义映射不依赖局部动作排列？",
+            "en": "How can you show semantic packing is independent of local coordinate order?"
+          },
+          "hint": {
+            "zh": "同时置换局部动作和槽位表，然后比较统一空间输出。",
+            "en": "Permute local actions and their slot list together and compare unified outputs."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "schema-collision",
+          "question": {
+            "zh": "两个局部关节映射到同一统一槽位会造成什么歧义？",
+            "en": "What ambiguity arises when two local joints map to one unified slot?"
+          },
+          "hint": {
+            "zh": "思考覆盖、求和与反向映射；接口通过唯一槽位约定避免歧义。",
+            "en": "Consider overwrite, summation and inverse mapping; unique slots avoid this ambiguity."
+          }
+        },
+        {
+          "id": "training-mask",
+          "question": {
+            "zh": "执行时的动作掩码能否直接说明论文训练损失也使用masked mean？",
+            "en": "Does execution-time action masking imply the paper also uses masked-mean training loss?"
+          },
+          "hint": {
+            "zh": "回到官方rdt_runner的训练与采样路径分别核对，两个位置承担不同职责。",
+            "en": "Inspect training and sampling paths in official rdt_runner separately; the masks serve different roles."
+          }
+        }
+      ]
+    },
+    {
+      "id": "robotics/rt_1",
+      "source": "problems/robotics/rt_1/README.md",
+      "functions": [
+        "token_learner_pool"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "TokenLearner的softmax覆盖哪些空间位置？",
+            "en": "Which spatial positions does TokenLearner softmax cover?"
+          },
+          "hint": {
+            "zh": "区分输入位置L、输出token K和特征通道C。",
+            "en": "Separate input positions L, output tokens K and feature channels C."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "注意力分数转置之后，哪些特征用于加权汇聚？",
+            "en": "After transposing attention scores, which features are pooled?"
+          },
+          "hint": {
+            "zh": "注意力生成网络与被汇聚的原始视觉特征是两条路径。",
+            "en": "The attention-score network and the original visual features being pooled are distinct paths."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何用平移、置换及梯度检查发现错误归一化轴？",
+            "en": "How do shift, permutation and gradient checks expose a wrong normalization axis?"
+          },
+          "hint": {
+            "zh": "同一个token所有空间分数加常量；同步置换空间位置。",
+            "en": "Shift every spatial score of one token equally, and permute spatial positions consistently."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "convex-hull",
+          "question": {
+            "zh": "每个输出token能否超出输入特征逐通道的最小最大范围？",
+            "en": "Can an output token exceed the input features’ coordinatewise minimum and maximum?"
+          },
+          "hint": {
+            "zh": "注意力权重非负且和为1；这里没有额外输出投影。",
+            "en": "Attention weights are nonnegative and sum to one; this operator has no extra output projection."
+          }
+        },
+        {
+          "id": "scores-features",
+          "question": {
+            "zh": "为什么不能把产生注意力时的归一化特征直接替代被汇聚特征？",
+            "en": "Why not replace pooled features with the normalized features used to generate attention?"
+          },
+          "hint": {
+            "zh": "观察官方加权汇聚所使用的张量，区分权重学习与值的幅度信息。",
+            "en": "Inspect the tensor used in official weighted pooling and distinguish score learning from value magnitudes."
+          }
+        }
+      ]
+    },
+    {
+      "id": "robotics/rt_2",
+      "source": "problems/robotics/rt_2/README.md",
+      "functions": [
+        "action_probabilities"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "机器人动作任务与视觉语言任务的合法词表有什么不同？",
+            "en": "How do allowed vocabularies differ between robot-action and vision-language tasks?"
+          },
+          "hint": {
+            "zh": "两类任务共用logits，但输出约束按样本选择。",
+            "en": "Both tasks share logits, but output constraints are selected per example."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "为什么约束必须在softmax之前施加？",
+            "en": "Why must constraints be applied before softmax?"
+          },
+          "hint": {
+            "zh": "比较合法token概率总和，并考虑一个非法token有极大logit。",
+            "en": "Check total allowed probability and consider a forbidden token with an enormous logit."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样检验非法token既无概率又无梯度？",
+            "en": "How do you check that forbidden tokens have neither probability nor gradient?"
+          },
+          "hint": {
+            "zh": "同一batch混合机器人与VLM行，对某个合法概率求导。",
+            "en": "Mix robot and VLM rows in one batch and differentiate an allowed probability."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "singleton-vocab",
+          "question": {
+            "zh": "机器人行只有一个合法动作token时，概率与logit梯度怎样变化？",
+            "en": "With one legal action token, what happens to robot probabilities and logit gradients?"
+          },
+          "hint": {
+            "zh": "输出分布不再依赖logit的相对大小，检查归一化后的常量分布。",
+            "en": "The distribution no longer depends on relative logits; inspect the resulting constant distribution."
+          }
+        },
+        {
+          "id": "semantic-scope",
+          "question": {
+            "zh": "合法token约束是否保证动作语义与真实环境安全？",
+            "en": "Does a legal-token constraint guarantee semantic correctness or physical safety?"
+          },
+          "hint": {
+            "zh": "这里只限制词表支持，未检查任务推理、动作序列格式或环境约束。",
+            "en": "This operator constrains vocabulary support; it does not validate reasoning, sequence structure or environment constraints."
+          }
+        }
+      ]
+    },
+    {
+      "id": "robotics/octo",
+      "source": "problems/robotics/octo/README.md",
+      "functions": [
+        "masked_action_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "时间窗口padding与动作padding为什么需要相交？",
+            "en": "Why must timestep-window padding intersect action padding?"
+          },
+          "hint": {
+            "zh": "一项决定观察时刻有效性，另一项描述动作时域及坐标有效性。",
+            "en": "One controls observation-time validity; the other controls action horizons and coordinates."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "全padding时怎样得到可反传的零损失？",
+            "en": "How can an all-padding example produce differentiable zero loss?"
+          },
+          "hint": {
+            "zh": "检查分子与有效占比，保留官方分母下界。",
+            "en": "Inspect the numerator and valid fraction while preserving the official denominator floor."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "哪些干扰目标能暴露只使用一种mask的实现？",
+            "en": "Which distracting targets expose implementations using only one mask?"
+          },
+          "hint": {
+            "zh": "让被时间mask屏蔽的窗口含有很大的目标，并保留action mask为真。",
+            "en": "Give a time-masked window large targets while keeping its action mask true."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "sparse-floor",
+          "question": {
+            "zh": "有效占比小于1e-5时，结果还严格等于有效元素的算术均值吗？",
+            "en": "Below a valid fraction of 1e-5, is the result still exactly the valid-element mean?"
+          },
+          "hint": {
+            "zh": "把分母下界代入公式；这是对官方实现数值行为的保留。",
+            "en": "Substitute the denominator floor into the equation; this preserves the source numerical behavior."
+          }
+        },
+        {
+          "id": "window-invariance",
+          "question": {
+            "zh": "追加一个全padding窗口，什么时候不改变原有有效样本的损失？",
+            "en": "When does appending an all-padding window leave the valid-example loss unchanged?"
+          },
+          "hint": {
+            "zh": "同时检查分子均值与有效占比的变化，并注意分母下界。",
+            "en": "Track both the numerator mean and valid fraction, accounting for the denominator floor."
+          }
+        }
+      ]
+    },
+    {
+      "id": "robotics/openvla",
+      "source": "problems/robotics/openvla/README.md",
+      "functions": [
+        "encode_actions",
+        "decode_actions",
+        "unnormalize_actions"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "OpenVLA动作token为何从词表末端倒序编码？",
+            "en": "Why are OpenVLA action tokens encoded backward from the vocabulary end?"
+          },
+          "hint": {
+            "zh": "先区分连续动作、离散桶序号与词表token ID。",
+            "en": "Separate continuous actions, bin indices and vocabulary token IDs."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "恰好落在边界和最右端的动作如何编码与还原？",
+            "en": "How are exact-edge and rightmost actions encoded and decoded?"
+          },
+          "hint": {
+            "zh": "核对digitize的right=False以及解码中心索引的裁剪。",
+            "en": "Check digitize right=False and clipping of decoded center indices."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何验证分位数还原只作用于指定坐标？",
+            "en": "How do you verify quantile unnormalization transforms only selected coordinates?"
+          },
+          "hint": {
+            "zh": "使用不同物理量程和一个mask=false坐标，再检查输入梯度尺度。",
+            "en": "Use different physical ranges and one unmasked coordinate, then inspect input-gradient scales."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "terminal-token",
+          "question": {
+            "zh": "为什么最大边界与相邻桶可能解码到同一中心？",
+            "en": "Why can the maximum-edge token and its neighboring bin decode to the same center?"
+          },
+          "hint": {
+            "zh": "比较边界数、中心数，以及官方解码索引的裁剪区间。",
+            "en": "Compare edge count, center count and the clipping range of decoded indices."
+          }
+        },
+        {
+          "id": "error-units",
+          "question": {
+            "zh": "相同归一化量化误差为何在不同关节上产生不同物理误差？",
+            "en": "Why does the same normalized quantization error cause different physical errors across joints?"
+          },
+          "hint": {
+            "zh": "检查各坐标q99-q01的范围，以及未被mask选中的坐标。",
+            "en": "Inspect each coordinate’s q99-q01 range and coordinates excluded by the mask."
+          }
+        }
+      ]
+    },
+    {
+      "id": "robotics/pi0",
+      "source": "problems/robotics/pi0/README.md",
+      "functions": [
+        "flow_interpolate",
+        "euler_step"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "openpi中t=0和t=1各代表什么，速度指向哪边？",
+            "en": "What do t=0 and t=1 represent in openpi, and which way does velocity point?"
+          },
+          "hint": {
+            "zh": "同时列出插值端点与速度标签，保持同一时间约定。",
+            "en": "List both interpolation endpoints and the velocity label under one time convention."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "反向采样的Euler步长应如何影响状态与梯度？",
+            "en": "How should a reverse-sampling Euler step affect state and gradients?"
+          },
+          "hint": {
+            "zh": "区分负dt与速度符号；监督标签固定，混合状态仍可求导。",
+            "en": "Distinguish negative dt from the velocity sign; labels are fixed while mixed states remain differentiable."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样用常速度轨迹验证采样方向？",
+            "en": "How can a constant-velocity path verify sampling direction?"
+          },
+          "hint": {
+            "zh": "从同一噪声出发走若干等长步，检查是否抵达动作端点。",
+            "en": "Start from the same noise, take equal steps, and check arrival at the action endpoint."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "time-reparameterization",
+          "question": {
+            "zh": "若把时间改为tau=1-t，速度和采样方向要一起怎样变？",
+            "en": "If time becomes tau=1-t, how must velocity and sampling direction change together?"
+          },
+          "hint": {
+            "zh": "对新的时间变量应用链式法则，再确认噪声与动作端点。",
+            "en": "Apply the chain rule to the new time variable, then verify noise and action endpoints."
+          }
+        },
+        {
+          "id": "oracle-trajectory",
+          "question": {
+            "zh": "常速度小实验通过为什么还不能验证完整VLA的泛化？",
+            "en": "Why does passing a constant-velocity toy not establish full VLA generalization?"
+          },
+          "hint": {
+            "zh": "本题固定数据、噪声配对与回归器，省略了视觉语言条件和复杂速度场。",
+            "en": "This toy fixes data, noise pairing and the regressor, omitting vision-language conditions and complex velocity fields."
+          }
+        }
+      ]
+    },
+    {
+      "id": "robotics/pi0_5",
+      "source": "problems/robotics/pi0_5/README.md",
+      "functions": [
+        "hybrid_attention_mask"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "连续动作expert为什么不能读取FAST token？",
+            "en": "Why must the continuous action expert not read FAST tokens?"
+          },
+          "hint": {
+            "zh": "FAST携带干净动作标签；考虑流匹配输入本来应该知道什么。",
+            "en": "FAST carries clean action labels; consider what the flow-matching input is supposed to know."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "prefix、FAST与expert三块的query/key可见关系怎样区别？",
+            "en": "How do query/key visibility rules differ for prefix, FAST and expert blocks?"
+          },
+          "hint": {
+            "zh": "画一个小布尔矩阵，并分别检查query与key padding。",
+            "en": "Draw a small Boolean matrix and inspect both query and key padding."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样直接测出动作标签泄漏？",
+            "en": "How can action-label leakage be measured directly?"
+          },
+          "hint": {
+            "zh": "固定prefix与expert，只大幅改变FAST值，比较expert输出。",
+            "en": "Keep prefix and expert values fixed, perturb FAST strongly, and compare expert outputs."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "shifted-inputs",
+          "question": {
+            "zh": "FAST为什么可以看当前位置而不必然泄漏当前输出标签？",
+            "en": "Why may FAST attend its current input position without necessarily leaking the current output label?"
+          },
+          "hint": {
+            "zh": "题目假设teacher-forcing输入已经右移；不要把输入token与待预测标签混为同一个位置内容。",
+            "en": "Teacher-forcing inputs are assumed shifted; distinguish input tokens from labels predicted at that position."
+          }
+        },
+        {
+          "id": "expert-bidirectional",
+          "question": {
+            "zh": "连续动作expert为什么在本题中不采用自回归三角掩码？",
+            "en": "Why does this exercise avoid an autoregressive triangular mask for the continuous action expert?"
+          },
+          "hint": {
+            "zh": "expert处理同一次流步骤的整块带噪动作，参考论文的块内双向连接。",
+            "en": "The expert processes an entire noisy action chunk at one flow step; inspect the paper’s bidirectional within-block connections."
+          }
+        }
+      ]
+    },
+    {
+      "id": "robotics/dreamerv3",
+      "source": "problems/robotics/dreamerv3/README.md",
+      "functions": [
+        "symlog",
+        "symexp",
+        "two_hot"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "symlog和two-hot分别解决标量学习中的什么问题？",
+            "en": "What separate problems do symlog and two-hot address in scalar learning?"
+          },
+          "hint": {
+            "zh": "区分数量级压缩与分布支持上的局部插值。",
+            "en": "Distinguish magnitude compression from local interpolation on a distributional support."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "非均匀支持上的两个标签权重如何确定？",
+            "en": "How are the two label weights determined on a nonuniform support?"
+          },
+          "hint": {
+            "zh": "先定位相邻中心，再要求概率和为1且期望恢复裁剪后的值。",
+            "en": "Locate adjacent centers, then require unit mass and an expectation equal to the clipped value."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "为什么解码顺序应是求期望后symexp？",
+            "en": "Why should decoding apply symexp after taking the expectation?"
+          },
+          "hint": {
+            "zh": "非线性变换与求平均一般不交换；用一对相邻中心检查。",
+            "en": "Nonlinear transforms and averaging generally do not commute; inspect two neighboring centers."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "support-overflow",
+          "question": {
+            "zh": "真实回报的symlog值超出离散支持后，哪些信息会丢失？",
+            "en": "What information is lost when a symlog return exceeds the discrete support?"
+          },
+          "hint": {
+            "zh": "编码将质量集中在端点，因此不同超界值可能产生同一标签。",
+            "en": "Mass clips to an endpoint, so distinct out-of-range values may share the same label."
+          }
+        },
+        {
+          "id": "zero-gradient",
+          "question": {
+            "zh": "symlog在零点的数学导数与sign/abs组合的自动求导约定是否必然相同？",
+            "en": "Must the mathematical symlog derivative at zero match autodiff through sign/abs?"
+          },
+          "hint": {
+            "zh": "本题保留源码组合形式；逐个检查基础算子在零点的约定，而不是用有限差分猜测计算图。",
+            "en": "This exercise retains the source composition; inspect primitive conventions at zero instead of inferring the graph from finite differences."
+          }
+        }
+      ]
+    },
+    {
+      "id": "robotics/daydreamer",
+      "source": "problems/robotics/daydreamer/README.md",
+      "functions": [
+        "balanced_kl"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "KL balancing为什么前向值不变而梯度会变化？",
+            "en": "Why does KL balancing preserve the forward value while changing gradients?"
+          },
+          "hint": {
+            "zh": "分别标出动力学项和表征项的stop-gradient位置。",
+            "en": "Mark stop-gradient positions in the dynamics and representation terms separately."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "冻结后验分布时仅detach其概率是否足够？",
+            "en": "Is detaching posterior probabilities alone sufficient to freeze the posterior?"
+          },
+          "hint": {
+            "zh": "logq本身也依赖后验logits；追踪两条路径。",
+            "en": "Logq also depends on posterior logits; trace both paths."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "alpha端点如何帮助检查梯度路由？",
+            "en": "How do alpha endpoints help check gradient routing?"
+          },
+          "hint": {
+            "zh": "在alpha=0与1时分别查看prior和posterior梯度，另用多个潜变量检查归约。",
+            "en": "Inspect prior/posterior gradients at alpha zero and one, and use multiple latents to check reduction."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "free-nats",
+          "question": {
+            "zh": "若加入free-nats下界，低KL样本的梯度会怎样变化？",
+            "en": "How would a free-nats floor affect gradients for low-KL examples?"
+          },
+          "hint": {
+            "zh": "当前题目明确位于截断之前；先决定截断发生在哪个归约层级。",
+            "en": "The exercise explicitly operates before clipping; first decide the reduction level at which clipping occurs."
+          }
+        },
+        {
+          "id": "forward-only",
+          "question": {
+            "zh": "只比较不同alpha的loss数值能检验KL balancing正确吗？",
+            "en": "Can comparing loss values across alpha verify KL balancing?"
+          },
+          "hint": {
+            "zh": "错误的未detach实现可能具有完全相同的前向值，需要分别检查两组logits梯度。",
+            "en": "An incorrect undetached implementation can have identical forward values; inspect both sets of logit gradients separately."
+          }
+        }
+      ]
+    },
+    {
+      "id": "robotics/td_mpc2",
+      "source": "problems/robotics/td_mpc2/README.md",
+      "functions": [
+        "simnorm",
+        "elite_moments"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "SimNorm小组与MPPI精英权重分别在哪个轴归一化？",
+            "en": "Along which axes do SimNorm groups and MPPI elite weights normalize?"
+          },
+          "hint": {
+            "zh": "潜变量分组和候选轨迹数量是不同维度。",
+            "en": "Latent groups and the count of candidate trajectories are different dimensions."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "官方temperature如何进入精英权重，标准差何时裁剪？",
+            "en": "How does official temperature enter elite weights, and when is standard deviation clipped?"
+          },
+          "hint": {
+            "zh": "先比较两条精英的权重比，再围绕加权均值计算方差。",
+            "en": "Compare the weight ratio of two elites, then compute variance around their weighted mean."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "单个精英和均匀权重情形可以暴露哪些错误？",
+            "en": "Which mistakes can single-elite and uniform-weight cases expose?"
+          },
+          "hint": {
+            "zh": "检查方差下界、二阶矩与方差区别，以及temperature为0的行为。",
+            "en": "Check the variance floor, second moment versus variance, and zero-temperature behavior."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "temperature-limit",
+          "question": {
+            "zh": "temperature增大时，精英加权均值朝哪条轨迹移动？",
+            "en": "As temperature increases, toward which trajectory does the weighted elite mean move?"
+          },
+          "hint": {
+            "zh": "本实现的temperature乘价值，比较最大价值与其余价值的权重比。",
+            "en": "Temperature multiplies values here; compare the best-value weight with the others."
+          }
+        },
+        {
+          "id": "selection-boundary",
+          "question": {
+            "zh": "本题接收已选精英，完整MPC还需要哪些步骤？",
+            "en": "What steps does full MPC still need beyond this already-selected-elite operator?"
+          },
+          "hint": {
+            "zh": "考虑候选生成、动力学滚动、价值评估、精英选择和执行后重新规划。",
+            "en": "Consider candidate generation, dynamics rollout, value evaluation, elite selection and replanning after execution."
+          }
+        }
+      ]
+    },
+    {
+      "id": "robotics/deepmimic",
+      "source": "problems/robotics/deepmimic/README.md",
+      "functions": [
+        "imitation_reward"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "四个模仿奖励分量的尺度与权重各有什么作用？",
+            "en": "What roles do the four imitation scales and weights play?"
+          },
+          "hint": {
+            "zh": "指数内部决定误差敏感度，外部权重决定分量贡献。",
+            "en": "Inside-exponent scales control sensitivity; outer weights control component contribution."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "关节误差应该先如何归约，再进入指数？",
+            "en": "How should joint errors be reduced before the exponential?"
+          },
+          "hint": {
+            "zh": "区分关节/坐标与batch轴，保留每个样本的奖励。",
+            "en": "Separate joint/coordinate axes from the batch axis and retain per-example rewards."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样检查完美匹配、批量独立性与姿态梯度？",
+            "en": "How do you check perfect matching, batch independence and pose gradients?"
+          },
+          "hint": {
+            "zh": "从全零误差开始，再只扰动一个姿态分量并复制batch。",
+            "en": "Start with zero errors, perturb only one pose component, then duplicate the batch."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "quaternion-sign",
+          "question": {
+            "zh": "输入姿态角误差之前，四元数q与-q应如何处理？",
+            "en": "Before forming pose-angle errors, how should quaternions q and -q be treated?"
+          },
+          "hint": {
+            "zh": "它们表示同一旋转；本题将测地角计算交给调用者，不能直接比较四元数坐标差。",
+            "en": "They represent the same rotation; callers supply geodesic angles, not raw quaternion-coordinate differences."
+          }
+        },
+        {
+          "id": "gradient-versus-rl",
+          "question": {
+            "zh": "奖励函数可求导是否意味着原论文直接对物理轨迹反传？",
+            "en": "Does a differentiable reward function imply the original paper backpropagates through physical trajectories?"
+          },
+          "hint": {
+            "zh": "区分本题奖励张量的梯度检查与DeepMimic使用的策略优化方法。",
+            "en": "Separate this reward tensor’s gradient check from DeepMimic’s policy-optimization method."
+          }
+        }
+      ]
+    },
+    {
+      "id": "robotics/diffmimic",
+      "source": "problems/robotics/diffmimic/README.md",
+      "functions": [
+        "replay_state",
+        "pd_torque",
+        "state_matching_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "示范回放在哪个误差条件触发，如何影响后续梯度？",
+            "en": "Which error condition triggers demonstration replay, and how does it affect subsequent gradients?"
+          },
+          "hint": {
+            "zh": "阈值比较是严格的；区分保留状态和固定示范两条分支。",
+            "en": "The comparison is strict; distinguish retained-state and fixed-reference branches."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "PD控制和状态匹配loss各如何处理速度与时间？",
+            "en": "How do PD control and state-matching loss handle velocity and time?"
+          },
+          "hint": {
+            "zh": "目标角速度为零；轨迹损失按时间求和而不是取均值。",
+            "en": "Target angular velocity is zero; trajectory loss sums rather than averages time."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样确保回放没有把真实轨迹错误从loss中抹掉？",
+            "en": "How do you ensure replay does not erase real trajectory errors from the loss?"
+          },
+          "hint": {
+            "zh": "明确记录当前状态的时机，再对下一步执行回放，检查边界梯度。",
+            "en": "Make the current-state recording point explicit before replaying for the next transition, and inspect boundary gradients."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "threshold-limits",
+          "question": {
+            "zh": "回放阈值为零或非常大时，学习路径分别发生什么变化？",
+            "en": "What happens to learning paths when replay threshold is zero or very large?"
+          },
+          "hint": {
+            "zh": "严格小于零永远不成立；大阈值则更接近连续的完整轨迹反传。",
+            "en": "Strictly below zero never holds; a large threshold approaches uninterrupted trajectory backpropagation."
+          }
+        },
+        {
+          "id": "hard-switch",
+          "question": {
+            "zh": "为什么不对误差阈值的布尔选择本身求导？",
+            "en": "Why is the Boolean error-threshold decision itself not differentiated?"
+          },
+          "hint": {
+            "zh": "本题使用硬分支，在各自分支内传递梯度；阈值处不宣称存在平滑导数。",
+            "en": "This is a hard branch with within-branch gradients; it does not claim a smooth derivative at the threshold."
+          }
+        }
+      ]
+    },
+    {
+      "id": "ai_infra/gpipe",
+      "source": "problems/ai_infra/gpipe/README.md",
+      "functions": [
+        "pipeline_schedule",
+        "microbatch_mse"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "填充排空为什么需要等待整个前向阶段结束？",
+            "en": "Why does fill-drain wait for the whole forward phase?"
+          },
+          "hint": {
+            "zh": "标出最后一个微批次到达最后分段的时间。",
+            "en": "Mark when the final microbatch reaches the final stage."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "最后一块样本更少时，如何保留整批MSE的梯度？",
+            "en": "How can an uneven last chunk preserve the full-batch MSE gradient?"
+          },
+          "hint": {
+            "zh": "区分每块均值与每个样本的权重。",
+            "en": "Separate chunk means from individual sample weights."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "用什么事件表不变量发现分段资源冲突？",
+            "en": "Which event-table invariants reveal stage resource conflicts?"
+          },
+          "hint": {
+            "zh": "同一分段同一时隙只能执行一项工作；再检查跨段依赖。",
+            "en": "A stage has one operation per slot; then inspect inter-stage dependencies."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "extension-1",
+          "question": {
+            "zh": "增加微批次数一定会提高真实吞吐吗？",
+            "en": "Does increasing microbatch count always raise real throughput?"
+          },
+          "hint": {
+            "zh": "时隙利用率模型没有包含内核粒度和通信开销。",
+            "en": "The slot-utilization model excludes kernel granularity and communication overhead."
+          }
+        },
+        {
+          "id": "extension-2",
+          "question": {
+            "zh": "含BatchNorm的网络能直接套用本题梯度等价性吗？",
+            "en": "Does this gradient equivalence directly extend to networks with BatchNorm?"
+          },
+          "hint": {
+            "zh": "考虑样本之间是否通过批次统计发生耦合。",
+            "en": "Consider whether batch statistics couple examples."
+          }
+        }
+      ]
+    },
+    {
+      "id": "ai_infra/megatron_lm",
+      "source": "problems/ai_infra/megatron_lm/README.md",
+      "functions": [
+        "parallel_mlp"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "为什么第一层按列切分、第二层按行切分？",
+            "en": "Why split the first weight by columns and the second by rows?"
+          },
+          "hint": {
+            "zh": "沿同一隐藏通道追踪它在两层中的位置。",
+            "en": "Track one hidden channel through both matrices."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "两个偏置分别应该在通信边界的哪侧添加？",
+            "en": "Where should each bias be added relative to reduction?"
+          },
+          "hint": {
+            "zh": "区分分片偏置与所有rank重复持有的输出偏置。",
+            "en": "Distinguish sharded hidden biases from replicated output biases."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样确认分片没有改变输入与参数梯度？",
+            "en": "How can you verify that sharding preserves input and parameter gradients?"
+          },
+          "hint": {
+            "zh": "用小矩阵和独立标量损失做有限差分。",
+            "en": "Use tiny matrices and finite differences of an independent scalar loss."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "extension-1",
+          "question": {
+            "zh": "任意排列隐藏通道为何仍应保持输出？",
+            "en": "Why should permuting hidden channels preserve outputs?"
+          },
+          "hint": {
+            "zh": "检查两个权重和第一层偏置是否使用同一个排列。",
+            "en": "Check that both weights and the first bias use the same permutation."
+          }
+        },
+        {
+          "id": "extension-2",
+          "question": {
+            "zh": "本题的求和等价于实际系统中的哪种通信？",
+            "en": "Which real-system collective does this sum represent?"
+          },
+          "hint": {
+            "zh": "明确每个rank已有的局部结果以及最终所需的完整输出。",
+            "en": "Identify each rank’s partial result and the full output it ultimately needs."
+          }
+        }
+      ]
+    },
+    {
+      "id": "ai_infra/zero",
+      "source": "problems/ai_infra/zero/README.md",
+      "functions": [
+        "zero2_adam_step",
+        "state_bytes"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "ZeRO-2中哪些状态属于参数所有者，哪些梯度来自数据副本？",
+            "en": "Which states belong to parameter owners, and which gradients come from data replicas in ZeRO-2?"
+          },
+          "hint": {
+            "zh": "两个rank轴含义不同，先为每个轴命名。",
+            "en": "The two rank roles differ; name each axis first."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "reduce-scatter之后怎样应用Adam偏差校正？",
+            "en": "How is Adam bias correction applied after reduce-scatter?"
+          },
+          "hint": {
+            "zh": "先确认全局step与跨rank平均是否只执行一次。",
+            "en": "Check that the global step and cross-rank average are each applied once."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何用正负梯度相消检验跨rank归约？",
+            "en": "How can cancelling positive and negative gradients verify rank reduction?"
+          },
+          "hint": {
+            "zh": "构造两个副本在部分坐标相反、其他坐标不同的梯度。",
+            "en": "Use replicas with opposite gradients on some coordinates and unequal gradients on others."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "extension-1",
+          "question": {
+            "zh": "为什么stage 1、2、3的内存收益不同？",
+            "en": "Why do stages 1, 2 and 3 save different amounts of memory?"
+          },
+          "hint": {
+            "zh": "分别统计低精度参数、梯度、主权重和两个矩。",
+            "en": "Account separately for low-precision parameters, gradients, master weights and moments."
+          }
+        },
+        {
+          "id": "extension-2",
+          "question": {
+            "zh": "这里的状态字节数是否等于真实峰值显存？",
+            "en": "Do these state bytes equal real peak device memory?"
+          },
+          "hint": {
+            "zh": "找出未计入的激活、临时buffer和通信生命周期。",
+            "en": "Identify omitted activations, temporary buffers and communication lifetimes."
+          }
+        }
+      ]
+    },
+    {
+      "id": "ai_infra/flash_attention_2",
+      "source": "problems/ai_infra/flash_attention_2/README.md",
+      "functions": [
+        "flash2_forward"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "FA2为什么能把输出归一化推迟到最后？",
+            "en": "Why can FA2 postpone output normalization until the end?"
+          },
+          "hint": {
+            "zh": "区分未归一化分子与最终注意力输出。",
+            "en": "Distinguish the unnormalized numerator from the final attention output."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "新的key块出现更大logit时，哪些累积量必须一起缩放？",
+            "en": "Which accumulators must be rescaled when a new key tile has a larger logit?"
+          },
+          "hint": {
+            "zh": "检查旧值与新值是否共享同一个指数基准。",
+            "en": "Check whether old and new terms share the same exponential reference."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何测试不整除块大小下的因果边界？",
+            "en": "How can uneven tile sizes test causal boundaries?"
+          },
+          "hint": {
+            "zh": "选择跨对角线的块，并扰动未来value。",
+            "en": "Choose tiles crossing the diagonal and perturb future values."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "extension-1",
+          "question": {
+            "zh": "为什么保存logsumexp足以表达每行归一化信息？",
+            "en": "Why does logsumexp encode each row’s normalization?"
+          },
+          "hint": {
+            "zh": "把行最大值与平移后的指数和重新组合。",
+            "en": "Combine the row maximum with the shifted exponential sum."
+          }
+        },
+        {
+          "id": "extension-2",
+          "question": {
+            "zh": "CPU分块正确性是否能证明warp划分速度更快？",
+            "en": "Does CPU tiled correctness prove faster warp partitioning?"
+          },
+          "hint": {
+            "zh": "数值契约与共享内存通信量是不同的测量对象。",
+            "en": "The numerical contract and shared-memory traffic require different measurements."
+          }
+        }
+      ]
+    },
+    {
+      "id": "ai_infra/orca",
+      "source": "problems/ai_infra/orca/README.md",
+      "functions": [
+        "iteration_schedule"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "迭代级接纳与整请求批处理的等待区别在哪里？",
+            "en": "How does iteration-level admission change waiting compared with request-level batching?"
+          },
+          "hint": {
+            "zh": "让一个短请求与一个长请求共享批次。",
+            "en": "Put one short request beside one long request."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "到达、执行和完成分别发生在时隙的哪个边界？",
+            "en": "At which slot boundaries do arrival, execution and completion occur?"
+          },
+          "hint": {
+            "zh": "明确新请求何时可以填充刚释放的空位。",
+            "en": "Specify when a new request may fill a just-released slot."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样同时检验token守恒和无抢占？",
+            "en": "How can token conservation and nonpreemption be checked together?"
+          },
+          "hint": {
+            "zh": "为每个请求收集它出现的时隙及次数。",
+            "en": "Collect the slots and occurrence count of each request."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "extension-1",
+          "question": {
+            "zh": "把所有到达时间平移后哪些量应不变？",
+            "en": "What should stay invariant when all arrivals shift in time?"
+          },
+          "hint": {
+            "zh": "绝对完成时刻与请求延迟不是同一个量。",
+            "en": "Absolute completion times differ from request latencies."
+          }
+        },
+        {
+          "id": "extension-2",
+          "question": {
+            "zh": "为何该回放不能覆盖Orca的selective batching？",
+            "en": "Why does this replay not cover Orca’s selective batching?"
+          },
+          "hint": {
+            "zh": "这里把一轮生成抽象成一个统一时间单位，没有逐算子成本。",
+            "en": "A generation iteration is one abstract time unit without per-operator costs."
+          }
+        }
+      ]
+    },
+    {
+      "id": "ai_infra/sglang",
+      "source": "problems/ai_infra/sglang/README.md",
+      "functions": [
+        "radix_cache_step"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "为什么只能驱逐叶节点，而不能直接删最旧祖先？",
+            "en": "Why evict only leaves rather than the oldest ancestor directly?"
+          },
+          "hint": {
+            "zh": "考虑子节点仍指向的共享前缀。",
+            "en": "Consider the shared prefix still needed by descendants."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "当前prompt和pinned节点应保护哪些祖先？",
+            "en": "Which ancestors must be protected for the current prompt and pinned nodes?"
+          },
+          "hint": {
+            "zh": "请求引用的不仅是末尾token。",
+            "en": "A request depends on more than its final token."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "缓存满且所有叶子被pin时，怎样检验失败原子性？",
+            "en": "How can atomic failure be tested when a full cache has only pinned leaves?"
+          },
+          "hint": {
+            "zh": "失败前后比较调用者持有的原始cache。",
+            "en": "Compare the caller’s original cache before and after failure."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "extension-1",
+          "question": {
+            "zh": "相同后缀能当作前缀缓存命中吗？",
+            "en": "Can identical suffixes count as prefix-cache hits?"
+          },
+          "hint": {
+            "zh": "KV表示依赖更早的上下文。",
+            "en": "KV representations depend on the preceding context."
+          }
+        },
+        {
+          "id": "extension-2",
+          "question": {
+            "zh": "压缩radix边与逐token节点模型的容量如何对齐？",
+            "en": "How does compressed radix-edge storage relate to token-node capacity?"
+          },
+          "hint": {
+            "zh": "边数量和边内token数量不同。",
+            "en": "Edge count differs from the number of tokens stored along edges."
+          }
+        }
+      ]
+    },
+    {
+      "id": "ai_infra/sarathi_serve",
+      "source": "problems/ai_infra/sarathi_serve/README.md",
+      "functions": [
+        "hybrid_batch"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "为什么预算分配应先保留所有活动decode？",
+            "en": "Why reserve budget for all ongoing decodes first?"
+          },
+          "hint": {
+            "zh": "长prompt不能抢占已经承诺的每token服务。",
+            "en": "Long prompts must not displace already-promised per-token service."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "队首prefill只完成一块时，后续请求能否进入本轮？",
+            "en": "Can later requests enter the iteration when the head prefill completes only one chunk?"
+          },
+          "hint": {
+            "zh": "先区分本题规定的FIFO块策略和可扩展的其他策略。",
+            "en": "Distinguish this exercise’s FIFO chunk policy from other possible policies."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何验证多轮回放既没丢prefill token也没暂停decode？",
+            "en": "How can a replay verify both conserved prefill tokens and uninterrupted decodes?"
+          },
+          "hint": {
+            "zh": "累计已处理与剩余token，同时检查每轮decode ID集合。",
+            "en": "Track processed and remaining tokens, and inspect decode IDs each iteration."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "extension-1",
+          "question": {
+            "zh": "token预算与实际TBT约束之间还缺什么？",
+            "en": "What is missing between a token budget and an actual TBT target?"
+          },
+          "hint": {
+            "zh": "真实服务需要硬件、模型和batch形状对应的成本模型。",
+            "en": "Real serving needs a cost model for hardware, model and batch shapes."
+          }
+        },
+        {
+          "id": "extension-2",
+          "question": {
+            "zh": "把prefill块切得越小，真实服务表现一定越好吗？",
+            "en": "Are smaller chunks always better?"
+          },
+          "hint": {
+            "zh": "比较每轮延迟、prefill进展和重复调度开销。",
+            "en": "Compare iteration latency, prefill progress and repeated scheduling overhead."
+          }
+        }
+      ]
+    },
+    {
+      "id": "ai_infra/distserve",
+      "source": "problems/ai_infra/distserve/README.md",
+      "functions": [
+        "disaggregated_trace",
+        "slo_goodput"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "分离prefill与decode后，为什么要维护两个时钟？",
+            "en": "Why maintain two clocks after separating prefill and decode?"
+          },
+          "hint": {
+            "zh": "一个阶段可以与另一个请求的另一阶段重叠。",
+            "en": "One stage can overlap another request’s other stage."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "第一个token已经在prefill产生时，KV传输应计入哪个延迟？",
+            "en": "When prefill already emits the first token, which latency includes KV transfer?"
+          },
+          "hint": {
+            "zh": "把首token时刻与后续token的等待区分开。",
+            "en": "Separate first-token time from waiting for later tokens."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何构造只满足TTFT或只满足TPOT的请求？",
+            "en": "How can requests satisfying only TTFT or only TPOT test goodput?"
+          },
+          "hint": {
+            "zh": "联合SLO需要同时满足两项，而不是取并集。",
+            "en": "Joint SLO compliance requires both conditions, not their union."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "extension-1",
+          "question": {
+            "zh": "平均TPOT为什么可能大于裸decode token耗时？",
+            "en": "Why can average TPOT exceed raw per-token decode cost?"
+          },
+          "hint": {
+            "zh": "首末token之间可能包含排队与传输等待。",
+            "en": "The interval between first and last tokens may include queues and transfer."
+          }
+        },
+        {
+          "id": "extension-2",
+          "question": {
+            "zh": "串行decode模型怎样限制结果解释？",
+            "en": "How does request-serial decoding limit interpretation?"
+          },
+          "hint": {
+            "zh": "真实系统还会连续批处理并搜索资源和并行配置。",
+            "en": "Real systems also batch continuously and optimize resources and parallel configurations."
+          }
+        }
+      ]
+    },
+    {
+      "id": "ai_infra/gptq",
+      "source": "problems/ai_infra/gptq/README.md",
+      "functions": [
+        "gptq_quantize"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "GPTQ怎样利用校准通道相关性补偿量化误差？",
+            "en": "How does GPTQ use calibration-channel correlations to compensate quantization error?"
+          },
+          "hint": {
+            "zh": "比较对角与非对角逆Hessian。",
+            "en": "Compare diagonal and nondiagonal inverse Hessians."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "输入upper表示哪个矩阵的Cholesky因子？",
+            "en": "Which matrix does the supplied upper Cholesky factor represent?"
+          },
+          "hint": {
+            "zh": "不要把Hessian、逆Hessian和其三角因子混用。",
+            "en": "Do not confuse the Hessian, its inverse and the triangular factor."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何用Schur补独立验证逐列Cholesky更新？",
+            "en": "How can Schur complements independently verify the columnwise Cholesky update?"
+          },
+          "hint": {
+            "zh": "每固定一列，就从剩余自由变量中消去它。",
+            "en": "Eliminate each fixed column from the remaining free variables."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "extension-1",
+          "question": {
+            "zh": "为什么对角因子时应退化成逐元素rounding？",
+            "en": "Why should a diagonal factor reduce to elementwise rounding?"
+          },
+          "hint": {
+            "zh": "没有跨通道耦合时，误差不能影响其他列。",
+            "en": "Without cross-channel coupling, an error cannot affect later columns."
+          }
+        },
+        {
+          "id": "extension-2",
+          "question": {
+            "zh": "固定网格与真实GPTQ校准还差哪些步骤？",
+            "en": "What steps separate a fixed grid from full GPTQ calibration?"
+          },
+          "hint": {
+            "zh": "考虑Hessian采样、阻尼、分组量化和列排序。",
+            "en": "Consider Hessian sampling, damping, group quantization and column ordering."
+          }
+        }
+      ]
+    },
+    {
+      "id": "ai_infra/smoothquant",
+      "source": "problems/ai_infra/smoothquant/README.md",
+      "functions": [
+        "smooth_scales",
+        "smooth_transform"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "为什么激活和权重需要相反方向的通道缩放？",
+            "en": "Why do activations and weights require reciprocal channel scaling?"
+          },
+          "hint": {
+            "zh": "沿输入通道检查矩阵乘法中的成对因子。",
+            "en": "Track paired factors along the input-channel contraction."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "激活和权重各自在哪个轴取最大值？",
+            "en": "Along which axes are activation and weight maxima reduced?"
+          },
+          "hint": {
+            "zh": "两个统计最终都要对应同一输入通道。",
+            "en": "Both statistics must identify the same input channel."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何同时验证输出等价性与scale梯度抵消？",
+            "en": "How can output equivalence and scale-gradient cancellation be checked together?"
+          },
+          "hint": {
+            "zh": "先固定一个正scale向量，再对等价线性输出求导。",
+            "en": "Fix a positive scale vector before differentiating the equivalent linear output."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "extension-1",
+          "question": {
+            "zh": "零激活通道为何仍需正的有限scale？",
+            "en": "Why do zero-activation channels still need finite positive scales?"
+          },
+          "hint": {
+            "zh": "后续变换包含除法，考虑alpha端点。",
+            "en": "The transform divides by scales; consider alpha endpoints."
+          }
+        },
+        {
+          "id": "extension-2",
+          "question": {
+            "zh": "单一alpha在不同校准数据上都最优吗？",
+            "en": "Is one alpha optimal for every calibration distribution?"
+          },
+          "hint": {
+            "zh": "它控制激活和权重的动态范围迁移。",
+            "en": "It controls the transfer of dynamic-range difficulty between activations and weights."
+          }
+        }
+      ]
+    },
+    {
+      "id": "ai_infra/awq",
+      "source": "problems/ai_infra/awq/README.md",
+      "functions": [
+        "group_quantize",
+        "awq_search"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "为什么AWQ应按输出重建误差而非权重MSE选scale？",
+            "en": "Why select AWQ scales by output reconstruction error instead of weight MSE?"
+          },
+          "hint": {
+            "zh": "大激活通道会放大量化误差的输出影响。",
+            "en": "Large activation channels amplify output effects of quantization errors."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "每个alpha候选应从原始权重还是前一个候选开始？",
+            "en": "Should each alpha candidate start from original weights or the preceding candidate?"
+          },
+          "hint": {
+            "zh": "保证候选之间比较的是同一个未量化基准。",
+            "en": "Ensure every candidate is compared against the same unquantized baseline."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何检验网格并列时的稳定选择和零通道行为？",
+            "en": "How can stable grid ties and zero-channel behavior be verified?"
+          },
+          "hint": {
+            "zh": "零输入会让所有候选输出误差相同。",
+            "en": "Zero inputs give equal output errors for all candidates."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "extension-1",
+          "question": {
+            "zh": "AWQ的平均绝对激活与SmoothQuant的最大激活有何区别？",
+            "en": "How do AWQ mean-absolute activations differ from SmoothQuant peak activations?"
+          },
+          "hint": {
+            "zh": "用一个偶发尖峰与一个持续活跃通道作比较。",
+            "en": "Compare a rare spike with a persistently active channel."
+          }
+        },
+        {
+          "id": "extension-2",
+          "question": {
+            "zh": "组大小为何影响通道缩放后的量化误差？",
+            "en": "Why does group size affect quantization error after channel scaling?"
+          },
+          "hint": {
+            "zh": "同组元素共享min/max和量化步长。",
+            "en": "Elements in a group share extrema and quantization step size."
+          }
+        }
+      ]
+    },
+    {
+      "id": "diffusion_rl/imagereward",
+      "source": "problems/diffusion_rl/imagereward/README.md",
+      "functions": [
+        "ranking_loss",
+        "refl_clean"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "配对奖励排序与 ReFL 单步反馈分别训练哪个模型？",
+            "en": "Which model is trained by pairwise ranking and by ReFL feedback?"
+          },
+          "hint": {
+            "zh": "对每对分数先求差，再用 softplus 保持大幅度输入下的稳定性。单步预测先冻结已有轨迹状态，再按噪声幅度恢复干净样本。奖励网络参数冻结不等于将奖励值 detach。",
+            "en": "Form a rejected-minus-preferred score margin and apply stable softplus. Detach the already sampled latent before solving the noising equation for the clean sample. Freezing reward parameters must preserve the derivative with respect to its input."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "冻结奖励网络时怎样保留到噪声预测器的梯度？",
+            "en": "How can a frozen reward network preserve gradients to the epsilon predictor?"
+          },
+          "hint": {
+            "zh": "不要把配对差值先平均再取 logistic；那会让相反偏好互相抵消。alpha 是振幅，不能再开平方。冻结 latent 能切断前缀梯度，epsilon 的梯度应为 -sigma/alpha。",
+            "en": "Averaging margins before logistic would cancel opposing preferences. Alpha is an amplitude, so do not take another square root. The latent has no gradient and the epsilon derivative is -sigma/alpha."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样用加噪再反解检查 alpha 和 sigma 的振幅约定？",
+            "en": "How can noising followed by inversion check amplitude conventions?"
+          },
+          "hint": {
+            "zh": "独立标量 logistic、极端分数、反解恒等式和解析梯度；T3 先训练奖励评分器再优化生成参数。",
+            "en": "Scalar logistic oracle, extreme scores, noising inversion and analytic gradients; T3 trains a scorer then optimizes a generator parameter."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "尝试保持奖励模型参数冻结，同时对图像解码器的输入反传。",
+            "en": "Extend the exercise to a differentiable decoder while keeping reward parameters fixed."
+          },
+          "hint": {
+            "zh": "先保持当前题目的形状与梯度约定不变，再增加实验条件。训练小型奖励评分器并通过冻结奖励函数更新单步噪声预测；不加载 BLIP 或图像解码器。",
+            "en": "Keep the current shape and gradient contracts fixed before adding experimental conditions. Train a small reward scorer and update an epsilon predictor through a fixed differentiable reward; no BLIP or image decoder."
+          }
+        },
+        {
+          "id": "independent-counterexample",
+          "question": {
+            "zh": "如何构造一个能区分以下错误的最小反例：Reverse preference direction？",
+            "en": "Construct a minimal counterexample for this failure: Reverse preference direction?"
+          },
+          "hint": {
+            "zh": "先手算两到三个元素的例子，再检查错误分支改变的是数值、归约还是梯度。独立标量 logistic、极端分数、反解恒等式和解析梯度；T3 先训练奖励评分器再优化生成参数。",
+            "en": "Start with two or three hand-computed elements and identify whether the bug changes values, reduction or derivatives. Scalar logistic oracle, extreme scores, noising inversion and analytic gradients; T3 trains a scorer then optimizes a generator parameter."
+          }
+        }
+      ]
+    },
+    {
+      "id": "diffusion_rl/diffusion_kto",
+      "source": "problems/diffusion_rl/diffusion_kto/README.md",
+      "functions": [
+        "kto_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "为什么 KTO 可以直接利用单张图的喜欢／不喜欢反馈？",
+            "en": "Why can KTO use individual desirable/undesirable feedback?"
+          },
+          "hint": {
+            "zh": "先用无关样本的 log 比率求均值并截断到非负值。喜欢标签保留相对参考的方向，不喜欢标签反转方向。sigmoid 效用以零为中心，外层取负号用于梯度下降。",
+            "en": "Average unrelated log ratios and clamp the baseline at zero. A desirable label retains the relative-policy direction; an undesirable label reverses it. Center sigmoid utility at zero and negate it for gradient descent."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "无关配对的负均值如何影响 KL 基线，哪些值应冻结？",
+            "en": "How does a negative unrelated-pair mean affect the baseline, and which values freeze?"
+          },
+          "hint": {
+            "zh": "基线不是当前训练样本自己的均值；必须来自独立的无关配对。beta 同时缩放 log 比率与基线。此处优化 sigmoid 效用，不是 log-sigmoid 分类损失。",
+            "en": "The baseline comes from unrelated pairs, not the current feedback batch. Beta scales the log ratio and the baseline together. This is sigmoid utility, not log-sigmoid classification."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何用标签取反检查中心化效用的符号对称性？",
+            "en": "How can reversing labels check the sign symmetry of centered utility?"
+          },
+          "hint": {
+            "zh": "逐样本标量 sigmoid、基线截断、正负标签对称性、解析梯度和冻结边界。",
+            "en": "Per-example scalar sigmoid, clamped baselines, label symmetry, analytic derivatives and frozen inputs."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "比较 sigmoid、log-sigmoid 和线性效用的饱和行为。",
+            "en": "Compare saturation under sigmoid, log-sigmoid and linear utility."
+          },
+          "hint": {
+            "zh": "先保持当前题目的形状与梯度约定不变，再增加实验条件。输入已计算的每步 log-prob；实现 KTO 效用与停止梯度约定，不训练图像骨干。",
+            "en": "Keep the current shape and gradient contracts fixed before adding experimental conditions. Work with precomputed per-transition log probabilities; implement KTO utility and stop-gradient semantics without an image backbone."
+          }
+        },
+        {
+          "id": "independent-counterexample",
+          "question": {
+            "zh": "如何构造一个能区分以下错误的最小反例：Ignore undesirable feedback？",
+            "en": "Construct a minimal counterexample for this failure: Ignore undesirable feedback?"
+          },
+          "hint": {
+            "zh": "先手算两到三个元素的例子，再检查错误分支改变的是数值、归约还是梯度。逐样本标量 sigmoid、基线截断、正负标签对称性、解析梯度和冻结边界。",
+            "en": "Start with two or three hand-computed elements and identify whether the bug changes values, reduction or derivatives. Per-example scalar sigmoid, clamped baselines, label symmetry, analytic derivatives and frozen inputs."
+          }
+        }
+      ]
+    },
+    {
+      "id": "diffusion_rl/d3po",
+      "source": "problems/diffusion_rl/d3po/README.md",
+      "functions": [
+        "d3po_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "D3PO 为什么把一个终点偏好用于多个去噪步骤？",
+            "en": "Why does D3PO apply one terminal preference across denoising steps?"
+          },
+          "hint": {
+            "zh": "先分别计算胜出和落选轨迹相对参考策略的 log 比率，再在相同时间步相减。每个时间步有独立的 sigmoid 分类任务，最后才对批次与时间求均值。",
+            "en": "Compute winner and loser log ratios relative to their references, then subtract at matching timesteps. Each transition has its own logistic objective; average over batch and time only afterward."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "逐步做 logistic 与先沿时间求和再做 logistic 有什么差异？",
+            "en": "How does per-step logistic differ from logistic after summing over time?"
+          },
+          "hint": {
+            "zh": "先求时间和再做 softplus 对应另一种目标；正负时间步会抵消。参考模型必须冻结，但落选轨迹的当前模型仍需梯度。",
+            "en": "Summing across time before softplus changes the objective and cancels opposing timestep margins. Freeze the references, while retaining gradients through both current branches."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "复制时间步后损失应该怎样变化，参考分支应该有梯度吗？",
+            "en": "What happens after duplicating timesteps, and should references receive gradients?"
+          },
+          "hint": {
+            "zh": "不等的逐步 margin 手算、时间重复不变性、参考梯度冻结及极端 margin 稳定性。",
+            "en": "Unequal per-step margins, timestep-duplication invariance, frozen-reference gradients and stable extreme margins."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "与对整条轨迹求和后再分类的目标比较梯度。",
+            "en": "Compare gradients against a classifier on summed trajectory log ratios."
+          },
+          "hint": {
+            "zh": "先保持当前题目的形状与梯度约定不变，再增加实验条件。实现给定轨迹 log-prob 的逐步 D3PO 损失；不把多步概率先相乘。",
+            "en": "Keep the current shape and gradient contracts fixed before adding experimental conditions. Implement stepwise D3PO from trajectory log probabilities, without collapsing them into one trajectory-level likelihood."
+          }
+        },
+        {
+          "id": "independent-counterexample",
+          "question": {
+            "zh": "如何构造一个能区分以下错误的最小反例：Apply logistic after trajectory summation？",
+            "en": "Construct a minimal counterexample for this failure: Apply logistic after trajectory summation?"
+          },
+          "hint": {
+            "zh": "先手算两到三个元素的例子，再检查错误分支改变的是数值、归约还是梯度。不等的逐步 margin 手算、时间重复不变性、参考梯度冻结及极端 margin 稳定性。",
+            "en": "Start with two or three hand-computed elements and identify whether the bug changes values, reduction or derivatives. Unequal per-step margins, timestep-duplication invariance, frozen-reference gradients and stable extreme margins."
+          }
+        }
+      ]
+    },
+    {
+      "id": "diffusion_rl/pc_flow",
+      "source": "problems/diffusion_rl/pc_flow/README.md",
+      "functions": [
+        "pcflow_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "为什么相邻时刻分类器概率比能表示偏好修正？",
+            "en": "Why can adjacent classifier probability ratios represent a preference correction?"
+          },
+          "hint": {
+            "zh": "先把 logits 用稳定的 log-sigmoid 转为 log 概率，再用相邻时刻之差构造两条轨迹的偏好比率。差值乘 beta 与总步数 T，最后计算配对 logistic 损失。",
+            "en": "Convert logits to stable log-sigmoid probabilities. Subtract adjacent log probabilities on each trajectory, multiply the winner-minus-loser margin by beta times T, then apply logistic loss."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "怎样把 logits 稳定地转成 log 概率，为什么不能直接相减？",
+            "en": "How do logits become stable log probabilities, and why not subtract logits directly?"
+          },
+          "hint": {
+            "zh": "不能直接用原始 logits 的差；log(sigmoid(a)) 的导数是 sigmoid(-a)。不能遗漏当前时刻或总步数因子。",
+            "en": "Raw logit differences are not log probability ratios. The derivative of log-sigmoid(a) is sigmoid(-a); both current-time terms and the total-step factor matter."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "四个分类器分支的梯度符号如何检查？",
+            "en": "How can you check gradient signs on all four classifier branches?"
+          },
+          "hint": {
+            "zh": "标量概率比率 oracle、四分支解析梯度、时间步缩放、极端 logits。",
+            "en": "Scalar probability-ratio oracle, four-branch analytic derivatives, timestep scaling and extreme logits."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "用训练好的分类器梯度实现原论文的引导采样更新。",
+            "en": "Use classifier gradients to implement the paper’s guided sampling step."
+          },
+          "hint": {
+            "zh": "先保持当前题目的形状与梯度约定不变，再增加实验条件。只训练偏好分类器的相邻时刻目标；基座 flow 与引导采样器不在范围内。",
+            "en": "Keep the current shape and gradient contracts fixed before adding experimental conditions. Implement the adjacent-time classifier objective; the base flow and guided sampler are outside the exercise."
+          }
+        },
+        {
+          "id": "independent-counterexample",
+          "question": {
+            "zh": "如何构造一个能区分以下错误的最小反例：Use raw logits instead of log classifier probabilities？",
+            "en": "Construct a minimal counterexample for this failure: Use raw logits instead of log classifier probabilities?"
+          },
+          "hint": {
+            "zh": "先手算两到三个元素的例子，再检查错误分支改变的是数值、归约还是梯度。标量概率比率 oracle、四分支解析梯度、时间步缩放、极端 logits。",
+            "en": "Start with two or three hand-computed elements and identify whether the bug changes values, reduction or derivatives. Scalar probability-ratio oracle, four-branch analytic derivatives, timestep scaling and extreme logits."
+          }
+        }
+      ]
+    },
+    {
+      "id": "diffusion_rl/ddpo",
+      "source": "problems/diffusion_rl/ddpo/README.md",
+      "functions": [
+        "gaussian_log_prob",
+        "ddpo_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "DDPO 中一个动作对应一个坐标还是整个去噪状态？",
+            "en": "Does one DDPO action correspond to a coordinate or the full denoising state?"
+          },
+          "hint": {
+            "zh": "每个转移的坐标共同构成一个动作，因此先对特征维求 log 密度之和。旧策略和采样动作保持固定。逐步概率比乘终点优势，对正负优势分别由 min 选择保守分支。",
+            "en": "An action consists of all feature coordinates, so sum log densities over features. Hold sampled actions and the old policy fixed. Multiply each transition ratio by the terminal advantage and choose the conservative clipped branch with minimum."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "正负优势在 clipped PPO 中分别触发哪一侧截断？",
+            "en": "Which clipping tail is active for positive and negative advantages?"
+          },
+          "hint": {
+            "zh": "不能将特征维 log 密度取平均，也不能把整条轨迹比率相乘后再截断。负优势下 clip 下界限制过度降低概率的收益。",
+            "en": "Do not average feature log densities or clip a product of full-trajectory ratios. For negative advantages the lower clip bound limits gains from excessively reducing action probability."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何独立验证高斯 score 梯度及采样动作的冻结？",
+            "en": "How can Gaussian score gradients and frozen sampled actions be checked independently?"
+          },
+          "hint": {
+            "zh": "独立高斯标量密度、正负截断手算、score梯度、冻结采样、复制时间步的归约不变性。",
+            "en": "Scalar Gaussian densities, signed clipping oracle, score gradients, frozen samples and timestep-duplication invariance."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "加入按 prompt 维护的奖励统计量，而不是跨 prompt 共享一个基线。",
+            "en": "Add per-prompt running reward statistics instead of a single global baseline."
+          },
+          "hint": {
+            "zh": "先保持当前题目的形状与梯度约定不变，再增加实验条件。使用固定方差高斯转移实现 DDPO 的策略目标，包含在线小型 bandit；不加载扩散骨干。",
+            "en": "Keep the current shape and gradient contracts fixed before adding experimental conditions. Implement the DDPO objective for fixed-variance Gaussian transitions and an online toy bandit, without a diffusion backbone."
+          }
+        },
+        {
+          "id": "independent-counterexample",
+          "question": {
+            "zh": "如何构造一个能区分以下错误的最小反例：Average action coordinates instead of joint density？",
+            "en": "Construct a minimal counterexample for this failure: Average action coordinates instead of joint density?"
+          },
+          "hint": {
+            "zh": "先手算两到三个元素的例子，再检查错误分支改变的是数值、归约还是梯度。独立高斯标量密度、正负截断手算、score梯度、冻结采样、复制时间步的归约不变性。",
+            "en": "Start with two or three hand-computed elements and identify whether the bug changes values, reduction or derivatives. Scalar Gaussian densities, signed clipping oracle, score gradients, frozen samples and timestep-duplication invariance."
+          }
+        }
+      ]
+    },
+    {
+      "id": "diffusion_rl/dpok",
+      "source": "problems/diffusion_rl/dpok/README.md",
+      "functions": [
+        "gaussian_kl",
+        "dpok_surrogate"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "逐步高斯 KL 为什么可以用来约束终点分布？",
+            "en": "Why can per-step Gaussian KL constrain the terminal distribution?"
+          },
+          "hint": {
+            "zh": "相同协方差的高斯 KL 化简为均值差的加权平方和。时间维求和对应轨迹 KL 上界；batch 维求均值。奖励乘当前 log 密度的 score 项，直接 KL 项保留梯度。",
+            "en": "Equal-covariance Gaussian KL reduces to a variance-weighted squared mean distance. Sum over time for the trajectory bound, average over samples, and combine the frozen-reward score term with differentiable KL."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "Eq. (9) 的奖励项和 KL 项分别怎样保留梯度？",
+            "en": "How do reward and KL terms retain gradients in Eq. (9)?"
+          },
+          "hint": {
+            "zh": "KL 不是采样动作 log 比率的单次估计；它是闭式的分布距离。不要对时间求平均，也不要将 KL 一并 detach。",
+            "en": "The closed-form KL is a distributional distance, not a sampled log ratio. Do not average across time or detach the KL penalty."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "把轨迹重复两次时，KL 上界与 score 项应该如何缩放？",
+            "en": "How should the KL bound and score term scale if the trajectory is duplicated?"
+          },
+          "hint": {
+            "zh": "标量 KL、时间重复线性缩放、解析奖励与正则梯度、零 KL 端点和在线有正则 bandit。",
+            "en": "Scalar KL, linear scaling under timestep repetition, analytic reward/regularizer gradients, zero-KL endpoints and a regularized online bandit."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "推导原论文附录 A.3 中被省略的状态分布梯度项。",
+            "en": "Derive the omitted state-visitation gradient term in Appendix A.3."
+          },
+          "hint": {
+            "zh": "先保持当前题目的形状与梯度约定不变，再增加实验条件。实现论文 Eq. (9) 的高效梯度近似；不声称包含 Eq. (8) 状态访问分布的完整导数。",
+            "en": "Keep the current shape and gradient contracts fixed before adding experimental conditions. Implement the efficient gradient approximation in Eq. (9), not the full state-visitation derivative of Eq. (8)."
+          }
+        },
+        {
+          "id": "independent-counterexample",
+          "question": {
+            "zh": "如何构造一个能区分以下错误的最小反例：Omit one half in Gaussian KL？",
+            "en": "Construct a minimal counterexample for this failure: Omit one half in Gaussian KL?"
+          },
+          "hint": {
+            "zh": "先手算两到三个元素的例子，再检查错误分支改变的是数值、归约还是梯度。标量 KL、时间重复线性缩放、解析奖励与正则梯度、零 KL 端点和在线有正则 bandit。",
+            "en": "Start with two or three hand-computed elements and identify whether the bug changes values, reduction or derivatives. Scalar KL, linear scaling under timestep repetition, analytic reward/regularizer gradients, zero-KL endpoints and a regularized online bandit."
+          }
+        }
+      ]
+    },
+    {
+      "id": "diffusion_rl/alignprop",
+      "source": "problems/diffusion_rl/alignprop/README.md",
+      "functions": [
+        "reward_rollout"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "截断奖励反传改变前向采样还是改变梯度路径？",
+            "en": "Does truncated reward backpropagation change forward samples or gradient paths?"
+          },
+          "hint": {
+            "zh": "按执行顺序遍历调度器，先预测噪声再还原干净样本，再构造下一个噪声级。指定起点之前使用 no_grad；到起点只截断一次状态，后缀内部保留整条链式法则。",
+            "en": "Traverse the schedule in execution order, recover a clean estimate and form the next noise level. Run the prefix without gradients and detach the boundary once; preserve the complete chain rule within the suffix."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "在指定起点 detach 与每一步 detach 的区别是什么？",
+            "en": "How does one boundary detach differ from detaching every step?"
+          },
+          "hint": {
+            "zh": "若每步都 detach，前几个后缀步骤无法收到终点奖励。截断只改变梯度，不应改变前向采样值。调度器给的是振幅，不应重复开平方。",
+            "en": "Detaching every step removes earlier suffix gradients. Truncation must change derivatives without changing forward samples. Schedule values are amplitudes, not variances."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样用标量仿射递推独立核对后缀链式法则？",
+            "en": "How can a scalar affine recurrence independently verify suffix chain-rule gradients?"
+          },
+          "hint": {
+            "zh": "恒定噪声模型的手算链、不同截断的前向一致性、独立标量递推导数和前缀梯度零。",
+            "en": "Hand-computed constant-epsilon chains, forward equality across truncations, independent scalar derivative recurrence and zero prefix gradients."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "对不同后缀长度实测梯度偏差与存储需求。",
+            "en": "Measure gradient bias and memory requirements for different suffix lengths."
+          },
+          "hint": {
+            "zh": "先保持当前题目的形状与梯度约定不变，再增加实验条件。调用传入的小型 epsilon 模型，练习时间方向和梯度截断；不实现 LoRA 或 checkpoint 内存优化。",
+            "en": "Keep the current shape and gradient contracts fixed before adding experimental conditions. Call a supplied small epsilon model to study time direction and gradient truncation; LoRA and activation checkpointing are outside scope."
+          }
+        },
+        {
+          "id": "independent-counterexample",
+          "question": {
+            "zh": "如何构造一个能区分以下错误的最小反例：Detach every suffix transition？",
+            "en": "Construct a minimal counterexample for this failure: Detach every suffix transition?"
+          },
+          "hint": {
+            "zh": "先手算两到三个元素的例子，再检查错误分支改变的是数值、归约还是梯度。恒定噪声模型的手算链、不同截断的前向一致性、独立标量递推导数和前缀梯度零。",
+            "en": "Start with two or three hand-computed elements and identify whether the bug changes values, reduction or derivatives. Hand-computed constant-epsilon chains, forward equality across truncations, independent scalar derivative recurrence and zero prefix gradients."
+          }
+        }
+      ]
+    },
+    {
+      "id": "diffusion_rl/draft",
+      "source": "problems/diffusion_rl/draft/README.md",
+      "functions": [
+        "draft_lv_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "DRaFT-LV 如何复用已有样本构造额外奖励梯度？",
+            "en": "How does DRaFT-LV reuse samples to construct additional reward gradients?"
+          },
+          "hint": {
+            "zh": "保留原始生成样本的奖励梯度。构造每个额外噪声样本时冻结原始图，再用可训练去噪器恢复样本并计算奖励。所有奖励先按样本求均值，再按原始与额外分支平均。",
+            "en": "Retain the original generated sample’s reward gradient. Freeze that sample when constructing additional noisy inputs, reconstruct with the trainable denoiser and evaluate rewards. Average over the batch and then over original plus extra branches."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "原始奖励分支与重加噪分支应该在哪些位置停止梯度？",
+            "en": "Where do gradients stop in original and re-noised reward branches?"
+          },
+          "hint": {
+            "zh": "重新加噪时若不冻结生成图，会错误地多次回传原始采样链。只冻结重加噪的输入，不能冻结整个重建结果。平均约定对应论文正文的平均梯度描述，和伪码求和相差固定学习率因子。",
+            "en": "Without detaching the re-noising anchor, the initial sampling chain receives unintended repeated gradients. Detach inputs, not reconstructions. Averaging follows the text’s gradient averaging and differs from pseudocode summation by a fixed learning-rate factor."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样检查原图梯度的平均系数以及额外噪声的顺序不变性？",
+            "en": "How can original-gradient averaging and noise-order invariance be checked?"
+          },
+          "hint": {
+            "zh": "常数去噪器的手算目标、原图梯度的 1/(K+1) 系数、去噪器解析梯度、噪声顺序不变性。",
+            "en": "Hand-evaluated constant-denoiser objective, original gradient scaled by 1/(K+1), denoiser gradients and noise-order invariance."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "在固定采样预算下比较梯度样本方差。",
+            "en": "Compare gradient-estimator variance under a fixed sampling budget."
+          },
+          "hint": {
+            "zh": "先保持当前题目的形状与梯度约定不变，再增加实验条件。实现 DRaFT-LV 额外样本的停止梯度与平均；初始生成过程由调用者提供。",
+            "en": "Keep the current shape and gradient contracts fixed before adding experimental conditions. Implement DRaFT-LV stop-gradient and averaging for extra samples; the initial differentiable generated sample is supplied."
+          }
+        },
+        {
+          "id": "independent-counterexample",
+          "question": {
+            "zh": "如何构造一个能区分以下错误的最小反例：Backpropagate through reused generated anchor？",
+            "en": "Construct a minimal counterexample for this failure: Backpropagate through reused generated anchor?"
+          },
+          "hint": {
+            "zh": "先手算两到三个元素的例子，再检查错误分支改变的是数值、归约还是梯度。常数去噪器的手算目标、原图梯度的 1/(K+1) 系数、去噪器解析梯度、噪声顺序不变性。",
+            "en": "Start with two or three hand-computed elements and identify whether the bug changes values, reduction or derivatives. Hand-evaluated constant-denoiser objective, original gradient scaled by 1/(K+1), denoiser gradients and noise-order invariance."
+          }
+        }
+      ]
+    },
+    {
+      "id": "diffusion_rl/dancegrpo",
+      "source": "problems/diffusion_rl/dancegrpo/README.md",
+      "functions": [
+        "shared_noise",
+        "group_advantages",
+        "dance_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "为什么同一个 prompt 的组内样本共享初噪但保留后续随机性？",
+            "en": "Why share initial noise within a prompt while retaining later randomness?"
+          },
+          "hint": {
+            "zh": "把每个 prompt 的一份初噪复制到组内所有样本。每种奖励分别在组内中心化和缩放，再把通道优势相加。终点优势广播到所有转移，用 clipped 目标更新策略。",
+            "en": "Replicate one initial noise vector across each prompt group. Center and scale each reward channel within its own group, then sum channel advantages. Broadcast terminal advantages to transitions and apply the clipped objective."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "多个不同量纲奖励应该先各自标准化还是先相加？",
+            "en": "Should differently scaled rewards be normalized separately or combined first?"
+          },
+          "hint": {
+            "zh": "不要跨 prompt 标准化，也不要先把不同单位的奖励相加再标准化。常数奖励通道贡献为零。共享初噪不表示后续 SDE 噪声也共享。",
+            "en": "Do not normalize across prompts or combine differently scaled rewards before normalization. A constant reward channel contributes zero. Shared initial noise does not require sharing later SDE draws."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样检验 prompt 隔离和常数奖励通道的零贡献？",
+            "en": "How can prompt isolation and zero contribution from constant channels be tested?"
+          },
+          "hint": {
+            "zh": "手算双通道优势、prompt 隔离、常数通道、共享噪声副本、正负截断和冻结梯度。",
+            "en": "Hand-computed two-channel advantages, prompt isolation, constant channels, shared-noise copies, signed clipping and frozen gradients."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "比较同 prompt 共享与独立初噪下的组内奖励方差。",
+            "en": "Compare within-group reward variance under shared and independent initial noise."
+          },
+          "hint": {
+            "zh": "先保持当前题目的形状与梯度约定不变，再增加实验条件。在小型高斯生成策略中检验多奖励与共享初始条件；不运行视频骨干或视觉奖励模型。",
+            "en": "Keep the current shape and gradient contracts fixed before adding experimental conditions. Test multiple rewards and shared initial conditions in a small Gaussian policy; no video backbone or visual reward model."
+          }
+        },
+        {
+          "id": "independent-counterexample",
+          "question": {
+            "zh": "如何构造一个能区分以下错误的最小反例：Normalize rewards across prompts？",
+            "en": "Construct a minimal counterexample for this failure: Normalize rewards across prompts?"
+          },
+          "hint": {
+            "zh": "先手算两到三个元素的例子，再检查错误分支改变的是数值、归约还是梯度。手算双通道优势、prompt 隔离、常数通道、共享噪声副本、正负截断和冻结梯度。",
+            "en": "Start with two or three hand-computed elements and identify whether the bug changes values, reduction or derivatives. Hand-computed two-channel advantages, prompt isolation, constant channels, shared-noise copies, signed clipping and frozen gradients."
+          }
+        }
+      ]
+    },
+    {
+      "id": "diffusion_rl/mixgrpo",
+      "source": "problems/diffusion_rl/mixgrpo/README.md",
+      "functions": [
+        "window_start",
+        "mixed_transition",
+        "window_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "为什么窗口外的 ODE 步仍参与生成但不参与策略目标？",
+            "en": "Why do outside-window ODE steps generate samples without entering the policy objective?"
+          },
+          "hint": {
+            "zh": "按已完成更新次数推进窗口，边界到达末端后保持。ODE 步只用速度积分；SDE 步加上相应 score 修正与标准差。损失只切出窗口，按窗口长度而不是总轨迹长度平均。",
+            "en": "Advance the window by completed shift intervals and clamp it at the final valid position. ODE steps use velocity integration; SDE steps add score correction and a nonzero scale. Slice the optimized window before averaging the clipped objective."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "窗口推进到轨迹末端后怎样处理，目标用哪个长度归约？",
+            "en": "What happens at the end of the trajectory, and which length normalizes the objective?"
+          },
+          "hint": {
+            "zh": "窗口不会循环回开头。窗口外步骤仍用于生成终点奖励，但不参与策略目标；用总步数作分母会稀释梯度。时间是从噪声向数据递减，dt 为负。",
+            "en": "The window saturates rather than wrapping around. Outside steps still contribute to the final rollout but not to the policy loss; dividing by total steps dilutes gradients. Sampling time decreases, so dt is negative."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样核对窗口外梯度为零，同时 SDE 方差仍为正？",
+            "en": "How can zero outside-window gradients and positive SDE variance be checked?"
+          },
+          "hint": {
+            "zh": "窗口边界手算、ODE/SDE均值与方差、未选步骤梯度零、子窗口归约和在线混合采样。",
+            "en": "Window boundary cases, analytic ODE/SDE moments, zero unselected gradients, selected-window reduction and online mixed sampling."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "在相同随机窗口上替换高阶 ODE 求解器并比较模型调用数。",
+            "en": "Replace the ODE segment with a higher-order solver and compare model evaluations."
+          },
+          "hint": {
+            "zh": "先保持当前题目的形状与梯度约定不变，再增加实验条件。使用论文的基础混合 ODE-SDE 形式；不包含后续 CPS 扩展或高阶求解器。",
+            "en": "Keep the current shape and gradient contracts fixed before adding experimental conditions. Implement the basic mixed ODE-SDE formulation, excluding the later CPS extension and high-order solvers."
+          }
+        },
+        {
+          "id": "independent-counterexample",
+          "question": {
+            "zh": "如何构造一个能区分以下错误的最小反例：Allow window to run past the trajectory？",
+            "en": "Construct a minimal counterexample for this failure: Allow window to run past the trajectory?"
+          },
+          "hint": {
+            "zh": "先手算两到三个元素的例子，再检查错误分支改变的是数值、归约还是梯度。窗口边界手算、ODE/SDE均值与方差、未选步骤梯度零、子窗口归约和在线混合采样。",
+            "en": "Start with two or three hand-computed elements and identify whether the bug changes values, reduction or derivatives. Window boundary cases, analytic ODE/SDE moments, zero unselected gradients, selected-window reduction and online mixed sampling."
+          }
+        }
+      ]
+    },
+    {
+      "id": "diffusion_rl/flow_dppo",
+      "source": "problems/diffusion_rl/flow_dppo/README.md",
+      "functions": [
+        "policy_kl",
+        "flow_dppo_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "为什么散度超过阈值时仍需保留纠正方向的更新？",
+            "en": "Why retain corrective updates even when divergence exceeds its threshold?"
+          },
+          "hint": {
+            "zh": "先用同方差高斯闭式 KL 测量策略分布变化。只在优势与 log 比率方向一致且散度严格超过阈值时屏蔽。屏蔽后的比率在 exponentiation 之前替换，防止零乘无穷大。reference KL 始终参与。",
+            "en": "Measure policy movement with exact equal-covariance Gaussian KL. Block only when advantage and log-ratio signs agree and divergence strictly exceeds the threshold. Replace blocked logits before exponentiation to avoid zero-times-infinity; retain reference KL on every step."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "如何在指数运算前屏蔽已被拒绝的极端 log 比率？",
+            "en": "How can blocked extreme log ratios be removed before exponentiation?"
+          },
+          "hint": {
+            "zh": "散度大并不意味着所有更新都该屏蔽；纠正方向必须保留。边界 D=delta 或 ratio=1 不屏蔽。掩码的梯度为零，而参考 KL 的梯度不能被掩码关掉。",
+            "en": "Large divergence alone must not block corrective updates. Equality at D=delta or ratio=1 remains active. Mask decisions are nondifferentiable, while reference-KL gradients remain active even on blocked policy terms."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样覆盖优势和比率的四种方向以及等号边界？",
+            "en": "How can all four advantage/ratio directions and equality boundaries be tested?"
+          },
+          "hint": {
+            "zh": "四种优势/比率方向的真值表、严格阈值边界、屏蔽极端比率、解析梯度以及在线高斯训练。",
+            "en": "Four directional cases, strict threshold boundaries, blocked extreme ratios, analytic gradients and online Gaussian training."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mechanism-boundary",
+          "question": {
+            "zh": "对比 PPO ratio clipping 与散度阈值对动作维度变化的敏感度。",
+            "en": "Compare PPO clipping and divergence thresholds under changes in action dimension."
+          },
+          "hint": {
+            "zh": "先保持当前题目的形状与梯度约定不变，再增加实验条件。实现固定协方差的散度掩码与策略目标，包含可选 reference KL；不实现附录中的预测式掩码。",
+            "en": "Keep the current shape and gradient contracts fixed before adding experimental conditions. Implement a fixed-covariance divergence mask and policy objective with optional reference KL, excluding predictive-mask variants."
+          }
+        },
+        {
+          "id": "independent-counterexample",
+          "question": {
+            "zh": "如何构造一个能区分以下错误的最小反例：Block corrective updates as well as outward updates？",
+            "en": "Construct a minimal counterexample for this failure: Block corrective updates as well as outward updates?"
+          },
+          "hint": {
+            "zh": "先手算两到三个元素的例子，再检查错误分支改变的是数值、归约还是梯度。四种优势/比率方向的真值表、严格阈值边界、屏蔽极端比率、解析梯度以及在线高斯训练。",
+            "en": "Start with two or three hand-computed elements and identify whether the bug changes values, reduction or derivatives. Four directional cases, strict threshold boundaries, blocked extreme ratios, analytic gradients and online Gaussian training."
           }
         }
       ]

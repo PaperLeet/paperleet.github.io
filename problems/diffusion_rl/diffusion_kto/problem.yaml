@@ -1,0 +1,67 @@
+id: diffusion_rl/diffusion_kto
+number: 166
+title: Diffusion-KTO 二元反馈与效用基线
+title_en: Diffusion-KTO Binary Feedback and Utility Baseline
+paper:
+  title: Aligning Diffusion Models by Optimizing Human Utility
+  authors: Shufan Li et al.
+  venue: 2024 preprint / linked proceedings
+  url: https://arxiv.org/abs/2404.04465
+  anchors:
+  - Section 4.1 Eqs. (7)-(8), empirical nonnegative unrelated-pair baseline
+  arxiv: '2404.04465'
+paper_id: diffusion-kto
+difficulty: M
+functions:
+- name: kto_loss
+  signature: 'kto_loss(current: Tensor, reference: Tensor, labels: Tensor, unrelated_log_ratios: Tensor,
+    beta: float) -> Tensor'
+type: implement
+parent: null
+module:
+  goal: 用独立样本估计非负 KL 基线，并对喜欢／不喜欢反馈优化 sigmoid 效用。
+  goal_en: Estimate a nonnegative baseline from unrelated pairs and optimize sigmoid utility for binary
+    feedback.
+  scope: 输入已计算的每步 log-prob；实现 KTO 效用与停止梯度约定，不训练图像骨干。
+  scope_en: Work with precomputed per-transition log probabilities; implement KTO utility and stop-gradient
+    semantics without an image backbone.
+  required_functions:
+  - kto_loss
+  provided_functions: []
+  optional: false
+conventions:
+  tensors: CPU float32/float64, preserve dtype/device; finite nonempty inputs. No in-place mutation.
+  contract: 'current/reference/labels: equal (B,) tensors; labels are exactly +1 or -1. unrelated_log_ratios:
+    nonempty (M,). beta>0. Return mean negative centered sigmoid utility, with baseline max(mean(unrelated),0).'
+  autograd: Only current log probabilities receive gradients. Reference, feedback labels and the unrelated-batch
+    baseline are detached.
+tests:
+  T0: 1
+  T1: 2
+  T2: 3
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 35
+tags:
+- Diffusion RL
+- Diffusion-KTO
+viz:
+- toy_experiment
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2404.04465
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2404.04465
+  anchor: Section 4.1 Eqs. (7)-(8), empirical nonnegative unrelated-pair baseline
+  adaptation: A scalar policy preference offset is optimized on balanced desirable/undesirable labels
+    for 60 steps with a separate fixed baseline batch.
+mutants:
+- id: m1_contract
+  bug: Ignore undesirable feedback
+- id: m2_contract
+  bug: Allow a negative KL baseline
+browser:
+  backend: numpy-autograd-wasm

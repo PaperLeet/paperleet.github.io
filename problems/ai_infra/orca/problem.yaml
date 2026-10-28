@@ -1,0 +1,68 @@
+id: ai_infra/orca
+number: 158
+paper_id: orca
+title: Orca 迭代级动态批处理
+title_en: Orca Iteration-Level Dynamic Batching
+difficulty: M
+type: implement
+parent: null
+paper:
+  title: 'Orca: A Distributed Serving System for Transformer-Based Generative Models'
+  authors: Gyeong-In Yu et al.
+  venue: OSDI 2022
+  url: https://www.usenix.org/conference/osdi22/presentation/yu
+  anchors:
+  - 'Section 3, S1 and Figure 4: iteration-level scheduling; Section 4.2, Algorithm 1: FCFS admission'
+module:
+  goal: 让请求按到达顺序进入每轮空闲槽，完成即退出批次。
+  goal_en: Admit requests into free slots each iteration and release them immediately on completion.
+  scope: 已完成prefill的离散生成迭代模拟，固定每轮一时间单位、每个活跃请求生成一token；不模拟selective batching算子。
+  scope_en: Discrete generation replay after prefill, with unit-duration iterations and one token per
+    active request; selective-batching operators are outside this kernel.
+  required_functions:
+  - iteration_schedule
+  provided_functions: []
+  optional: false
+functions:
+- name: iteration_schedule
+  signature: 'iteration_schedule(arrivals: list[int], lengths: list[int], capacity: int) -> tuple[list[tuple],
+    list[int]]'
+  returns: Per-iteration active request IDs and completion times in original order.
+conventions:
+  seed: 42
+  contract: arrivals and lengths are equal-length integer lists; arrivals>=0, lengths>=1, capacity>=1.
+    Break arrival ties by input index. Fill slots at each iteration boundary in (arrival,index) order
+    without preempting active requests. Completion is the end of the final occupied slot. Return (batches,
+    completion_times), preserving idle slots as empty tuples.
+  dtype: CPU float32/float64 for tensors; Python integers for discrete scheduling; preserve caller inputs
+tests:
+  T0: 1
+  T1: 2
+  T2: 2
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 40
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://www.usenix.org/conference/osdi22/presentation/yu
+tags:
+- AI Infra
+- Orca
+- Systems
+toy:
+  kind: teaching_adaptation
+  source: https://www.usenix.org/conference/osdi22/presentation/yu
+  anchor: 'Section 3, S1 and Figure 4: iteration-level scheduling; Section 4.2, Algorithm 1: FCFS admission'
+  adaptation: Replay six simultaneous requests of unequal length, compare completions with request-level
+    fixed batches, and sweep capacities 1, 2 and 3 for latency and slot occupancy.
+mutants:
+- id: m1_batch_barrier
+  bug: 必须旧批全部结束才接纳请求
+- id: m2_completion_start
+  bug: 把完成时间记为最后时隙起点

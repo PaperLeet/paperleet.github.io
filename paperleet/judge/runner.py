@@ -9,7 +9,7 @@ import subprocess
 import sys
 import tempfile
 
-from paperleet.catalog import problem, root
+from paperleet.catalog import problem, problems, root
 
 
 LAYERS = ("T0", "T1", "T2", "T3")
@@ -28,8 +28,18 @@ def normalize_layers(layers=None):
 
 def run_batch(plan, layers=None, timeout=600):
     layers = normalize_layers(layers)
-    if any(problem(identifier)["id"].startswith("community/") for identifier in plan):
-        raise ValueError("Generated community packages must run in the submission sandbox. Use the web editor or paperleet test for a single implementation; batch CI/mutate currently supports maintained packages only.")
+    # Resolve against one batch-local snapshot: problem() reloads every YAML.
+    # Keep its first-match alias order and refresh the snapshot on the next run.
+    entries = problems() if plan else []
+    batch_entries = {}
+    for identifier in plan:
+        entry = next((entry for entry in entries if identifier in
+                      (entry["id"], entry.get("short_id"), str(entry["number"]))), None)
+        if entry is None:
+            raise ValueError(f"Unknown problem {identifier!r}. Run paperleet list.")
+        if entry["id"].startswith("community/"):
+            raise ValueError("Generated community packages must run in the submission sandbox. Use the web editor or paperleet test for a single implementation; batch CI/mutate currently supports maintained packages only.")
+        batch_entries[identifier] = entry
     # Freeze every source before pytest begins. Saving a file during a run must
     # not make different tests judge different versions of the implementation.
     sources = {}
@@ -46,7 +56,7 @@ def run_batch(plan, layers=None, timeout=600):
     with tempfile.TemporaryDirectory(prefix="paperleet-") as directory:
         plan_path, result_path = Path(directory) / "plan.json", Path(directory) / "result.json"
         plan_path.write_text(json.dumps(frozen_plan))
-        paths = [str(problem(identifier)["directory"] / "tests") for identifier in plan]
+        paths = [str(batch_entries[identifier]["directory"] / "tests") for identifier in plan]
         args = [sys.executable, "-m", "pytest", *paths, "-q", "--tb=short", "-p", "pytest_timeout",
                 "--paperleet-plan", str(plan_path), "--paperleet-result", str(result_path),
                 "-m", " or ".join(layer.lower() for layer in layers)]

@@ -1,0 +1,72 @@
+id: robotics/act
+number: 141
+title: ACT 动作块时间集成与风格正则
+title_en: ACT Temporal Action Ensembling and Style Regularization
+paper:
+  title: Learning Fine-Grained Bimanual Manipulation with Low-Cost Hardware
+  authors: Tony Z. Zhao et al.
+  venue: RSS 2023
+  url: https://arxiv.org/abs/2304.13705
+  anchors:
+  - Temporal ensembling at inference; official imitate_episodes.py exp_weights and CVAE policy KL
+  arxiv: '2304.13705'
+paper_id: act
+difficulty: M
+type: implement
+parent: null
+module:
+  goal: 实现对当前动作的重叠预测集成，以及条件VAE的标准正态KL。
+  goal_en: Ensemble overlapping predictions for the current action and compute the CVAE standard-normal
+    KL.
+  scope: 实现ACT的两个张量核心；输入已经对齐到同一执行时刻，省略视觉Transformer、动作块网络和遥操作系统。
+  scope_en: Implement two ACT tensor cores with predictions already aligned to one execution time; omit
+    the visual Transformer, action-chunk network and teleoperation system.
+  required_functions:
+  - temporal_ensemble
+  - style_kl
+  provided_functions: []
+  optional: false
+functions:
+- name: temporal_ensemble
+  signature: 'temporal_ensemble(actions: Tensor, valid: Tensor, decay: float) -> Tensor'
+- name: style_kl
+  signature: 'style_kl(mu: Tensor, logvar: Tensor) -> Tensor'
+conventions:
+  seed: 42
+  device: CPU float32/float64; no downloads; preserve floating dtype/device; do not mutate inputs
+  contract: Actions are (K,D), valid is bool (K,) with at least one true. Valid predictions are oldest-to-newest;
+    remove padding then assign ranks 0..Kvalid-1, decay>=0. Mu/logvar are (B,Z); KL sums latent coordinates
+    and averages examples. Preserve floating-input gradients.
+tests:
+  T0: 1
+  T1: 2
+  T2: 2
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+tags:
+- Robotics
+- Action Chunking
+- CVAE
+viz:
+- toy_experiment
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2304.13705
+  - https://github.com/tonyzhaozh/act/blob/main/imitate_episodes.py
+  - https://tonyzhaozh.github.io/aloha/
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2304.13705
+  anchor: Temporal ensembling at inference; official imitate_episodes.py exp_weights and CVAE policy KL
+  adaptation: Implement two ACT tensor cores with predictions already aligned to one execution time; omit
+    the visual Transformer, action-chunk network and teleoperation system.
+mutants:
+- id: m1_reverse_time_weight
+  bug: Temporal weights favor newest predictions instead of the declared official ordering.
+- id: m2_latent_mean
+  bug: KL incorrectly averages latent dimensions.
+browser:
+  backend: numpy-autograd-wasm

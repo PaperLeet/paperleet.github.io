@@ -1,0 +1,69 @@
+id: robotics/dagger
+number: 140
+title: DAgger 专家混合与访问状态聚合
+title_en: DAgger Expert Mixtures and Visited-State Aggregation
+paper:
+  title: A Reduction of Imitation Learning and Structured Prediction to No-Regret Online Learning
+  authors: Stephane Ross, Geoffrey Gordon, Drew Bagnell
+  venue: AISTATS 2011
+  url: https://proceedings.mlr.press/v15/ross11a.html
+  anchors:
+  - 'Algorithm 3.1: mixed roll-in policy and aggregation of expert-labeled visited states'
+paper_id: dagger
+difficulty: M
+type: implement
+parent: null
+module:
+  goal: 实现逐状态专家混合，以及保留所有历史轮次的数据聚合。
+  goal_en: Implement per-state expert mixing and retain every previous round of labeled states.
+  scope: 提取 DAgger Algorithm 3.1 的数据闭环；标量线性环境中重新拟合策略，不实现完整交互式专家或分类器。
+  scope_en: Isolate Algorithm 3.1 in a scalar linear environment with policy refitting; no interactive
+    human expert or full classifier.
+  required_functions:
+  - mixture_actions
+  - aggregate_dataset
+  provided_functions: []
+  optional: false
+functions:
+- name: mixture_actions
+  signature: 'mixture_actions(expert: Tensor, learner: Tensor, draws: Tensor, beta: float) -> Tensor'
+- name: aggregate_dataset
+  signature: 'aggregate_dataset(old_states: Tensor, old_labels: Tensor, states: Tensor, labels: Tensor)
+    -> tuple'
+conventions:
+  seed: 42
+  device: CPU float32/float64; no downloads; preserve floating dtype/device; do not mutate inputs
+  contract: Expert/learner actions are (B,A); draws is (B,) in [0,1), and draws<beta selects the expert.
+    Old/new states are (N,S)/(M,S), labels (N,A)/(M,A), N>=0 and M>0. Aggregated data detach all inputs;
+    selected mixture branches preserve gradients.
+tests:
+  T0: 1
+  T1: 2
+  T2: 1
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+tags:
+- Robotics
+- Imitation Learning
+- Dataset Aggregation
+viz:
+- toy_experiment
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://proceedings.mlr.press/v15/ross11a.html
+toy:
+  kind: teaching_adaptation
+  source: https://proceedings.mlr.press/v15/ross11a.html
+  anchor: 'Algorithm 3.1: mixed roll-in policy and aggregation of expert-labeled visited states'
+  adaptation: Isolate Algorithm 3.1 in a scalar linear environment with policy refitting; no interactive
+    human expert or full classifier.
+mutants:
+- id: m1_average_actions
+  bug: A policy mixture incorrectly averages action vectors.
+- id: m2_discard_history
+  bug: Aggregation discards every previous round.
+browser:
+  backend: numpy-autograd-wasm

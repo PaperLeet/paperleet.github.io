@@ -1,0 +1,76 @@
+id: diffusion_rl/mixgrpo
+number: 174
+title: MixGRPO 滑动随机窗口与局部策略目标
+title_en: MixGRPO Sliding Stochastic Windows and Local Policy Objectives
+paper:
+  title: 'MixGRPO: Unlocking Flow-based GRPO Efficiency with Mixed ODE-SDE'
+  authors: Junzhe Li et al.
+  venue: 2025 preprint / linked proceedings
+  url: https://arxiv.org/abs/2507.21802
+  anchors:
+  - Section 3.1 mixed ODE-SDE; Algorithm 1; Section 3.2 Eq. (11)
+  arxiv: '2507.21802'
+paper_id: mixgrpo
+difficulty: M
+functions:
+- name: window_start
+  signature: 'window_start(update: int, total: int, width: int, interval: int, stride: int) -> int'
+- name: mixed_transition
+  signature: 'mixed_transition(state: Tensor, velocity: Tensor, time: float, next_time: float, noise_level:
+    float, stochastic: bool) -> tuple[Tensor,Tensor]'
+- name: window_loss
+  signature: 'window_loss(log_ratios: Tensor, advantages: Tensor, start: int, width: int, clip: float)
+    -> Tensor'
+type: implement
+parent: null
+module:
+  goal: 实现随训练推进的 SDE 窗口、窗口外 ODE 转移，以及仅对窗口内步骤求均值的策略目标。
+  goal_en: Implement a training-dependent SDE window, ODE transitions outside it and a policy objective
+    averaged only over selected steps.
+  scope: 使用论文的基础混合 ODE-SDE 形式；不包含后续 CPS 扩展或高阶求解器。
+  scope_en: Implement the basic mixed ODE-SDE formulation, excluding the later CPS extension and high-order
+    solvers.
+  required_functions:
+  - window_start
+  - mixed_transition
+  - window_loss
+  provided_functions: []
+  optional: false
+conventions:
+  tensors: CPU float32/float64, preserve dtype/device; finite nonempty inputs. No in-place mutation.
+  contract: 'window_start uses zero-based update index, total>=width>=1, stride>=1, interval>=1; saturates
+    at total-width. mixed_transition: (B,D) state/velocity, 0<=next_time<time<1, noise_level>=0; returns
+    mean and scalar std. window_loss: (B,T) log ratios, (B,) advantages, valid start/width, |selected
+    ratios|<=40.'
+  autograd: Rollout states are detached, velocity remains differentiable. Advantages are frozen; loss
+    gradients are zero outside the selected window.
+tests:
+  T0: 1
+  T1: 2
+  T2: 3
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 35
+tags:
+- Diffusion RL
+- MixGRPO
+viz:
+- toy_experiment
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2507.21802
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2507.21802
+  anchor: Section 3.1 mixed ODE-SDE; Algorithm 1; Section 3.2 Eq. (11)
+  adaptation: A four-transition scalar flow uses a moving two-step stochastic window. Fresh Gaussian paths
+    and terminal quadratic rewards update one velocity parameter for 60 iterations.
+mutants:
+- id: m1_contract
+  bug: Allow window to run past the trajectory
+- id: m2_contract
+  bug: Optimize deterministic steps outside the stochastic window
+browser:
+  backend: numpy-autograd-wasm

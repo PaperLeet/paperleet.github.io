@@ -1,0 +1,78 @@
+id: multimodal/blip_2
+number: 129
+paper_id: blip-2
+title: BLIP-2 最大查询图文匹配
+title_en: BLIP-2 maximum-query image-text matching
+difficulty: M
+type: implement
+parent: null
+paper:
+  title: 'BLIP-2: Bootstrapping Language-Image Pre-training with Frozen Image Encoders
+    and Large Language Models'
+  authors: Junnan Li et al.
+  venue: arXiv 2023
+  arxiv: '2301.12597'
+  url: https://arxiv.org/abs/2301.12597
+  anchors:
+  - 'Section 3.1: image-text contrastive learning takes the maximum similarity over
+    query outputs'
+functions:
+- name: max_query_similarity
+  signature: 'max_query_similarity(queries: Tensor, texts: Tensor, temperature: Tensor)
+    -> Tensor'
+  returns: queries is [B,Q,D], texts is [N,D], and temperature is a positive scalar.
+    Normalize along D and return [B,N] by maximizing independently over Q for every
+    image-text pair. At ties, use torch.max first-index gradients. This kernel does
+    not implement the full Q-Former.
+module:
+  goal: BLIP-2 最大查询图文匹配
+  goal_en: BLIP-2 maximum-query image-text matching
+  scope: Q-Former 输出的归一化、逐文本 max-query 相似度与梯度路由；不包含 Transformer 或冻结大模型。
+  scope_en: Normalize Q-Former outputs, compute per-text maximum-query similarities,
+    and route gradients through winning queries; omit Transformer and frozen large-model
+    execution.
+  required_functions:
+  - max_query_similarity
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: CPU float32/float64; metadata indices are int64
+  contract: queries is [B,Q,D], texts is [N,D], and temperature is a positive scalar.
+    Normalize along D and return [B,N] by maximizing independently over Q for every
+    image-text pair. At ties, use torch.max first-index gradients. This kernel does
+    not implement the full Q-Former.
+  mutation: Inputs are never modified in place
+tests:
+  T0: 1
+  T1: 1
+  T2: 3
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2301.12597
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2301.12597
+  anchor: 'Section 3.1: image-text contrastive learning takes the maximum similarity
+    over query outputs'
+  adaptation: Normalize Q-Former outputs, compute per-text maximum-query similarities,
+    and route gradients through winning queries; omit Transformer and frozen large-model
+    execution. Deterministic CPU float64 synthetic inputs; no benchmark reproduction.
+tags:
+- Multimodal
+- BLIP-2
+- Paper-to-Code
+mutants:
+- id: m1_mean_queries
+  bug: Averages query scores instead of selecting the best query
+- id: m2_unnormalized_queries
+  bug: Uses raw query magnitudes

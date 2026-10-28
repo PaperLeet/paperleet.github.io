@@ -1,0 +1,76 @@
+id: multimodal/qwen2_vl
+number: 135
+paper_id: qwen2-vl
+title: Qwen2-VL 分段 MRoPE
+title_en: Qwen2-VL chunked MRoPE
+difficulty: M
+type: implement
+parent: null
+paper:
+  title: 'Qwen2-VL: Enhancing Vision-Language Model''s Perception of the World at
+    Any Resolution'
+  authors: Peng Wang et al.
+  venue: arXiv 2024
+  arxiv: '2409.12191'
+  url: https://arxiv.org/abs/2409.12191
+  anchors:
+  - 'Section 2.1: Multimodal Rotary Position Embedding'
+functions:
+- name: chunked_mrope
+  signature: 'chunked_mrope(x: Tensor, positions: Tensor, inv_freq: Tensor) -> Tensor'
+  returns: x is [N,2R], positions [3,N] ordered time/height/width, and inv_freq [R].
+    R is a positive multiple of 3. This equal-width teaching configuration assigns
+    the first/middle/last R/3 frequencies to time/height/width. Rotate matching coordinates
+    in the first and second feature halves, not adjacent coordinates. Floating positions
+    are differentiable; finite inputs share dtype/device.
+module:
+  goal: Qwen2-VL 分段 MRoPE
+  goal_en: Qwen2-VL chunked MRoPE
+  scope: 连续频率分段的三轴旋转位置编码；使用等宽三轴的教学配置，不包含动态分辨率编码器。
+  scope_en: Contiguous frequency chunks for three-axis rotary positions in an equal-axis
+    teaching configuration; exclude the dynamic-resolution encoder.
+  required_functions:
+  - chunked_mrope
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: CPU float32/float64; metadata indices are int64
+  contract: x is [N,2R], positions [3,N] ordered time/height/width, and inv_freq [R].
+    R is a positive multiple of 3. This equal-width teaching configuration assigns
+    the first/middle/last R/3 frequencies to time/height/width. Rotate matching coordinates
+    in the first and second feature halves, not adjacent coordinates. Floating positions
+    are differentiable; finite inputs share dtype/device.
+  mutation: Inputs are never modified in place
+tests:
+  T0: 1
+  T1: 1
+  T2: 3
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2409.12191
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2409.12191
+  anchor: 'Section 2.1: Multimodal Rotary Position Embedding'
+  adaptation: Contiguous frequency chunks for three-axis rotary positions in an equal-axis
+    teaching configuration; exclude the dynamic-resolution encoder. Deterministic
+    CPU float64 synthetic inputs; no benchmark reproduction.
+tags:
+- Multimodal
+- Qwen2-VL
+- Paper-to-Code
+mutants:
+- id: m1_wrong_axis_layout
+  bug: Uses the other MRoPE axis-allocation layout
+- id: m2_wrong_rotation_sign
+  bug: Flips the sine sign in the first half

@@ -1,0 +1,73 @@
+id: robotics/rdt_1b
+number: 142
+title: RDT-1B 统一动作槽与有效维度
+title_en: RDT-1B Unified Action Slots and Valid Dimensions
+paper:
+  title: 'RDT-1B: a Diffusion Foundation Model for Bimanual Manipulation'
+  authors: Songming Liu et al.
+  venue: ICLR 2025
+  url: https://arxiv.org/abs/2410.07864
+  anchors:
+  - Physically interpretable unified action space; official RDTRunner.conditional_sample final action
+    mask
+  arxiv: '2410.07864'
+paper_id: rdt-1b
+difficulty: M
+type: implement
+parent: null
+module:
+  goal: 把不同机器人的局部动作放进统一语义槽，并屏蔽不存在的执行维度。
+  goal_en: Place embodiment-specific actions in unified semantic slots and mask absent execution dimensions.
+  scope: 提取RDT统一动作空间与采样输出mask；使用可配置小槽表，不复制完整128维schema或12亿参数Transformer。
+  scope_en: Isolate unified action placement and final sampling masks using a configurable small slot
+    map, not the complete 128D schema or 1.2B Transformer.
+  required_functions:
+  - pack_actions
+  - mask_actions
+  provided_functions: []
+  optional: false
+functions:
+- name: pack_actions
+  signature: 'pack_actions(local: Tensor, slots: list, width: int) -> tuple'
+- name: mask_actions
+  signature: 'mask_actions(actions: Tensor, valid: Tensor) -> Tensor'
+conventions:
+  seed: 42
+  device: CPU float32/float64; no downloads; preserve floating dtype/device; do not mutate inputs
+  contract: Local actions are (B,H,D); slots is a Python list of D distinct integers in [0,width). Return
+    floating (B,H,width) actions and bool (width,) validity. mask_actions accepts a sequence and a (width,)
+    bool mask. Unused slots are zero; preserve action gradients.
+tests:
+  T0: 1
+  T1: 1
+  T2: 2
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+tags:
+- Robotics
+- Diffusion
+- Cross-Embodiment
+viz:
+- toy_experiment
+sources_verified: '2026-10-28'
+verified_sources:
+  checked_at: '2026-10-28'
+  links:
+  - https://arxiv.org/abs/2410.07864
+  - https://rdt-robotics.github.io/rdt-robotics/
+  - https://github.com/thu-ml/RoboticsDiffusionTransformer/blob/main/models/rdt_runner.py
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2410.07864
+  anchor: Physically interpretable unified action space; official RDTRunner.conditional_sample final action
+    mask
+  adaptation: Isolate unified action placement and final sampling masks using a configurable small slot
+    map, not the complete 128D schema or 1.2B Transformer.
+mutants:
+- id: m1_local_order
+  bug: The packing matrix uses local indices instead of semantic slots.
+- id: m2_skip_mask
+  bug: Execution fails to mask absent action coordinates.
+browser:
+  backend: numpy-autograd-wasm
