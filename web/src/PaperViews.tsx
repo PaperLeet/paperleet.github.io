@@ -43,7 +43,16 @@ function LibraryPageFallback({page,size,total,compact,onPage}:import('./LibraryP
  return <nav className="library-page-fallback" aria-label={t('题库分页','Library pages')}><button type="button" className="text-button" disabled={page<=1||page>pages} onClick={()=>onPage(page-1)}>{t('上一页','Previous page')}</button><span>{page} / {pages}</span><button type="button" className="text-button" disabled={page>=pages} onClick={()=>onPage(page+1)}>{t('下一页','Next page')}</button></nav>;
 }
 
-export function PaperLibrary({ papers, categories, problems, saved, collectionId, progressReady = true, route = '', onFilters, companyScope }: Practice & { papers: Paper[]; categories: Category[]; collectionId?: string; progressReady?: boolean; route?: string; onFilters?: (href: string,paging?:boolean) => void; companyScope?:LibraryCompanyScope }) {
+type PaperLibraryProps=Practice & { papers: Paper[]; categories: Category[]; collectionId?: string; progressReady?: boolean; route?: string; onFilters?: (href: string,paging?:boolean) => void; companyScope?:LibraryCompanyScope };
+const CollectionReadingList=deferredFeature<import('./CollectionReadingList').Props>(()=>import('./CollectionReadingList'),['阅读清单','reading list']);
+export function PaperLibrary(props:PaperLibraryProps){
+  const reading=paperCollections.find(collection=>collection.id===props.collectionId)?.readingCount;
+  return reading&&props.collectionId&&readLibraryRoute(props.route||'')?.filters.view!=='modules'
+    ? <CollectionReadingList {...props} collectionId={props.collectionId}/>
+    : <PracticePaperLibrary {...props}/>;
+}
+
+function PracticePaperLibrary({ papers, categories, problems, saved, collectionId, progressReady = true, route = '', onFilters, companyScope }: PaperLibraryProps) {
   const { t, locale } = useI18n();
   const searchInput = useRef<HTMLInputElement>(null);
   const libraryMain = useRef<HTMLDivElement>(null);
@@ -157,12 +166,16 @@ export function PaperLibrary({ papers, categories, problems, saved, collectionId
     {selectedCollection ? <header className="collection-page-header">
       <AppLink className="back-link" href="#"><ArrowLeft size={15} aria-hidden="true" />{t("全部论文", "All papers")}</AppLink>
       <div className="collection-page-title-row">
-        <div className="collection-page-identity"><span className={`collection-page-mark collection-${selectedCollection.id}`} aria-hidden="true"><BookOpen size={25} /></span><div><h1>{t(selectedCollection.name, selectedCollection.name_en)}</h1><div className="collection-page-meta"><span>{course ? t("课程", "Course") : `${listedPapers.length} ${t("篇论文", "papers")}`}</span><span>{listedModules.length} {t("道题", "modules")}</span></div></div></div>
+        <div className="collection-page-identity"><span className={`collection-page-mark collection-${selectedCollection.id}`} aria-hidden="true"><BookOpen size={25} /></span><div><h1>{t(selectedCollection.name, selectedCollection.name_en)}</h1><div className="collection-page-meta"><span>{course ? t("课程", "Course") : `${selectedCollection.readingCount||listedPapers.length} ${t("篇论文", "papers")}`}</span>{selectedCollection.readingCount&&<span>{listedPapers.length} {t('篇可练','with exercises')}</span>}<span>{listedModules.length} {t("道题", "modules")}</span></div></div></div>
         {nextInCollection && <AppLink className="button collection-practice" href={withLibraryContext(nextInCollection.number, viewHref)}><Code2 size={16} aria-hidden="true" />{nextState === "done" ? t("回顾练习", course ? "Review course" : "Review collection") : nextState === "started" ? t("继续练习", "Resume practice") : t("开始练习", "Start practice")}<ArrowRight size={15} aria-hidden="true" /></AppLink>}
       </div>
     </header> : <>
     <LibraryCollections papers={papers} problems={problems} saved={saved} progressReady={progressReady}/>
     </>}
+    {selectedCollection?.readingCount&&<nav className="collection-reading-views library-heading" aria-label={t('合集视图','Collection views')}>
+      <AppLink className="text-button" href={libraryHref(selectedCollection.id,{...emptyLibraryFilters(),query})}><BookOpen size={17} aria-hidden="true"/>{t('阅读清单','Reading list')}<span>{selectedCollection.readingCount}</span></AppLink>
+      <AppLink className="button subtle" href={viewHref} aria-current="page"><Code2 size={17} aria-hidden="true"/>{t('可练习','Practice')}<span>{listedPapers.length}</span></AppLink>
+    </nav>}
     <div className="library-layout">
     <div className="library-main" ref={libraryMain} id="paper-library" data-density={density}>
     <header className="library-heading">

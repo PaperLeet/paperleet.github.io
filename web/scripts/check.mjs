@@ -211,7 +211,10 @@ try {
     const inside = catalog.problems.find((module) => moduleIds.has(module.id));
     const outside = catalog.problems.find((module) => !moduleIds.has(module.id));
     const saved = {[inside.id]: acceptedFixture(inside), [outside.id]: acceptedFixture(outside)};
-    const html = renderToString(React.createElement(PaperLibrary, {...libraryProps, saved, collectionId: list.id}));
+    // Default reading pages are covered by check-collection-reading-list;
+    // exercise scope and progress belong to their explicit practice tab.
+    const practiceRoute = `#/collections/${list.id}${list.readingCount ? '?view=modules' : ''}`;
+    const html = renderToString(React.createElement(PaperLibrary, {...libraryProps, saved, collectionId: list.id, route: practiceRoute}));
     const allHtml = renderToString(React.createElement(PaperLibrary, {...libraryProps, saved}));
     const cardsHtml=renderToString(React.createElement(LibraryCollections,{...libraryProps,saved,progressReady:true}));
     assert(cardsHtml.includes(`class="collection-card collection-${list.id}" href="#/collections/${list.id}"`),
@@ -219,8 +222,8 @@ try {
     assert(!html.includes('featured-collections') && html.includes('collection-page-header'),
       `${list.id}: a collection opens its own page without the homepage collection rail`);
     const practiceLink = html.match(/class="button collection-practice" href="([^"]+)"/)[1];
-    assert.equal(libraryReturnHref(practiceLink), `#/collections/${list.id}`,
-      'The dedicated practice entry retains its canonical collection return');
+    assert.equal(libraryReturnHref(practiceLink), practiceRoute,
+      'The dedicated practice entry retains its collection and selected view');
     const targetNumber = Number(/^#\/(\d+)/.exec(practiceLink)[1]);
     assert(moduleIds.has(catalog.problems.find(module => module.number === targetNumber)?.id),
       'The dedicated practice entry stays inside the selected collection');
@@ -229,15 +232,24 @@ try {
     const completed = Object.fromEntries(catalog.problems.filter((module) => moduleIds.has(module.id))
       .map((module) => [module.id, acceptedFixture(module)]));
     const completedHtml = renderToString(React.createElement(PaperLibrary,
-      {...libraryProps, saved: completed, collectionId: list.id}));
+      {...libraryProps, saved: completed, collectionId: list.id, route: practiceRoute}));
     assert(/class="random-problem"[^>]*disabled/.test(completedHtml),
       `${list.id}: do not fall back to unsolved modules outside a fully completed collection`);
-    assert.deepEqual(rowIds(html), list.kind === "course" ? [] : [...members].sort((a,b)=>a.number-b.number).slice(0,20).map(p=>p.id),
+    assert.deepEqual(rowIds(html), list.kind === "course" || list.readingCount ? [] : [...members].sort((a,b)=>a.number-b.number).slice(0,20).map(p=>p.id),
       `${list.id}: the library must show the first batch of selected papers in number order`);
     for (const match of html.matchAll(/href="(#\/papers\/[^"]+)"/g)) assert.equal(libraryReturnHref(match[1]), `#/collections/${list.id}`,
       'Every collection paper must retain its library return context');
     const collectionHeading = headingText(html, 'collection-page-header');
-    assert(collectionHeading.includes(list.name) && (list.kind === "course" ? collectionHeading.includes("课程") : collectionHeading.includes(`${members.length} 篇论文`)) && collectionHeading.includes(`${moduleIds.size} 道题`),
+    if (list.readingCount) {
+      const expectedModules = catalog.problems.filter(module => moduleIds.has(module.id)).sort((a,b)=>a.number-b.number);
+      assert.deepEqual([...html.matchAll(/data-module-id="([^"]+)"/g)].map(match=>match[1]), expectedModules.slice(0,20).map(module=>module.id),
+        `${list.id}: the practice tab lists only its real modules in number order`);
+      for (const match of html.matchAll(/data-module-id="[^"]+" href="([^"]+)"/g)) assert.equal(libraryReturnHref(match[1]), practiceRoute,
+        'Each exercise returns to the practice tab');
+      assert(headingText(completedHtml).includes(`已通过模块 ${moduleIds.size} / ${moduleIds.size}`),
+        `${list.id}: reading-only papers must not enlarge the completion denominator`);
+    }
+    assert(collectionHeading.includes(list.name) && (list.kind === "course" ? collectionHeading.includes("课程") : collectionHeading.includes(`${list.readingCount || members.length} 篇论文`)) && collectionHeading.includes(`${moduleIds.size} 道题`),
       `${list.id}: the dedicated heading must name its collection and count its own papers/modules`);
     assert(headingText(html).includes(`已通过模块 1 / ${moduleIds.size}`),
       `${list.id}: an accepted module outside this collection must not affect its progress`);

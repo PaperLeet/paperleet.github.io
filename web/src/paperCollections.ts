@@ -6,6 +6,8 @@ export type PaperCollection = {
   name: string;
   name_en: string;
   paperIds: string[];
+  /** Complete reading list size; paperIds continues to contain executable papers only. */
+  readingCount?: number;
 };
 
 // Featured collections can overlap; compact category filters remain independent.
@@ -25,24 +27,28 @@ export const paperCollections: PaperCollection[] = [
   },
   {
     id: "multimodal",
+    readingCount: 16,
     name: "多模态",
     name_en: "Multimodal",
     paperIds: ["clip", "siglip"],
   },
   {
     id: "robotics",
+    readingCount: 16,
     name: "机器人学习",
     name_en: "Robotics",
     paperIds: ["diffusion-policy", "supermimic"],
   },
   {
     id: "ai-infra",
+    readingCount: 16,
     name: "AI 基础设施",
     name_en: "AI Infra",
     paperIds: ["flash-attention", "paged-attention", "gqa", "qlora", "svdquant"],
   },
   {
     id: "diffusion-rl",
+    readingCount: 14,
     name: "扩散强化学习",
     name_en: "Diffusion RL",
     paperIds: ["diffusion-dpo", "flow-grpo", "diffusion-nft"],

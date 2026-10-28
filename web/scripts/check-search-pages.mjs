@@ -50,6 +50,19 @@ try {
       assert(d.body.textContent.includes(problem.module.goal_en));
       for(const name of problem.module.required_functions)assert(d.body.textContent.includes(name));
     }
+    if(parsed.pathname.startsWith('/collections/')) {
+      const reading=tools.collectionReadingLists.find(row=>parsed.pathname===`/collections/${row.id}/`);
+      if(reading) {
+        const entries=reading.stages.flatMap(stage=>stage.papers);
+        assert.equal(d.querySelectorAll('[data-reading-paper]').length,entries.length);
+        for(const entry of entries) {
+          const row=d.querySelector(`[data-reading-paper="${entry.id}"]`);assert(row);
+          assert(row.textContent.includes(entry.summary_en));
+          assert([...row.querySelectorAll('a')].some(anchor=>anchor.href===entry.url));
+          assert.equal(!!row.querySelector('a[href^="/papers/"]'),!!entry.paper_id);
+        }
+      }
+    }
     for(const element of d.querySelectorAll('script[src],link[rel="stylesheet"],link[rel="icon"]')) {
       const asset=element.getAttribute('src')||element.getAttribute('href');
       assert(asset.startsWith('/'),`Deep page asset is relative: ${asset}`);assets.add(asset);
@@ -73,5 +86,12 @@ try {
   assert.equal(safe.window.document.querySelector('#injected'),null);
   assert.equal(safe.window.document.querySelector('[onerror]'),null);
   assert(safe.window.document.body.textContent.includes(paper.summary_en));safe.window.close();
+  const poisonedTools={...tools,collectionReadingLists:structuredClone(tools.collectionReadingLists)};
+  const reading=poisonedTools.collectionReadingLists[0],entry=reading.stages[0].papers[0];
+  entry.title='<script id="reading-injected">bad()</script>';
+  entry.summary_en='<img src=x onerror="bad()">';entry.url='javascript:alert(1)';
+  const readingPage=new JSDOM(renderPage(home,tools.searchMetadata('collections/'+reading.id,catalog),catalog,poisonedTools));
+  assert.equal(readingPage.window.document.querySelector('#reading-injected,[onerror],a[href^="javascript:"]'),null);
+  assert(readingPage.window.document.body.textContent.includes(entry.summary_en));readingPage.window.close();
   console.log(`PASS ${urls.length} static HTTP 200 routes, distinct metadata, no-JS content, root assets, sitemap, sharing image, escaping and real missing-page 404s`);
 } finally {server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}

@@ -1,0 +1,31 @@
+.collection-reading-description { max-width: 78ch; margin: 14px 0 0; color: var(--text-secondary); line-height: 1.7; }
+.collection-reading-list { min-width: 0; }
+.collection-reading-views { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; border-bottom: 1px solid var(--line); }
+.collection-reading-views a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 10px 14px; border-bottom: 2px solid transparent; color: var(--text-secondary); text-decoration: none; }
+.collection-reading-views a[aria-current="page"] { border-bottom-color: currentColor; color: var(--text); font-weight: 650; }
+.collection-reading-views a span { font-size: 12px; font-variant-numeric: tabular-nums; color: var(--text-secondary); }
+.collection-reading-toolbar { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 28px; }
+.collection-reading-toolbar .search { flex: 1 1 300px; max-width: 640px; }
+.reading-result-count { margin: 0; font-size: 13px; color: var(--text-secondary); }
+.collection-reading-stage { margin: 0 0 32px; }
+.collection-reading-stage h2 { display: flex; align-items: baseline; gap: 10px; margin: 0 0 14px; font-size: 18px; }
+.collection-reading-stage h2 > span { color: var(--text-secondary); font-size: 13px; font-weight: 400; }
+.collection-reading-papers { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
+.collection-reading-paper { display: flex; flex-direction: column; min-width: 0; padding: 20px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+.reading-paper-heading { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.reading-paper-heading h3 { margin: 0; font-size: 17px; line-height: 1.4; overflow-wrap: anywhere; }
+.reading-year { color: var(--text-secondary); font-size: 12px; font-variant-numeric: tabular-nums; }
+.reading-priority { font-size: 11px; padding: 2px 7px; border-radius: 5px; border: 1px solid var(--line); color: var(--text-secondary); }
+.reading-paper-title { margin: 8px 0 0; color: var(--text-secondary); font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; }
+.reading-paper-summary { margin: 12px 0 18px; font-size: 14px; line-height: 1.7; }
+.reading-paper-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 18px; margin-top: auto; padding-top: 12px; border-top: 1px solid var(--line); }
+.reading-paper-actions a { display: inline-flex; align-items: center; gap: 5px; min-height: 28px; font-size: 12px; text-decoration: none; }
+.reading-practice-link > span, .reading-no-exercise { color: var(--text-secondary); font-size: 11px; }
+.collection-reading-list a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.collection-reading-list a:focus-visible, .collection-reading-views a:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+@media (max-width: 720px) {
+ .collection-reading-papers { grid-template-columns: minmax(0,1fr); }
+ .collection-reading-paper { padding: 16px; }
+ .collection-reading-toolbar { gap: 10px; }
+ .collection-reading-toolbar .search { flex-basis: 100%; max-width: none; }
+}

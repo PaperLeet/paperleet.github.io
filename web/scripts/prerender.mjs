@@ -16,7 +16,8 @@ export async function loadSearchTools() {
   const result=await build({entryPoints:['src/searchMetadata.ts'],bundle:true,platform:'node',format:'esm',write:false});
   const metadata=await import('data:text/javascript;base64,'+Buffer.from(result.outputFiles[0].text).toString('base64'));
   const collections=await build({entryPoints:['src/paperCollections.ts'],bundle:true,platform:'node',format:'esm',write:false});
-  return {...metadata,...await import('data:text/javascript;base64,'+Buffer.from(collections.outputFiles[0].text).toString('base64'))};
+  const reading=JSON.parse(await fs.readFile('src/data/collection-reading-lists.json','utf8'));
+  return {...metadata,...await import('data:text/javascript;base64,'+Buffer.from(collections.outputFiles[0].text).toString('base64')),collectionReadingLists:reading.collections};
 }
 
 function bodyFor(meta,catalog,tools) {
@@ -31,6 +32,16 @@ function bodyFor(meta,catalog,tools) {
     body=`<p>${escape(meta.description)}</p>`+(collection.kind==='course'
       ? `<ul class="catalog-grid">${papers.flatMap(paper=>paper.module_ids).map(id=>catalog.problems.find(row=>row.id===id)).filter(Boolean).map(problem=>`<li>${link(problemPath(problem),problem.translations?.en?.title||problem.title)}<p>${escape(problem.module.goal_en)}</p></li>`).join('')}</ul>`
       : paperCards(papers));
+    const reading=tools.collectionReadingLists?.find(row=>row.id===collection.id);
+    if(reading) {
+      const count=reading.stages.reduce((total,stage)=>total+stage.papers.length,0);
+      body=`<p>${escape(meta.description)}</p><p>${escape(reading.description_en)}</p><h2>Reading list · ${count} papers</h2>`+
+        reading.stages.map(stage=>`<section><h3>${escape(stage.title_en)}</h3><ul class="catalog-grid">${stage.papers.map(entry=>{
+          const practice=entry.paper_id&&papers.find(paper=>paper.id===entry.paper_id);
+          const source=/^https:\/\//.test(entry.url)?link(entry.url,entry.title):escape(entry.title);
+          return `<li data-reading-paper="${escape(entry.id)}"><strong>${escape(entry.short_title)}</strong><p>${source}</p><small>${escape(entry.year)}${entry.priority?' · Recommended next':''} · ${practice?'Practice available':'No exercise yet'}</small><p>${escape(entry.summary_en)}</p>${practice?link(paperPath(practice),'Practice '+entry.short_title):''}</li>`;
+        }).join('')}</ul></section>`).join('');
+    }
   } else if (meta.kind==='paper') {
     const paper=catalog.papers.find(row=>row.id===meta.id);
     const modules=paper.module_ids.map(id=>catalog.problems.find(row=>row.id===id));

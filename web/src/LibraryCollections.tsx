@@ -23,9 +23,10 @@ export default function LibraryCollections({papers,problems,saved,progressReady}
           const count = memberIds.size;
           const completed = problems.filter(problem => memberIds.has(problem.id) && status(problem,saved[problem.id]) === "done").length;
           const label = t(collection.name, collection.name_en);
-          return <AppLink key={collection.id} className={`collection-card collection-${collection.id}`} href={`#/collections/${collection.id}`} aria-description={progressReady ? `${completed} / ${count} ${t("模块已通过", "modules solved")}` : undefined} aria-label={`${label} · ${collection.kind === "course" ? t("课程", "Course") : `${members.length} ${t("篇论文", "papers")}`} · ${count} ${t("道题", "problems")}`}>
+          return <AppLink key={collection.id} className={`collection-card collection-${collection.id}`} href={`#/collections/${collection.id}`} aria-description={progressReady ? `${completed} / ${count} ${t("模块已通过", "modules solved")}` : undefined} aria-label={`${label} · ${collection.kind === "course" ? t("课程", "Course") : `${collection.readingCount||members.length} ${t("篇论文", "papers")}`} · ${count} ${t("道题", "problems")}`}>
             <div className="collection-copy">
               <h3>{label}</h3>
+              {collection.readingCount&&<p className="collection-reading-card-count">{collection.readingCount} {t('篇论文','papers')} · {members.length} {t('篇可练','with exercises')}</p>}
             </div>
             <div className="collection-learning-progress" aria-hidden="true"><span>{progressReady ? `${completed}/${count} ${t("已通过", "solved")}` : t("正在加载进度…", "Loading progress…")}</span></div>
             <CollectionArtwork kind={collection.id} />

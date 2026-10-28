@@ -28,8 +28,8 @@ export function searchMetadata(route: string, catalog: SearchCatalog): SearchMet
     title:`${paper.short_title}${paper.venue || paper.year ? ` (${paper.venue || paper.year})` : ''}: ${paper.kind==='course'?'Python Course':'Python Implementation'} | PaperLeet`,
     description:concise(`${paper.summary_en} ${paper.scope_en}`),canonical:siteOrigin+paperPath(paper)};
   const collection = paperCollections.find(row=>path===`collections/${row.id}`);
-  if (collection) return {kind:'collection',id:collection.id,heading:collection.name_en,title:`${collection.name_en}: Python Exercises for AI Researchers | PaperLeet`,
-    description:`Practice ${collection.name_en} in Python with research-based exercises, implementation guides, and tests on PaperLeet.`,canonical:`${siteOrigin}/collections/${collection.id}/`};
+  if (collection) return {kind:'collection',id:collection.id,heading:collection.name_en,title:`${collection.name_en}: ${collection.readingCount?'Reading List & Python Exercises':'Python Exercises for AI Researchers'} | PaperLeet`,
+    description:collection.readingCount?`Explore ${collection.readingCount} ${collection.name_en} papers by topic, read original sources, and practice available implementations in Python on PaperLeet.`:`Practice ${collection.name_en} in Python with research-based exercises, implementation guides, and tests on PaperLeet.`,canonical:`${siteOrigin}/collections/${collection.id}/`};
 }
 
 export function applySearchMetadata(metadata: SearchMetadata | undefined) {

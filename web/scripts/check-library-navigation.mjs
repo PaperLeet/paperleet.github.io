@@ -197,7 +197,8 @@ try {
     assert(!library.includes('Filter by judge location') && !library.includes('判题位置筛选') && !library.includes('judge-capability-badge'));
     assert(library.includes(withLibraryContext('papers/ddpm', currentReturn).replaceAll('&', '&amp;')));
     for (const collection of paperCollections) {
-      const page = render(PaperLibrary, { ...catalog, saved: {}, collectionId: collection.id, route: `collections/${collection.id}` });
+      const collectionRoute = `#/collections/${collection.id}${collection.readingCount ? '?view=modules' : ''}`;
+      const page = render(PaperLibrary, { ...catalog, saved: {}, collectionId: collection.id, route: collectionRoute });
       assert.equal((page.match(/<h1>/g) || []).length, 1, 'Collection pages have one dedicated page title');
       assert(page.includes(`<h1>${en ? collection.name_en.replaceAll('&', '&amp;') : collection.name.replaceAll('&', '&amp;')}</h1>`));
       const members = papersInCollection(catalog.papers, collection);
@@ -222,6 +223,23 @@ try {
         const waitingPage=JSDOM.fragment(render(PaperLibrary,{...catalog,saved,collectionId:collection.id,route:doneRoute,progressReady:false}));
         assert.equal(waitingPage.querySelectorAll('[data-module-id]').length,0);
         assert(!waitingPage.textContent.includes(en?'No matching modules':'没有符合条件的练习'));
+      } else if (collection.readingCount) {
+        const document = JSDOM.fragment(page);
+        const ids = new Set(members.flatMap(paper=>paper.module_ids));
+        const modules = catalog.problems.filter(problem=>ids.has(problem.id)).sort((a,b)=>a.number-b.number);
+        assert.equal(document.querySelectorAll('[data-paper-id]').length, 0, 'The reading collection practice tab exposes exercises directly');
+        assert.deepEqual([...document.querySelectorAll('[data-module-id]')].map(row=>row.dataset.moduleId), modules.slice(0,20).map(module=>module.id));
+        for (const module of modules.slice(0,20)) assert.equal(document.querySelector(`[data-module-id="${module.id}"]`).getAttribute('href'), withLibraryContext(module.number, collectionRoute));
+        assert.equal(libraryReturnHref(document.querySelector('.collection-practice').getAttribute('href')), collectionRoute);
+        assert.equal(document.querySelector('.library-progress b').textContent, `0 / ${modules.length}`);
+        assert.equal(document.querySelector('.collection-reading-views [aria-current="page"]').getAttribute('href'), collectionRoute);
+        assert.equal(document.querySelector('.collection-reading-views a:not([aria-current])').getAttribute('href'), `#/collections/${collection.id}`);
+        const saved = {[modules[0].id]: {report: acceptedFor(modules[0])}};
+        const doneRoute = libraryHref(collection.id, {...emptyLibraryFilters(),view:'modules',state:'done'});
+        const donePage = JSDOM.fragment(render(PaperLibrary,{...catalog,saved,collectionId:collection.id,route:doneRoute}));
+        assert.deepEqual([...donePage.querySelectorAll('[data-module-id]')].map(row=>row.dataset.moduleId), [modules[0].id], 'Practice status remains per module despite additional reading records');
+        assert.equal(libraryReturnHref(donePage.querySelector('[data-module-id]').getAttribute('href')), doneRoute);
+        assert.equal(donePage.querySelector('.library-progress b').textContent, `1 / ${modules.length}`);
       } else assert.equal((page.match(/data-paper-id=/g) || []).length, Math.min(20,members.length), 'Collections start with the first batch of papers');
       assert(page.includes('class="back-link" href="#"') && page.includes('class="button collection-practice"'), 'Each collection has home and practice navigation');
     }

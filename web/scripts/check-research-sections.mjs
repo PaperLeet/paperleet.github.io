@@ -34,7 +34,8 @@ try {
     const members = papersInCollection(catalog.papers, collection);
     assert.equal(members.length, collection.paperIds.length);
     const ids = new Set(members.flatMap(paper => paper.module_ids));
-    const view = navigation.readLibraryRoute(`#/collections/${section}`);
+    const practiceRoute = `#/collections/${section}?view=modules`;
+    const view = navigation.readLibraryRoute(practiceRoute);
     assert(view);
     const selected = selectLibraryPractice(catalog.papers, catalog.problems, {}, view);
     assert.deepEqual([...selected.problems.map(problem => problem.id)].sort(), [...ids].sort());
@@ -42,10 +43,10 @@ try {
       const render = await localizedRenderer(server, locale);
       const cards = render(React.createElement(LibraryCollections, props));
       assert(cards.includes(`collection-${section}`) && cards.includes(`href="#/collections/${section}"`));
-      const html = render(React.createElement(PaperLibrary, {...props, collectionId: section}));
+      const html = render(React.createElement(PaperLibrary, {...props, collectionId: section, route: practiceRoute}));
       assert(html.includes(locale === 'zh' ? collection.name : collection.name_en));
       assert(html.includes('collection-practice'), `${section}: section has a usable practice entry`);
-      for (const paper of members) assert(html.includes(`#/papers/${paper.id}`));
+      for (const id of ids) assert(html.includes(`data-module-id="${id}"`), `${section}: practice tab must list ${id}`);
     }
     for (const id of newIds) {
       assert(ids.has(id), `${id}: new module must be discoverable in its section`);
@@ -55,11 +56,12 @@ try {
       for (const key of ['readme', 'notes']) assert(problem.translations.en[key]?.trim(), `${id}: missing English ${key}`);
       assert(problem.vizData?.metrics && problem.vizData?.charts?.length, `${id}: experiment must be exported`);
       assert(catalog.papers.find(paper => paper.id === problem.paper_id)?.category === section);
-      const origin = `#/collections/${section}`;
-      for (const address of [id, problem.number]) {
-        const href = navigation.withLibraryContext(address, origin);
-        assert.equal(navigation.libraryReturnHref(href), origin);
-        assert.equal(accountReturnHref(decodeProblemHash(signInHref(href))), href);
+      for (const origin of [`#/collections/${section}`, practiceRoute]) {
+        for (const address of [id, problem.number]) {
+          const href = navigation.withLibraryContext(address, origin);
+          assert.equal(navigation.libraryReturnHref(href), origin);
+          assert.equal(accountReturnHref(decodeProblemHash(signInHref(href))), href);
+        }
       }
       const handoff = {version: 1, id: 'research-section', problem: id, code: 'private draft', created: 1000};
       assert.deepEqual(parseHandoff(JSON.stringify(handoff), 1000), handoff);
