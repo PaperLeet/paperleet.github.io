@@ -1,9 +1,4 @@
-.interview-ranking-actions>:is(.button,.interview-group-toggle){min-height:44px}
-.interview-concept-favorite{display:flex;align-items:center;justify-content:center;min-width:44px;min-height:44px}
-.interview-concept-favorite .problem-favorite-button,.interview-concept-save-retry,.interview-concept-save-placeholder{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;width:44px;min-height:44px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--muted);padding:10px}
+.interview-ranking-actions>:is(.button,.interview-group-toggle){min-height:var(--control-height,44px)}
+.interview-concept-favorite{display:flex;align-items:center;justify-content:center;min-width:var(--control-height,44px);min-height:var(--control-height,44px)}
+.interview-concept-favorite .problem-favorite-button,.interview-concept-save-retry,.interview-concept-save-placeholder{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;width:var(--control-height,44px);min-height:var(--control-height,44px);border:1px solid var(--line);border-radius:var(--control-radius,8px);background:var(--surface);color:var(--muted);padding:0}
 .interview-concept-save-retry{font:inherit;cursor:pointer}.interview-concept-save-retry:hover{background:var(--surface2);color:var(--accent)}.interview-concept-save-retry:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
-.interview-ranking-actions:has(>.interview-concept-favorite){display:grid;grid-template-columns:minmax(0,1fr) 44px;align-items:center;gap:8px;min-width:0}
-.interview-ranking-actions:has(>.interview-concept-favorite)>.button{min-height:44px;justify-content:center;min-width:0;overflow-wrap:anywhere}
-.interview-ranking-actions:has(>.interview-concept-favorite)>:is(.interview-curated-label,.interview-group-toggle){grid-column:1/-1;min-height:44px;justify-self:stretch;text-align:center;justify-content:center}
-.interview-ranking-actions:has(>.interview-concept-favorite)>.interview-curated-label{min-height:0;padding:5px 8px;justify-self:end}
-@media(max-width:600px){.interview-ranking-actions:has(>.interview-concept-favorite){width:100%;grid-template-columns:minmax(0,1fr) 44px}.interview-ranking-actions:has(>.interview-concept-favorite)>.interview-group-toggle{justify-self:stretch}}

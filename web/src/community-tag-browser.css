@@ -1,5 +1,5 @@
 .community-tag-browser { min-width:0; max-width:100%; color:var(--text); }
-.community-tag-browser>summary { display:flex; align-items:center; gap:8px; min-height:42px; padding:8px 12px; border:1px solid var(--line); border-radius:8px; cursor:pointer; list-style:none; font-size:var(--type-small); background:var(--surface); }
+.community-tag-browser>summary { display:flex; align-items:center; gap:8px; min-height:var(--control-height,42px); box-sizing:border-box; padding:4px 12px; border:1px solid var(--line); border-radius:var(--control-radius,8px); cursor:pointer; list-style:none; font-size:var(--type-small); background:var(--surface); }
 .community-tag-browser>summary::-webkit-details-marker { display:none; }
 .community-tag-browser>summary>span { min-width:0; overflow-wrap:anywhere; }
 .community-tag-browser>summary>svg { flex:none; color:var(--muted); }

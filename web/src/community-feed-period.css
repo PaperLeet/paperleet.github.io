@@ -1,16 +1,27 @@
 .community-period { display:inline-flex; align-items:center; gap:7px; min-width:0; max-width:100%; color:var(--muted); }
 .community-period>svg { flex:none; }
-.community-period select { min-width:140px; max-width:100%; min-height:44px; padding:6px 28px 6px 10px; border:1px solid var(--line); border-radius:6px; color:var(--text); background:var(--surface); font:inherit; font-size:var(--type-small); cursor:pointer; }
+.community-period select { min-width:128px; max-width:100%; height:var(--control-height,44px); min-height:0; padding:0 28px 0 10px; border:1px solid var(--line); border-radius:var(--control-radius,8px); color:var(--text); background-color:var(--surface); font:inherit; font-size:var(--type-small); cursor:pointer; }
 .community-period select:hover { border-color:var(--muted); }
 .community-period select:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
 .community-period select:disabled { opacity:.6; cursor:not-allowed; }
 .community-feed-controls:has(.community-period) { flex-basis:640px; }
+.community-period>svg { display:none; }
+/* Wide feeds keep tabs and every control on one row; mid widths give the controls their own row. */
+@media(min-width:1281px) {
+ main.community-page .community-feed-controls:has(.community-period) { flex:1 1 0; justify-content:flex-end; }
+ main.community-page .community-feed-controls:has(.community-period) .community-search { flex:1 1 200px; max-width:340px; }
+}
+@media(min-width:1001px) and (max-width:1280px) { main.community-page .community-feed-controls:has(.community-period) { flex-basis:100%; } }
+/* The tag browser does not fit beside the tabs; give the controls their own row instead of wrapping into a cluster. */
+@media(min-width:1281px) {
+ main.community-page .community-feed-controls:has(.community-period):has(.community-tag-browser) { flex:1 1 100%; }
+ main.community-page .community-feed-controls:has(.community-period):has(.community-tag-browser) .community-search { max-width:none; }
+}
 .community-period-note { margin:-4px 0 16px; color:var(--text-secondary); font-size:var(--type-small); line-height:1.75; overflow-wrap:anywhere; }
 @media(max-width:1000px) { .community-feed-controls:has(.community-period) { flex-basis:100%; } }
 @media(max-width:640px) {
  .community-feed-controls:has(.community-period) .community-search { flex-basis:100%; }
  .community-period { flex:1; }
- .community-period>svg { display:none; }
  .community-period select { width:100%; min-width:0; }
 }
-@media(pointer:coarse) { .community-period select { min-height:48px; } }
+@media(pointer:coarse) { .community-period select { height:44px; } }

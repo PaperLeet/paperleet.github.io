@@ -315,9 +315,10 @@ try{
   'low-rank-quantization':['finetuning/lora','finetuning/qlora','finetuning/svdquant'],
   'block-generation':['foundations/next_token_loss','foundations/sft_loss_mask','architecture/attention','diffusion/block_diffusion'],
   'inverse-diffusion':['diffusion/schedules','diffusion/param_conversion','diffusion/ddpm_sampling','diffusion/daps'],
+  'network-biology':['network_biology/degree_distribution','network_biology/hubs_centrality','network_biology/connected_components','network_biology/shortest_paths','network_biology/feed_forward_loops','network_biology/community_modules'],
  };
  for(const [track,ids]of Object.entries(newCurricula)){
-  const context={...nav.emptyInterviewFilters(),track,company:'nvidia',role:track==='inverse-diffusion'?'research':'llm',stage:'technical',saved:true,q:'专题 & 复习 😀',page:2};assert.deepEqual(nav.readInterviewRoute(nav.interviewHref(context)),context);
+  const context={...nav.emptyInterviewFilters(),track,company:'nvidia',role:['inverse-diffusion','network-biology'].includes(track)?'research':'llm',stage:'technical',saved:true,q:'专题 & 复习 😀',page:2};assert.deepEqual(nav.readInterviewRoute(nav.interviewHref(context)),context);
   const before=loads.length;await render(Handbook,{filters:context,problems:published});assert.equal(loads.length,before);assert.deepEqual([...document.querySelectorAll('select option')].map(option=>option.value),ids);
   for(const [index,id]of ids.entries()){
    if(index){const count=loads.length;await act(async()=>{const select=document.querySelector('select');select.value=id;select.dispatchEvent(new dom.window.Event('change',{bubbles:true}));});await settle(()=>loads.length===count+1);}else await open();
@@ -328,7 +329,7 @@ try{
   }
   await stop();await render(Hub,{route:nav.interviewHref(context),problems:published});const card=document.getElementById('interview-path-'+track).closest('article');assert.equal(card,document.querySelector('.interview-path-grid>article'));assert.deepEqual([...card.querySelectorAll('.interview-path-modules a')].map(link=>decodeProblemHash(link.getAttribute('href')).split('?')[0]),ids.map(id=>String(published.find(problem=>problem.id===id).number)));assert.equal(card.querySelectorAll('.interview-path-module-extra a').length,Math.max(0,ids.length-3));if(ids.length>3)assert(card.querySelector('details').open);await stop();
  }
- console.log('PASS complete curriculum handbook: three new source-grounded paths, all ordered bilingual prompts/native hints, deferred content, role/company/stage/saved practice and sign-in returns, selected path and complete module disclosure');
+ console.log('PASS complete curriculum handbook: four source-grounded paths, all ordered bilingual prompts/native hints, deferred content, role/company/stage/saved practice and sign-in returns, selected path and complete module disclosure');
  const completionIds=['diffusion/block_diffusion','diffusion/daps','finetuning/svdquant','representation/moge_alignment','diffusion/diffusion_nft','diffusion/fd_population','diffusion/fd_loss'];
  const maintainedPaths=JSON.parse(fs.readFileSync(path.join(repo,'paperleet/interview_catalog.json'))).paths;assert(completionIds.every(id=>maintainedPaths.some(path=>path.modules.includes(id))));assert.deepEqual([...new Set(maintainedPaths.flatMap(path=>path.modules))].sort(),published.map(problem=>problem.id).sort(),'Every published concept belongs to a curriculum');
  const allFilters={...nav.emptyInterviewFilters(),company:'nvidia',stage:'onsite',saved:true,q:'全部 & 复习 😀',page:3};location.hash=nav.interviewHref(allFilters);

@@ -9,6 +9,7 @@ import { withLibraryContext } from './libraryNavigation';
 import { useAccount } from './social';
 import { loadSubmissionResult, submissionFailurePreview, type SubmissionResultState } from './submissionResultData';
 import type { Problem } from './types';
+import { runtimeMs, verdictKind } from './feedbackVerdict';
 import {SubmittedSourceDisclosure} from './SubmittedSource';
 import './submission-result.css';
 
@@ -71,12 +72,12 @@ export default function SubmissionResultPage({ runId, problems, libraryHref = '#
   const problemHref = problem ? withLibraryContext(problem.number, libraryHref) : `#/${run.problem}`;
   const passed = run.report.tests.filter(test => test.passed).length;
   const total = run.report.tests.length;
-  const elapsed = run.report.tests.reduce((sum, test) => sum + (test.duration_s || 0), 0);
+  const runtime = runtimeMs(run.report);
   const firstFailure = run.report.tests.find(test => !test.passed);
   const incomplete = !!run.report.error;
   const partial = !run.accepted && !incomplete && total > 0 && passed === total;
   const failure = run.report.error || firstFailure?.message;
-  const statusName = run.accepted ? t('通过', 'Accepted') : incomplete ? t('判题未完成', 'Judge incomplete') : t('未通过', 'Not accepted');
+  const statusName = { accepted: t('通过', 'Accepted'), incomplete: t('判题未完成', 'Judge incomplete'), 'not-accepted': t('未通过', 'Not accepted'), runtime: t('执行出错', 'Runtime Error'), wrong: t('解答错误', 'Wrong Answer') }[verdictKind(run.accepted, run.report)];
   const detailOpen = expanded === scope;
   const submittedAt = new Date(run.created_at);
   const dateLocale = locale === 'zh' ? 'zh-CN' : 'en-US';
@@ -109,7 +110,7 @@ export default function SubmissionResultPage({ runId, problems, libraryHref = '#
 
       <dl className="submission-result-metrics">
         <div><dt><CheckCircle2 size={15} />{t('测试通过', 'Tests passed')}</dt><dd>{passed}<span> / {total}</span></dd></div>
-        {elapsed > 0 && <div><dt><Clock3 size={15} />{t('测试耗时', 'Test time')}</dt><dd>{elapsed < 0.01 ? '< 0.01' : elapsed.toFixed(2)}<span> s</span></dd></div>}
+        {runtime !== undefined && <div><dt><Clock3 size={15} />{t('运行时间', 'Runtime')}</dt><dd>{runtime < 1 ? '< 1' : runtime < 1000 ? Math.round(runtime) : (runtime / 1000).toFixed(2)}<span>{runtime < 1000 ? ' ms' : ' s'}</span></dd></div>}
         <div className="submission-result-date"><dt>{t('提交时间', 'Submitted')}</dt><dd><time dateTime={run.created_at}>{submittedAt.toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit', second: '2-digit' })}<span>{submittedAt.toLocaleDateString(dateLocale, { month: 'short', day: 'numeric', year: 'numeric' })}</span></time></dd></div>
       </dl>
 

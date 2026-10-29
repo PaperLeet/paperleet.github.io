@@ -4,11 +4,14 @@ import {applySearchMetadata, searchMetadata, type SearchCatalog} from './searchM
 /** History routing is installed before React; legacy bookmarks remain usable. */
 export function startPathNavigation() {
   const modules=new Map<string,string>(),numbers=new Map<string,string>();
-  const knownPath=(pathname:string)=>/^\/(?:$|(?:papers|collections)\/[a-z0-9_-]+\/?$|problems\/[a-z0-9_-]+\/[a-z0-9_-]+\/?$)/.test(pathname);
+  const directoryPath=(pathname:string)=>pathname.replace(/\/index\.html$/, '/');
+  const knownPath=(pathname:string)=>/^\/(?:$|(?:papers|collections)\/[a-z0-9_-]+\/?$|problems\/[a-z0-9_-]+\/[a-z0-9_-]+\/?$)/.test(directoryPath(pathname));
   function read(value:string|URL) {
     const url=new URL(value,location.href);
     if(url.hash.startsWith('#/'))return url.hash;
-    let path=url.pathname.replace(/^\/+|\/+$/g,'');
+    // Pages serves index.html aliases with HTTP 200. Read them as their directory
+    // so startup preserves the page's self-canonical metadata and app route.
+    let path=directoryPath(url.pathname).replace(/^\/+|\/+$/g,'');
     if(path.startsWith('problems/')){path=path.slice(9);path=numbers.get(path)||path;}
     const params=new URLSearchParams(url.search);
     for(const key of [...params.keys()])if(key==='_paperleet_reload'||key.startsWith('utm_')||key==='gclid'||key==='fbclid')params.delete(key);
@@ -20,7 +23,7 @@ export function startPathNavigation() {
     const path=split<0?raw:raw.slice(0,split),query=split<0?'':raw.slice(split);
     if(!path)return '/'+query;
     if(/^(papers|collections)\/[a-z0-9_-]+$/.test(path))return '/'+path+'/'+query;
-    const module=modules.get(path)||(/^(foundations|rl|architecture|diffusion|finetuning|optimization|representation|world_models|retrieval|self_evolving|multimodal|robotics|ai_infra|diffusion_rl)\/[a-z0-9_-]+$/.test(path)?path:undefined);
+    const module=modules.get(path)||(/^(foundations|rl|architecture|diffusion|finetuning|optimization|representation|world_models|retrieval|self_evolving|network_biology|multimodal|robotics|ai_infra|diffusion_rl)\/[a-z0-9_-]+$/.test(path)?path:undefined);
     return module?'/problems/'+module+'/'+query:'/'+value;
   }
   function navigate(value:string) {
@@ -66,7 +69,7 @@ export function startPathNavigation() {
     const link = event.target.closest<HTMLAnchorElement>('a[href]');
     if (!link || link.hasAttribute('download') || link.target && link.target !== '_self') return;
     const target = new URL(link.href, location.href);
-    if (target.origin !== location.origin || !(/^\/(?:$|papers\/[a-z0-9_-]+\/?$|collections\/[a-z0-9_-]+\/?$|problems\/[a-z0-9_-]+\/[a-z0-9_-]+\/?$)/.test(target.pathname))) return;
+    if (target.origin !== location.origin || !knownPath(target.pathname)) return;
     // Plain document anchors are not app routes.
     if (target.hash && !/^#\//.test(target.hash) && target.hash !== '#') return;
     event.preventDefault();

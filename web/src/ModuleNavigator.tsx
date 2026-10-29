@@ -1,7 +1,7 @@
 import {appLocation} from './appLocation';
 import AppLink from './AppLink';
 import {useEffect,useId,useLayoutEffect,useMemo,useRef,useState,type KeyboardEvent} from 'react';
-import {CheckCircle2,ChevronDown,ChevronLeft,ChevronRight,Circle,Search,X} from 'lucide-react';
+import {CheckCircle2,ChevronDown,ChevronLeft,ChevronRight,Circle,Search,Shuffle,X} from 'lucide-react';
 import {readInterviewRoute} from './interviewNavigation';
 import {preparationProgress} from './interviewPreparation';
 import {interviewPracticeBatch} from './interviewPracticeBatch';
@@ -10,6 +10,7 @@ import {useI18n} from './i18n';
 import {status,type Problem,type Saved} from './types';
 import {controlIsActive} from './activeControls';
 import {useWorkspaceIntent} from './useWorkspaceIntent';
+import {pickRandomUnattemptedProblem} from './randomProblem';
 import './module-picker-search.css';
 
 type Props={current:Problem;modules:Problem[];allModules?:Problem[];saved:Record<string,Saved>;ready:boolean;returnTo?:string;course?:boolean;scopeReady?:boolean};
@@ -20,9 +21,12 @@ function ModuleNavigation({current,modules:paperModules,allModules,saved,ready,r
  const progress=track?preparationProgress(track,allModules||paperModules,saved):undefined;
  const scoped=progress?.modules.some(module=>module.id===current.id)?progress:undefined;
  const batch=interviewPracticeBatch(returnTo,allModules||paperModules,saved,current);
- const modules=batch?.modules||scoped?.modules||paperModules;
  const library=readLibraryRoute(returnTo||''),company=!!library?.filters.company,direct=library?.filters.view==='modules'&&!course;
- const heading=company?t('当前公司练习','Current company practice'):direct?t('当前题目列表','Current exercise list'):batch?t('当前准备批次','This preparation batch'):scoped?(locale==='en'?scoped.path.name_en:scoped.path.name):course?t('本专题','This course'):t('本篇论文','This paper');
+ // A single-module paper has no siblings to page through; like a problem list, fall back to the whole catalogue in number order.
+ const catalogue=!batch&&!scoped&&!track&&!course&&!company&&!direct&&paperModules.length<=1&&!!allModules&&allModules.length>1&&allModules.some(module=>module.id===current.id);
+ const catalogueModules=useMemo(()=>catalogue&&allModules?[...allModules].sort((a,b)=>a.number-b.number):[],[catalogue,allModules]);
+ const modules=batch?.modules||scoped?.modules||(catalogue?catalogueModules:paperModules);
+ const heading=company?t('当前公司练习','Current company practice'):direct?t('当前题目列表','Current exercise list'):batch?t('当前准备批次','This preparation batch'):scoped?(locale==='en'?scoped.path.name_en:scoped.path.name):course?t('本专题','This course'):catalogue?t('全部题目','All modules'):t('本篇论文','This paper');
  const [open,setOpen]=useState(false),[draft,setDraft]=useState(''),[query,setQuery]=useState('');
  const root=useRef<HTMLDivElement>(null),trigger=useRef<HTMLButtonElement>(null),search=useRef<HTMLInputElement>(null),list=useRef<HTMLDivElement>(null),composing=useRef(false);
  const href=useRef(typeof window==='undefined'?'':window.location.href).current,popupId=useId(),listId=popupId+'-list',hint=popupId+'-hint';
@@ -97,7 +101,12 @@ function ModuleNavigation({current,modules:paperModules,allModules,saved,ready,r
    event.preventDefault();event.stopPropagation();toggle(true);
   }}><span>{index+1} / {modules.length}</span><ChevronDown size={12}/></button>
   <button className="icon-button" type="button" aria-label={t('下一个模块','Next module')} disabled={index<0||index>=modules.length-1} onClick={()=>{if(here()&&index>=0&&index<modules.length-1)appLocation.hash=withLibraryContext(modules[index+1].number,returnTo).slice(1);}}><ChevronRight size={15}/></button>
-  {open&&<nav className="module-picker" id={popupId} aria-label={heading}>
+  {modules.length>2&&<button className="icon-button module-shuffle" type="button" aria-label={t('随机一题','Random problem')} title={t('随机打开本列表中的一道题，优先未开始的题目','Open a random module from this list, preferring ones you have not started')} onClick={()=>{
+   if(!here())return;
+   const others=modules.filter(module=>module.id!==current.id),next=(ready?pickRandomUnattemptedProblem(others,saved):undefined)||others[Math.floor(Math.random()*others.length)];
+   if(next)appLocation.hash=withLibraryContext(next.number,returnTo).slice(1);
+  }}><Shuffle size={15}/></button>}
+  {open&&<div className="module-picker" role="navigation" id={popupId} aria-label={heading}>
    <div className="module-picker-heading"><b>{heading}</b><span>{ready?`${solved} / ${batch?.total||scoped?.total||core.length} ${batch?t('本组练习已通过','batch modules solved'):scoped?t('路径模块已通过','path modules solved'):t('核心模块已通过','core modules solved')}`:t('正在加载进度…','Loading progress…')}</span></div>
    {!!batch?.missing&&<p className="module-batch-note" role="status">{t(`${batch.missing} 道练习暂不可用，当前顺序保留。`,`${batch.missing} modules are unavailable. The remaining order is preserved.`)}</p>}
    {searchable&&<div className="module-picker-tools">
@@ -120,6 +129,6 @@ function ModuleNavigation({current,modules:paperModules,allModules,saved,ready,r
     </AppLink>;
    })}</div>
    {!visible.length&&<div className="module-picker-empty"><p>{t('当前题单没有匹配题目。','No matching modules in this list.')}</p><button type="button" className="text-button" onClick={clear}>{t('查看全部题目','Show all modules')}</button></div>}
-  </nav>}
+  </div>}
  </div>;
 }

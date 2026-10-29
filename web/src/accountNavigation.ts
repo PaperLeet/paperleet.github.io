@@ -20,7 +20,7 @@ function returnRoute(route: string): string | undefined {
   if (readAdminRoute(route)) return route;
   if (route.includes('?')) return communityContinuation(route) ?? libraryContinuation(route);
   if (["community/reports","community/moderation","","community","submit","achievements","favorites","drafts","paper-registry"].includes(route)) return route;
-  if (/^(?:[1-9]\d*|community\/(?:problem\/[a-z0-9_-]+\/[a-z0-9_-]+|[a-f0-9]{32})|submission\/[a-f0-9]{32}|u\/[a-z0-9_]{3,24}|messages(?:\/[a-z0-9_]{3,24})?|(?:papers|collections|lists|foundations|rl|architecture|diffusion|finetuning|optimization|representation|world_models|retrieval|self_evolving|multimodal|robotics|ai_infra|diffusion_rl)\/[a-z0-9_-]+)$/.test(route)) return route;
+  if (/^(?:[1-9]\d*|community\/(?:problem\/[a-z0-9_-]+\/[a-z0-9_-]+|[a-f0-9]{32})|submission\/[a-f0-9]{32}|u\/[a-z0-9_]{3,24}|messages(?:\/[a-z0-9_]{3,24})?|(?:papers|collections|lists|foundations|rl|architecture|diffusion|finetuning|optimization|representation|world_models|retrieval|self_evolving|network_biology|multimodal|robotics|ai_infra|diffusion_rl)\/[a-z0-9_-]+)$/.test(route)) return route;
   return undefined;
 }
 

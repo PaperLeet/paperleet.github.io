@@ -15,8 +15,21 @@ import './python-editor.css';
 const pythonLanguage = python();
 const editorSetup = { lineNumbers: true, foldGutter: true, highlightActiveLine: true, autocompletion: true, searchKeymap:false };
 export default function PythonEditor({ value, readOnly, theme, onChange, font, label, focusRequest, onFocusHandled }: PythonEditorProps) {
-  const {locale} = useI18n();
+  const {locale,t} = useI18n();
   const root=useRef<HTMLDivElement>(null);
+  // The workspace footer shows the caret like an IDE status bar; writes are batched per frame and never re-render React.
+  const cursorFrame=useRef(0);
+  const showCursor=useRef((_view:EditorView)=>{});
+  showCursor.current=view=>{
+    if(typeof requestAnimationFrame!=='function')return;
+    cancelAnimationFrame(cursorFrame.current);
+    cursorFrame.current=requestAnimationFrame(()=>{
+      const output=root.current?.closest('.editor-code-panel')?.querySelector('.editor-cursor');
+      if(!output||!view.dom.isConnected)return;
+      const head=view.state.selection.main.head,line=view.state.doc.lineAt(head),column=head-line.from+1;
+      output.textContent=t(`行 ${line.number}，列 ${column}`,`Ln ${line.number}, Col ${column}`);
+    });
+  };
   const [palette,setPalette]=useState<'symbols'|'shortcuts'>();
   const [view, setView] = useState<EditorView>();
   const handledFocus = useRef<typeof focusRequest>(undefined);
@@ -29,7 +42,14 @@ export default function PythonEditor({ value, readOnly, theme, onChange, font, l
       {key:'Mod-Shift-o',scope:'editor search-panel',run:view=>{closeSearchPanel(view);actions.current.symbols();return true;}},
       {key:'F1',scope:'editor search-panel',run:view=>{closeSearchPanel(view);actions.current.shortcuts();return true;}},
       {key:'Mod-Shift-p',scope:'editor search-panel',run:view=>{closeSearchPanel(view);actions.current.shortcuts();return true;}},
-    ])),EditorView.contentAttributes.of({ 'aria-label': label })], [label,locale]);
+    ])),EditorView.contentAttributes.of({ 'aria-label': label }),
+    EditorView.updateListener.of(update=>{if(update.selectionSet||update.docChanged)showCursor.current(update.view);})], [label,locale]);
+  useEffect(()=>{
+    if(!view)return;
+    showCursor.current(view);
+    const output=root.current?.closest('.editor-code-panel')?.querySelector('.editor-cursor');
+    return()=>{if(typeof cancelAnimationFrame==='function')cancelAnimationFrame(cursorFrame.current);if(output)output.textContent='';};
+  },[view,locale]);
   useEffect(()=>{
     const node=root.current;if(!node||!view)return;
     const command=(event:Event)=>{

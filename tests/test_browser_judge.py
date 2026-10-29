@@ -14,8 +14,8 @@ from paperleet.browser_config import browser_config
 
 def hydrate_bundle(output, metadata):
     """Materialize the actual exported manifest/runtime pair for isolated CPU checks."""
-    manifest = json.loads((output / metadata['bundle_url']).read_text())
-    runtime = json.loads((output / manifest['runtime_bundle_url']).read_text())
+    manifest = json.loads((output / metadata['bundle_url']).read_text(encoding="utf-8"))
+    runtime = json.loads((output / manifest['runtime_bundle_url']).read_text(encoding="utf-8"))
     assert runtime['backend'] == metadata['backend']
     return {**manifest, 'adapter': runtime['adapter'], 'harness': runtime['harness'],
             'files': {**runtime['files'], **manifest['files']}}
@@ -33,46 +33,48 @@ def test_pilot_bundles_use_unchanged_tests_and_are_content_addressed(tmp_path):
         identifier = entry["id"]
         metadata = export_browser_bundle(entry, tmp_path)
         path = tmp_path / metadata['bundle_url']
-        manifest = json.loads(path.read_text())
+        manifest = json.loads(path.read_text(encoding="utf-8"))
         assert manifest['version'] == 3
         assert not {'adapter', 'harness'}.intersection(manifest)
         assert not set(SHARED_FILES).intersection(manifest['files'])
         for asset in (path, tmp_path / manifest['runtime_bundle_url']):
             assert hashlib.sha256(asset.read_bytes()).hexdigest()[:20] in asset.name
         bundle = hydrate_bundle(tmp_path, metadata)
-        assert bundle['adapter'] == (root() / 'paperleet/browser' / ('schedules_numpy.py' if identifier == 'diffusion/schedules' else 'numpy_autograd.py')).read_text()
-        assert bundle['harness'] == (root() / 'paperleet/browser/harness.py').read_text()
-        assert bundle['files']['paperleet/common/asserts.py'] == (root()/'paperleet/common/asserts.py').read_text()
+        config = browser_config(entry)
+        adapter_name = 'schedules_numpy.py' if config['backend'] == 'numpy-wasm' else 'numpy_autograd.py'
+        assert bundle['adapter'] == (root() / 'paperleet/browser' / adapter_name).read_text(encoding="utf-8")
+        assert bundle['harness'] == (root() / 'paperleet/browser/harness.py').read_text(encoding="utf-8")
+        assert bundle['files']['paperleet/common/asserts.py'] == (root()/'paperleet/common/asserts.py').read_text(encoding="utf-8")
         assert bundle['problem'] == identifier
         assert bundle['tests'] == entry['tests']
         if identifier in {'diffusion/ddpm_sampling','diffusion/ddim','diffusion/flow_matching'}:
             for name in ('toydata.py', 'oracles.py', 'metrics.py', 'models.py'):
-                assert bundle['files'][f'paperleet/common/{name}'] == (root() / 'paperleet/common' / name).read_text()
+                assert bundle['files'][f'paperleet/common/{name}'] == (root() / 'paperleet/common' / name).read_text(encoding="utf-8")
             yaml_path = entry['directory'] / 'problem.yaml'
-            assert bundle['files'][yaml_path.relative_to(root()).as_posix()] == yaml_path.read_text()
+            assert bundle['files'][yaml_path.relative_to(root()).as_posix()] == yaml_path.read_text(encoding="utf-8")
         for helper in ('experiment.py', 'toy.py'):
             path = entry['directory'] / helper
             if path.exists():
-                assert bundle['files'][path.relative_to(root()).as_posix()] == path.read_text()
-        assert bundle['files']['paperleet/common/comparisons.py'] == (root()/'paperleet/common/comparisons.py').read_text()
+                assert bundle['files'][path.relative_to(root()).as_posix()] == path.read_text(encoding="utf-8")
+        assert bundle['files']['paperleet/common/comparisons.py'] == (root()/'paperleet/common/comparisons.py').read_text(encoding="utf-8")
         for test in (entry['directory'] / 'tests').glob('test_*.py'):
             name = test.relative_to(root()).as_posix()
-            assert bundle['files'][name] == test.read_text()
+            assert bundle['files'][name] == test.read_text(encoding="utf-8")
         if identifier in {'rl/gae', 'rl/ppo_clip', 'rl/grpo', 'rl/dr_grpo'}:
-            assert bundle['files']['paperleet/common/rl_envs.py'] == (root() / 'paperleet/common/rl_envs.py').read_text()
+            assert bundle['files']['paperleet/common/rl_envs.py'] == (root() / 'paperleet/common/rl_envs.py').read_text(encoding="utf-8")
         if identifier == 'rl/dr_grpo':
             for name in ('solution.py', 'experiment.py'):
                 relative = f'problems/rl/grpo/{name}'
-                assert bundle['files'][relative] == (root() / relative).read_text()
+                assert bundle['files'][relative] == (root() / relative).read_text(encoding="utf-8")
         assert metadata == export_browser_bundle(entry, tmp_path)
-        assert metadata['backend'] == ('numpy-wasm' if identifier == 'diffusion/schedules' else 'numpy-autograd-wasm')
+        assert metadata['backend'] == browser_config(entry)['backend']
         legacy = {key: value for key, value in bundle.items() if key != 'runtime_bundle_url'}
         legacy['version'] = 1
         old_bytes += len(json.dumps(legacy, ensure_ascii=False, separators=(',', ':')).encode())
     runtimes = list((tmp_path / 'browser-judge').glob('runtime-*.json'))
     assert len(runtimes) == 2, 'All autodiff modules must share one runtime'
     for runtime in runtimes:
-        payload = json.loads(runtime.read_text())
+        payload = json.loads(runtime.read_text(encoding="utf-8"))
         library = source_files('schedules' if payload['backend'] == 'numpy-wasm' else 'autograd')
         assert set(payload['files']) == set(SHARED_FILES) | set(library)
         assert all(payload['files'][name] == source for name, source in library.items())

@@ -17,7 +17,7 @@ export class AppErrorBoundary extends Component<{ children: ReactNode }, { faile
           <p className="startup-brand">PaperLeet</p>
           <h1 id="app-recovery-title">
             <span lang="zh-CN">页面暂时无法显示</span>
-            <span className="startup-english" lang="en" style={{ display: 'block', fontSize: '.7em', fontWeight: 400 }}>This page could not be displayed</span>
+            <span className="startup-english" lang="en" style={{ display: 'block', fontWeight: 400 }}>This page could not be displayed</span>
           </h1>
           <p>
             <span lang="zh-CN">请重新加载页面后再试。</span>

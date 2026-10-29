@@ -1,14 +1,18 @@
 .community-card-interaction{min-width:0;container:post-interaction / inline-size}
-.post-card-counts.card-actions{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;margin-top:12px;color:var(--text-secondary);font-size:var(--type-body)}
-.card-actions>button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:6px 10px;border:0;border-radius:9px;background:transparent;color:var(--text-secondary);font:inherit;cursor:pointer;transition:background .15s,color .15s;scroll-margin-top:100px;scroll-margin-bottom:16px}
+.post-card-counts.card-actions{display:flex;flex-wrap:wrap;gap:4px 2px;align-items:center;margin:10px 0 0 -10px;color:var(--text-secondary);font-size:var(--type-meta)}
+.card-actions>button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:var(--control-height,40px);padding:4px 10px;border:0;border-radius:var(--control-radius,8px);background:transparent;color:var(--text-secondary);font:inherit;cursor:pointer;transition:background .15s,color .15s;scroll-margin-top:100px;scroll-margin-bottom:16px}
 .card-actions>button:hover,.card-actions>button[aria-expanded=true]{background:var(--surface2);color:var(--text)}
-.card-actions>button.is-liked{color:#d44b69;background:color-mix(in srgb,#d44b69 8%,transparent)}
+.card-actions>button.is-liked{color:var(--red,#d44b69);background:color-mix(in srgb,var(--red,#d44b69) 9%,transparent)}
 .card-actions>button:focus-visible,.card-comments button:focus-visible,.card-comments a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .card-actions>button:disabled{cursor:default;opacity:.6}
-.card-actions .card-reposts{display:inline-flex;align-items:center;font-size:var(--type-small);gap:5px;padding:6px 0}
+.card-actions .card-reposts{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;font-variant-numeric:tabular-nums}
+.card-actions>.post-report-trigger{min-height:var(--control-height,40px);padding:4px 10px;border-radius:var(--control-radius,8px);color:var(--text-secondary);font-size:inherit}
+/* Every action in the bar shares the bar's meta size (the share and report sheets default to the body-small size). */
+.card-actions>.discussion-share-compact{font-size:inherit}
+.card-actions>.post-report-trigger:hover{background:var(--surface2);color:var(--text)}
 .card-actions-extras{margin-inline-start:auto;min-width:0;max-width:100%}
 .card-actions-extras:empty{display:none}
-.community-post-card .post-bookmark>button,.community-post-card .post-bookmark-signin{padding:6px 10px;border:0;border-radius:9px;font-size:var(--type-body)}
+.community-post-card .post-bookmark>button,.community-post-card .post-bookmark-signin{min-height:var(--control-height,40px);padding:4px 10px;border:0;border-radius:var(--control-radius,8px);font-size:var(--type-meta)}
 .community-post-card .post-bookmark>button:hover:not(:disabled),.community-post-card .post-bookmark-signin:hover{background:var(--surface2);color:var(--text)}
 .community-post-card .post-bookmark>button.active{color:var(--accent);background:color-mix(in srgb,var(--accent) 7%,transparent)}
 .community-post-card .card-actions-extras:has(.post-bookmark-recovery){flex-basis:100%;margin-inline-start:0}
@@ -28,7 +32,7 @@
 .card-comments{margin-top:12px;padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow-wrap:anywhere}
 .card-comments>header{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;font-size:var(--type-body);padding-bottom:12px;border-bottom:1px solid var(--line)}
 .card-comments>header>span{color:var(--text-secondary);font-size:var(--type-meta)}
-.card-comments>header>a{margin-inline-start:auto;font-size:var(--type-small)}
+.card-comments>header>a{margin-inline-start:auto;color:var(--accent);font-size:var(--type-small)}
 .card-comment-list{list-style:none;margin:0;padding:0}
 .card-comment-list>li{padding:14px 0;border-bottom:1px solid var(--line);scroll-margin-top:100px}
 .card-comment-meta{display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px;font-size:var(--type-small)}
@@ -68,7 +72,9 @@ button.card-comment-context:hover{border-inline-start-color:var(--accent);backgr
 .inline-comment-content .community-prose :is(h3,h4,h5,h6){font-size:var(--type-body);line-height:1.5}
 @media(pointer:coarse),(max-width:600px){.inline-comment-toggle,.inline-comment-collapse,.inline-comment-content .community-code-header button{min-height:44px}}
 @media(pointer:coarse){.inline-comment-body .inline-reading-keyhint{display:none}}
-.card-comment-links{display:flex;align-items:center;flex-wrap:wrap;gap:8px 16px;font-size:var(--type-small)}
+.card-comment-links{display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px;font-size:var(--type-small)}
+.card-comment-links>a{color:var(--text-secondary)}
+.card-comment-links>a:hover{color:var(--accent)}
 .card-comment-links>.reply-reading-return{margin-inline-start:auto;color:var(--accent);background:var(--surface2)}
 .card-comment-links button,.card-more-comments,.card-collapse-comments{border:0;background:transparent;color:var(--text-secondary);font:inherit;cursor:pointer}
 .card-comment-links button{padding:5px 8px;border-radius:6px}
@@ -138,9 +144,11 @@ button.card-comment-context:hover{border-inline-start-color:var(--accent);backgr
 .card-comment-edit-notice { display:flex; align-items:center; flex-wrap:wrap; gap:8px; color:var(--green); font-size:var(--type-small); line-height:1.7; }
 .card-comment-edited { display:inline-flex; flex-wrap:wrap; gap:5px; color:var(--text-secondary); }
 
-.card-comment-search{display:grid;gap:7px;margin:14px 0;min-width:0}
+.card-comment-search{display:grid;gap:7px;margin:10px 0;min-width:0}
 .card-comment-search>.community-query{width:100%;min-width:0}
 .card-comment-search>p{margin:0;color:var(--text-secondary);font-size:var(--type-meta);line-height:1.6}
+/* The search explanation appears only while searching; it stays the field's description. */
+.card-comment-search:not(:focus-within)>p{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
 .card-comment-search-summary{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 16px;color:var(--text-secondary);font-size:var(--type-small)}
 .card-comment-search-summary button,.card-comments-empty>.text-button{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:6px 9px;border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--accent);font:inherit;font-size:var(--type-small)}
 .card-comments-empty>p{margin:0 0 8px}
@@ -148,15 +156,29 @@ button.card-comment-context:hover{border-inline-start-color:var(--accent);backgr
 .card-comment-results .reply-search-heading button,.card-comment-results .reply-search-full{min-height:44px}
 .card-comment-results .reply-search-full-body>.translated-reply{font-size:var(--type-body);line-height:1.75}
 
-.card-comment-search .community-query :is(input,button){min-height:44px}
-.card-comment-search .community-query button{min-width:44px}
+@media(pointer:coarse){.card-comment-search .community-query :is(input,button){min-height:44px}.card-comment-search .community-query button{min-width:44px}}
 
-.card-actions>button{min-height:44px}
 .card-actions>.card-post-quote{color:var(--text-secondary)}
 .card-actions>.card-post-quote:hover:not(:disabled){color:var(--accent);background:var(--surface2)}
 .discussion-actions>.discussion-post-quote{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:8px 12px;border-radius:8px;color:var(--text-secondary)}
 .discussion-actions>.discussion-post-quote:hover:not(:disabled){background:var(--surface2);color:var(--accent)}
+/* Narrow cards keep one tidy action row: secondary actions become icons with screen-reader labels. */
 @container post-interaction (max-width:560px){.card-actions>.card-post-quote{min-width:44px;padding-inline:10px}.card-post-quote>span{display:none}}
+@container post-interaction (max-width:1000px){
+ .community-post-card .card-actions>.card-post-quote,.community-post-card .card-actions .discussion-share-compact .discussion-copy{min-width:var(--control-height,44px);padding-inline:8px}
+ .community-post-card .card-post-quote>span{display:none}
+ .community-post-card .card-actions .discussion-copy-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+}
+@container post-interaction (max-width:760px){
+ .community-post-card .card-actions>:is(.card-post-quote,.post-report-trigger),.community-post-card .card-actions .discussion-share-compact .discussion-copy{min-width:var(--control-height,44px);padding-inline:8px}
+ .community-post-card .card-post-quote>span{display:none}
+ .community-post-card .card-actions>button,.community-post-card .card-actions .card-reposts,.community-post-card .post-bookmark>button,.community-post-card .post-bookmark-signin{padding-inline:8px}
+ .community-post-card .card-actions :is(.post-report-label,.discussion-copy-label,.card-count-label){position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+}
+@container post-interaction (max-width:520px){
+ .community-post-card .card-actions-extras{flex-basis:auto;margin:0 0 0 auto}
+}
+@media(max-width:600px){.community-post-card .card-actions-extras{flex-basis:auto;margin:0 0 0 auto}}
 
 .card-comments-empty>.text-button{margin-block:4px;margin-inline-end:8px}
 .card-comment-paging{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:12px}

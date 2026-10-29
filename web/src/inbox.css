@@ -1,8 +1,10 @@
 .inbox-bell { position:relative; flex:none; }
 .inbox-bell-trigger { position:relative; display:grid; place-items:center; width:40px; height:40px; border:1px solid transparent; border-radius:50%; padding:0; color:var(--text-secondary); background:transparent; }
 .inbox-bell-trigger:hover, .inbox-bell-trigger[aria-expanded="true"] { background:var(--surface2); border-color:var(--line); color:var(--text); }
-.inbox-unread-dot { position:absolute; width:7px; height:7px; top:6px; right:7px; border-radius:50%; background:#e5484d; box-shadow:0 0 0 2px var(--surface); }
-.inbox-popover { position:absolute; top:calc(100% + 12px); right:0; z-index:80; width:390px; max-width:calc(100vw - 24px); max-height:calc(100dvh - 90px); overflow-y:auto; overscroll-behavior:contain; box-sizing:border-box; border:1px solid var(--line); border-radius:14px; background:var(--surface); color:var(--text); box-shadow:0 8px 24px #00000012,0 24px 64px #0000000d; scrollbar-width:thin; }
+/* Numeric unread badge (the trigger's label already states the count). */
+.inbox-unread-dot { position:absolute; top:1px; right:-2px; min-width:16px; height:16px; padding:0 4px; box-sizing:border-box; border-radius:8px; background:color-mix(in srgb,var(--red) 75%,#000); color:#fff; font:600 10px/16px var(--font-sans); font-variant-numeric:tabular-nums; text-align:center; box-shadow:0 0 0 2px var(--surface); pointer-events:none; }
+@media (forced-colors:active) { .inbox-unread-dot { border:1px solid CanvasText; } }
+.inbox-popover { position:absolute; top:calc(100% + 12px); right:0; z-index:80; width:390px; max-width:calc(100vw - 24px); max-height:calc(100dvh - 90px); overflow-y:auto; overscroll-behavior:contain; box-sizing:border-box; border:1px solid var(--line); border-radius:var(--radius-lg); background:var(--surface-overlay); --surface:var(--surface-overlay); color:var(--text); box-shadow:var(--shadow-overlay); scrollbar-width:thin; }
 .inbox-popover:focus { outline:none; }
 .inbox-panel-heading { display:flex; flex-direction:column; gap:12px; padding:18px 18px 12px; }
 .inbox-panel-title { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; width:100%; }
@@ -34,8 +36,8 @@
 .inbox-post-title { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; font-size:var(--type-small); font-weight:500; color:var(--text-secondary); }
 .inbox-message-preview { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; color:var(--muted); white-space:pre-wrap; font-size:var(--type-small); }
 .inbox-event-icon { display:grid; place-items:center; flex:none; width:34px; height:34px; border-radius:50%; background:var(--surface2); color:var(--accent); }
-.inbox-event-like { color:#d85d6b; background:color-mix(in srgb,#d85d6b 9%,var(--surface)); }
-.inbox-row-dot { flex:none; margin-top:7px; width:6px; height:6px; border-radius:50%; background:#e5484d; }
+.inbox-event-like { color:var(--red); background:color-mix(in srgb,var(--red) 9%,var(--surface)); }
+.inbox-row-dot { flex:none; margin-top:7px; width:6px; height:6px; border-radius:50%; background:var(--red); }
 .inbox-mark-read { display:flex; align-items:center; justify-content:flex-end; gap:5px; width:100%; box-sizing:border-box; min-height:40px; padding:8px 18px; color:var(--muted); font-size:var(--type-small); }
 .inbox-mark-read:hover { color:var(--accent); }
 .inbox-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; margin:0; padding:35px 24px; text-align:center; color:var(--muted); font-size:var(--type-small); line-height:1.7; }
@@ -52,16 +54,16 @@
 .messages-page-heading { display:flex; align-items:center; gap:22px; margin-bottom:18px; }
 .messages-page-heading h1 { margin:0; font-size:25px; letter-spacing:-.5px; }
 .messages-page-heading .social-back { display:inline-flex; align-items:center; min-height:40px; margin:0; font-size:var(--type-small); }
-.messages-welcome-back { display:inline-flex; align-items:center; gap:7px; min-height:40px; color:var(--muted); font-size:var(--type-small); }
+.messages-welcome-back { display:inline-flex; align-items:center; gap:7px; min-height:40px; margin-inline-start:max(0px,calc((100% - 560px) / 2)); color:var(--muted); font-size:var(--type-small); }
 .messages-welcome-back:hover { color:var(--accent); }
-.messages-welcome { box-sizing:border-box; width:min(100%,560px); margin:clamp(24px,6vh,64px) auto 0; padding:42px 32px; border:1px solid var(--line); border-radius:16px; background:var(--surface); text-align:center; }
-.messages-welcome-icon { display:grid; place-items:center; width:72px; height:72px; margin:0 auto 20px; border-radius:20px; color:var(--accent); background:color-mix(in srgb,var(--accent) 12%,var(--surface)); }
+.messages-welcome { box-sizing:border-box; width:min(100%,560px); margin:clamp(16px,4vh,40px) auto 0; padding:36px 32px; border:1px solid var(--line); border-radius:var(--radius-lg); background:var(--surface); text-align:center; }
+.messages-welcome-icon { display:grid; place-items:center; width:52px; height:52px; margin:0 auto 14px; border-radius:var(--radius-lg,12px); color:var(--accent); background:color-mix(in srgb,var(--accent) 12%,var(--surface)); }
 .messages-welcome-eyebrow { color:var(--muted); font-size:var(--type-meta); }
-.messages-welcome h1 { margin:8px 0 12px; color:var(--text); font-size:30px; letter-spacing:-.6px; }
-.messages-welcome p { max-width:380px; margin:0 auto; color:var(--text-secondary); font-size:var(--type-body); line-height:1.8; }
-.messages-welcome .button { display:inline-flex; align-items:center; justify-content:center; gap:12px; min-height:44px; margin-top:26px; padding:11px 26px; }
-.messages-welcome small { display:block; margin-top:15px; color:var(--muted); font-size:var(--type-small); line-height:1.6; }
-.messages-layout { display:grid; grid-template-columns:290px minmax(0,1fr); min-height:min(420px,calc(100dvh - 180px)); height:min(720px,calc(100dvh - 180px)); border:1px solid var(--line); border-radius:14px; overflow:hidden; background:var(--surface); }
+.messages-welcome h1 { margin:4px 0 8px; color:var(--text); font-size:var(--type-title); letter-spacing:0; }
+.messages-welcome p { max-width:380px; margin:0 auto; color:var(--text-secondary); font-size:var(--type-small); line-height:1.6; }
+.messages-welcome .button { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:var(--control-height,44px); margin-top:20px; padding:4px 20px; }
+.messages-welcome small { display:block; margin-top:12px; color:var(--muted); font-size:var(--type-meta); line-height:1.6; }
+.messages-layout { display:grid; grid-template-columns:290px minmax(0,1fr); min-height:min(420px,calc(100dvh - 180px)); height:min(720px,calc(100dvh - 180px)); border:1px solid var(--line); border-radius:var(--radius-lg); overflow:hidden; background:var(--surface); }
 .messages-sidebar { min-width:0; overflow-y:auto; overscroll-behavior:contain; border-right:1px solid var(--line); }
 .messages-sidebar-heading { padding:20px 18px 12px; }
 .messages-sidebar-heading h2 { margin:0 0 12px; font-size:var(--type-body); font-weight:600; }
@@ -100,7 +102,7 @@
 .message-composer .button { min-height:44px; margin-inline-start:auto; padding:9px 16px; font-size:var(--type-small); }
 .message-composer .inbox-error { margin:10px 0 0; }
 @media (max-width:700px) {
-  .inbox-popover { position:fixed; top:68px; right:12px; width:390px; max-height:calc(100dvh - 84px); }
+  .inbox-popover { position:fixed; top:calc(var(--topbar-offset, 68px) + 8px); right:12px; width:390px; max-height:calc(100dvh - var(--topbar-offset, 68px) - 16px); }
   .messages-page { width:calc(100% - 24px); padding-top:18px; }
   .messages-page-heading { justify-content:space-between; gap:12px; }
   .messages-welcome { margin-top:24px; padding:32px 20px; border-radius:12px; }
@@ -125,8 +127,25 @@
   .messages-back { min-width:44px; }
 }
 
-.inbox-popover .inbox-panel-title { padding-inline-end:40px; box-sizing:border-box; }
-.inbox-close { position:absolute; top:11px; right:10px; display:grid; place-items:center; width:40px; height:40px; border-radius:7px; color:var(--muted); z-index:1; }
+/* LeetCode-style one-row header: title and "Mark all as read" share a row beside the close button. */
+.inbox-popover .inbox-panel-heading { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:0 8px; padding:10px 56px 8px 18px; }
+/* The title may wrap "Open messages" under "Inbox" on phones instead of colliding with the action. */
+.inbox-popover .inbox-panel-title { flex-wrap:wrap; justify-content:flex-start; gap:0 14px; min-width:0; }
+.inbox-popover .inbox-panel-title > a { white-space:nowrap; min-height:32px; }
+.inbox-popover .inbox-read-all-button > svg { display:none; }
+.inbox-popover .inbox-read-all { display:contents; }
+.inbox-popover .inbox-read-all-button { width:auto; min-height:32px; padding:4px 8px; border:0; border-radius:var(--radius-sm); background:none; color:var(--text-secondary); white-space:nowrap; }
+.inbox-popover .inbox-read-all-button:hover:not(:disabled) { background:var(--surface3); color:var(--accent); }
+/* The popover is the raised overlay surface (--surface is re-based on it above), so hover states and
+   chips step up to --surface3; on --surface2 they would vanish against the dark overlay. */
+.inbox-popover .inbox-item:hover, .inbox-popover .inbox-item[aria-current="page"], .inbox-popover .inbox-close:hover, .inbox-popover .inbox-list-refresh > button:hover:not(:disabled) { background:var(--surface3); }
+.inbox-popover .inbox-event-icon { background:var(--surface3); }
+.inbox-popover .inbox-event-like { background:color-mix(in srgb,var(--red) 12%,var(--surface)); }
+.inbox-popover .inbox-item.unread { background:color-mix(in srgb,var(--accent) 6%,var(--surface)); }
+.inbox-popover .inbox-item.unread:hover { background:color-mix(in srgb,var(--accent) 10%,var(--surface3)); }
+.inbox-popover .inbox-notification-filters { background:transparent; }
+.inbox-popover .inbox-read-all-feedback { grid-column:1 / -1; margin:2px 0 4px; }
+.inbox-close { position:absolute; top:10px; right:10px; display:grid; place-items:center; width:40px; height:40px; border-radius:7px; color:var(--muted); z-index:1; }
 .inbox-close:hover { background:var(--surface2); color:var(--text); }
 .inbox-popover>.feature-loading,.inbox-popover>.feature-failure { padding-inline-end:58px; }
 .inbox-list-refresh { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:10px; padding:6px 18px; border-bottom:1px solid var(--line); }
@@ -140,4 +159,4 @@
 .inbox-row-read { position:absolute; top:10px; right:6px; display:grid; place-items:center; width:40px; height:40px; border-radius:7px; color:var(--accent); }
 .inbox-row-read:hover:not([aria-disabled="true"]) { background:var(--surface3); }
 .inbox-row-read[aria-disabled="true"] { color:var(--muted); opacity:.6; cursor:default; }
-@media(pointer:coarse) { .inbox-close,.inbox-row-read { width:44px; height:44px; } .inbox-list-refresh>button { min-height:44px; } }
+@media(pointer:coarse) { .inbox-close,.inbox-row-read { width:44px; height:44px; } .inbox-list-refresh>button,.inbox-popover .inbox-read-all-button,.inbox-popover .inbox-panel-title > a { min-height:44px; } }

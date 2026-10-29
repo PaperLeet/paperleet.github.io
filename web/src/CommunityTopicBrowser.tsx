@@ -1,4 +1,4 @@
-import {useId,useRef,useState} from 'react';
+import {useEffect,useId,useRef,useState} from 'react';
 import {BookOpen,ChevronDown} from 'lucide-react';
 import AppLink from './AppLink';
 import {appLocation} from './appLocation';
@@ -17,6 +17,17 @@ export default function CommunityTopicBrowser({from,topics=[],loading=false,erro
  const root=useRef<HTMLDetailsElement>(null),summary=useRef<HTMLElement>(null),composing=useRef(false);
  const current=readCommunityFeed(from)?.topicId||'';
  const [query,setQuery]=useState(''),[selected,setSelected]=useState(current);
+ const outside=useRef<(event:PointerEvent)=>void>(undefined);
+ useEffect(()=>()=>{if(outside.current)document.removeEventListener('pointerdown',outside.current);},[]);
+ /** As a dropdown (full community page), a press outside closes it like any menu; inline panels stay open. */
+ function toggled(open:boolean){
+  if(outside.current)document.removeEventListener('pointerdown',outside.current);outside.current=undefined;
+  if(!open)return;
+  outside.current=event=>dismiss(event.target as Node);
+  document.addEventListener('pointerdown',outside.current);
+ }
+ /** Closes the dropdown (never the inline panel) when a press or keyboard focus lands outside it. */
+ function dismiss(next:Node|null){const node=root.current,panel=node?.querySelector('.community-topic-panel');if(node?.open&&next&&panel&&!node.contains(next)&&getComputedStyle(panel).position==='absolute')node.open=false;}
  const available=topics.filter(topic=>!topic.retired&&validCommunityTopic(topic.id));
  const matches=searchRelatedModules(available,query),currentTopic=topics.find(topic=>topic.id===current),chosen=topics.find(topic=>topic.id===selected);
  const missingSelection=!!selected&&!matches.some(topic=>topic.id===selected);
@@ -26,7 +37,7 @@ export default function CommunityTopicBrowser({from,topics=[],loading=false,erro
  function close(){if(!here()||!root.current)return;if(root.current.contains(document.activeElement)&&summary.current){summary.current.focus({preventScroll:true});keepReadingTriggerVisible(summary.current,100);}root.current.open=false;}
  if(!topics.length&&!current&&!loading&&!error)return null;
  const title=currentTopic?topicTitle(currentTopic,locale==='en'):current||t('全部题目','All modules');
- return <details className="community-topic-browser" ref={root} onCompositionStart={()=>{composing.current=true;}} onCompositionEnd={()=>{composing.current=false;}} onKeyDown={event=>{
+ return <details className="community-topic-browser" ref={root} onToggle={event=>toggled(event.currentTarget.open)} onBlur={event=>dismiss(event.relatedTarget as Node|null)} onCompositionStart={()=>{composing.current=true;}} onCompositionEnd={()=>{composing.current=false;}} onKeyDown={event=>{
   if(event.key!=='Escape'||event.defaultPrevented||event.repeat||event.ctrlKey||event.metaKey||event.altKey||event.shiftKey||composing.current||event.nativeEvent.isComposing||event.keyCode===229||(event.target as HTMLElement).tagName==='SELECT')return;
   event.preventDefault();event.stopPropagation();close();
  }}>

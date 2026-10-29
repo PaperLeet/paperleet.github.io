@@ -1,5 +1,5 @@
 import {useEffect,useId,useRef} from 'react';
-import {ArrowLeft,ArrowRight,BookOpen,Code2,ExternalLink,Search,X} from 'lucide-react';
+import {ArrowLeft,ArrowRight,BookOpen,Code2,ExternalLink,Route,Search,X} from 'lucide-react';
 import AppLink from './AppLink';
 import {appLocation} from './appLocation';
 import {controlIsActive} from './activeControls';
@@ -32,7 +32,7 @@ export default function CollectionReadingList({collectionId,papers,problems,save
  const available=all.filter(entry=>practicePaper(entry)).length;
  function currentView(){
   const current=readLibraryRoute(appLocation.hash);
-  return controlIsActive(root.current)&&current?.collectionId===collectionId&&current.filters.view!=='modules'&&current.filters.query===query;
+  return controlIsActive(root.current)&&current?.collectionId===collectionId&&!current.filters.view&&current.filters.query===query;
  }
  function changeQuery(value:string){
   if(!currentView())return;
@@ -62,6 +62,7 @@ export default function CollectionReadingList({collectionId,papers,problems,save
    <nav className="collection-reading-views" aria-label={t('合集视图','Collection views')}>
     <AppLink href={returnTo} aria-current="page"><BookOpen size={17} aria-hidden="true"/>{t('阅读清单','Reading list')}<span>{all.length}</span></AppLink>
     <AppLink href={practiceHref}><Code2 size={17} aria-hidden="true"/>{t('可练习','Practice')}<span>{available}</span></AppLink>
+    <AppLink href={libraryHref(collectionId,{...emptyLibraryFilters(),view:"roadmap"})}><Route size={17} aria-hidden="true"/>{t("路线图","Roadmap")}</AppLink>
    </nav>
    <div className="collection-reading-toolbar">
     <div className="search"><Search size={17} aria-hidden="true"/><input ref={search} type="search" maxLength={200} aria-label={t('搜索合集论文','Search collection papers')} aria-controls={listId} aria-keyshortcuts="/" placeholder={t('搜索标题、年份、方法或 arXiv…','Search title, year, method or arXiv…')} value={query} onChange={event=>changeQuery(event.target.value)} onKeyDown={event=>{if(event.key==='Escape'&&!event.defaultPrevented&&!event.repeat&&!event.nativeEvent.isComposing&&event.nativeEvent.keyCode!==229&&!event.ctrlKey&&!event.metaKey&&!event.altKey&&!event.shiftKey&&currentView()){event.preventDefault();event.stopPropagation();clear();}}}/>{query?<button type="button" className="search-clear" aria-label={t('清空搜索','Clear search')} onClick={clear}><X size={15}/></button>:<kbd aria-hidden="true">/</kbd>}</div>

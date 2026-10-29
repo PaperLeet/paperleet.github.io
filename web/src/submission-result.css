@@ -3,11 +3,11 @@
   width: min(880px, calc(100% - 48px));
   margin: 36px auto 64px;
 }
-.submission-result-page.is-failed { --result-color: #de895e; }
+.submission-result-page.is-failed { --result-color: var(--red); }
 .submission-result-navigation { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 22px; font-size: var(--type-body); color: var(--muted); }
 .submission-result-back { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: var(--type-body); }
 .submission-result-back:hover { color: var(--text); }
-.submission-result-card { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; overflow: hidden; box-shadow: 0 12px 40px #00000008; }
+.submission-result-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-panel); overflow: hidden; }
 .submission-result-hero { position: relative; display: flex; align-items: center; gap: 28px; padding: 44px 38px 34px; background: radial-gradient(ellipse at 4% 0%, color-mix(in srgb, var(--result-color) 12%, transparent), transparent 70%); }
 .submission-result-mark { position: relative; display: grid; flex-shrink: 0; place-items: center; width: 100px; height: 100px; border: 1px solid color-mix(in srgb, var(--result-color) 28%, transparent); border-radius: 50%; background: color-mix(in srgb, var(--result-color) 10%, var(--surface)); color: var(--result-color); }
 .submission-result-halo { position: absolute; inset: -10px; border: 1px solid color-mix(in srgb, var(--result-color) 13%, transparent); border-radius: inherit; }
@@ -21,12 +21,12 @@
 .submission-result-heading { min-width: 0; }
 .submission-result-eyebrow { color: var(--muted); font-size: var(--type-meta); font-weight: 650; letter-spacing: .09em; text-transform: uppercase; }
 .submission-result-heading h1 { margin: 5px 0 6px; font-size: clamp(30px, 4vw, 43px); line-height: 1.15; letter-spacing: -.035em; font-weight: 700; outline: none; }
-.is-accepted .submission-result-heading h1 { color: var(--result-color); }
+.submission-result-heading h1 { color: var(--result-color); }
 .submission-result-heading p { margin: 0; color: var(--muted); font-size: var(--type-body); max-width: 430px; }
 .submission-result-saved { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; margin-left: auto; white-space: nowrap; color: var(--muted); font-size: var(--type-meta); }
 .submission-result-problem { display: flex; align-items: center; gap: 14px; margin: 0 32px; padding: 19px 6px; border-bottom: 1px solid var(--line); }
 .submission-result-problem:hover { color: var(--result-color); }
-.submission-result-problem-icon { display: grid; place-items: center; width: 43px; height: 43px; border: 1px solid var(--line); border-radius: 11px; color: var(--muted); }
+.submission-result-problem-icon { display: grid; place-items: center; width: 43px; height: 43px; border: 1px solid var(--line); border-radius: var(--radius-lg); color: var(--muted); }
 .submission-result-problem > span:nth-child(2) { display: grid; min-width: 0; gap: 3px; }
 .submission-result-problem small { color: var(--muted); font-size: var(--type-meta); }
 .submission-result-problem strong { font-size: 17px; font-weight: 600; overflow-wrap: anywhere; }
@@ -41,17 +41,17 @@
 .submission-result-date time { display: grid; gap: 5px; }
 .submission-result-date time span { font-size: var(--type-meta); color: var(--muted); font-weight: 400; }
 .submission-result-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 0 38px 32px; }
-.submission-result-actions .button { min-height: 42px; padding: 10px 18px; font-size: var(--type-body); border-radius: 9px; }
+.submission-result-actions .button { min-height: var(--control-height); padding: 8px 16px; font-size: var(--type-small); border-radius: var(--control-radius); }
 .submission-result-primary { background: var(--text); color: var(--bg); border: 1px solid transparent; }
 .submission-result-primary:hover { background: color-mix(in srgb, var(--text) 84%, var(--bg)); }
 .is-accepted .submission-result-primary { background: var(--green); color: var(--bg); }
 .is-accepted .submission-result-primary:hover { background: color-mix(in srgb, var(--green) 85%, var(--text)); }
-.submission-result-failure { margin: 0 38px 24px; padding: 16px 18px; border: 1px solid color-mix(in srgb, var(--result-color) 25%, var(--line)); border-radius: 10px; background: color-mix(in srgb, var(--result-color) 4%, var(--surface)); }
-.submission-result-failure > div { display: flex; align-items: center; gap: 8px; color: var(--result-color); margin-bottom: 8px; font-size: var(--type-small); }
+.submission-result-failure { margin: 0 38px 24px; padding: 14px 16px; border: 1px solid color-mix(in srgb, var(--result-color) 25%, var(--line)); border-radius: var(--control-radius); background: color-mix(in srgb, var(--result-color) 4%, var(--surface)); }
+.submission-result-failure > div { display: flex; align-items: center; gap: 8px; color: var(--result-color); margin-bottom: 8px; font-size: var(--type-small); font-weight: 600; }
 .submission-result-failure > code { font-size: var(--type-small); overflow-wrap: anywhere; }
 .submission-result-failure p { font-size: var(--type-small); color: var(--muted); margin: 8px 0 0; }
-.submission-result-failure pre { margin: 12px 0 0; font-size: var(--type-small); line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--text); }
-.submission-result-details { margin-top: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.submission-result-failure pre { margin: 12px 0 0; padding: 10px 12px; border-radius: var(--radius-sm); background: color-mix(in srgb, var(--text) 5%, var(--surface)); font: var(--type-meta)/1.7 var(--font-mono); white-space: pre-wrap; overflow-wrap: break-word; color: var(--text); }
+.submission-result-details { margin-top: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-panel); overflow: hidden; }
 .submission-result-details-toggle { display: flex; align-items: center; justify-content: space-between; gap: 16px; width: 100%; padding: 18px 23px; font-size: var(--type-body); text-align: left; }
 .submission-result-details-toggle > span { display: inline-flex; align-items: center; gap: 10px; }
 .submission-result-details-toggle > span:last-child { color: var(--muted); font-variant-numeric: tabular-nums; }

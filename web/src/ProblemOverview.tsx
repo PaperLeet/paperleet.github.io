@@ -1,7 +1,7 @@
 import AppLink from './AppLink';
 import {deferredFeature} from './deferredFeature';
 const ChallengePanels=deferredFeature(()=>import('./ChallengePanels'),['每日挑战','daily challenge']);
-import {BookOpen, CheckCircle2, ExternalLink, FileCode2} from 'lucide-react';
+import {BookOpen, CheckCircle2, ExternalLink} from 'lucide-react';
 import type {Problem} from './types';
 import type {ProblemStatistics} from './ProblemStats';
 import {ProblemStats} from './ProblemStatsView';
@@ -26,22 +26,9 @@ export default function ProblemOverview({problem,prerequisite,returnTo,course,no
   return <>
     <ChallengePanels problems={[problem]} problemId={problem.id} compact/>
     <div className="problem-heading">
-      <div className="heading-kicker">
-        <FileCode2 size={18} />
-        <span>
-          {t("模块", "MODULE")} {problem.number}
-        </span>
-        {notesUnlocked && (
-          <span className="accepted">
-            <CheckCircle2 size={14} />
-            {t("已通过", "Solved")}
-          </span>
-        )}
-      </div>
       <h1>
         {problem.number}. {problem.title}
       </h1>
-      <ProblemCompanyTags problemId={problem.id} number={problem.number} onCode={onCode}/>
       <div className="heading-tags">
         <span className={`difficulty ${problem.difficulty}`}>
           {({ E: t("简单", "Easy"), M: t("中等", "Medium"), H: t("困难", "Hard") } as Record<string,string>)[problem.difficulty] || problem.difficulty}
@@ -56,8 +43,15 @@ export default function ProblemOverview({problem,prerequisite,returnTo,course,no
             {prerequisite?.number || "—"}
           </AppLink>
         )}
+        {notesUnlocked && (
+          <span className="accepted">
+            <CheckCircle2 size={14} />
+            {t("已通过", "Solved")}
+          </span>
+        )}
       </div>
       <ProblemStats stats={stats} loading={statsLoading} />
+      <ProblemCompanyTags problemId={problem.id} number={problem.number} onCode={onCode}/>
     </div>
     <AppLink
       className="paper-card"

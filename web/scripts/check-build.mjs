@@ -1,9 +1,27 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import zlib from 'node:zlib';
+import {createHash} from 'node:crypto';
 import {loadEnv} from 'vite';
 
 const manifest = JSON.parse(fs.readFileSync('dist/.vite/manifest.json', 'utf8'));
+const catalogSource=fs.readFileSync('dist/data/index-v6.json');
+const catalog=JSON.parse(catalogSource);
+assert.equal(catalog.schema_version,6);
+assert.match(catalog.starters.url,/^starters\/[a-f0-9]{64}\.json$/);
+const starterAsset=fs.readFileSync('dist/data/'+catalog.starters.url);
+assert.equal(starterAsset.length,catalog.starters.bytes,'The published starter descriptor retains the exact response length');
+assert.equal(createHash('sha256').update(starterAsset).digest('hex'),catalog.starters.sha256,'The published source bytes match their immutable identity');
+assert.equal(catalog.starters.url,`starters/${catalog.starters.sha256}.json`);
+assert(catalogSource.length<256*1024&&zlib.gzipSync(catalogSource).length<96*1024,'The metadata manifest retains the 256 KiB raw / 96 KiB gzip budget');
+assert(starterAsset.length<=256*1024&&zlib.gzipSync(starterAsset).length<64*1024,'The immutable starter pack stays within its raw decoder bound and 64 KiB gzip budget');
+assert(zlib.gzipSync(catalogSource).length+zlib.gzipSync(starterAsset).length<160*1024,'The complete cold catalog bootstrap stays within 160 KiB gzip');
+for(const name of ['index-v5.json','index-v4.json','index-v3.json','index.json'])assert.deepEqual(fs.readFileSync('dist/data/'+name),fs.readFileSync('public/data/'+name),'Existing clients retain the unchanged '+name+' asset');
+for(const name of fs.readdirSync('public/data/starters')){
+  assert.match(name,/^[a-f0-9]{64}\.json$/);
+  assert.deepEqual(fs.readFileSync('dist/data/starters/'+name),fs.readFileSync('public/data/starters/'+name),'Previously exported immutable starter packs must remain available: '+name);
+}
+console.log(`PASS catalog bootstrap assets: ${zlib.gzipSync(catalogSource).length} bytes metadata + ${zlib.gzipSync(starterAsset).length} bytes immutable starters; exact content identity and existing version/hash assets retained`);
 const brandAsset=Object.values(manifest).find(entry=>entry.src==='src/assets/brand-mark.svg');
 assert(brandAsset?.file.endsWith('.svg'),'The static brand mark must remain an external SVG asset');
 assert.deepEqual(fs.readFileSync('dist/'+brandAsset.file),fs.readFileSync('src/assets/brand-mark.svg'),'The emitted brand mark preserves its source geometry');
@@ -15,7 +33,7 @@ function visit(key) {
   for (const dependency of manifest[key].imports || []) visit(dependency);
 }
 visit('index.html');
-for (const key of ['src/BrowserFailureMessage.tsx', 'src/legacyCatalogIndex.ts', 'src/BrowserLearningNotice.tsx', 'src/WorkspacePanelIcon.tsx', 'src/ReadingTabControls.tsx', 'src/BrowserRunProgressDetails.tsx', 'src/PaperDetail.tsx', 'src/PythonEditor.tsx', 'src/RichText.tsx', 'src/Community.tsx', 'src/Account.tsx', 'src/Submissions.tsx', 'src/Lab.tsx', 'src/highlight.ts', 'src/browserLearningController.ts', 'src/browserWorkspaceController.ts', 'src/SolutionHistory.tsx', 'src/AccountLogout.tsx', 'src/WorkspaceBackup.tsx', 'src/libraryPosition.ts', 'src/QueueAdmissionNotice.tsx', 'src/browserJudge.ts', 'src/ReportView.tsx', 'src/WorkspaceTestResults.tsx', 'src/ModuleNavigator.tsx', 'src/InterviewWritingGuide.tsx', 'src/CommunityWritingGuide.tsx', 'src/catalogData.ts', 'src/hostedDraftCache.ts', 'src/SubmissionResultPage.tsx', 'src/OnlinePresence.tsx', 'src/ResizableSplit.tsx', 'src/Messages.tsx', 'src/DraftCenter.tsx', 'src/SubmissionCompletionNotice.tsx']) {
+for (const key of ['src/BrowserFailureMessage.tsx', 'src/legacyCatalogIndex.ts', 'src/catalogTransport.ts', 'src/BrowserLearningNotice.tsx', 'src/WorkspacePanelIcon.tsx', 'src/ReadingTabControls.tsx', 'src/BrowserRunProgressDetails.tsx', 'src/PaperDetail.tsx', 'src/PythonEditor.tsx', 'src/RichText.tsx', 'src/Community.tsx', 'src/Account.tsx', 'src/Submissions.tsx', 'src/Lab.tsx', 'src/highlight.ts', 'src/browserLearningController.ts', 'src/browserWorkspaceController.ts', 'src/SolutionHistory.tsx', 'src/AccountLogout.tsx', 'src/WorkspaceBackup.tsx', 'src/libraryPosition.ts', 'src/QueueAdmissionNotice.tsx', 'src/browserJudge.ts', 'src/ReportView.tsx', 'src/WorkspaceTestResults.tsx', 'src/ModuleNavigator.tsx', 'src/InterviewWritingGuide.tsx', 'src/CommunityWritingGuide.tsx', 'src/catalogData.ts', 'src/hostedDraftCache.ts', 'src/SubmissionResultPage.tsx', 'src/OnlinePresence.tsx', 'src/ResizableSplit.tsx', 'src/Messages.tsx', 'src/DraftCenter.tsx', 'src/SubmissionCompletionNotice.tsx', 'src/CollectionRoadmap.tsx']) {
   // Rollup can use generated keys when deferred pages also share static imports.
   const sharedPage=key==='src/Community.tsx'?'Community':key==='src/DraftCenter.tsx'?'DraftCenter':undefined;
   const candidates=manifest[key]?[[key,manifest[key]]]:sharedPage?Object.entries(manifest).filter(([,entry])=>entry.name===sharedPage&&entry.isDynamicEntry):[];
@@ -41,7 +59,7 @@ for (const key of ['src/queuedJudgeController.ts','src/queueAdmission.ts']) {
     assert(!initial.has(entries[0][0]), `${key} must not load with the paper library`);
   }
 }
-for (const key of ['src/ResetCodeButton.tsx', 'src/Settings.tsx', 'src/Achievements.tsx', 'src/AchievementObserver.tsx', 'src/BrowserResultActions.tsx', 'src/JudgeRuntimeDetails.tsx', 'src/WorkspaceTestResults.tsx', 'src/WorkspaceLayoutMenu.tsx', 'src/HeaderAccountMenu.tsx', 'src/Interviews.tsx', 'src/ProblemCompanyTags.tsx', 'src/ProblemOverview.tsx']) {
+for (const key of ['src/ResetCodeButton.tsx', 'src/Settings.tsx', 'src/Achievements.tsx', 'src/AchievementObserver.tsx', 'src/BrowserResultActions.tsx', 'src/JudgeRuntimeDetails.tsx', 'src/WorkspaceTestResults.tsx', 'src/WorkspaceConsole.tsx', 'src/WorkspaceAccessNotice.tsx', 'src/WorkspaceLayoutMenu.tsx', 'src/HeaderAccountMenu.tsx', 'src/Interviews.tsx', 'src/ProblemCompanyTags.tsx', 'src/ProblemOverview.tsx']) {
   assert(manifest[key]?.isDynamicEntry && !initial.has(key), `${key} must load with practice rather than the library`);
 }
 const administration=Object.entries(manifest).filter(([,entry])=>entry.name==='AdminWorkspace'&&entry.isDynamicEntry);
@@ -89,6 +107,10 @@ assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('creat
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Snapshot for this company and report publication period')), 'Company row evidence and actions must remain deferred');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('My linked practice')), 'Company preparation progress must remain deferred');
 assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('Some filters are unavailable')), 'Interview filter support UI must remain deferred');
+assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('roadmap-node-bar')), 'Collection roadmap rendering must stay out of the initial bundle');
+assert(Object.values(manifest).some(entry=>entry.file.endsWith('.js')&&!initial.has(entry.src||'')&&fs.readFileSync(`dist/${entry.file}`,'utf8').includes('roadmap-node-bar')), 'The deferred collection roadmap must ship its rendering');
+for(const marker of ['roadmap-thumbnails','roadmap-flow']) assert(files.every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes(marker)), `Collection roadmap ${marker} must stay out of the initial bundle`);
+assert([...initial].flatMap(key=>manifest[key].css||[]).every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('roadmap-flow')),'Collection roadmap flow styles must stay out of initial styles');
 for(const name of ['LibraryPagination','LibraryCollections','LibraryResultControls','CommunitySubmissions','BrowserRunProgress']){
  const entry='src/'+name+'.tsx';
  assert(manifest[entry]?.isDynamicEntry&&!initial.has(entry), `${name} must remain deferred independently of the first usable library list`);
@@ -100,6 +122,8 @@ const raw = files.reduce((sum, file) => sum + fs.statSync(`dist/${file}`).size, 
 const gzip = files.reduce((sum, file) => sum + zlib.gzipSync(fs.readFileSync(`dist/${file}`), { level: 9 }).length, 0);
 assert(raw <= 400 * 1024 && gzip <= 130 * 1024, `Initial JavaScript exceeds the 400 KiB raw / 130 KiB gzip budget: ${raw} / ${gzip}`);
 const css = new Set([...initial].flatMap(key => manifest[key].css || []));
+assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.roadmap-node-bar')),'Collection roadmap styles must stay out of initial styles');
+assert((manifest['src/CollectionRoadmap.tsx']?.css||[]).some(file=>fs.readFileSync(`dist/${file}`,'utf8').includes('.roadmap-node-bar')),'The deferred collection roadmap must ship its styles');
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.discussion-share-compact')), 'Feed sharing recovery layout must remain deferred with community reading');
 assert([...css].every(file=>!fs.readFileSync(`dist/${file}`,'utf8').includes('.interview-concept-favorite')), 'Interview bookmark action layout must not grow initial styles');
 for(const selector of ['.problem-interview-reference','.admin-workspace','.admin-review-inbox','.community-tag-picker','.moderation-layout','.moderation-return','.post-report-dialog','.report-history-card','.moderation-comparison']){

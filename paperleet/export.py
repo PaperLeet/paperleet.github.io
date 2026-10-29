@@ -38,6 +38,68 @@ def compact_index(index):
             "data": base64.b64encode(zopfli.gzip.compress(raw, numiterations=15)).decode("ascii")}}
 
 
+def compact_index_v5(index):
+    """Share complete strings as well as object shapes, without changing values.
+
+    A suffix-sorted string table places related source endings together inside
+    gzip's window. Sorted object fields make the transport independent of dict
+    insertion order; array order and every character of source text survive.
+    """
+    unique_strings = set()
+
+    def collect(value):
+        if isinstance(value, str):
+            unique_strings.add(value)
+        elif isinstance(value, list):
+            for item in value:
+                collect(item)
+        elif isinstance(value, dict):
+            for item in value.values():
+                collect(item)
+
+    collect(index)
+    strings = sorted(unique_strings, key=lambda text: text[::-1])
+    string_ids = {text: position for position, text in enumerate(strings)}
+    shapes, known = [], {}
+
+    def pack(value):
+        if isinstance(value, str):
+            return {"s": string_ids[value]}
+        if isinstance(value, list):
+            return [pack(item) for item in value]
+        if isinstance(value, dict):
+            keys = tuple(sorted(value))
+            if keys not in known:
+                known[keys] = len(shapes)
+                shapes.append(keys)
+            return {str(known[keys]): [pack(value[key]) for key in keys]}
+        return value
+
+    tree = pack(index)
+    raw = json.dumps({"tree": tree, "shapes": shapes, "strings": strings}, ensure_ascii=False,
+                     separators=(",", ":")).encode("utf-8")
+    return {"schema_version": 5, "payload": {"encoding": "gzip-base64", "bytes": len(raw),
+            "data": base64.b64encode(zopfli.gzip.compress(raw, numiterations=15)).decode("ascii")}}
+
+
+def compact_index_v6(index):
+    """Separate immutable exact starters from independently refreshed metadata."""
+    sources = {item["id"]: item["starter"] for item in sorted(index["problems"], key=lambda item: item["id"])}
+    if len(sources) != len(index["problems"]) or any(not isinstance(value, str) for value in sources.values()):
+        raise ValueError("Starter assets require unique module IDs and exact source strings")
+    raw = json.dumps(sources, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+    asset = {"schema_version": 1, "payload": {
+        "encoding": "gzip-base64", "bytes": len(raw),
+        "data": base64.b64encode(zopfli.gzip.compress(raw, numiterations=15)).decode("ascii"),
+    }}
+    encoded = json.dumps(asset, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+    digest = hashlib.sha256(encoded).hexdigest()
+    metadata = {**index, "problems": [{**item, "starter": ""} for item in index["problems"]]}
+    manifest = {"schema_version": 6, "payload": compact_index_v5(metadata)["payload"],
+                "starters": {"url": f"starters/{digest}.json", "sha256": digest, "bytes": len(encoded)}}
+    return manifest, asset
+
+
 def web_readme(markdown: str, language: str = "zh") -> str:
     """Present the browser workflow while retaining maintainer docs on disk."""
     instructions = (
@@ -167,4 +229,14 @@ def export_catalog():
     write_json(destination.parent / "index-v4.json", compact_index({
         "schema_version": 2, "categories": categories, "papers": papers, "problems": index,
     }))
+    write_json(destination.parent / "index-v5.json", compact_index_v5({
+        "schema_version": 2, "categories": categories, "papers": papers, "problems": index,
+    }))
+    manifest, asset = compact_index_v6({
+        "schema_version": 2, "categories": categories, "papers": papers, "problems": index,
+    })
+    # Immutable source packs survive metadata-only updates and old manifests.
+    # Never delete earlier hashes; publish the referencing manifest last.
+    write_json(destination.parent / manifest["starters"]["url"], asset)
+    write_json(destination.parent / "index-v6.json", manifest)
     return destination

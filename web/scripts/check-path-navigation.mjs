@@ -18,6 +18,16 @@ try {
   const catalog=JSON.parse(fs.readFileSync('public/data/catalog.json','utf8'));
   const problem=catalog.problems.find(row=>row.paper_id==='flow-matching');
   startPathNavigation();registerCatalogRoutes(catalog.problems);
+  for (const [alias, expected] of [
+    ['/index.html', '#'],
+    ['/index.html?utm_source=google', '#'],
+    ['/papers/flow-matching/index.html', '#/papers/flow-matching'],
+    [`/problems/${problem.id}/index.html`, `#/${problem.number}`],
+    ['/collections/llm-basics/index.html', '#/collections/llm-basics'],
+  ]) {
+    assert.equal(routeHash('https://paperleet.test'+alias), expected, `Directory index alias: ${alias}`);
+    assert(sameAppUrl(new URL('https://paperleet.test'+alias)));
+  }
   document.dispatchEvent(new window.CustomEvent('paperleet:catalog',{detail:catalog}));
   assert.equal(location.pathname,'/papers/flow-matching/');assert.equal(location.hash,'');
   assert(document.title.includes('Flow Matching'));assert(document.title.includes('Python Implementation'));

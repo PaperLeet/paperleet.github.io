@@ -1,4 +1,5 @@
 import { useI18n } from './i18n';
+import './lc-feedback.css';
 
 export type JudgeRuntimeDetailsProps = {
   server:boolean; browserResult:boolean; diagnostics?:string;

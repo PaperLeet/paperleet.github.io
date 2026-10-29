@@ -2,13 +2,24 @@ import {useEffect,useRef,useState} from 'react';
 import {createPortal} from 'react-dom';
 import {Check,Copy,X,Search,Replace,Code2,CornerDownRight,Keyboard} from 'lucide-react';
 import {useI18n} from './i18n';
-import {ResetCodeButton} from './deferredPages';
+import {deferredFeature} from './deferredFeature';
 import {editorFontSizes} from './editorPreferences';
 import {useClipboardCopy} from './useClipboardCopy';
 import type {KeyboardEvent} from 'react';
 import './editor-tools.css';
 
 type ResetProps=Parameters<typeof import('./ResetCodeButton').ResetCodeButton>[0];
+function ResetCodeFallback({retry}:{retry?:()=>void}){
+  const {t}=useI18n();
+  return <button className="icon-button" type="button" disabled={!retry} onClick={retry}
+    aria-label={retry?t('重试加载代码恢复','Retry loading code restore'):t('正在加载代码恢复','Loading code restore')}
+    title={retry?t('重试加载代码恢复','Retry loading code restore'):t('正在加载代码恢复','Loading code restore')}><span aria-hidden="true">↺</span></button>;
+}
+// Code restore loads with these optional tools, not with the library shell.
+const ResetCodeButton=deferredFeature<ResetProps>(()=>import('./ResetCodeButton').then(module=>({default:module.ResetCodeButton})),['',''],{
+  loading:()=><ResetCodeFallback/>,
+  failure:(_props,retry)=><ResetCodeFallback retry={retry}/>,
+});
 export type EditorToolsProps=ResetProps&{font:number;onFont:(font:number)=>void;canUseCode:()=>boolean};
 export default function EditorTools(props:EditorToolsProps){
   const {t}=useI18n(),{font,onFont,canUseCode,...reset}=props;

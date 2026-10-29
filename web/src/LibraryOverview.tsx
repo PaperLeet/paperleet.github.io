@@ -38,7 +38,7 @@ export default function LibraryOverview({ problems, dailyProblems, practiceProbl
         {(['E', 'M', 'H'] as const).map(value => {
           const group = core.filter(problem => problem.difficulty === value);
           const count = group.filter(problem => status(problem, saved[problem.id]) === 'done').length;
-          return <button key={value} className={`difficulty-summary ${value}`} aria-pressed={difficulty === value} onClick={() => onDifficulty(difficulty === value ? 'all' : value)}>
+          return <button key={value} className={`difficulty-summary ${value}`} aria-pressed={difficulty === value} disabled={(!companyScope || scopeReady) && !group.length && difficulty !== value} onClick={() => onDifficulty(difficulty === value ? 'all' : value)}>
             <span>{({ E: t('简单', 'Easy'), M: t('中等', 'Medium'), H: t('困难', 'Hard') })[value]}</span><b>{ready ? count : '—'}<small> / {companyScope&&!scopeReady?'—':group.length}</small></b>
             <div aria-hidden="true"><i style={{ width: `${ready && group.length ? count / group.length * 100 : 0}%` }} /></div>
           </button>;

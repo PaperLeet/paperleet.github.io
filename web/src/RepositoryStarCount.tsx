@@ -23,12 +23,13 @@ async function loadStars(): Promise<number | undefined> {
 }
 
 export default function RepositoryStarCount() {
-  const [count, setCount] = useState<number>();
+  const [count, setCount] = useState<number | null>();
   useEffect(() => {
     let active = true;
     request ||= loadStars();
-    void request.then(value => { if (active) setCount(value); });
+    void request.then(value => { if (active) setCount(value ?? null); });
     return () => { active = false; };
   }, []);
-  return count === undefined ? '—' : count.toLocaleString('en-US', count >= 10_000 ? { notation: 'compact', maximumFractionDigits: 1 } : undefined);
+  // A pending count keeps its reserved slot; a failed count renders nothing.
+  return count === undefined ? '\u00a0' : count === null ? null : count.toLocaleString('en-US', count >= 10_000 ? { notation: 'compact', maximumFractionDigits: 1 } : undefined);
 }

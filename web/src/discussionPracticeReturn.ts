@@ -7,7 +7,7 @@ export type DiscussionView={order:'oldest'|'newest';authorOnly:boolean;query:str
 export type DiscussionExpansion={reply:string;revision:string};
 export type DiscussionReturn={version:1;id:number;owner:string;post:string;practice:string;at:number;phase:'opening'|'practice'|'returning';view:DiscussionView;expanded:DiscussionExpansion[];anchor:{href:string;reply?:string;module?:string;place:'reply'|'topic'|'practice'|'next'|'mentions'|'article'|'other';index:number;top:number;keyboard:boolean}};
 export const DISCUSSION_RETURN_KEY='paperleet.discussion.reading.v1';
-const postId=/^[a-f0-9]{32}$/,ownerId=/^(?:guest|account:[a-zA-Z0-9_-]{1,160})$/,moduleId=/^(?:foundations|rl|architecture|diffusion|finetuning|optimization|representation|world_models|retrieval|self_evolving|multimodal|robotics|ai_infra|diffusion_rl)\/[a-z0-9_-]{1,100}$/;
+const postId=/^[a-f0-9]{32}$/,ownerId=/^(?:guest|account:[a-zA-Z0-9_-]{1,160})$/,moduleId=/^(?:foundations|rl|architecture|diffusion|finetuning|optimization|representation|world_models|retrieval|self_evolving|network_biology|multimodal|robotics|ai_infra|diffusion_rl)\/[a-z0-9_-]{1,100}$/;
 let pending:DiscussionReturn|undefined,hydrated=false,sequence=0,revision=0,watching=false;
 const listeners=new Set<()=>void>();
 const notify=()=>{revision++;for(const listener of listeners)listener();};

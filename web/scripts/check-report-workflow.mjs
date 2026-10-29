@@ -34,7 +34,7 @@ export async function checkReportWorkflow(server) {
   const props = {report,source,sourceState:'current',canRun:true,running:false,onEdit(){},onRun(){},onLocate(){}};
   const current = render(ReportWorkflow,props);
   assert(current.includes('定位代码第 3 行') && current.includes('feedback-code-context') && current.includes('重新运行全部测试'));
-  assert(current.includes('1 / 2') && current.includes('下一个错误') && current.includes('Meta+Enter Control+Enter'));
+  assert(current.includes('role="tablist"') && current.includes('用例 2') && /role="tab"[^>]*aria-selected="true"/.test(current) && current.includes('Meta+Enter Control+Enter'),'A few failures are browsed as LeetCode-style case tabs');
   const changed = render(ReportWorkflow,{...props,source:source+'# edited',sourceState:'changed'});
   assert(changed.includes('验证当前修改') && changed.includes('上次运行：') && !changed.includes('feedback-code-context') && !changed.includes('source-location-button'));
   const busy = render(ReportWorkflow,{...props,running:true,canRun:false,onStop(){}});

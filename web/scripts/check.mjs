@@ -246,12 +246,12 @@ try {
         `${list.id}: the practice tab lists only its real modules in number order`);
       for (const match of html.matchAll(/data-module-id="[^"]+" href="([^"]+)"/g)) assert.equal(libraryReturnHref(match[1]), practiceRoute,
         'Each exercise returns to the practice tab');
-      assert(headingText(completedHtml).includes(`已通过模块 ${moduleIds.size} / ${moduleIds.size}`),
+      assert(headingText(completedHtml, 'collection-page-header').includes(`已通过模块 ${moduleIds.size} / ${moduleIds.size}`),
         `${list.id}: reading-only papers must not enlarge the completion denominator`);
     }
     assert(collectionHeading.includes(list.name) && (list.kind === "course" ? collectionHeading.includes("课程") : collectionHeading.includes(`${list.readingCount || members.length} 篇论文`)) && collectionHeading.includes(`${moduleIds.size} 道题`),
       `${list.id}: the dedicated heading must name its collection and count its own papers/modules`);
-    assert(headingText(html).includes(`已通过模块 1 / ${moduleIds.size}`),
+    assert(headingText(html, 'collection-page-header').includes(`已通过模块 1 / ${moduleIds.size}`),
       `${list.id}: an accepted module outside this collection must not affect its progress`);
     assert.deepEqual(rowIds(allHtml), [...catalog.papers].sort((a,b)=>a.number-b.number).slice(0,20).map((paper) => paper.id),
       "The homepage begins with twenty papers in stable number order");

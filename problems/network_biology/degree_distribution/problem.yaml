@@ -1,0 +1,73 @@
+id: network_biology/degree_distribution
+number: 114
+title: 生物互作网络：节点度与度分布
+title_en: 'Biological Interaction Networks: Node Degree and Degree Distribution'
+paper_id: scale-free-networks
+paper:
+  title: Scale-free networks in cell biology
+  authors: Réka Albert
+  venue: Journal of Cell Science 118(21), 4947–4957 (2005)
+  url: https://doi.org/10.1242/jcs.02714
+  doi: 10.1242/jcs.02714
+  anchors:
+  - 'Graph concepts for cellular networks: node degree and the degree distribution P(k), the fraction of nodes with degree k'
+type: implement
+parent: null
+difficulty: E
+functions:
+- name: node_degrees
+  signature: 'node_degrees(nodes: list[str], edges: list[tuple[str, str]]) -> dict[str, int]'
+- name: degree_distribution
+  signature: 'degree_distribution(nodes: list[str], edges: list[tuple[str, str]]) -> dict[int, float]'
+module:
+  goal: 把互作网络表示为节点与边，计算每个节点的度，并区分“单个节点的度”与“整个网络的度分布”。
+  goal_en: Represent an interaction network as nodes and edges, compute each node's degree, and distinguish a node's degree from the network's degree distribution.
+  scope: 实现简单无向图的节点度与稠密度分布；重复边、自环、孤立节点和非法输入都有明确约定。
+  scope_en: Implement node degrees and a dense degree distribution for a simple undirected graph, with explicit rules for duplicate edges, self-loops, isolated nodes and invalid input.
+  required_functions:
+  - node_degrees
+  - degree_distribution
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: Python str node names, int degrees, float probabilities
+  device: CPU; pure Python standard library, no network access or dataset download
+  contract: 'Simple undirected graph. nodes is a list of unique str names; edges is a list of (u, v) pairs, unordered. Duplicate names or an endpoint outside nodes raise ValueError. Self-loops are ignored and each unordered pair counts once, so reversed or repeated edges never inflate a degree. Isolated nodes appear with degree 0. degree_distribution returns P(k)=n_k/N for every integer k=0..max degree in ascending order (absent degrees map to 0.0) and {} when there are no nodes.'
+estimated_minutes: 15
+tests:
+  T0: 1
+  T1: 2
+  T2: 5
+  T3: 1
+t3_budget_s: 10
+tags:
+- Network Biology
+- Graph Representation
+- Degree Distribution
+viz:
+- toy_experiment
+browser:
+  backend: numpy-wasm
+sources_verified: '2026-10-20'
+verified_sources:
+  checked_at: '2026-10-20'
+  links:
+  - https://arxiv.org/abs/q-bio/0510054
+  - https://pure.psu.edu/en/publications/scale-free-networks-in-cell-biology/
+toy:
+  kind: teaching_adaptation
+  source: https://doi.org/10.1242/jcs.02714
+  anchor: Node degree and degree distribution as graph descriptors of cellular networks
+  adaptation: Synthetic 8-node toy interaction network and a deterministic 60-node preferential-attachment toy graph; no real interactome, no power-law fit, and no claim that any biological network is scale-free.
+mutants:
+- id: m1_count_duplicates
+  bug: 重复边与反向重复边被重复计数。
+- id: m2_self_loop_counts
+  bug: 自环被当作普通边计入度数。
+- id: m3_skip_zero_degrees
+  bug: 分布里漏掉计数为零的度数，使键不连续。
+- id: m4_wrong_denominator
+  bug: 分母错用边数而不是节点数。
+- id: m5_drop_isolated
+  bug: 孤立节点被丢弃，没有以度数 0 出现。

@@ -28,6 +28,7 @@ import { tabDraftStorage } from "./communityDrafts";
 import { clearSubmittedProposalDraft, emptyProposalDraft, proposalDraftOwner, readProposalDraft, writeProposalDraft, type ProposalDraft } from "./proposalDrafts";
 import PaperPool from './PaperPool';
 import { hostedEdition } from './deployment';
+import './lc-paper.css';
 
 type Candidate = {
   title: string;

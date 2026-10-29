@@ -1,78 +1,113 @@
 /* Keep navigation geometry stable across page, workspace and active states. */
 html { scrollbar-gutter:stable; }
-.app > .topbar { position:relative; z-index:60; }
-.topbar .nav-actions { gap:8px; }
+.app > .topbar { --topbar-bg:var(--surface); position:relative; z-index:60; }
+.topbar .nav-actions { gap:4px; }
 .topbar .nav-inner > nav {
   flex:1 1 auto; min-width:0; max-width:100%; gap:4px; overflow-x:auto;
   overscroll-behavior-x:contain; scroll-padding-inline:8px; scroll-behavior:auto;
   /* Local covers erase each edge shadow when that end is already visible. */
   background:
-    linear-gradient(to right,var(--surface) 35%,transparent) left / 28px 100% no-repeat local,
-    linear-gradient(to left,var(--surface) 35%,transparent) right / 28px 100% no-repeat local,
+    linear-gradient(to right,var(--topbar-bg) 35%,transparent) left / 28px 100% no-repeat local,
+    linear-gradient(to left,var(--topbar-bg) 35%,transparent) right / 28px 100% no-repeat local,
     linear-gradient(to right,color-mix(in srgb,var(--text) 12%,transparent),transparent) left / 10px 100% no-repeat scroll,
     linear-gradient(to left,color-mix(in srgb,var(--text) 12%,transparent),transparent) right / 10px 100% no-repeat scroll;
 }
-.topbar .nav-inner > nav > :is(a,button) { display:inline-flex; justify-content:center; box-sizing:border-box; flex:none; min-width:0; padding-inline:12px; white-space:nowrap; font-weight:600; }
+.topbar .nav-inner > nav > :is(a,button) { display:inline-flex; justify-content:center; box-sizing:border-box; flex:none; min-width:0; padding-inline:12px; white-space:nowrap; font-size:var(--type-small); font-weight:500; }
 /* Center short labels within the space reserved for both translations. */
 .topbar .nav-inner > nav .bilingual-text { text-align:center; }
-.topbar .nav-inner > nav > .active::after { left:12px; right:12px; bottom:0; height:3px; border-radius:3px 3px 0 0; }
-.topbar .nav-inner > nav > :is(a,button):hover:not(:disabled) { color:var(--text); background:color-mix(in srgb,var(--text) 3%,transparent); }
+.topbar .nav-inner > nav > .active::after { left:12px; right:12px; bottom:0; height:2px; border-radius:2px 2px 0 0; background:var(--accent-fill); }
+.topbar .nav-inner > nav > :is(a,button):hover:not(:disabled) { color:var(--text); }
+/* Workspace stays a calm label while progress loads instead of flashing a disabled grey. */
+.topbar .nav-inner > nav > .continue-link:disabled { opacity:1; color:var(--text-secondary); cursor:default; }
 .topbar .nav-inner > nav > :is(a,button):focus-visible { outline-offset:-5px; border-radius:6px; }
 .account-menu { position:relative; flex:none; }
-.header-signin-cta { display:inline-flex; align-items:center; justify-content:center; flex:none; min-height:36px; padding:6px 12px; border-radius:8px; background:var(--primary-bg); color:var(--primary-text); font-size:var(--type-small); font-weight:600; white-space:nowrap; }
+/* Fills that stay visible on the elevated menu layer in both themes. */
+.account-menu-panel { --menu-tile:color-mix(in srgb,var(--text) 5%,transparent); --menu-hover:color-mix(in srgb,var(--text) 8%,transparent); --segment-active:var(--surface-overlay); }
+:root:not([data-theme="light"]) .account-menu-panel { --segment-active:color-mix(in srgb,var(--text) 14%,var(--surface-overlay)); }
+.header-signin-cta { display:inline-flex; align-items:center; justify-content:center; flex:none; min-height:var(--topbar-control,32px); padding:4px 12px; border-radius:var(--control-radius); background:var(--primary-bg); color:var(--primary-text); font-size:var(--type-meta); font-weight:600; white-space:nowrap; }
 .header-signin-cta:hover { filter:brightness(1.08); }
 .header-signin-cta:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
-.account-menu-trigger { display:inline-flex; align-items:center; justify-content:center; width:40px; height:40px; border:1px solid transparent; border-radius:50%; background:transparent; padding:3px; flex:none; }
-.account-menu-trigger:hover, .account-menu-trigger[aria-expanded="true"] { background:var(--surface2); border-color:var(--line); box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 7%,transparent); }
+/* Fixed slots while account state or the group-chat bundle loads, so the cluster never jumps. */
+.header-signin-placeholder { display:inline-flex; align-items:center; box-sizing:border-box; flex:none; min-height:var(--topbar-control,32px); padding:4px 12px; border-radius:var(--control-radius); background:var(--topbar-ghost-hover); color:transparent; font-size:var(--type-meta); font-weight:600; white-space:nowrap; user-select:none; }
+/* Sized like the real trigger (8px + 18px icon + 6px gap + label) in either language. */
+.group-chat-placeholder { display:inline-flex; align-items:center; box-sizing:border-box; flex:none; height:var(--topbar-control,32px); min-width:var(--topbar-control,32px); padding:0 8px 0 32px; font-size:var(--type-meta); font-weight:500; white-space:nowrap; visibility:hidden; }
+.group-chat-placeholder::after { content:"Group chat"; }
+:root:lang(zh) .group-chat-placeholder::after { content:"加入群聊"; }
+@media (max-width:1300px) { .group-chat-placeholder { width:var(--topbar-control,32px); padding:0; } .group-chat-placeholder::after { content:none; } }
+.account-menu-trigger { display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; border:0; border-radius:50%; background:transparent; padding:2px; flex:none; }
+.account-menu-trigger:hover, .account-menu-trigger[aria-expanded="true"] { background:var(--topbar-ghost-hover); }
 .account-menu-trigger .social-avatar { flex:none; }
-.guest-avatar { display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; background:var(--surface3); color:var(--text-secondary); font-size:var(--type-body); font-weight:600; }
-.account-menu-panel { position:absolute; top:calc(100% + 12px); right:0; z-index:80; width:360px; max-width:calc(100vw - 24px); max-height:calc(100dvh - 80px); overflow-y:auto; overscroll-behavior:contain; box-sizing:border-box; padding:10px; border:1px solid var(--line); border-radius:16px; background:var(--surface); color:var(--text); box-shadow:0 8px 24px #00000012,0 24px 64px #0000000d; scrollbar-width:thin; transform-origin:top right; }
+.guest-avatar { display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:50%; background:color-mix(in srgb,var(--text) 10%,transparent); color:var(--text-secondary); font-size:var(--type-small); font-weight:600; }
+.account-menu-panel { position:absolute; top:calc(100% + 10px); right:0; z-index:80; width:340px; max-width:calc(100vw - 24px); max-height:calc(100dvh - 80px); overflow-y:auto; overscroll-behavior:contain; box-sizing:border-box; padding:8px; border:1px solid var(--line); border-radius:var(--control-radius); background:var(--surface-overlay); color:var(--text); box-shadow:var(--shadow-overlay); scrollbar-width:thin; scrollbar-color:var(--scrollbar-thumb) transparent; transform-origin:top right; }
 .account-menu-panel:focus { outline:none; }
-.account-menu-identity { display:flex; align-items:center; gap:12px; padding:16px 12px; border-radius:10px; background:linear-gradient(120deg,color-mix(in srgb,var(--accent) 8%,var(--surface)),var(--surface)); }
-a.account-menu-identity:hover { background:var(--surface2); }
-.account-menu-identity-avatar { display:flex; align-items:center; justify-content:center; flex:none; width:46px; height:46px; border-radius:50%; color:var(--muted); background:var(--surface3); }
+.account-menu-identity { display:flex; align-items:center; gap:12px; padding:14px 12px; border-radius:var(--radius-sm); background:transparent; }
+a.account-menu-identity:hover { background:var(--menu-hover); }
+.account-menu-identity-avatar { display:flex; align-items:center; justify-content:center; flex:none; width:46px; height:46px; border-radius:50%; color:var(--muted); background:var(--menu-hover); }
 .account-menu-identity > span:nth-child(2) { min-width:0; flex:1; }
-.account-menu-identity b { display:block; font-size:var(--type-lead); font-weight:650; line-height:1.5; overflow-wrap:anywhere; }
-.account-menu-identity small { display:block; margin-top:3px; color:var(--muted); font-size:var(--type-meta); line-height:1.6; overflow-wrap:anywhere; }
+.account-menu-identity b { display:block; font-size:var(--type-control); font-weight:600; line-height:1.5; overflow-wrap:anywhere; }
+.account-menu-identity small { display:block; margin-top:2px; color:var(--muted); font-size:var(--type-caption); line-height:1.6; overflow-wrap:anywhere; }
 .account-menu-identity > svg { color:var(--muted); flex:none; }
-.account-menu-signin.button { display:flex; justify-content:center; min-height:36px; margin:8px 4px 12px; font-size:var(--type-small); }
-.account-menu-shortcuts { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; padding:12px 4px 16px; }
-.account-menu-shortcuts > :is(a,button) { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; min-height:92px; padding:10px 3px; border:1px solid transparent; border-radius:10px; background:var(--surface2); color:var(--text-secondary); font-size:var(--type-meta); text-align:center; }
+.account-menu-signin.button { display:flex; justify-content:center; min-height:36px; margin:8px 4px 10px; font-size:var(--type-meta); }
+.account-menu-shortcuts { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; padding:10px 4px 12px; }
+.account-menu-shortcuts > :is(a,button) { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; min-height:76px; padding:10px 3px; border:1px solid transparent; border-radius:var(--radius-sm); background:var(--menu-tile); color:var(--text-secondary); font-size:var(--type-meta); text-align:center; }
 .account-menu-shortcuts > :is(a,button) > svg { color:var(--accent); }
-.account-menu-shortcuts > :is(a,button):hover:not(:disabled) { border-color:color-mix(in srgb,var(--accent) 22%,var(--line)); background:color-mix(in srgb,var(--accent) 6%,var(--surface)); color:var(--text); }
-.account-menu-preferences { border-block:1px solid var(--line); padding:10px 4px; }
-.account-menu-preference { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:7px 8px; }
+.account-menu-shortcuts > :is(a,button):hover:not(:disabled) { background:var(--menu-hover); color:var(--text); }
+.account-menu-preferences { border-block:1px solid var(--line); padding:6px 4px; }
+.account-menu-preference { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:6px 8px; }
 .account-menu-preference > span { display:inline-flex; align-items:center; gap:10px; color:var(--text-secondary); font-size:var(--type-small); }
 .account-menu-preference > span > svg { color:var(--muted); flex:none; }
-.account-menu-segment { display:inline-flex; flex:none; gap:2px; padding:3px; border-radius:7px; background:var(--surface2); }
-.account-menu-segment > button { display:inline-flex; align-items:center; justify-content:center; gap:5px; min-width:48px; min-height:28px; padding:4px 8px; border-radius:5px; color:var(--muted); font-size:var(--type-meta); }
-.account-menu-segment > button[aria-pressed="true"] { background:var(--surface); color:var(--text); box-shadow:0 1px 4px #00000012; }
+.account-menu-segment { display:inline-flex; flex:none; gap:2px; padding:2px; border-radius:var(--radius-sm); background:var(--menu-tile); }
+.account-menu-segment > button { display:inline-flex; align-items:center; justify-content:center; gap:5px; min-width:48px; min-height:28px; padding:3px 8px; border-radius:var(--radius-xs); color:var(--muted); font-size:var(--type-meta); }
+.account-menu-segment > button[aria-pressed="true"] { background:var(--segment-active); color:var(--text); box-shadow:0 1px 2px #0000001a; }
 .account-menu-segment > button:hover:not(:disabled) { color:var(--text); }
-.account-menu-links { padding-block:8px; }
-.account-menu-row { display:flex; align-items:center; width:100%; box-sizing:border-box; min-height:48px; padding:12px 14px; gap:10px; border-radius:7px; color:var(--text-secondary); text-align:left; font-size:var(--type-body); }
+.account-menu-links { padding-block:6px; }
+.account-menu-row { display:flex; align-items:center; width:100%; box-sizing:border-box; min-height:40px; padding:8px 12px; gap:10px; border-radius:var(--radius-sm); color:var(--text-secondary); text-align:left; font-size:var(--type-small); }
 .account-menu-row > svg { flex:none; color:var(--muted); }
 .account-menu-row > span { flex:1; }
-.account-menu-row:hover:not(:disabled) { background:var(--surface2); color:var(--text); }
-.account-menu-logout { border-top:1px solid var(--line); padding-top:7px; }
+.account-menu-row:hover:not(:disabled) { background:var(--menu-hover); color:var(--text); }
+.account-menu-logout { border-top:1px solid var(--line); padding-top:6px; }
 .account-menu-signout:hover:not(:disabled), .account-menu-signout:hover:not(:disabled) > svg { color:var(--red); }
 .account-menu-error { padding:6px 12px; color:var(--red); font-size:var(--type-meta); line-height:1.6; overflow-wrap:anywhere; }
 .account-menu-footnote { padding:8px 12px 2px; margin:0; color:var(--muted); font-size:var(--type-caption); text-align:center; line-height:1.7; }
+/* One ghost style for every icon action in the bar; the orange Sign in stays the only fill. */
+@media (min-width:761px) {
+  .topbar .inbox-bell-trigger { width:var(--topbar-control); height:var(--topbar-control); border:0; border-radius:var(--control-radius); }
+  .topbar .inbox-bell-trigger:is(:hover,[aria-expanded="true"]) { background:var(--topbar-ghost-hover); color:var(--text); }
+}
+/* Laptops keep one compact row: tighter tabs, and the brand mark alone below 1024px. */
+@media (min-width:861px) and (max-width:1200px) {
+  .topbar .nav-inner { gap:12px; }
+  .topbar .nav-inner > nav > :is(a,button) { padding-inline:10px; }
+  .topbar .nav-inner > nav > .active::after { left:10px; right:10px; }
+  /* Passive counters give way so the five tabs never overflow, as on phones. */
+  .topbar .repository-stars, .topbar .nav-actions .nav-metric { display:none; }
+  .topbar .repository-link { width:var(--topbar-control); padding:0; }
+}
+@media (min-width:861px) and (max-width:1023px) {
+  .topbar .brand-wordmark { display:none; }
+}
 @media (max-width:760px) {
   /* Keep the identity and essential actions in one row; navigation scrolls below. */
   .topbar .nav-inner { grid-template-columns:auto minmax(0,1fr); column-gap:8px; padding-inline:12px; }
   .topbar .brand > span:nth-child(2) { display:none; }
-  .topbar .nav-actions { flex-wrap:nowrap; justify-content:flex-end; gap:4px; min-width:0; padding-block:6px; }
+  .topbar .nav-actions { flex-wrap:nowrap; justify-content:flex-end; gap:4px; min-width:0; padding-block:2px; }
   .topbar .repository-stars { display:none; }
   .topbar :is(.repository-link,.group-chat-trigger,.account-menu-trigger) { box-sizing:border-box; width:44px; height:44px; }
   .topbar :is(.repository-link,.group-chat-trigger) { padding:0; }
-  .header-signin-cta { box-sizing:border-box; min-height:44px; padding-inline:10px; font-size:var(--type-small); }
+  /* A compact 34px fill with a 44px hit area, so the CTA does not crowd the row. */
+  :is(.header-signin-cta,.header-signin-placeholder) { box-sizing:border-box; min-height:34px; padding-inline:12px; font-size:var(--type-small); }
+  .header-signin-cta { position:relative; }
+  .header-signin-cta::after { content:""; position:absolute; inset:-5px 0; }
   .account-nav-actions { gap:4px; }
-  .topbar .nav-inner > nav { height:44px; }
+  .topbar .nav-inner > nav { height:40px; }
   .topbar .nav-inner > nav > :is(a,button) { padding-inline:10px; }
   .topbar .nav-inner > nav > .continue-link { min-width:0; }
   .topbar .nav-inner > nav .bilingual-text > span[aria-hidden="true"] { display:none; }
   .topbar .nav-inner > nav > .active::after { left:10px; right:10px; }
   .account-menu-panel { top:calc(100% + 8px); }
+}
+@media (pointer:coarse) {
+  .account-menu-row { min-height:44px; }
 }
 @media (max-width:600px) {
   /* Passive counters give way to sign-in, notifications and account controls. */

@@ -1,5 +1,7 @@
 """Public numbering survives filesystem order and keeps old workspace aliases usable."""
 import json
+import base64
+import gzip
 import os
 from pathlib import Path
 import subprocess
@@ -9,7 +11,7 @@ import pytest
 import yaml
 
 from paperleet.catalog import problem, problems
-from paperleet.export import export_catalog, vizdata, web_readme
+from paperleet.export import compact_index_v5, compact_index_v6, export_catalog, vizdata, web_readme
 from paperleet.judge.runner import run_batch
 from paperleet.paper_catalog import paper_catalog, module_scope, source_key
 
@@ -102,6 +104,61 @@ def test_nonstandard_statement_is_preserved():
     assert web_readme(statement) == statement
 
 
+def unpack_v5(compact):
+    assert compact["schema_version"] == 5
+    assert compact["payload"]["encoding"] == "gzip-base64"
+    raw = gzip.decompress(base64.b64decode(compact["payload"]["data"]))
+    assert len(raw) == compact["payload"]["bytes"]
+    packed = json.loads(raw)
+    assert len(packed["strings"]) == len(set(packed["strings"]))
+    assert packed["strings"] == sorted(packed["strings"], key=lambda text: text[::-1])
+
+    def unpack(value):
+        if isinstance(value, list):
+            return [unpack(item) for item in value]
+        if isinstance(value, dict):
+            assert len(value) == 1
+            tag, items = next(iter(value.items()))
+            if tag == "s":
+                assert type(items) is int and 0 <= items < len(packed["strings"])
+                return packed["strings"][items]
+            keys = packed["shapes"][int(tag)]
+            assert keys == sorted(keys) and len(keys) == len(items)
+            return dict(zip(keys, map(unpack, items)))
+        assert not isinstance(value, str), "All v5 string leaves use the string table"
+        return value
+
+    return unpack(packed["tree"])
+
+
+def test_v5_preserves_unicode_empty_strings_line_endings_and_value_types():
+    text = "中文 🧬 café e\u0301\n\tline two\r\nlast\r\u2028\u0000\"\\"
+    index = {
+        "schema_version": 2,
+        "problems": [{"id": "demo/unicode", "starter": text, "nested": {
+            "s": "a real field named s", "0": "a numeric field name", "🧬": "",
+        }}],
+        "papers": [],
+        "values": ["", text, text, 0, -7, 1.25, True, False, None, [], {}],
+    }
+    before = json.dumps(index, ensure_ascii=False)
+    compact = compact_index_v5(index)
+    assert unpack_v5(compact) == index
+    assert json.dumps(index, ensure_ascii=False) == before, "Packing cannot mutate source records"
+    assert compact_index_v5(index) == compact, "Repeated exports are byte-for-byte deterministic"
+
+    def reordered(value):
+        if isinstance(value, dict):
+            return {key: reordered(value[key]) for key in reversed(value)}
+        if isinstance(value, list):
+            return [reordered(item) for item in value]
+        return value
+
+    assert compact_index_v5(reordered(index)) == compact, "Dict insertion order is not transport state"
+    for value in ["", [], {}, [0, False, None]]:
+        assert unpack_v5(compact_index_v5(value)) == value
+
+
 def test_split_index_omits_heavy_content_and_links_immutable_details(tmp_path, monkeypatch):
     import hashlib
     monkeypatch.setenv("PAPERLEET_ROOT", str(tmp_path))
@@ -153,11 +210,15 @@ def test_split_index_omits_heavy_content_and_links_immutable_details(tmp_path, m
             return dict(zip(packed["shapes"][int(shape)], map(unpack, items)))
         return value
     assert unpack(packed["tree"]) == index
+    v5_path = full_path.parent / "index-v5.json"
+    assert unpack_v5(json.loads(v5_path.read_text())) == index
+    v5_before = v5_path.read_bytes()
     latest_before = latest_path.read_bytes()
     before = compact_path.read_bytes()
     export_catalog()
     assert compact_path.read_bytes() == before, "The source transport is reproducible"
     assert latest_path.read_bytes() == latest_before, "The complete compact transport is reproducible"
+    assert v5_path.read_bytes() == v5_before, "The string-table transport is reproducible"
     (folder / "solution.py").write_text("updated reference source")
     export_catalog()
     updated = json.loads(index_path.read_text())["problems"][0]
@@ -244,6 +305,11 @@ def test_maintained_catalog_can_export_complete_bilingual_packages(tmp_path, mon
         assert entry["readme"] and entry["starter"] and entry["solution"] and entry["notes"]
         assert entry["translations"]["en"]["readme"] and entry["translations"]["en"]["notes"]
     assert {module for card in exported["papers"] for module in card["curated_module_ids"]} <= {entry["id"] for entry in exported["problems"]}
+    data_dir = tmp_path / "web" / "public" / "data"
+    index = json.loads((data_dir / "index.json").read_text())
+    assert unpack_v5(json.loads((data_dir / "index-v5.json").read_text())) == index
+    v6 = json.loads((data_dir / "index-v6.json").read_text())
+    assert unpack_v6(v6, json.loads((data_dir / v6["starters"]["url"]).read_text())) == index
 
 
 def test_arxiv_source_versions_share_identity():
@@ -263,3 +329,73 @@ def test_categories_export_bilingual_labels_and_reject_unknown_ids(tmp_path, mon
     manifest.write_text(yaml.safe_dump({"papers": [definition]}))
     with pytest.raises(ValueError, match="unknown paper category"):
         export_catalog()
+
+
+def unpack_v6(manifest, asset):
+    """Rebuild v6 independently through the established v5 unpacker."""
+    import hashlib
+    encoded = json.dumps(asset, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+    descriptor = manifest["starters"]
+    assert descriptor["bytes"] == len(encoded)
+    assert descriptor["sha256"] == hashlib.sha256(encoded).hexdigest()
+    assert descriptor["url"] == f"starters/{descriptor['sha256']}.json"
+    raw = gzip.decompress(base64.b64decode(asset["payload"]["data"]))
+    assert asset["schema_version"] == 1 and asset["payload"]["bytes"] == len(raw)
+    sources = json.loads(raw)
+    metadata = unpack_v5({"schema_version": 5, "payload": manifest["payload"]})
+    assert set(sources) == {item["id"] for item in metadata["problems"]}
+    assert all(item["starter"] == "" for item in metadata["problems"])
+    return {**metadata, "problems": [{**item, "starter": sources[item["id"]]} for item in metadata["problems"]]}
+
+
+def test_v6_restores_exact_source_and_reuses_assets_across_metadata_updates():
+    """Metadata edits and record ordering do not invalidate immutable starter bytes."""
+    import copy
+    text = "中文 🧬 café e\u0301\n\tline two\r\nlast\r\u2028\u0000\"\\"
+    index = {"schema_version": 2, "problems": [
+        {"id": "demo/z", "starter": text, "title": "Original"},
+        {"id": "demo/a", "starter": "", "title": "Empty source is still exact"},
+    ], "papers": [], "categories": []}
+    before = copy.deepcopy(index)
+    manifest, asset = compact_index_v6(index)
+    assert unpack_v6(manifest, asset) == index
+    assert index == before
+    assert compact_index_v6(index) == (manifest, asset)
+    updated = copy.deepcopy(index)
+    updated["problems"].reverse()
+    updated["problems"][0]["title"] = "Metadata only"
+    next_manifest, next_asset = compact_index_v6(updated)
+    assert next_manifest["starters"] == manifest["starters"]
+    assert next_asset == asset
+    assert next_manifest["payload"] != manifest["payload"]
+    assert unpack_v6(next_manifest, next_asset) == updated
+    updated["problems"][1]["starter"] += "\n# new source\n"
+    changed, _ = compact_index_v6(updated)
+    assert changed["starters"]["url"] != manifest["starters"]["url"]
+
+
+def test_v6_exports_assets_before_manifest_and_retains_old_source_hashes(tmp_path, monkeypatch):
+    """Previously served metadata can still hydrate after a new starter is published."""
+    monkeypatch.setenv("PAPERLEET_ROOT", str(tmp_path))
+    folder = package(tmp_path, "demo/a", 1, title_en="Example")
+    (folder / "starter.py").write_text("def solve():\n    raise NotImplementedError('α')\n")
+    data_dir = export_catalog().parent
+    read = lambda path: json.loads(path.read_text())
+    manifest = read(data_dir / "index-v6.json")
+    path = data_dir / manifest["starters"]["url"]
+    first_bytes = path.read_bytes()
+    first_index = read(data_dir / "index.json")
+    assert unpack_v6(manifest, read(path)) == first_index
+    # Detail-only changes produce a new metadata URL while preserving source cache identity.
+    (folder / "solution.py").write_text("def solve(): return 7\n")
+    export_catalog()
+    metadata_only = read(data_dir / "index-v6.json")
+    assert metadata_only["starters"] == manifest["starters"]
+    (folder / "starter.py").write_text("def solve():\n    raise NotImplementedError('β')\n")
+    export_catalog()
+    current = read(data_dir / "index-v6.json")
+    assert current["starters"]["url"] != manifest["starters"]["url"]
+    assert path.read_bytes() == first_bytes
+    assert unpack_v6(manifest, read(path)) == first_index
+    assert unpack_v6(current, read(data_dir / current["starters"]["url"])) == read(data_dir / "index.json")
+    assert all((data_dir / name).exists() for name in ("index-v5.json", "index-v4.json", "index-v3.json", "index.json"))

@@ -20,6 +20,7 @@ CATEGORIES = (
     {"id": "representation", "name": "表征学习", "name_en": "Representation Learning"},
     {"id": "world-models", "name": "世界模型", "name_en": "World Models"},
     {"id": "retrieval", "name": "检索与推荐", "name_en": "Retrieval & Recommendation"},
+    {"id": "network-biology", "name": "网络生物学", "name_en": "Network Biology"},
     {"id": "community", "name": "社区精选", "name_en": "Community Selections"},
 )
 
