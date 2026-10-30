@@ -95,6 +95,8 @@ npm run build
 
 最终运行完整 `paperleet ci`。所有参考解必须通过、全部 mutants 必须被真实断言捕获、三次重复的结论必须一致。CI 总预算为 300 秒（与 CLI 默认值一致）；单题调试可临时使用 `--repeats 1`，不能把该结果称为三次稳定性验收。
 
+发布质量门的三个任务共用 [CI 依赖约束](requirements/ci-constraints.txt)，固定已审核的 PyTorch 2.14.1 CPU oracle 与测试工具版本。复现 CI 时，先用 `python -m pip install -c requirements/ci-constraints.txt torch --index-url https://download.pytorch.org/whl/cpu` 安装 CPU wheel，再对本仓和 `packages/torchwasm` 的可编辑安装使用同一个 `-c` 文件。PyTorch 2.15 在未锁定安装中自动升级，导致发布检查 [40987090805](https://github.com/PaperLeet/paperleet.github.io/actions/runs/40987090805) 出现 103 项 oracle 差异：NaN reduction 的异常类型和 solve 的 JVP 反向梯度改变。本次保留上一全绿检查 [40401624620](https://github.com/PaperLeet/paperleet.github.io/actions/runs/40401624620) 的明确基线；后续 oracle 升级需要独立评审，并重跑完整质量门。依赖约束不改变运行时实现、断言、测试范围或预算。
+
 ## 5. 盲测与评审
 
 给新读者或独立 agent 只提供 starter 与题面，记录实现用时、约定不清处、所用可视化和遗漏的错误。评审不仅看覆盖率，还要确认测试对应论文主张、失败可定位，以及图与公式一致。不要提交个人 workspace、运行环境或大量临时报告。

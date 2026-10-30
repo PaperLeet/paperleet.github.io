@@ -1,0 +1,9 @@
+# Reviewed CPU oracle: quality run 40401624620 (47,683 passed, 1 skipped).
+# Keep all three quality jobs on the same direct dependency versions.
+# Install torch from the CPU wheel index; == also accepts its +cpu build tag.
+torch==2.14.1
+numpy==2.5.4
+pytest==9.1.1
+pytest-timeout==2.4.0
+PyYAML==6.0.3
+zopfli==0.4.0
