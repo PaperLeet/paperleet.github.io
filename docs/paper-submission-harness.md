@@ -27,7 +27,9 @@ flowchart LR
 
 题目契约必须说明输入输出 shape、dtype、归一化、时间方向、mask、梯度归属、边界和数值容差。论文与官方代码不一致时，应明确本题采用哪个约定，留给评审者核对。
 
-当前适配器使用 OpenAI Responses API：[Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs?api-mode=responses) 约束候选包结构，[Web search](https://developers.openai.com/api/docs/guides/tools-web-search) 提供来源检索。模型由服务器配置，不在浏览器中保存密钥。模型回复和网页内容都不具备批准、入库或执行宿主机命令的权限。
+适配器默认使用 OpenAI Responses API：[Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs?api-mode=responses) 约束候选包结构，[Web search](https://developers.openai.com/api/docs/guides/tools-web-search) 提供来源检索。也可选择 Claude Messages API，通过 [structured outputs](https://platform.claude.com/docs/en/build-with-claude/structured-outputs) 生成同一候选包契约，通过 [web search](https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool) 与 [web fetch](https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-fetch-tool) 检索并读取全文。检索和结构化生成分开请求，测试生成仍不接收参考实现。模型由服务器配置，不在浏览器中保存密钥。模型回复和网页内容都不具备批准、入库或执行宿主机命令的权限。
+
+Claude 使用 `anthropic-version: 2026-10-21`。每次 HTTP 请求最多 16000 输出 token；检索请求最多 5 次搜索和 3 次抓取，每次文本抓取最多 20000 token。`pause_turn` 最多续传两次，逐次原样传回服务端内容；最多三次 HTTP 请求累计响应限制为 4 MiB，并共享 240 秒超时预算。工具次数按每个 HTTP 请求限制，因此暂停续传也可能增加用量。网络或 HTTP 失败不自动重试。只有服务端搜索结果、引用和成功抓取的 URL 才能成为来源；arXiv 全文判定还要求成功抓取并引用对应论文的 HTML/PDF，摘要、其它论文和代码页面不能代替全文。HTML 抓取失败后可以使用成功的 PDF 抓取，失败来源不进入证据。抓取可能受长度或可访问性限制，仍需模型明确缺失范围及人工核对。
 
 ## 2. 候选包和验证
 
@@ -100,7 +102,7 @@ def test_toy(impl, artifact):
 
 ## 4. 本地配置
 
-先按仓库 README 安装依赖。为启动服务的终端配置 `OPENAI_API_KEY` 和 `PAPERLEET_MODEL`，后者必须是该账户可调用、支持所用能力的模型 ID。密钥只通过环境变量提供，不放进源码或前端。
+先按仓库 README 安装依赖。`PAPERLEET_MODEL_PROVIDER` 默认或留空为 `openai`，配置 `OPENAI_API_KEY` 和 `PAPERLEET_MODEL`；选择 `anthropic` 时改用 `ANTHROPIC_API_KEY`，`PAPERLEET_MODEL` 指定该账户可调用的 Claude 模型。跨工作区凭据可选配置 `ANTHROPIC_WORKSPACE_ID`；绑定工作区的密钥通常无需此项。未知 provider 会拒绝启动生成，不会切换到其它账户。密钥只通过环境变量提供，不放进源码或前端。
 
 启动 Docker 后，在仓库根目录构建验证镜像：
 

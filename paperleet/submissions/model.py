@@ -1,10 +1,14 @@
 """Paper-to-exercise synthesis. Remote source material is data, never instructions."""
 import json
 import os
+import time
+from http.client import HTTPException
 from urllib.error import HTTPError, URLError
-from urllib.request import Request, urlopen
+from urllib.parse import urlsplit
+from urllib.request import HTTPRedirectHandler, Request, build_opener, urlopen
 
 from .checks import https_url
+from .arxiv import canonical_arxiv_url
 
 
 def object_schema(fields):
@@ -103,6 +107,8 @@ def normalize_suitability(value, source_urls):
 
 
 class OpenAIProvider:
+    provider_name = "openai"
+
     def __init__(self):
         self.model = os.environ.get("PAPERLEET_MODEL", "").strip()
 
@@ -247,6 +253,243 @@ class OpenAIProvider:
                                "Allowed imports math, typing, numpy, torch, pytest, collections, itertools, functools, random, statistics, dataclasses.\n" +
                                json.dumps({"contract": contract, "evidence_dossier": research["value"]}), TEST_SCHEMA)
         candidate.update(testing["value"])
-        return candidate, {"provider": "openai", "model": self.model, "dossier": research["value"],
-                           "sources": research["sources"], "response_ids": [research["response_id"], implementation["response_id"], testing["response_id"]],
+        return candidate, {"provider": self.provider_name, "model": self.model, "dossier": research["value"],
+                           "sources": research["sources"], "response_ids": [identifier for response in (research, implementation, testing)
+                               for identifier in response.get("response_ids", [response["response_id"]])],
                            "independent_test_generation": True}
+
+
+class _NoProviderRedirect(HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        # API credentials must never follow a redirect to another endpoint.
+        return None
+
+
+class AnthropicProvider(OpenAIProvider):
+    """Claude Messages transport, sharing the same evidence and generation gates.
+
+    Search and JSON schema generation are separate calls: web search citations
+    cannot be combined with structured outputs. A paused server-tool turn gets
+    at most two continuations; network/HTTP failures are never retried here.
+    """
+    provider_name = "anthropic"
+    max_continuations = 2
+    max_response_bytes = 4 * 1024 * 1024
+    request_timeout = 240
+
+    @staticmethod
+    def source_input(submission):
+        value = OpenAIProvider.source_input(submission)
+        try:
+            canonical = canonical_arxiv_url(value["paper_url"].replace("/html/", "/abs/", 1))
+        except (ValueError, AttributeError):
+            pass
+        else:
+            # Fetch permits URLs already present in the conversation. Supply
+            # both official full-text forms rather than only the abstract URL.
+            value["full_paper_urls"] = [canonical.replace("/abs/", "/html/", 1), canonical.replace("/abs/", "/pdf/", 1)]
+        return value
+
+    @staticmethod
+    def _fetched_paper_urls(submission, research):
+        expected = submission.get("paper_url", "")
+        try:
+            canonical = canonical_arxiv_url(expected.replace("/html/", "/abs/", 1))
+        except (ValueError, AttributeError):
+            return {url for url in research.get("fetched_urls", []) if url == expected}
+        matches = set()
+        for url in research.get("fetched_urls", []):
+            try:
+                if not urlsplit(url).path.startswith(("/html/", "/pdf/")):
+                    continue  # An arXiv abstract fetch is still only metadata.
+                actual = canonical_arxiv_url(url.replace("/html/", "/abs/", 1))
+                # Explicit paper versions must match; unversioned submissions
+                # may fetch the version resolved by the official source.
+                if actual == canonical or ("v" not in canonical.rsplit("/", 1)[-1]
+                                            and actual.rsplit("v", 1)[0] == canonical):
+                    matches.add(url)
+            except (ValueError, AttributeError):
+                continue
+        return matches
+
+    def assess(self, submission):
+        assessment = super().assess(submission)
+        fetched = self._fetched_paper_urls(submission, assessment["research"])
+        if not any(row["source_url"] in fetched for row in assessment["evidence"]):
+            assessment.update(decision="needs_review", full_paper_evidence=False,
+                              reason="The submitted paper's full text was not fetched and cited; a maintainer must review suitability.")
+        return assessment
+
+    def generate(self, submission, research=None):
+        research = research if research is not None else self.research(submission)
+        if not self._fetched_paper_urls(submission, research) and not submission.get("excerpt", "").strip():
+            raise ModelUnavailable("No accessible full text of the submitted paper was fetched. Add a paper excerpt and retry.")
+        candidate, provenance = super().generate(submission, research)
+        provenance["fetched_urls"] = research.get("fetched_urls", [])
+        return candidate, provenance
+
+    def capability(self):
+        ready = bool(os.environ.get("ANTHROPIC_API_KEY", "").strip()) and bool(self.model)
+        return {"ready": ready, "provider": self.provider_name, "model": self.model,
+                "reason": "" if ready else "Set ANTHROPIC_API_KEY and PAPERLEET_MODEL on the local server to generate a candidate."}
+
+    def request(self, prompt, schema=None, search=False):
+        key = os.environ.get("ANTHROPIC_API_KEY", "").strip()
+        if not key or not self.model:
+            raise ModelUnavailable(self.capability()["reason"])
+        if search and schema is not None:
+            raise ModelUnavailable("Claude search and structured generation must use separate requests.")
+        headers = {"x-api-key": key, "anthropic-version": "2026-10-21", "Content-Type": "application/json"}
+        workspace = os.environ.get("ANTHROPIC_WORKSPACE_ID", "").strip()
+        if workspace:
+            headers["anthropic-workspace-id"] = workspace
+        # Reject malformed configuration before urllib can interpolate it into
+        # an exception. Neither credential nor workspace is returned to callers.
+        if any(len(value) > 4096 or any(ord(c) < 32 or ord(c) > 126 for c in value)
+               for value in (key, workspace)):
+            raise ModelUnavailable("Invalid Anthropic credential or workspace configuration.")
+        body = {"model": self.model, "system": BOUNDARY, "max_tokens": 16000,
+                "messages": [{"role": "user", "content": prompt}]}
+        if schema is not None:
+            body["output_config"] = {"format": {"type": "json_schema", "schema": schema}}
+        if search:
+            body["tools"] = [{"type": "web_search_20250305", "name": "web_search", "max_uses": 5},
+                             {"type": "web_fetch_20250910", "name": "web_fetch", "max_uses": 3,
+                              "max_content_tokens": 20000, "citations": {"enabled": True}}]
+            body["messages"][0]["content"] += (
+                "\nUse web_fetch to read the submitted paper's full text, preferring the supplied arXiv HTML URL, "
+                "then PDF if HTML is unavailable. Search snippets and abstract pages do not establish full-paper access. "
+                "Cite the exact successfully fetched full-text URL and equation/section. State unavailable or truncated "
+                "sections explicitly; do not infer their contents or claim complete coverage from a partial document.")
+            # Default auto is required by models that do not support forced
+            # tool_choice. Evidence gates below do not trust plain-text URLs.
+        opener = build_opener(_NoProviderRedirect())
+        deadline = time.monotonic() + self.request_timeout
+        remaining_bytes = self.max_response_bytes
+        chunks, sources, source_urls, response_ids, fetched_urls = [], [], set(), [], set()
+        fetch_failures = 0
+
+        def source(row):
+            try:
+                url = https_url(row.get("url"), required=True)
+            except (ValueError, TypeError):
+                return
+            if url not in source_urls:
+                source_urls.add(url)
+                title = row.get("title", "")
+                sources.append({"url": url, "title": title[:4000] if isinstance(title, str) else ""})
+            return url
+
+        for attempt in range(self.max_continuations + 1):
+            remaining_time = deadline - time.monotonic()
+            if remaining_time <= 0:
+                raise ModelUnavailable("Anthropic request timed out. Retry generation.")
+            try:
+                payload = json.dumps(body).encode()
+                if len(payload) > self.max_response_bytes:
+                    raise ModelUnavailable("Anthropic request exceeded the bounded conversation size.")
+                request = Request("https://api.anthropic.com/v1/messages", data=payload, headers=headers)
+                with opener.open(request, timeout=remaining_time) as response:
+                    raw = response.read(remaining_bytes + 1)
+                remaining_bytes -= len(raw)
+                if remaining_bytes < 0:
+                    raise ModelUnavailable("Anthropic response exceeded the bounded response size.")
+                data = json.loads(raw)
+            except HTTPError as exc:
+                raise ModelUnavailable(f"Anthropic request failed (HTTP {exc.code}); check model access and account configuration.") from None
+            except (URLError, OSError, HTTPException, ValueError, RecursionError):
+                raise ModelUnavailable("Anthropic request failed or timed out. Retry generation.") from None
+            if time.monotonic() >= deadline:
+                raise ModelUnavailable("Anthropic request timed out. Retry generation.")
+            if not isinstance(data, dict) or data.get("type") != "message" or data.get("role") != "assistant":
+                raise ModelUnavailable("Anthropic returned an invalid message response.")
+            details = data.get("stop_details")
+            if (data.get("stop_reason") == "refusal"
+                    or (isinstance(details, dict) and details.get("type") == "refusal")):
+                raise ModelUnavailable("The model declined to generate this candidate.")
+            stop = data.get("stop_reason")
+            if not isinstance(stop, str) or stop not in {"end_turn", "pause_turn"}:
+                raise ModelUnavailable("Anthropic response did not complete. Retry with a narrower learning objective.")
+            content = data.get("content")
+            if not isinstance(content, list) or not all(isinstance(block, dict) for block in content):
+                raise ModelUnavailable("Anthropic returned invalid message content.")
+            response_id = data.get("id", "")
+            if not isinstance(response_id, str) or len(response_id) > 256:
+                raise ModelUnavailable("Anthropic returned an invalid response identifier.")
+            response_ids.append(response_id)
+            for block in content:
+                kind = block.get("type")
+                if kind == "refusal":
+                    raise ModelUnavailable("The model declined to generate this candidate.")
+                if kind == "text":
+                    text = block.get("text")
+                    citations = block.get("citations") or []
+                    if not isinstance(text, str) or not isinstance(citations, list):
+                        raise ModelUnavailable("Anthropic returned invalid text content.")
+                    chunks.append(text)
+                    if search:
+                        for citation in citations:
+                            if isinstance(citation, dict) and citation.get("type") == "web_search_result_location":
+                                source(citation)
+                elif kind == "web_search_tool_result":
+                    results = block.get("content")
+                    if isinstance(results, dict) and results.get("type") == "web_search_tool_result_error":
+                        raise ModelUnavailable("Anthropic web search failed; no candidate was generated. Retry research.")
+                    if not isinstance(results, list) or not all(isinstance(row, dict) for row in results):
+                        raise ModelUnavailable("Anthropic returned invalid search results.")
+                    if search:
+                        for row in results:
+                            if row.get("type") == "web_search_result":
+                                source(row)
+                elif kind == "web_fetch_tool_result":
+                    result = block.get("content")
+                    if isinstance(result, dict) and result.get("type") == "web_fetch_tool_result_error":
+                        # An unavailable HTML page may be followed by a valid
+                        # PDF fetch. Failed URLs never enter either evidence set.
+                        fetch_failures += 1
+                        continue
+                    document = result.get("content") if isinstance(result, dict) else None
+                    payload = document.get("source") if isinstance(document, dict) else None
+                    if (not isinstance(result, dict) or result.get("type") != "web_fetch_result"
+                            or not isinstance(document, dict) or document.get("type") != "document"
+                            or not isinstance(payload, dict)
+                            or (payload.get("type"), payload.get("media_type")) not in (("text", "text/plain"), ("base64", "application/pdf"))
+                            or not isinstance(payload.get("data"), str) or not payload["data"].strip()):
+                        raise ModelUnavailable("Anthropic returned invalid or empty fetched content.")
+                    if search:
+                        url = source({"url": result.get("url"), "title": document.get("title", "")})
+                        if url:
+                            fetched_urls.add(url)
+                elif kind == "tool_use":
+                    # No local tools are exposed or executed by this provider.
+                    raise ModelUnavailable("Anthropic requested an unsupported client tool.")
+            if stop == "pause_turn":
+                if not search or attempt == self.max_continuations or not content:
+                    raise ModelUnavailable("Anthropic search did not complete within the continuation limit.")
+                # Preserve encrypted search content, citation indices, thinking
+                # signatures and tool IDs exactly as returned by the server.
+                body["messages"].append({"role": "assistant", "content": content})
+                continue
+            text = "\n".join(chunks)
+            if not text.strip():
+                raise ModelUnavailable("Model returned no candidate content.")
+            value = text
+            if schema is not None:
+                try:
+                    value = json.loads(text)
+                except (ValueError, RecursionError):
+                    raise ModelUnavailable("Anthropic returned invalid structured output.") from None
+                if not isinstance(value, dict):
+                    raise ModelUnavailable("Anthropic returned invalid structured output.")
+            return {"value": value, "sources": sources, "response_id": response_ids[-1],
+                    "response_ids": response_ids, "fetched_urls": sorted(fetched_urls), "fetch_failures": fetch_failures}
+
+
+def create_provider():
+    """Select the configured provider; existing deployments default to OpenAI."""
+    name = os.environ.get("PAPERLEET_MODEL_PROVIDER", "").strip().lower() or "openai"
+    if name == "openai":
+        return OpenAIProvider()
+    if name == "anthropic":
+        return AnthropicProvider()
+    raise ModelUnavailable("PAPERLEET_MODEL_PROVIDER must be openai or anthropic.")

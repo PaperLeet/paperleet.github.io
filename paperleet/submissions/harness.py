@@ -10,7 +10,7 @@ from urllib.parse import urlsplit
 
 from .arxiv import arxiv_identity, canonical_arxiv_url, load_arxiv_metadata, normalize_metadata
 from .checks import package_hash, static_checks
-from .model import ModelUnavailable, OpenAIProvider, normalize_suitability, retrieved_urls
+from .model import ModelUnavailable, OpenAIProvider, create_provider, normalize_suitability, retrieved_urls
 from .sandbox import Sandbox
 
 
@@ -53,7 +53,7 @@ class PaperHarness:
     missing infrastructure nor a failed candidate means the paper is unsuitable.
     """
     def __init__(self, provider=None, sandbox=None, source_loader=None):
-        self.provider = provider if provider is not None else OpenAIProvider()
+        self.provider = provider if provider is not None else create_provider()
         self.sandbox = sandbox if sandbox is not None else Sandbox()
         self.source_loader = source_loader if source_loader is not None else load_arxiv_metadata
 

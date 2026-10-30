@@ -13,7 +13,7 @@ import yaml
 from paperleet.catalog import problems, root
 from paperleet.config import data_directory
 from .checks import https_url, package_hash, static_checks
-from .model import ModelUnavailable, OpenAIProvider
+from .model import ModelUnavailable, OpenAIProvider, create_provider
 from .sandbox import Sandbox
 
 ACTIVE = {"generating", "validating"}
@@ -33,7 +33,7 @@ class SubmissionStore:
         self.base = Path(base or root())
         self.directory = Path(directory) if directory is not None else self.base / ".paperleet" / "submissions"
         self.directory.mkdir(parents=True, exist_ok=True)
-        self.provider = provider or OpenAIProvider()
+        self.provider = provider if provider is not None else create_provider()
         self.sandbox = sandbox or Sandbox()
         self.lock = threading.RLock()
         self.jobs = set()

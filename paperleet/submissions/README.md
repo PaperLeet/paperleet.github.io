@@ -66,7 +66,17 @@ and `execution_completed`. Only a complete test execution sets
 failures and incomplete reports must not unlock voting. The result omits raw
 stdout, private test tracebacks and reference source.
 
-Set `OPENAI_API_KEY` and `PAPERLEET_MODEL` only on the worker. Build the existing
+`create_provider()` in `paperleet.submissions.model` selects
+`PAPERLEET_MODEL_PROVIDER=openai|anthropic` (unset or empty defaults to OpenAI).
+Set `PAPERLEET_MODEL` and the selected provider's key only on the worker:
+`OPENAI_API_KEY` for OpenAI, or `ANTHROPIC_API_KEY` for Claude. Optionally set
+`ANTHROPIC_WORKSPACE_ID` when the Claude credential requires an explicit workspace.
+Explicitly injected providers and existing `OpenAIProvider` imports remain supported.
+Claude uses separate research and schema requests, preserves paused server-tool
+content, and accepts only typed retrieval evidence; full-paper assessment also
+requires a successful fetch of the submitted paper, not just search snippets.
+The [harness design](../../docs/paper-submission-harness.md) documents request limits.
+Build the existing
 submission sandbox image and set `PAPERLEET_SANDBOX_IMAGE` as needed. When the
 worker runs inside a container controlling the host Docker daemon, configure
 `PAPERLEET_SANDBOX_WORK_DIR` to an absolute existing directory bind-mounted at the
