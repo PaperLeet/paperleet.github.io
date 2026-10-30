@@ -1,1 +1,0 @@
-import{j as r}from"./index-CO9dNzeH.js";import{b as s}from"./browserMessages-D-WfGAQk.js";import{u as t}from"./index-vNz1268a.js";import"./_commonjsHelpers-CqkleIqs.js";function u({reason:e}){const{locale:o}=t();return r.jsx(r.Fragment,{children:s(e,o==="en")})}export{u as default};

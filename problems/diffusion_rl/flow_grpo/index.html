@@ -1,0 +1,191 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Convert rectified flow into stochastic Gaussian transitions with tractable densities and optimize them using group rewards. Implement reverse-time SDE statistics, per-prompt…">
+    <title>Flow-GRPO: Flow-GRPO Stochastic Flow Transitions and Group-Relative Updates in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/diffusion_rl/flow_grpo/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/diffusion_rl/flow_grpo/">
+    <meta property="og:title" content="Flow-GRPO: Flow-GRPO Stochastic Flow Transitions and Group-Relative Updates in Python | PaperLeet">
+    <meta property="og:description" content="Convert rectified flow into stochastic Gaussian transitions with tractable densities and optimize them using group rewards. Implement reverse-time SDE statistics, per-prompt…">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="Flow-GRPO: Flow-GRPO Stochastic Flow Transitions and Group-Relative Updates in Python | PaperLeet">
+    <meta name="twitter:description" content="Convert rectified flow into stochastic Gaussian transitions with tractable densities and optimize them using group rewards. Implement reverse-time SDE statistics, per-prompt…">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      /* Boot colours match the theme tokens so the swap to the real shell does not jump. */
+      html { background: #f7f8fa; color: #262626; --startup-bar: #fff; --startup-line: #e5e5e5; --startup-muted: #5c5c5c; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #eff1f6; --startup-bar: #262626; --startup-line: #3d3d3d; --startup-muted: #a8a8ad; }
+      body { margin: 0; }
+      .startup-screen { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; box-sizing: border-box; font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Helvetica, Arial, sans-serif; }
+      .startup-bar { display: flex; align-items: center; gap: 8px; height: 56px; padding: 0 calc(max(0px, (100% - 1480px) / 2) + clamp(16px, 2.8vw, 40px)); box-sizing: border-box; border-bottom: 1px solid var(--startup-line); background: var(--startup-bar); font-size: 20px; font-weight: 700; letter-spacing: -.4px; }
+      .startup-card { box-sizing: border-box; width: 100%; max-width: 440px; margin: auto; padding: 24px; text-align: center; }
+      .startup-spinner { display: inline-block; width: 20px; height: 20px; box-sizing: border-box; border: 2px solid #8883; border-top-color: #ffa116; border-radius: 50%; animation: startup-spin .7s linear infinite; }
+      .startup-card:has(#startup-retry:not([hidden])) .startup-spinner { display: none; }
+      .startup-card h1 { margin: 12px 0 4px; font-size: 16px; font-weight: 600; }
+      .startup-card p { margin: 4px 0 12px; color: var(--startup-muted); font-size: 14px; }
+      .startup-card .startup-brand { color: inherit; font-size: 20px; font-weight: 700; }
+      .startup-card h1 .startup-english { font-size: 14px; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; font-size: 14px; font-weight: 600; color: inherit; border: 1px solid var(--startup-line); border-radius: 8px; padding: 6px 14px; background: var(--startup-bar); cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+      @keyframes startup-spin { to { transform: rotate(360deg); } }
+      @media (prefers-reduced-motion: reduce) { .startup-spinner { animation-duration: 2s; } }
+      /* Phones and tablets: the identity row plus the space the scrolling navigation will take. */
+      @media (max-width: 860px) { .startup-bar { height: 89px; padding: 0 24px 40px; } }
+      @media (max-width: 760px) { .startup-bar { padding-inline: 12px; font-size: 0; } }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-Bm4kcN-T.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-BU-26f07.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>Flow-GRPO Stochastic Flow Transitions and Group-Relative Updates</h1><p><a href="/papers/flow-grpo/">Flow-GRPO</a> · NeurIPS 2025 · Hard · 50 minutes</p><p>Convert rectified flow into stochastic Gaussian transitions with tractable densities and optimize them using group rewards.</p><p>Implement reverse-time SDE statistics, per-prompt reward normalization, per-transition clipping and exact Gaussian KL with a tiny online rollout experiment.</p><h2>Functions to implement</h2><ul><li><code>sde_transition(state: Tensor, velocity: Tensor, time: float, next_time: float, noise_level: float) -&gt; tuple[Tensor, Tensor]</code></li><li><code>flow_grpo_loss(current: Tensor, old: Tensor, reference: Tensor, actions: Tensor, std: Tensor, rewards: Tensor, clip_epsilon: float, beta: float, eps: float = 1e-8) -&gt; Tensor</code></li></ul><section aria-label="Problem description"><h1>Flow-GRPO: stochastic flow transitions and group-relative updates</h1>
+<p><a href="https://arxiv.org/abs/2505.05470">Flow-GRPO</a> turns flow-matching generation into a stochastic policy that can be optimized with group rewards. Implement the reverse-time Gaussian transition and the corresponding clipped, KL-regularized update.</p>
+<h2>1. Convert the flow ODE into a Gaussian policy</h2>
+<p>Use the paper's data-to-noise time convention $x_t=(1-t)x_0+t\epsilon$ and velocity pointing toward noise. Sampling moves to a smaller time: $\Delta t=s-t&lt;0$. For noise level $a\geq0$, define</p>
+<p>$$
+\sigma_t^2=a^2\frac{t}{1-t},\qquad
+b_\theta=v_\theta+\frac{\sigma_t^2}{2t}\left(x_t+(1-t)v_\theta\right).
+$$</p>
+<p>The reverse-time Euler–Maruyama transition is</p>
+<p>$$
+\mu_\theta=x_t+\Delta t,b_\theta,
+\qquad q=\sigma_t\sqrt{-\Delta t},
+\qquad x_s=\mu_\theta+qz,\quad z\sim\mathcal N(0,I).
+$$</p>
+<p>Implement <code>sde_transition(state, velocity, time, next_time, noise_level)</code> and return <code>(mean, std)</code>. <code>state</code> and <code>velocity</code> have the same nonempty floating shape <code>(B, ...)</code>. The output mean preserves that shape, while <code>std</code> is a scalar tensor of the same dtype/device. Require <code>0 &lt;= next_time &lt; time &lt; 1</code>; endpoints with singular score/noise formulas are deliberately excluded. A zero noise level returns the ODE mean and zero standard deviation.</p>
+<p>Detach the observed state; gradients flow through the supplied velocity. This is a local policy update conditioned on fixed rollout states. The square root uses the magnitude of the reverse-time step, matching the <a href="https://github.com/yifan123/flow_grpo/blob/main/flow_grpo/diffusers_patch/sd3_sde_with_logprob.py">authors' sampler</a>.</p>
+<h2>2. Group advantages and per-transition ratios</h2>
+<p>Implement <code>flow_grpo_loss(current, old, reference, actions, std, rewards, clip_epsilon, beta, eps=1e-8)</code> with these shapes:</p>
+<p>| Argument | Shape | Meaning |
+| --- | --- | --- |
+| <code>current</code>, <code>old</code>, <code>reference</code> | <code>(P,G,T,D)</code> | Current, rollout and reference transition means |
+| <code>actions</code> | <code>(P,G,T,D)</code> | Previously sampled next states |
+| <code>std</code> | <code>(T,)</code> | Shared positive Gaussian standard deviation at each step |
+| <code>rewards</code> | <code>(P,G)</code> | Terminal rewards for G trajectories of each prompt |</p>
+<p>There must be at least two trajectories per prompt. Normalize rewards <strong>within each prompt</strong> using population standard deviation:</p>
+<p>$$
+A_{pg}=\frac{R_{pg}-\overline R_p}
+{\sqrt{\frac1G\sum_j(R_{pj}-\overline R_p)^2}+\varepsilon_{\rm std}}.
+$$</p>
+<p>Repeat this terminal advantage over the trajectory's transitions. Constant-reward groups yield zero advantage. The exact equal-variance Gaussian log-density ratio is</p>
+<p>$$
+\log r_{pgt}=\sum_d\frac{(a_{pgtd}-\mu_{\rm old,pgtd})^2-(a_{pgtd}-\mu_{\theta,pgtd})^2}{2q_t^2}.
+$$</p>
+<p>The normalization constants cancel because the old and current distributions share the variance. Compute the exact KL to the fixed reference:</p>
+<p>$$
+K_{pgt}=\sum_d\frac{(\mu_{\theta,pgtd}-\mu_{\rm ref,pgtd})^2}{2q_t^2}.
+$$</p>
+<p>Return the scalar loss</p>
+<p>$$
+L=\frac1{PGT}\sum_{p,g,t}\left[
+-\min\left(r_{pgt}A_{pg},\operatorname{clip}(r_{pgt},1-\epsilon,1+\epsilon)A_{pg}\right)
++\beta K_{pgt}\right].
+$$</p>
+<p>Only <code>current</code> receives gradients. Detach old/reference means, sampled actions, rewards and standard deviations inside the loss.</p>
+<h2>3. Exact conventions</h2>
+<p>This exercise implements the <strong>joint Gaussian density</strong> from the paper's policy ratio: sum over latent coordinates, then average the objective over prompts, trajectories and time. The official sampler averages coordinate log densities as an implementation normalization; that would produce a geometric-mean ratio and is intentionally not the convention here. The exact KL is also a coordinate sum.</p>
+<p>Use finite <code>0 &lt; clip_epsilon &lt; 1</code>, <code>beta &gt;= 0</code>, <code>eps &gt; 0</code> and strictly positive <code>std</code>. Reject invalid shapes, non-floating or empty tensors, mismatched dtype/device and non-finite inputs with <code>ValueError</code>. Preserve CPU float32/float64 and never mutate inputs. Handle zero advantages and already-clipped positive ratios without overflow; remaining nonzero objective terms fit the floating range. A zero-noise ODE transition has no Gaussian density and cannot be passed into this loss.</p>
+<h2>4. Verification</h2>
+<p>T0 checks interfaces and invalid schedules. T1 uses independent scalar loops for transition statistics, Gaussian densities, group normalization, clipping and KL. T2 checks the score-corrected velocity Jacobian, analytic policy gradients, frozen rollout context, independent prompt reward offsets, temporal averaging and both signs of clipped advantage. T3 runs 80 actual online updates with fresh stochastic trajectories from the current policy.</p>
+<h2>5. Online experiment</h2>
+<p>Three scalar prompts define target next states. A single trainable weight controls a conditional velocity, each prompt samples 24 transitions, and terminal rewards are negative squared target errors. The experiment uses your SDE statistics to sample and your loss to update the policy. The chart tracks the target error of the expected next state. This CPU teaching adaptation focuses on one transition per trajectory; full trajectory handling is covered numerically in T1/T2. It does not reproduce SD3 image training or the paper's denoising-reduction benchmark.</p>
+<h2>6. Run your implementation</h2>
+<p>Complete the functions in the Python editor on the right, then click <strong>Run tests</strong>. Inspect each failed check, update your implementation, and run again. Passing every required check marks the problem as solved and unlocks the notes.</p>
+<h2>7. Sources</h2>
+<ul>
+<li>Liu et al., <a href="https://arxiv.org/html/2505.05470v1">Section 4.1, Eqs. (4)–(6); Section 4.2, Eqs. (9)–(13)</a>.</li>
+<li><a href="https://github.com/yifan123/flow_grpo/blob/main/flow_grpo/diffusers_patch/sd3_sde_with_logprob.py">Official reverse-time sampler</a>.</li>
+</ul>
+<p>The compact implementation is written independently from the mathematical specification.</p></section><p><a href="https://arxiv.org/abs/2505.05470">Read paper · arXiv:2505.05470</a></p><h2>Related exercises</h2><ul><li><a href="/papers/flow-grpo/">All Flow-GRPO exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>

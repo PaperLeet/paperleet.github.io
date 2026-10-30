@@ -1,0 +1,169 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Read scattered physical KV pages through logical block tables while preserving dense-attention results. A CPU specification of page indexing, shared prefixes, partial tails and…">
+    <title>vLLM · PagedAttention: PagedAttention KV Pages and Decode Attention in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/ai_infra/paged_attention/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/ai_infra/paged_attention/">
+    <meta property="og:title" content="vLLM · PagedAttention: PagedAttention KV Pages and Decode Attention in Python | PaperLeet">
+    <meta property="og:description" content="Read scattered physical KV pages through logical block tables while preserving dense-attention results. A CPU specification of page indexing, shared prefixes, partial tails and…">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="vLLM · PagedAttention: PagedAttention KV Pages and Decode Attention in Python | PaperLeet">
+    <meta name="twitter:description" content="Read scattered physical KV pages through logical block tables while preserving dense-attention results. A CPU specification of page indexing, shared prefixes, partial tails and…">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      /* Boot colours match the theme tokens so the swap to the real shell does not jump. */
+      html { background: #f7f8fa; color: #262626; --startup-bar: #fff; --startup-line: #e5e5e5; --startup-muted: #5c5c5c; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #eff1f6; --startup-bar: #262626; --startup-line: #3d3d3d; --startup-muted: #a8a8ad; }
+      body { margin: 0; }
+      .startup-screen { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; box-sizing: border-box; font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Helvetica, Arial, sans-serif; }
+      .startup-bar { display: flex; align-items: center; gap: 8px; height: 56px; padding: 0 calc(max(0px, (100% - 1480px) / 2) + clamp(16px, 2.8vw, 40px)); box-sizing: border-box; border-bottom: 1px solid var(--startup-line); background: var(--startup-bar); font-size: 20px; font-weight: 700; letter-spacing: -.4px; }
+      .startup-card { box-sizing: border-box; width: 100%; max-width: 440px; margin: auto; padding: 24px; text-align: center; }
+      .startup-spinner { display: inline-block; width: 20px; height: 20px; box-sizing: border-box; border: 2px solid #8883; border-top-color: #ffa116; border-radius: 50%; animation: startup-spin .7s linear infinite; }
+      .startup-card:has(#startup-retry:not([hidden])) .startup-spinner { display: none; }
+      .startup-card h1 { margin: 12px 0 4px; font-size: 16px; font-weight: 600; }
+      .startup-card p { margin: 4px 0 12px; color: var(--startup-muted); font-size: 14px; }
+      .startup-card .startup-brand { color: inherit; font-size: 20px; font-weight: 700; }
+      .startup-card h1 .startup-english { font-size: 14px; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; font-size: 14px; font-weight: 600; color: inherit; border: 1px solid var(--startup-line); border-radius: 8px; padding: 6px 14px; background: var(--startup-bar); cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+      @keyframes startup-spin { to { transform: rotate(360deg); } }
+      @media (prefers-reduced-motion: reduce) { .startup-spinner { animation-duration: 2s; } }
+      /* Phones and tablets: the identity row plus the space the scrolling navigation will take. */
+      @media (max-width: 860px) { .startup-bar { height: 89px; padding: 0 24px 40px; } }
+      @media (max-width: 760px) { .startup-bar { padding-inline: 12px; font-size: 0; } }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-Bm4kcN-T.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-BU-26f07.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>PagedAttention KV Pages and Decode Attention</h1><p><a href="/papers/paged-attention/">vLLM · PagedAttention</a> · SOSP 2023 · Medium · 35 minutes</p><p>Read scattered physical KV pages through logical block tables while preserving dense-attention results.</p><p>A CPU specification of page indexing, shared prefixes, partial tails and multihead decode attention, with replay and slot accounting.</p><h2>Functions to implement</h2><ul><li><code>gather_paged_kv(key_cache: Tensor, value_cache: Tensor, block_table: Tensor, context_len: int) -&gt; tuple[Tensor, Tensor]</code></li><li><code>paged_attention(query: Tensor, key_cache: Tensor, value_cache: Tensor, block_tables: Tensor, context_lens: Tensor) -&gt; Tensor</code></li></ul><section aria-label="Problem description"><h1>PagedAttention: KV Pages and Decode Attention</h1>
+<h2>1. Task</h2>
+<p>Logical token order can differ from physical KV-cache order. <a href="https://arxiv.org/abs/2309.06180">PagedAttention</a> connects them with a block table, allowing scattered physical pages and shared prefixes.</p>
+<p>Implement logical KV gathering and multihead decode attention with one query per request. This CPU specification checks indexing and numerical equivalence; it does not implement a CUDA kernel, scheduler or allocator.</p>
+<h2>2. Interfaces and shapes</h2>
+<pre><code class="language-python">gather_paged_kv(key_cache, value_cache, block_table, context_len) -&gt; (keys, values)
+paged_attention(query, key_cache, value_cache, block_tables, context_lens) -&gt; Tensor
+</code></pre>
+<ul>
+<li>Both caches have shape <code>(P,S,H,D)</code>: physical pages, tokens per page, heads and head width.</li>
+<li>Gathering accepts an int64 table <code>(M,)</code> and a positive Python integer length <code>L</code>; it returns two <code>(L,H,D)</code> tensors.</li>
+<li>Attention accepts query <code>(B,H,D)</code>, int64 tables <code>(B,M)</code> and int64 lengths <code>(B,)</code>; it returns <code>(B,H,D)</code>.</li>
+</ul>
+<p>All tensors share a device. Floating inputs share float32 or float64 dtype. This exercise uses the same head count and feature width for queries, keys and values.</p>
+<h2>3. Logical-to-physical mapping</h2>
+<p>Logical token $t$ reads</p>
+<p>$$
+\operatorname{page}(t)=\operatorname{table}[\lfloor t/S\rfloor],\qquad
+\operatorname{slot}(t)=t\bmod S.
+$$</p>
+<p>A length $L$ uses the first $\lceil L/S\rceil$ table entries and only the valid prefix of the last page. For <code>S=3, table=[4,1,5], L=7</code>, read all three tokens of page 4, all three of page 1, then the first token of page 5.</p>
+<p>Active page IDs must be in <code>[0,P)</code>. Unused table entries may contain arbitrary integer sentinels. Unused pages and tail slots may contain NaN and must not participate. Queries and active KV tokens must be finite.</p>
+<h2>4. Attention and gradients</h2>
+<p>For each request and head, compute attention across its entire valid context:</p>
+<p>$$
+a_t=\operatorname{softmax}<em>t(q^\top k_t/\sqrt D),\qquad
+o=\sum</em>{t=0}^{L-1}a_t v_t.
+$$</p>
+<p>The cache already contains every visible token, including the last position. Normalize across tokens, rather than heads or separate pages. All context lengths are positive.</p>
+<p>Preserve input contents and gradients to queries and physical KV tensors. A physical page may be used by several requests or logical positions; its gradient must sum all contributions.</p>
+<h2>5. Tests and experiment</h2>
+<p>Tests compare with scalar attention, remap relocated physical pages, poison unused slots, verify shared-page gradients and use finite differences. The behavioral experiment replays two requests with a shared prefix across nine lengths, comparing with dense scalar attention and counting allocated token slots.</p>
+<p>Slot counts describe this synthetic storage layout. They are not GPU throughput or memory-performance measurements.</p>
+<h2>6. Run your implementation</h2>
+<p>Complete the functions in the Python editor on the right, then click <strong>Run tests</strong>. Inspect each failed check, update your implementation, and run again. Passing every required check marks the problem as solved and unlocks the notes.</p>
+<h2>7. Sources</h2>
+<p><a href="https://arxiv.org/abs/2309.06180">Paper</a>, Sections 4.1–4.4; <a href="https://docs.vllm.ai/en/latest/design/paged_attention/">official kernel design</a>. The teaching layout is <code>(P,S,H,D)</code> on CPU. GPU vectorized layouts, copy-on-write and preemptive scheduling are outside this exercise.</p></section><p><a href="https://arxiv.org/abs/2309.06180">Read paper · arXiv:2309.06180</a></p><h2>Related exercises</h2><ul><li><a href="/papers/paged-attention/">All vLLM · PagedAttention exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>

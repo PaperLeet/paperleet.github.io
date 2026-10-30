@@ -1,0 +1,174 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Share noise within each preference pair and optimize denoising error gaps against a frozen reference. Implement paired forward noising and stable Diffusion-DPO loss, then train…">
+    <title>Diffusion-DPO: Diffusion-DPO Paired Denoising Preference Optimization in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/diffusion_rl/diffusion_dpo/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/diffusion_rl/diffusion_dpo/">
+    <meta property="og:title" content="Diffusion-DPO: Diffusion-DPO Paired Denoising Preference Optimization in Python | PaperLeet">
+    <meta property="og:description" content="Share noise within each preference pair and optimize denoising error gaps against a frozen reference. Implement paired forward noising and stable Diffusion-DPO loss, then train…">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="Diffusion-DPO: Diffusion-DPO Paired Denoising Preference Optimization in Python | PaperLeet">
+    <meta name="twitter:description" content="Share noise within each preference pair and optimize denoising error gaps against a frozen reference. Implement paired forward noising and stable Diffusion-DPO loss, then train…">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      /* Boot colours match the theme tokens so the swap to the real shell does not jump. */
+      html { background: #f7f8fa; color: #262626; --startup-bar: #fff; --startup-line: #e5e5e5; --startup-muted: #5c5c5c; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #eff1f6; --startup-bar: #262626; --startup-line: #3d3d3d; --startup-muted: #a8a8ad; }
+      body { margin: 0; }
+      .startup-screen { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; box-sizing: border-box; font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Helvetica, Arial, sans-serif; }
+      .startup-bar { display: flex; align-items: center; gap: 8px; height: 56px; padding: 0 calc(max(0px, (100% - 1480px) / 2) + clamp(16px, 2.8vw, 40px)); box-sizing: border-box; border-bottom: 1px solid var(--startup-line); background: var(--startup-bar); font-size: 20px; font-weight: 700; letter-spacing: -.4px; }
+      .startup-card { box-sizing: border-box; width: 100%; max-width: 440px; margin: auto; padding: 24px; text-align: center; }
+      .startup-spinner { display: inline-block; width: 20px; height: 20px; box-sizing: border-box; border: 2px solid #8883; border-top-color: #ffa116; border-radius: 50%; animation: startup-spin .7s linear infinite; }
+      .startup-card:has(#startup-retry:not([hidden])) .startup-spinner { display: none; }
+      .startup-card h1 { margin: 12px 0 4px; font-size: 16px; font-weight: 600; }
+      .startup-card p { margin: 4px 0 12px; color: var(--startup-muted); font-size: 14px; }
+      .startup-card .startup-brand { color: inherit; font-size: 20px; font-weight: 700; }
+      .startup-card h1 .startup-english { font-size: 14px; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; font-size: 14px; font-weight: 600; color: inherit; border: 1px solid var(--startup-line); border-radius: 8px; padding: 6px 14px; background: var(--startup-bar); cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+      @keyframes startup-spin { to { transform: rotate(360deg); } }
+      @media (prefers-reduced-motion: reduce) { .startup-spinner { animation-duration: 2s; } }
+      /* Phones and tablets: the identity row plus the space the scrolling navigation will take. */
+      @media (max-width: 860px) { .startup-bar { height: 89px; padding: 0 24px 40px; } }
+      @media (max-width: 760px) { .startup-bar { padding-inline: 12px; font-size: 0; } }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-Bm4kcN-T.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-BU-26f07.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>Diffusion-DPO Paired Denoising Preference Optimization</h1><p><a href="/papers/diffusion-dpo/">Diffusion-DPO</a> · CVPR 2024 · Medium · 35 minutes</p><p>Share noise within each preference pair and optimize denoising error gaps against a frozen reference.</p><p>Implement paired forward noising and stable Diffusion-DPO loss, then train a two-parameter denoiser using the official feature-mean and beta/2 convention.</p><h2>Functions to implement</h2><ul><li><code>paired_noising(winner: Tensor, loser: Tensor, noise: Tensor, alpha_bar: Tensor) -&gt; tuple[Tensor, Tensor]</code></li><li><code>diffusion_dpo_loss(model_w: Tensor, model_l: Tensor, ref_w: Tensor, ref_l: Tensor, noise: Tensor, beta: float) -&gt; Tensor</code></li></ul><section aria-label="Problem description"><h1>Diffusion-DPO: paired denoising preference optimization</h1>
+<p>Implement the training objective from <a href="https://arxiv.org/abs/2311.12908">Diffusion Model Alignment Using Direct Preference Optimization</a>, using the feature-mean error and half-beta scale of the <a href="https://github.com/SalesforceAIResearch/DiffusionDPO/blob/main/train.py">authors' implementation</a>. The exercise isolates the pairwise training kernel and a tiny trainable denoiser.</p>
+<h2>1. Paired forward noising</h2>
+<p>Each row contains a preferred clean latent $x^w$, a rejected latent $x^l$, one shared noise sample $\epsilon$, and one cumulative schedule value $\bar\alpha$. Both sides use the same timestep and noise:</p>
+<p>$$
+x_t^w=\sqrt{\bar\alpha},x^w+\sqrt{1-\bar\alpha},\epsilon,
+\qquad
+x_t^l=\sqrt{\bar\alpha},x^l+\sqrt{1-\bar\alpha},\epsilon.
+$$</p>
+<p>Implement <code>paired_noising(winner, loser, noise, alpha_bar)</code>. The first three tensors share a nonempty floating shape <code>(B, ...)</code>, with at least one feature axis. <code>alpha_bar</code> has shape <code>(B,)</code> and values in <code>[0, 1]</code>. Broadcast over every feature axis and return a tuple <code>(noisy_winner, noisy_loser)</code>. These are frozen training inputs: detach all four arguments before computing them. The endpoints must return pure noise at zero and the clean latent at one.</p>
+<h2>2. Reference-relative preference objective</h2>
+<p>Given current predictions $\epsilon_\theta^w,\epsilon_\theta^l$ and frozen reference predictions $\epsilon_{\rm ref}^w,\epsilon_{\rm ref}^l$, define feature-mean errors:</p>
+<p>$$
+e_\theta^w=\frac1D\sum_{d=1}^D(\epsilon_{\theta,d}^w-\epsilon_d)^2,
+\qquad
+\Delta_\theta=e_\theta^w-e_\theta^l,
+\qquad
+\Delta_{\rm ref}=e_{\rm ref}^w-e_{\rm ref}^l.
+$$</p>
+<p>The margin and loss are</p>
+<p>$$
+m=-\frac\beta2(\Delta_\theta-\Delta_{\rm ref}),
+\qquad
+L=\frac1B\sum_{i=1}^B\operatorname{softplus}(-m_i).
+$$</p>
+<p>Implement <code>diffusion_dpo_loss(model_w, model_l, ref_w, ref_l, noise, beta)</code>. Return one scalar tensor. All five tensors have the same shape, dtype and device. Use every non-batch axis for the error mean. Only <code>model_w</code> and <code>model_l</code> receive gradients; detach references and noise inside the function even when callers mark them trainable. Use a numerically stable softplus or log-sigmoid expression.</p>
+<p>Here <code>beta</code> is a finite positive effective scale. The paper's timestep/weighting constants are absorbed into that scale; the explicit <code>1/2</code> and feature mean follow the released training code. This prevents a hidden dependence on latent dimensionality.</p>
+<h2>3. Contracts and example</h2>
+<p>Preserve floating dtype/device and do not mutate inputs. Reject incompatible shapes/dtypes/devices, empty tensors, non-floating tensors, non-finite tensor values, invalid alpha or invalid beta with <code>ValueError</code>. CPU float32 and float64 are tested.</p>
+<p>If current predictions equal their references, every margin is zero and the loss is $\log 2$. For one scalar pair with shared noise zero, current predictions <code>(0, 2)</code>, references <code>(1, 1)</code> and <code>beta=2</code>, the margin is $4$ and the loss is $\log(1+e^{-4})$.</p>
+<h2>4. Verification</h2>
+<p>T0 checks contracts and input preservation. T1 compares against scalar arithmetic, schedule endpoints and extreme margins. T2 verifies analytic gradients, frozen context and feature/batch duplication invariance. T3 trains a two-parameter affine noise predictor for 80 updates on four fixed preference pairs. Its loss must fall and each reference-relative preference margin must become positive.</p>
+<h2>5. Experiment and scope</h2>
+<p>The experiment uses synthetic scalar latents and actual gradient descent through your functions. It does not load an image model or a preference dataset. Increasing the preference margin does not require both absolute denoising errors to decrease: the objective controls their reference-relative difference. The charts therefore report the logistic loss and pairwise margins.</p>
+<h2>6. Run your implementation</h2>
+<p>Complete the functions in the Python editor on the right, then click <strong>Run tests</strong>. Inspect each failed check, update your implementation, and run again. Passing every required check marks the problem as solved and unlocks the notes.</p>
+<h2>7. Sources</h2>
+<ul>
+<li>Wallace et al., <a href="https://arxiv.org/html/2311.12908v1">paper, Section 4</a>.</li>
+<li><a href="https://github.com/SalesforceAIResearch/DiffusionDPO/blob/main/train.py">Official <code>train.py</code></a>: shared pair noise/timestep and DPO loss computation.</li>
+</ul>
+<p>Code here is an original compact teaching implementation of those equations, not a vendored training script.</p></section><p><a href="https://arxiv.org/abs/2311.12908">Read paper · arXiv:2311.12908</a></p><h2>Related exercises</h2><ul><li><a href="/papers/diffusion-dpo/">All Diffusion-DPO exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>

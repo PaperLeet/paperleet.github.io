@@ -81,6 +81,62 @@
   <url><loc>https://paperleet.com/papers/scale-free-networks/</loc></url>
   <url><loc>https://paperleet.com/papers/network-motifs/</loc></url>
   <url><loc>https://paperleet.com/papers/incomplete-interactome/</loc></url>
+  <url><loc>https://paperleet.com/papers/diffusion-policy/</loc></url>
+  <url><loc>https://paperleet.com/papers/supermimic/</loc></url>
+  <url><loc>https://paperleet.com/papers/diffusion-dpo/</loc></url>
+  <url><loc>https://paperleet.com/papers/flow-grpo/</loc></url>
+  <url><loc>https://paperleet.com/papers/siglip/</loc></url>
+  <url><loc>https://paperleet.com/papers/paged-attention/</loc></url>
+  <url><loc>https://paperleet.com/papers/align/</loc></url>
+  <url><loc>https://paperleet.com/papers/siglip-2/</loc></url>
+  <url><loc>https://paperleet.com/papers/blip/</loc></url>
+  <url><loc>https://paperleet.com/papers/blip-2/</loc></url>
+  <url><loc>https://paperleet.com/papers/flamingo/</loc></url>
+  <url><loc>https://paperleet.com/papers/llava/</loc></url>
+  <url><loc>https://paperleet.com/papers/instructblip/</loc></url>
+  <url><loc>https://paperleet.com/papers/imagebind/</loc></url>
+  <url><loc>https://paperleet.com/papers/chameleon/</loc></url>
+  <url><loc>https://paperleet.com/papers/qwen2-vl/</loc></url>
+  <url><loc>https://paperleet.com/papers/qwen2-5-vl/</loc></url>
+  <url><loc>https://paperleet.com/papers/internvl3/</loc></url>
+  <url><loc>https://paperleet.com/papers/qwen3-vl/</loc></url>
+  <url><loc>https://paperleet.com/papers/qwen2-5-omni/</loc></url>
+  <url><loc>https://paperleet.com/papers/dagger/</loc></url>
+  <url><loc>https://paperleet.com/papers/act/</loc></url>
+  <url><loc>https://paperleet.com/papers/rdt-1b/</loc></url>
+  <url><loc>https://paperleet.com/papers/rt-1/</loc></url>
+  <url><loc>https://paperleet.com/papers/rt-2/</loc></url>
+  <url><loc>https://paperleet.com/papers/octo/</loc></url>
+  <url><loc>https://paperleet.com/papers/openvla/</loc></url>
+  <url><loc>https://paperleet.com/papers/pi0/</loc></url>
+  <url><loc>https://paperleet.com/papers/pi0-5/</loc></url>
+  <url><loc>https://paperleet.com/papers/dreamerv3/</loc></url>
+  <url><loc>https://paperleet.com/papers/daydreamer/</loc></url>
+  <url><loc>https://paperleet.com/papers/td-mpc2/</loc></url>
+  <url><loc>https://paperleet.com/papers/deepmimic/</loc></url>
+  <url><loc>https://paperleet.com/papers/diffmimic/</loc></url>
+  <url><loc>https://paperleet.com/papers/gpipe/</loc></url>
+  <url><loc>https://paperleet.com/papers/megatron-lm/</loc></url>
+  <url><loc>https://paperleet.com/papers/zero/</loc></url>
+  <url><loc>https://paperleet.com/papers/flash-attention-2/</loc></url>
+  <url><loc>https://paperleet.com/papers/orca/</loc></url>
+  <url><loc>https://paperleet.com/papers/sglang/</loc></url>
+  <url><loc>https://paperleet.com/papers/sarathi-serve/</loc></url>
+  <url><loc>https://paperleet.com/papers/distserve/</loc></url>
+  <url><loc>https://paperleet.com/papers/gptq/</loc></url>
+  <url><loc>https://paperleet.com/papers/smoothquant/</loc></url>
+  <url><loc>https://paperleet.com/papers/awq/</loc></url>
+  <url><loc>https://paperleet.com/papers/imagereward/</loc></url>
+  <url><loc>https://paperleet.com/papers/diffusion-kto/</loc></url>
+  <url><loc>https://paperleet.com/papers/d3po/</loc></url>
+  <url><loc>https://paperleet.com/papers/pc-flow/</loc></url>
+  <url><loc>https://paperleet.com/papers/ddpo/</loc></url>
+  <url><loc>https://paperleet.com/papers/dpok/</loc></url>
+  <url><loc>https://paperleet.com/papers/alignprop/</loc></url>
+  <url><loc>https://paperleet.com/papers/draft/</loc></url>
+  <url><loc>https://paperleet.com/papers/dancegrpo/</loc></url>
+  <url><loc>https://paperleet.com/papers/mixgrpo/</loc></url>
+  <url><loc>https://paperleet.com/papers/flow-dppo/</loc></url>
   <url><loc>https://paperleet.com/problems/rl/gae/</loc></url>
   <url><loc>https://paperleet.com/problems/rl/ppo_clip/</loc></url>
   <url><loc>https://paperleet.com/problems/rl/dpo/</loc></url>
@@ -186,8 +242,68 @@
   <url><loc>https://paperleet.com/problems/network_biology/shortest_paths/</loc></url>
   <url><loc>https://paperleet.com/problems/network_biology/feed_forward_loops/</loc></url>
   <url><loc>https://paperleet.com/problems/network_biology/community_modules/</loc></url>
+  <url><loc>https://paperleet.com/problems/robotics/diffusion_policy/</loc></url>
+  <url><loc>https://paperleet.com/problems/robotics/supermimic/</loc></url>
+  <url><loc>https://paperleet.com/problems/diffusion_rl/diffusion_dpo/</loc></url>
+  <url><loc>https://paperleet.com/problems/diffusion_rl/flow_grpo/</loc></url>
+  <url><loc>https://paperleet.com/problems/multimodal/siglip/</loc></url>
+  <url><loc>https://paperleet.com/problems/ai_infra/paged_attention/</loc></url>
+  <url><loc>https://paperleet.com/problems/multimodal/align/</loc></url>
+  <url><loc>https://paperleet.com/problems/multimodal/siglip_2/</loc></url>
+  <url><loc>https://paperleet.com/problems/multimodal/blip/</loc></url>
+  <url><loc>https://paperleet.com/problems/multimodal/blip_2/</loc></url>
+  <url><loc>https://paperleet.com/problems/multimodal/flamingo/</loc></url>
+  <url><loc>https://paperleet.com/problems/multimodal/llava/</loc></url>
+  <url><loc>https://paperleet.com/problems/multimodal/instructblip/</loc></url>
+  <url><loc>https://paperleet.com/problems/multimodal/imagebind/</loc></url>
+  <url><loc>https://paperleet.com/problems/multimodal/chameleon/</loc></url>
+  <url><loc>https://paperleet.com/problems/multimodal/qwen2_vl/</loc></url>
+  <url><loc>https://paperleet.com/problems/multimodal/qwen2_5_vl/</loc></url>
+  <url><loc>https://paperleet.com/problems/multimodal/internvl3/</loc></url>
+  <url><loc>https://paperleet.com/problems/multimodal/qwen3_vl/</loc></url>
+  <url><loc>https://paperleet.com/problems/multimodal/qwen2_5_omni/</loc></url>
+  <url><loc>https://paperleet.com/problems/robotics/dagger/</loc></url>
+  <url><loc>https://paperleet.com/problems/robotics/act/</loc></url>
+  <url><loc>https://paperleet.com/problems/robotics/rdt_1b/</loc></url>
+  <url><loc>https://paperleet.com/problems/robotics/rt_1/</loc></url>
+  <url><loc>https://paperleet.com/problems/robotics/rt_2/</loc></url>
+  <url><loc>https://paperleet.com/problems/robotics/octo/</loc></url>
+  <url><loc>https://paperleet.com/problems/robotics/openvla/</loc></url>
+  <url><loc>https://paperleet.com/problems/robotics/pi0/</loc></url>
+  <url><loc>https://paperleet.com/problems/robotics/pi0_5/</loc></url>
+  <url><loc>https://paperleet.com/problems/robotics/dreamerv3/</loc></url>
+  <url><loc>https://paperleet.com/problems/robotics/daydreamer/</loc></url>
+  <url><loc>https://paperleet.com/problems/robotics/td_mpc2/</loc></url>
+  <url><loc>https://paperleet.com/problems/robotics/deepmimic/</loc></url>
+  <url><loc>https://paperleet.com/problems/robotics/diffmimic/</loc></url>
+  <url><loc>https://paperleet.com/problems/ai_infra/gpipe/</loc></url>
+  <url><loc>https://paperleet.com/problems/ai_infra/megatron_lm/</loc></url>
+  <url><loc>https://paperleet.com/problems/ai_infra/zero/</loc></url>
+  <url><loc>https://paperleet.com/problems/ai_infra/flash_attention_2/</loc></url>
+  <url><loc>https://paperleet.com/problems/ai_infra/orca/</loc></url>
+  <url><loc>https://paperleet.com/problems/ai_infra/sglang/</loc></url>
+  <url><loc>https://paperleet.com/problems/ai_infra/sarathi_serve/</loc></url>
+  <url><loc>https://paperleet.com/problems/ai_infra/distserve/</loc></url>
+  <url><loc>https://paperleet.com/problems/ai_infra/gptq/</loc></url>
+  <url><loc>https://paperleet.com/problems/ai_infra/smoothquant/</loc></url>
+  <url><loc>https://paperleet.com/problems/ai_infra/awq/</loc></url>
+  <url><loc>https://paperleet.com/problems/diffusion_rl/imagereward/</loc></url>
+  <url><loc>https://paperleet.com/problems/diffusion_rl/diffusion_kto/</loc></url>
+  <url><loc>https://paperleet.com/problems/diffusion_rl/d3po/</loc></url>
+  <url><loc>https://paperleet.com/problems/diffusion_rl/pc_flow/</loc></url>
+  <url><loc>https://paperleet.com/problems/diffusion_rl/ddpo/</loc></url>
+  <url><loc>https://paperleet.com/problems/diffusion_rl/dpok/</loc></url>
+  <url><loc>https://paperleet.com/problems/diffusion_rl/alignprop/</loc></url>
+  <url><loc>https://paperleet.com/problems/diffusion_rl/draft/</loc></url>
+  <url><loc>https://paperleet.com/problems/diffusion_rl/dancegrpo/</loc></url>
+  <url><loc>https://paperleet.com/problems/diffusion_rl/mixgrpo/</loc></url>
+  <url><loc>https://paperleet.com/problems/diffusion_rl/flow_dppo/</loc></url>
   <url><loc>https://paperleet.com/collections/llm-basics/</loc></url>
   <url><loc>https://paperleet.com/collections/llm-frontier/</loc></url>
+  <url><loc>https://paperleet.com/collections/multimodal/</loc></url>
+  <url><loc>https://paperleet.com/collections/robotics/</loc></url>
+  <url><loc>https://paperleet.com/collections/ai-infra/</loc></url>
+  <url><loc>https://paperleet.com/collections/diffusion-rl/</loc></url>
   <url><loc>https://paperleet.com/collections/self-evolving/</loc></url>
   <url><loc>https://paperleet.com/collections/retrieval/</loc></url>
   <url><loc>https://paperleet.com/collections/rl/</loc></url>
