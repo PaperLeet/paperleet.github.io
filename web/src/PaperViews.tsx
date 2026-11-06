@@ -111,7 +111,7 @@ function PracticePaperLibrary({ papers, categories, problems, saved, collectionI
   const overviewModules=company?listedModules.filter(problem=>companyData?.ids.has(problem.id)):listedModules;
   const solvedModules = overviewModules.filter((p) => status(p, saved[p.id]) === "done").length;
   const selection = selectLibraryPractice(papers, problems, saved, { collectionId: selectedCollection?.id, filters },companyReady?companyData?.ids:undefined,locale);
-  const filtered = sortLibraryPapers(selection.papers, sort);
+  const filtered = selectedCollection?.learningOrder && sort === 'default' ? selection.papers : sortLibraryPapers(selection.papers, sort);
   const filteredModules = directModules||company&&sort==='default'?selection.problems:filtered.flatMap(paper => selection.problems.filter(problem => paper.module_ids.includes(problem.id)));
   const rowIds = (moduleView ? filteredModules : filtered).map(row => row.id);
   const rowKey = rowIds.join(',');

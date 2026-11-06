@@ -39,6 +39,19 @@ export default function CollectionArtwork({ kind }: { kind: string }) {
   let artwork;
 
   switch (kind) {
+    case "self-supervised-learning":
+      artwork = (
+        <g fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
+          <rect x="19" y="30" width="56" height="62" rx="10" fill="white" fillOpacity=".13" strokeOpacity=".65" />
+          <rect x="105" y="30" width="56" height="62" rx="10" fill="white" fillOpacity=".2" strokeOpacity=".8" />
+          <path d="m30 78 13-23 20 23m55-25 14 21 18-17M47 101v24l30 21m56-45v24l-30 21" strokeOpacity=".65" />
+          <path d="M75 61h30m-24-6-6 6 6 6m18-12 6 6-6 6" strokeDasharray="3 4" strokeOpacity=".8" />
+          <circle cx="90" cy="148" r="18" fill="white" fillOpacity=".13" strokeOpacity=".65" />
+          <circle cx="84" cy="148" r="4" fill="white" fillOpacity=".9" stroke="none" />
+          <circle cx="96" cy="148" r="4" fill="white" fillOpacity=".9" stroke="none" />
+        </g>
+      );
+      break;
     case "multimodal":
       artwork = (
         <g stroke="white" strokeWidth="2" strokeLinejoin="round">

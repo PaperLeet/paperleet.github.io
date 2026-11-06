@@ -1,0 +1,65 @@
+id: representation/infonce
+number: 176
+title: InfoNCE 正样本分类损失
+title_en: InfoNCE Positive-Candidate Classification
+paper_id: cpc-infonce
+paper:
+  title: Representation Learning with Contrastive Predictive Coding
+  authors: Aaron van den Oord, Yazhe Li, Oriol Vinyals
+  venue: arXiv 2018
+  arxiv: '1807.03748'
+  url: https://arxiv.org/abs/1807.03748
+  anchors:
+  - 'Section 2.3, Equation (4): one positive and N-1 negatives'
+  - 'Section 2.3, Equation (5): positive-candidate classification'
+type: implement
+parent: null
+difficulty: E
+functions:
+- name: info_nce_loss
+  signature: 'info_nce_loss(logits: Tensor, positive_indices: Tensor) -> Tensor'
+module:
+  goal: 从候选 logits 实现数值稳定的 InfoNCE，正确保留正例分母项与所有候选的梯度。
+  goal_en: Implement stable InfoNCE from candidate logits, keeping the positive in the denominator and gradients for every candidate.
+  scope: 实现一个损失函数；已提供输入验证与六组候选分数的 CPU 优化实验。
+  scope_en: Implement one objective; input validation and a six-context CPU score-table optimization lab are provided.
+  required_functions: [info_nce_loss]
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  layout: 'logits [B,K], positive_indices [B]; B>=1, K>=1'
+  dtype: Finite float32/float64 logits and int64 indices; preserve output dtype and device.
+  device: CPU; no data downloads, pretrained weights or GPU.
+  contract: Each row contains one positive and K-1 negatives; include the positive in the denominator, average over B rows, retain all logits gradients, accept strided inputs, and leave inputs intact. Scores are already logits; do not normalize or rescale them.
+tests: {T0: 2, T1: 1, T2: 6, T3: 1}
+t3_budget_s: 10
+estimated_minutes: 20
+tags: [Representation Learning, Self Supervision, Contrastive Learning, InfoNCE, CPC]
+viz: [toy_experiment]
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-11-06'
+verified_sources:
+  checked_at: '2026-11-06'
+  links:
+  - https://arxiv.org/abs/1807.03748
+  - https://arxiv.org/html/1807.03748v2
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/1807.03748
+  anchor: Section 2.3, Equation (4)
+  adaptation: Original deterministic six-context/four-candidate score table with 80 actual SGD updates; no encoder or downstream benchmark claim.
+mutants:
+- id: m1_omit_positive
+  bug: Exclude the positive from the denominator.
+- id: m2_first_column
+  bug: Assume every positive is in column zero.
+- id: m3_sum_batch
+  bug: Sum rather than average the context losses.
+- id: m4_wrong_axis
+  bug: Normalize across contexts instead of candidates.
+- id: m5_naive_exp
+  bug: Exponentiate raw scores and overflow at large offsets.
+- id: m6_detach_denominator
+  bug: Detach the denominator and lose negative-candidate gradients.

@@ -1,0 +1,67 @@
+id: representation/barlow_twins
+number: 178
+title: Barlow Twins 交叉相关与冗余消除
+title_en: Barlow Twins Cross-Correlation and Redundancy Reduction
+paper_id: barlow-twins
+paper:
+  title: 'Barlow Twins: Self-Supervised Learning via Redundancy Reduction'
+  authors: Jure Zbontar, Li Jing, Ishan Misra, Yann LeCun, Stephane Deny
+  venue: ICML 2021
+  arxiv: '2103.03230'
+  url: https://proceedings.mlr.press/v139/zbontar21a.html
+  anchors:
+    - 'Equations 1–2: identity-target cross-correlation objective'
+    - 'Official main.py BarlowTwins.forward: affine-free BatchNorm and summed penalties'
+  official_code: https://github.com/facebookresearch/barlowtwins
+parent: null
+type: implement
+difficulty: M
+functions:
+  - name: cross_correlation
+    signature: 'cross_correlation(z1: Tensor, z2: Tensor, eps: float = 1e-5) -> Tensor'
+  - name: barlow_twins_loss
+    signature: 'barlow_twins_loss(z1: Tensor, z2: Tensor, lambd: float = .0051, eps: float = 1e-5) -> Tensor'
+module:
+  goal: 沿 batch 标准化每个特征，构造双视图交叉相关矩阵并实现对角对齐与非对角冗余惩罚。
+  goal_en: Standardize each feature over the batch, compute cross-view correlation, and combine diagonal alignment with off-diagonal redundancy reduction.
+  scope: 实现两个核心函数；提供直接优化两张 16×3 向量表的 CPU 实验，使用官方单 batch BN 归一化约定。
+  scope_en: Implement two core functions; a supplied CPU experiment optimizes two 16-by-3 embedding tables using the official single-batch BN normalization convention.
+  required_functions: [cross_correlation, barlow_twins_loss]
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  layout: '[B,D] paired finite views; B>=2 and D>=1'
+  dtype: Preserve shared float32/float64 dtype and device; no input mutation; support noncontiguous views.
+  normalization: Center each feature over B rows. Divide by sqrt(population variance + eps). Cross-correlation uses B, not B-1.
+  reduction: Sum diagonal (Cii-1)^2 and lambd times all ordered off-diagonal Cij^2. No dimension averaging and no stop-gradient.
+  parameters: eps is a finite positive Python number; lambd is finite and nonnegative; bool and Tensor scalars are rejected.
+tests: {T0: 2, T1: 2, T2: 5, T3: 1}
+t3_budget_s: 10
+estimated_minutes: 30
+tags: [Representation Learning, Self-Supervised Learning, Redundancy Reduction, Cross-Correlation]
+viz: [toy_experiment]
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-11-06'
+verified_sources:
+  checked_at: '2026-11-06'
+  links:
+    - https://proceedings.mlr.press/v139/zbontar21a.html
+    - https://proceedings.mlr.press/v139/zbontar21a/zbontar21a.pdf
+    - https://github.com/facebookresearch/barlowtwins/blob/main/main.py
+toy:
+  kind: teaching_adaptation
+  source: https://proceedings.mlr.press/v139/zbontar21a.html
+  anchor: Equations 1–2 and official single-batch BatchNorm implementation
+  adaptation: Optimize two deterministic 16-by-3 embedding tables with 120 Adam updates, lr .04 and lambd .2. No data download, image encoder or benchmark claim.
+mutants:
+  - {id: m1_no_centering, bug: Skip batch centering}
+  - {id: m2_sample_variance, bug: Use sample variance instead of population variance}
+  - {id: m3_wrong_axis, bug: Standardize each row instead of each feature}
+  - {id: m4_wrong_batch_divisor, bug: Divide cross-correlation by feature width}
+  - {id: m5_diagonal_mean, bug: Average diagonal errors instead of summing}
+  - {id: m6_upper_triangle_only, bug: Penalize only one off-diagonal triangle}
+  - {id: m7_detach_second_view, bug: Stop the second view gradient}
+  - {id: m8_epsilon_outside_sqrt, bug: Add epsilon after the square root}
+  - {id: m9_ignore_lambda, bug: Ignore the off-diagonal weight}

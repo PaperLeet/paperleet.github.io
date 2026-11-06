@@ -235,8 +235,8 @@ try {
       {...libraryProps, saved: completed, collectionId: list.id, route: practiceRoute}));
     assert(/class="random-problem"[^>]*disabled/.test(completedHtml),
       `${list.id}: do not fall back to unsolved modules outside a fully completed collection`);
-    assert.deepEqual(rowIds(html), list.kind === "course" || list.readingCount ? [] : [...members].sort((a,b)=>a.number-b.number).slice(0,20).map(p=>p.id),
-      `${list.id}: the library must show the first batch of selected papers in number order`);
+    assert.deepEqual(rowIds(html), list.kind === "course" || list.readingCount ? [] : (list.learningOrder ? papersInCollection(catalog.papers,list) : [...members].sort((a,b)=>a.number-b.number)).slice(0,20).map(p=>p.id),
+      `${list.id}: the library must preserve curated learning order or default paper-number order`);
     for (const match of html.matchAll(/href="(#\/papers\/[^"]+)"/g)) assert.equal(libraryReturnHref(match[1]), `#/collections/${list.id}`,
       'Every collection paper must retain its library return context');
     const collectionHeading = headingText(html, 'collection-page-header');

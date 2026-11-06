@@ -4,9 +4,9 @@ import { useI18n } from './i18n';
 import './group-chat.css';
 
 const discordInvite = 'https://discord.gg/36PZ3WRxn';
-const wechatImage = `${import.meta.env.BASE_URL}community/wechat-group-2026-11-02.png`;
-// The supplied invitation says it is valid through November 2, 2026.
-const wechatLastDay = [2026, 10, 2] as const;
+const wechatImage = `${import.meta.env.BASE_URL}community/wechat-group-2026-11-13.png`;
+// The supplied invitation says it is valid through November 13, 2026.
+const wechatLastDay = [2026, 10, 13] as const;
 
 export default function GroupChat({ route }: { route: string }) {
   const { t } = useI18n();
@@ -52,9 +52,9 @@ export default function GroupChat({ route }: { route: string }) {
             <p>{t('微信扫码加入，或保存二维码后识别。', 'Scan or save this code to join on WeChat.')}</p>
             {imageFailed ? <p className="group-chat-unavailable" role="status">{t('二维码加载失败，请打开原图或稍后重试。', 'The QR code could not load. Open the original image or try again later.')}</p>
               : <div className="group-chat-qr"><img src={wechatImage} width="720" height="1140"
-                alt={t('PaperLeet 微信群二维码，有效期至 2026 年 11 月 2 日', 'PaperLeet WeChat group QR code, valid through November 2, 2026')}
+                alt={t('PaperLeet 微信群二维码，有效期至 2026 年 11 月 13 日', 'PaperLeet WeChat group QR code, valid through November 13, 2026')}
                 onError={() => setImageFailed(true)} /></div>}
-            <p className="group-chat-expiry">{t('有效期至 2026 年 11 月 2 日', 'Valid through November 2, 2026')}</p>
+            <p className="group-chat-expiry">{t('有效期至 2026 年 11 月 13 日', 'Valid through November 13, 2026')}</p>
             <div className="group-chat-image-actions">
               <a href={wechatImage} download="paperleet-wechat-group.png"><Download size={15} aria-hidden="true" />{t('保存二维码', 'Save QR code')}</a>
               <a href={wechatImage} target="_blank" rel="noopener noreferrer">{t('打开原图', 'Open original')}<ArrowUpRight size={15} aria-hidden="true" /></a>

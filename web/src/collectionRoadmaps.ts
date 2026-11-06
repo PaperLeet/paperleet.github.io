@@ -6,6 +6,24 @@ export type CollectionRoadmap = { collectionId: string; nodes: RoadmapNode[]; ed
 /** Curated core papers per collection marked `roadmap: true`, positioned on a grid; rules and evidence in docs/collection-roadmaps.md. */
 export const collectionRoadmaps: CollectionRoadmap[] = [
   {
+    collectionId: 'self-supervised-learning',
+    nodes: [
+      { id: 'cpc-infonce', title: 'CPC / InfoNCE', paper: 'cpc-infonce', arxiv: '1807.03748', year: 2018, venue: 'arXiv', sentence: '通过识别候选集中的正样本学习表示，建立 InfoNCE 分类目标。', sentence_en: 'Learns representations by identifying a positive among sampled candidates with InfoNCE.', row: 0, col: 1.5, start: true },
+      { id: 'moco', title: 'MoCo', paper: 'moco', arxiv: '1911.05722', year: 2019, venue: 'CVPR 2020', sentence: '用动量编码器和队列维护跨批次的负样本字典。', sentence_en: 'Maintains a cross-batch dictionary using a momentum encoder and a queue.', row: 1, col: 0 },
+      { id: 'simclr', title: 'SimCLR', paper: 'simclr', arxiv: '2002.05709', year: 2020, venue: 'ICML 2020', sentence: '对两个增强视图使用投影头和包含同视图负例的 NT-Xent。', sentence_en: 'Combines two augmented views, a projection head and NT-Xent with same-view negatives.', row: 2, col: 2 },
+      { id: 'simsiam', title: 'SimSiam', paper: 'simsiam', arxiv: '2011.10566', year: 2020, venue: 'CVPR 2021', sentence: '借助预测器与停止梯度训练孪生表示，无需负样本或动量编码器。', sentence_en: 'Trains Siamese representations with a predictor and stop-gradient, without negatives or a momentum encoder.', row: 3, col: 2 },
+      { id: 'barlow-twins', title: 'Barlow Twins', paper: 'barlow-twins', arxiv: '2103.03230', year: 2021, venue: 'ICML 2021', sentence: '把跨视图相关矩阵推向单位阵，对齐对应特征并减少冗余。', sentence_en: 'Pushes cross-view correlation toward the identity to align features and reduce redundancy.', row: 4, col: 0 },
+      { id: 'vicreg', title: 'VICReg', paper: 'vicreg', arxiv: '2105.04906', year: 2021, venue: 'ICLR 2022', sentence: '分别约束方差、不变性和协方差，以显式正则项控制塌缩。', sentence_en: 'Separates variance, invariance and covariance into explicit regularizers against collapse.', row: 5, col: 0 },
+      { id: 'i-jepa', title: 'I-JEPA', paper: 'i-jepa', arxiv: '2301.08243', year: 2023, venue: 'CVPR 2023', sentence: '从上下文预测目标块的表征，在表示空间中学习图像结构。', sentence_en: 'Predicts target-block representations from context to learn image structure in representation space.', row: 6, col: 2 },
+    ],
+    edges: [
+      ['cpc-infonce', 'moco', '把正例识别目标用于动量字典。', 'Applies positive identification to a momentum dictionary.'],
+      ['cpc-infonce', 'simclr', '把对比分类用于同批次的增强视图。', 'Applies contrastive classification to augmented views in a batch.'],
+      ['simclr', 'simsiam', '保留双视图学习，改用预测器与停止梯度。', 'Keeps two-view learning, introducing a predictor and stopped targets.'],
+      ['barlow-twins', 'vicreg', '延续去冗余思想，分离方差与协方差约束。', 'Extends redundancy reduction with separate variance and covariance terms.'],
+    ],
+  },
+  {
     collectionId: 'llm-frontier',
     nodes: [
       { id: 'sparse-moe', title: 'Sparse MoE', arxiv: '1701.06538', year: 2017, venue: 'ICLR 2017', sentence: '把每个词元路由到少数几个专家前馈网络，参数变多而单个词元的计算量不变。', sentence_en: 'Routes each token to a few expert feed-forward networks, growing parameters without growing per-token compute.', row: 0, col: 0 },
@@ -200,6 +218,11 @@ export const collectionRoadmaps: CollectionRoadmap[] = [
 
 /** arXiv metadata for the panel's paper card: title, first six authors (the card shows five, then "et al."), first-version date. */
 export const roadmapPapers: Record<string, { title: string; authors: string[]; published: string }> = {
+  '1807.03748': { title: 'Representation Learning with Contrastive Predictive Coding', authors: ['Aaron van den Oord', 'Yazhe Li', 'Oriol Vinyals'], published: '2018-07-10' },
+  '1911.05722': { title: 'Momentum Contrast for Unsupervised Visual Representation Learning', authors: ['Kaiming He', 'Haoqi Fan', 'Yuxin Wu', 'Saining Xie', 'Ross Girshick'], published: '2019-11-13' },
+  '2002.05709': { title: 'A Simple Framework for Contrastive Learning of Visual Representations', authors: ['Ting Chen', 'Simon Kornblith', 'Mohammad Norouzi', 'Geoffrey Hinton'], published: '2020-02-13' },
+  '2011.10566': { title: 'Exploring Simple Siamese Representation Learning', authors: ['Xinlei Chen', 'Kaiming He'], published: '2020-11-20' },
+  '2103.03230': { title: 'Barlow Twins: Self-Supervised Learning via Redundancy Reduction', authors: ['Jure Zbontar', 'Li Jing', 'Ishan Misra', 'Yann LeCun', 'Stéphane Deny'], published: '2021-03-04' },
   '1205.2618': { title: 'BPR: Bayesian Personalized Ranking from Implicit Feedback', authors: ['Steffen Rendle', 'Christoph Freudenthaler', 'Zeno Gantner', 'Lars Schmidt-Thieme'], published: '2012-05-09' },
   '1312.6114': { title: 'Auto-Encoding Variational Bayes', authors: ['Diederik P Kingma', 'Max Welling'], published: '2013-12-20' },
   '1406.2661': { title: 'Generative Adversarial Networks', authors: ['Ian J. Goodfellow', 'Jean Pouget-Abadie', 'Mehdi Mirza', 'Bing Xu', 'David Warde-Farley', 'Sherjil Ozair'], published: '2014-06-10' },
