@@ -141,26 +141,23 @@ export function discussionPracticeReturn(route:string):string|undefined{
   return /^community\/[a-f0-9]{32}$/.test(path)?`#/${path}`:undefined;
 }
 
-export function libraryReturnHref(route: string): string | undefined {
-  const value = parts(route);
-  if (!value || !practicePath.test(value.path) || !only(value.params, ['from']) || !value.params.has('from')) return;
-  const from=value.params.get('from')||'',interview=readInterviewRoute(from);
+function practiceReturnHref(from: string): string | undefined {
   const registry=readPaperRegistryRoute(from);if(registry)return paperRegistryHref(registry);
   const discussion=discussionPracticeReturn(from);if(discussion)return discussion;
   const favorites=readFavoriteRoute(from);if(favorites)return favoriteHref(favorites);
-  if(interview)return interviewHref(interview);
-  const view = readLibraryRoute(from);
-  return view ? libraryHref(view.collectionId, view.filters) : undefined;
+  const interview=readInterviewRoute(from);if(interview)return interviewHref(interview);
+  const view=readLibraryRoute(from);
+  return view?libraryHref(view.collectionId,view.filters):undefined;
 }
-
+export function libraryReturnHref(route: string): string | undefined {
+  const value=parts(route);
+  if(!value||!practicePath.test(value.path)||!only(value.params,['from'])||!value.params.has('from'))return;
+  return practiceReturnHref(value.params.get('from')||'');
+}
 export function withLibraryContext(path: string | number, returnTo?: string): string {
-  if (!practicePath.test(String(path))) throw Error('Invalid practice destination');
-  const registry=returnTo?readPaperRegistryRoute(returnTo):undefined,favorites=returnTo?readFavoriteRoute(returnTo):undefined,local=returnTo?discussionPracticeReturn(returnTo)||(favorites?favoriteHref(favorites):undefined)||(registry?paperRegistryHref(registry):undefined):undefined;
-  if(local)return `#/${path}?${new URLSearchParams({from:local.slice(2)})}`;
-  const base = `#/${path}`, view = returnTo ? readLibraryRoute(returnTo) : undefined,interview=returnTo?readInterviewRoute(returnTo):undefined;
-  if (!view&&!interview) return base;
-  const href = interview?interviewHref(interview):libraryHref(view!.collectionId, view!.filters);
-  return href === '#' ? base : `${base}?${new URLSearchParams({ from: href.slice(2) })}`;
+  if(!practicePath.test(String(path)))throw Error('Invalid practice destination');
+  const base=`#/${path}`,href=returnTo?practiceReturnHref(returnTo):undefined;
+  return href&&href!=='#'?`${base}?${new URLSearchParams({from:href.slice(2)})}`:base;
 }
 
 /** Account return targets may carry only a library view, never another continuation. */
