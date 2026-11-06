@@ -127,10 +127,7 @@ export const paperCollections: PaperCollection[] = [
 export function papersInCollection(papers: Paper[], collection?: PaperCollection): Paper[] {
   if (!collection) return papers;
   const byId = new Map(papers.map((paper) => [paper.id, paper]));
-  return collection.paperIds.flatMap((id) => {
-    const paper = byId.get(id);
-    return paper ? [paper] : [];
-  });
+  return collection.paperIds.flatMap(id => byId.get(id) ?? []);
 }
 
 export function collectionIdFromRoute(route: string): string | undefined {
