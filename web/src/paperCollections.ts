@@ -10,11 +10,21 @@ export type PaperCollection = {
   readingCount?: number;
   /** Has a curated roadmap in collectionRoadmaps.ts; without it the Roadmap tab shows that the roadmap is still in progress. */
   roadmap?: true;
+  /** Preserve the curated learning sequence when the user has not chosen a sort. */
+  learningOrder?: true;
 };
 
 // Featured collections can overlap; compact category filters remain independent.
 // `npm run check` fails unless the collections marked `roadmap: true` are exactly those with a roadmap of at least 3 papers.
 export const paperCollections: PaperCollection[] = [
+  {
+    id: "self-supervised-learning",
+    name: "自监督学习",
+    name_en: "Self-Supervised Learning",
+    roadmap: true,
+    learningOrder: true,
+    paperIds: ["cpc-infonce", "simclr", "moco", "simsiam", "barlow-twins", "vicreg", "i-jepa"],
+  },
   {
     id: "llm-basics",
     kind: "course",

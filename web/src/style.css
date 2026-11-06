@@ -3676,6 +3676,7 @@ html { scrollbar-gutter: stable; }
 .collection-llm-basics { background: linear-gradient(115deg, #1849dc, #176ff0 75%, #42b3ff); }
 .collection-llm-frontier { background: linear-gradient(115deg, #5926d6, #8b3fea 75%, #bc68fa); }
 .collection-self-evolving { background: linear-gradient(115deg, #06733f, #0c995e 75%, #62c951); }
+.collection-self-supervised-learning { background: linear-gradient(115deg, #254e79, #387c9c 75%, #65c5bb); }
 .collection-rl { background: linear-gradient(115deg, #9b3305, #e8750b 75%, #ffba32); }
 .collection-diffusion { background: linear-gradient(115deg, #8623ca, #c632cf 75%, #f671bd); }
 .collection-post-training { background: linear-gradient(115deg, #bd233d, #ea4f46 75%, #ff9765); }

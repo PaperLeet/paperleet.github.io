@@ -1,5 +1,38 @@
 # Paper numbers are public library IDs; module numbers remain stable CLI IDs.
 papers:
+  - id: cpc-infonce
+    category: representation
+    number: 140
+    short_title: CPC / InfoNCE
+    year: 2018
+    tags: [Self-Supervised Learning, Contrastive Learning, InfoNCE]
+    summary: 从一个正样本和多个负样本中识别正样本，推导稳定的 InfoNCE 分类目标。
+    summary_en: Identify the positive among sampled candidates and implement the stable InfoNCE classification objective.
+    scope: 实现任意正样本位置的 logits 级 InfoNCE，验证数值、梯度与合成候选学习。
+    scope_en: Implement logits-level InfoNCE with arbitrary positive positions, numerical and gradient checks, and synthetic candidate learning.
+    module_ids: [representation/infonce]
+  - id: simsiam
+    category: representation
+    number: 141
+    short_title: SimSiam
+    year: 2021
+    tags: [Self-Supervised Learning, Stop Gradient, Siamese Networks]
+    summary: 用预测分支和停止梯度的跨视图目标计算对称负余弦损失。
+    summary_en: Pair predictions with stopped cross-view targets using a symmetric negative-cosine loss.
+    scope: 实现负余弦与双向配对，检查梯度归属并进行合成向量训练。
+    scope_en: Implement negative cosine and symmetric pairing, verify gradient ownership, and train synthetic vectors.
+    module_ids: [representation/simsiam]
+  - id: barlow-twins
+    category: representation
+    number: 142
+    short_title: Barlow Twins
+    year: 2021
+    tags: [Self-Supervised Learning, Redundancy Reduction, Cross Correlation]
+    summary: 让两视图的跨相关矩阵接近单位阵，同时对齐表示并降低特征冗余。
+    summary_en: Bring cross-view correlation toward the identity to align representations and reduce feature redundancy.
+    scope: 实现按特征的批次标准化、跨相关矩阵及去冗余损失，并验证双边梯度。
+    scope_en: Implement batchwise feature standardization, cross-correlation, and redundancy reduction with gradients to both views.
+    module_ids: [representation/barlow_twins]
   - id: gae
     category: reinforcement-learning
     number: 1

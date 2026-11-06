@@ -69,7 +69,7 @@ export function selectLibraryPractice(papers: Paper[], problems: Problem[], save
     }
     else if(filters.sort==='title'){const title=(p:Problem)=>locale==='en'?p.translations?.en?.title||p.title:p.title;modules.sort((a,b)=>title(a).localeCompare(title(b),locale==='en'?'en':'zh-CN',{numeric:true})||a.number-b.number);}
     else if(filters.sort==='newest'||filters.sort==='oldest'){const rank=new Map(sortLibraryPapers(visible,filters.sort).flatMap(p=>p.module_ids).map((id,index)=>[id,index]));modules.sort((a,b)=>rank.get(a.id)!-rank.get(b.id)!);}
-    else modules.sort((a,b)=>a.number-b.number);
+    else if(!collection?.learningOrder) modules.sort((a,b)=>a.number-b.number);
   }
 
   return { papers: visible.filter(paper => modules.some(problem => paper.module_ids.includes(problem.id))), problems: modules };

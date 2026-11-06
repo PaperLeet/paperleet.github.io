@@ -1,0 +1,77 @@
+id: representation/simsiam
+number: 177
+title: SimSiam 停止梯度与双向预测
+title_en: SimSiam Stop-Gradient and Symmetric Prediction
+paper_id: simsiam
+paper:
+  title: Exploring Simple Siamese Representation Learning
+  authors: Xinlei Chen, Kaiming He
+  venue: CVPR 2021
+  arxiv: '2011.10566'
+  url: https://arxiv.org/abs/2011.10566
+  anchors:
+  - 'Section 3, Equations 1–4: negative cosine and stopped targets'
+  - 'Algorithm 1: crossed predictions, per-row normalization and two-direction average'
+  official_code: https://github.com/facebookresearch/simsiam
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: negative_cosine_similarity
+  signature: 'negative_cosine_similarity(prediction: Tensor, target: Tensor) -> Tensor'
+- name: simsiam_loss
+  signature: 'simsiam_loss(p1: Tensor, p2: Tensor, z1: Tensor, z2: Tensor) -> Tensor'
+module:
+  goal: 实现仅停止目标梯度的负余弦损失，保留双向预测与共享编码器的学习路径。
+  goal_en: Implement negative cosine with stopped targets while preserving both prediction and shared-encoder gradient paths.
+  scope: 两个损失函数与 80 步合成预测表 SGD；输入已是预测/投影向量，不实现图像编码器、增强或防塌缩基准。
+  scope_en: Two loss functions and 80 SGD steps on synthetic prediction tables; inputs are predictions/projections, without image encoders, augmentations or a collapse-prevention benchmark.
+  required_functions: [negative_cosine_similarity, simsiam_loss]
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: Preserve shared float32/float64 dtype and device.
+  device: CPU; no downloads, pretrained weights or GPU.
+  shape: All inputs share finite nonempty [B,D]; B>=1 and D>=1; strided inputs supported.
+  normalization: Divide each row by max(L2 norm, 1e-12). The explicit clamp is a teaching convention.
+  autograd: Detach target inside each directional loss; predictions remain live. Inputs are not modified. If predictions depend on targets, their upstream prediction path remains differentiable.
+  reduction: Negative feature-summed cosine, mean over B; average p1-to-z2 and p2-to-z1. Loss may be negative.
+tests: {T0: 2, T1: 1, T2: 4, T3: 1}
+t3_budget_s: 10
+estimated_minutes: 25
+tags: [Self-supervised Learning, SimSiam, Stop-gradient, Negative Cosine]
+viz: [toy_experiment]
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-11-06'
+verified_sources:
+  checked_at: '2026-11-06'
+  links:
+  - https://arxiv.org/html/2011.10566v1
+  - https://github.com/facebookresearch/simsiam/blob/main/simsiam/builder.py
+  - https://github.com/facebookresearch/simsiam/blob/main/main_simsiam.py
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2011.10566
+  anchor: Section 3, Equations 1–4 and Algorithm 1
+  adaptation: Two independent 4x3 prediction tables learn fixed crossed targets through 80 SGD updates. Targets are included in the optimizer to expose gradient leakage. This isolates gradient routing, not image pretraining or a no-collapse guarantee.
+mutants:
+- id: m1_train_target
+  bug: Allow gradients into the target branch.
+- id: m2_detach_prediction
+  bug: Detach prediction instead of preserving its learning path.
+- id: m3_positive_cosine
+  bug: Minimize positive cosine instead of negative cosine.
+- id: m4_no_normalization
+  bug: Use raw dot products instead of cosine.
+- id: m5_wrong_axis
+  bug: Normalize across examples instead of features.
+- id: m6_same_view
+  bug: Match predictions with the same view instead of crossed targets.
+- id: m7_sum_directions
+  bug: Sum directional means without averaging them.
+- id: m8_one_direction
+  bug: Ignore the second prediction direction.
+- id: m9_feature_mean
+  bug: Average over features rather than summing their dot product.
