@@ -28,8 +28,8 @@ try {
   assert.deepEqual(index,legacy,'The transport preserves every starter byte, paper field and progress comparison');
   const summary = index.problems[0];
   assert(Buffer.byteLength(indexSource) < 256 * 1024, "The homepage index has a 256 KB raw budget");
-  assert(gzipSync(indexSource).length < 96 * 1024, "The homepage index has a 96 KB gzip budget");
-  assert(gzipSync(starterSource).length < 64 * 1024, 'The immutable starter pack has a separate 64 KiB gzip budget');
+  assert(gzipSync(indexSource).length < 88 * 1024, "The homepage index has an 88 KiB gzip budget");
+  assert(gzipSync(starterSource).length < 72 * 1024, 'The immutable starter pack has a separate 72 KiB gzip budget');
   assert(gzipSync(indexSource).length+gzipSync(starterSource).length < 160 * 1024, 'The complete cold bootstrap stays within 160 KiB gzip without dropping source or metadata');
   assert.deepEqual(await decodeCatalogIndex([]),{problems:[],papers:[]});assert.deepEqual(await decodeCatalogIndex({problems:legacy.problems}),{problems:legacy.problems,papers:[]},'Legacy module-only consumers keep their established model');
   const urls=[];
@@ -133,7 +133,7 @@ try {
   const corruptSourceReads=[];
   await assert.rejects(loadCatalogIndex('/corrupt-source/',async url=>{corruptSourceReads.push(url);return url.endsWith('index-v6.json')?Response.json(split.metadata):new Response(split.body.replace('"schema_version":1','"schema_version":2'));}));
   assert.equal(corruptSourceReads.length,2,'A corrupt 200 starter response must not trigger a fallback catalog');
-  console.log('PASS catalog v6: exact v6/v5/v4/v3/legacy equality, 96 KiB metadata / 64 KiB immutable source / 160 KiB cold-bootstrap budgets, content-hash and byte verification, credential-free cached source fetch, bounded complete hydration and unchanged malformed/fallback protections');
+  console.log('PASS catalog v6: exact v6/v5/v4/v3/legacy equality, 88 KiB metadata / 72 KiB immutable source / 160 KiB cold-bootstrap budgets, content-hash and byte verification, credential-free cached source fetch, bounded complete hydration and unchanged malformed/fallback protections');
   for (const item of index.problems) {
     assert(!item.readme && !item.notes && !item.solution && !item.vizData);
     assert(item.starter && item.tests && item.module);

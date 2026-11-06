@@ -1,0 +1,86 @@
+id: representation/deepcluster
+number: 185
+title: DeepCluster 聚类伪标签学习
+title_en: 'DeepCluster: Learning from Cluster Pseudo-Labels'
+paper_id: deepcluster
+paper:
+  title: Deep Clustering for Unsupervised Learning of Visual Features
+  authors: Mathilde Caron, Piotr Bojanowski, Armand Joulin, Matthijs Douze
+  venue: ECCV 2018
+  arxiv: '1807.05520'
+  url: https://arxiv.org/abs/1807.05520
+  anchors:
+  - 'Section 3: alternating clustering and representation learning'
+  - 'Official clustering.py: preprocess_features and run_kmeans'
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: normalize_features
+  signature: 'normalize_features(features: Tensor, eps: float=1e-12) -> Tensor'
+- name: assign_clusters
+  signature: 'assign_clusters(features: Tensor, centroids: Tensor) -> Tensor'
+- name: pseudo_label_loss
+  signature: 'pseudo_label_loss(logits: Tensor, labels: Tensor) -> Tensor'
+module:
+  goal: 连接特征归一化、欧氏聚类分配和伪标签监督，理解交替优化的梯度边界。
+  goal_en: Connect feature normalization, Euclidean cluster assignments and pseudo-label supervision with explicit
+    gradient boundaries.
+  scope: 实现三个核心函数；PCA/白化输入已给定，使用微型编码器与分类头交替聚类训练。
+  scope_en: Implement three core functions; PCA/whitened inputs are supplied and a tiny encoder/head alternates
+    clustering with training.
+  required_functions:
+  - normalize_features
+  - assign_clusters
+  - pseudo_label_loss
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  layout: features [B,D], centroids [K,D], logits [B,K], int64 labels [B]
+  dtype: Finite float32/float64; preserve dtype/device; int64 indices.
+  device: CPU, no downloads or pretrained weights.
+  contract: Normalize feature rows with max(norm,eps); Euclidean nearest-center assignment without normalizing centroids;
+    lowest-index ties; detached integer assignments; stable mean CE; no input mutation.
+tests:
+  T0: 2
+  T1: 1
+  T2: 5
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 40
+tags:
+- Representation Learning
+- Self Supervision
+- deepcluster
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-11-06'
+verified_sources:
+  checked_at: '2026-11-06'
+  links:
+  - https://arxiv.org/abs/1807.05520
+  - https://github.com/facebookresearch/deepcluster/blob/main/clustering.py
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/1807.05520
+  anchor: 'Section 3: alternating clustering and representation learning'
+  adaptation: Nine synthetic 2D features, three clusters, a 2x2 encoder and 2x3 head; 90 actual SGD updates and
+    cluster refresh every 30 updates. PCA/Faiss and image benchmarks are outside scope.
+mutants:
+- id: m1_batch_norm
+  bug: Normalize columns instead of feature rows.
+- id: m2_farthest
+  bug: Choose the farthest cluster.
+- id: m3_cosine_centers
+  bug: Replace Euclidean assignment with unnormalized dot products.
+- id: m4_sum_loss
+  bug: Sum pseudo-label losses across examples.
+- id: m5_first_class
+  bug: Treat every cluster label as zero.
+- id: m6_detach_norm
+  bug: Stop gradients through feature normalization.
+- id: m7_floor_only_zero
+  bug: Apply the norm floor only to exact zeros, ignoring nonzero sub-epsilon rows.

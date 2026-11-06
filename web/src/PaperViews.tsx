@@ -117,7 +117,7 @@ function PracticePaperLibrary({ papers, categories, problems, saved, collectionI
   const rowKey = rowIds.join(',');
   const page=filters.page||1,size=filters.page_size||20,pageCount=Math.max(1,Math.ceil(rowIds.length/size)),offset=(page-1)*size,outOfRange=page>pageCount;
   function currentView(){
-    if(!libraryMain.current?.isConnected||libraryMain.current.closest('[hidden],[aria-hidden="true"],[inert]'))return false;
+    if(!controlIsActive(libraryMain.current))return false;
     const current=readLibraryRoute(appLocation.hash)||readLibraryRoute(appLocation.hash.split('?')[0]);
     return !!current&&libraryHref(current.collectionId,normalizeLibraryFilters(current.filters,listedPapers))===viewHref;
   }

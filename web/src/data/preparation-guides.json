@@ -10951,6 +10951,677 @@
           }
         }
       ]
+    },
+    {
+      "id": "representation/byol",
+      "source": "problems/representation/byol/README.md",
+      "functions": [
+        "byol_loss",
+        "ema_update"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "为什么 BYOL 的目标分支需要停止梯度，而在线预测器仍要反向传播？",
+            "en": "Why does BYOL stop the target branch while still backpropagating through the online predictor?"
+          },
+          "hint": {
+            "zh": "沿两条计算路径区分在线优化和目标 EMA；参数平均不是一个要反向传播的训练损失。",
+            "en": "Separate online optimization from target EMA along the two paths; parameter averaging is not a differentiable training objective."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "双向 BYOL 回归怎样归约，归一化时的 epsilon 放在哪里？",
+            "en": "How are the two BYOL directions reduced, and where does normalization place epsilon?"
+          },
+          "hint": {
+            "zh": "本题按官方实现先相加两个方向，再对 batch 求均值；平方范数先做下界截断再开根号。",
+            "en": "Following the official implementation, sum the directions before the batch mean; clamp the squared norm before taking its square root."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样同时发现交换 EMA 系数、漏掉一个方向和目标梯度泄漏？",
+            "en": "How can you detect reversed EMA weights, a missing direction and target-gradient leakage?"
+          },
+          "hint": {
+            "zh": "用不对称双视图、非零旧目标和不同的新参数；分别检查损失、更新值以及目标端梯度。",
+            "en": "Use asymmetric views, nonzero old targets and different online parameters; check loss, updated values and target gradients separately."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "ema-endpoints",
+          "question": {
+            "zh": "EMA 动量取零或一时，返回值和梯度应该怎样变化？",
+            "en": "What should happen to values and gradients when EMA momentum is zero or one?"
+          },
+          "hint": {
+            "zh": "两个端点分别选择在线值和旧目标值；本题更新返回脱离计算图的新张量，不能修改输入。",
+            "en": "The endpoints select the online value or the old target respectively; this update returns a detached new tensor without mutating inputs."
+          }
+        },
+        {
+          "id": "simsiam-comparison",
+          "question": {
+            "zh": "BYOL 和 SimSiam 的损失数值能直接互换作为测试答案吗？",
+            "en": "Can BYOL and SimSiam loss values be used interchangeably as test answers?"
+          },
+          "hint": {
+            "zh": "对比平方距离与负余弦的常数、方向求和或平均，以及 BYOL 额外的动量目标更新。",
+            "en": "Compare squared distance versus negative cosine, constants and directional reduction, as well as BYOL’s additional momentum target update."
+          }
+        }
+      ]
+    },
+    {
+      "id": "representation/swav",
+      "source": "problems/representation/swav/README.md",
+      "functions": [
+        "sinkhorn_assignments",
+        "swapped_prediction_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "SwAV 的平衡分配和预测概率分别承担什么角色？",
+            "en": "What roles do balanced assignments and prediction probabilities play in SwAV?"
+          },
+          "hint": {
+            "zh": "分配用作停止梯度的跨视图目标，预测端通过交叉熵学习；分配平衡避免所有样本占据一个原型。",
+            "en": "Assignments are stopped cross-view targets, while predictions learn by cross-entropy; balancing discourages all samples from using one prototype."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "Sinkhorn 的行列归一化为何不能换成一次按行 softmax？",
+            "en": "Why can Sinkhorn row and column normalization not be replaced by one row-wise softmax?"
+          },
+          "hint": {
+            "zh": "写出样本和原型两种边缘约束；有限迭代按题面顺序执行，最终每个样本的分配和为一。",
+            "en": "Write both sample and prototype marginal constraints; follow the specified finite iteration order, ending with assignments summing to one per sample."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样区分同视图误配、分配未停止梯度和归一化轴错误？",
+            "en": "How would you distinguish same-view pairing, live assignment gradients and a wrong normalization axis?"
+          },
+          "hint": {
+            "zh": "用不同的两视图得分和非方形矩阵，检查双向交叉配对、行和、原型占用以及目标梯度。",
+            "en": "Use unequal view scores and a non-square matrix; check crossed directions, row sums, prototype occupancy and target gradients."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "finite-iterations",
+          "question": {
+            "zh": "有限轮 Sinkhorn 是否已经严格满足两个边缘约束？",
+            "en": "Does a finite number of Sinkhorn iterations satisfy both marginal constraints exactly?"
+          },
+          "hint": {
+            "zh": "最后一步准确归一化一个边缘，另一个通常只是逼近；应验证指定迭代结果和收敛趋势。",
+            "en": "The final step normalizes one marginal exactly while the other is generally approximate; verify the specified iterations and convergence trend."
+          }
+        },
+        {
+          "id": "two-temperatures",
+          "question": {
+            "zh": "分配平滑参数和预测温度为什么不能混为一个参数？",
+            "en": "Why should assignment smoothing and prediction temperature remain separate parameters?"
+          },
+          "hint": {
+            "zh": "前者控制最优传输分配的尖锐程度，后者作用于学生预测 logits；分别改变它们观察不同影响。",
+            "en": "One controls the sharpness of transport assignments, while the other scales prediction logits; vary them separately to observe different effects."
+          }
+        }
+      ]
+    },
+    {
+      "id": "representation/dino",
+      "source": "problems/representation/dino/README.md",
+      "functions": [
+        "teacher_probabilities",
+        "dino_loss",
+        "update_center"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "DINO 的中心化和锐化分别作用在哪个分支，为什么要停止其梯度？",
+            "en": "Which DINO branch receives centering and sharpening, and why are its gradients stopped?"
+          },
+          "hint": {
+            "zh": "教师先减中心再除教师温度，形成固定概率目标；学生只按自己的温度计算预测分布。",
+            "en": "The teacher subtracts the center before its temperature scaling to form fixed probability targets; the student uses its own prediction temperature."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "两个教师视图与 V 个学生视图应该形成多少个有效损失项？",
+            "en": "How many valid loss terms arise from two teacher views and V student views?"
+          },
+          "hint": {
+            "zh": "排除教师与对应全局学生的同视图项；每个教师保留 V−1 项，最后平均 2(V−1) 项。",
+            "en": "Exclude matching global teacher/student views; each teacher keeps V−1 terms, and the final reduction averages 2(V−1) terms."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样检查中心更新使用的是原始 logits，而不是教师概率？",
+            "en": "How can you test that center updates use raw logits rather than teacher probabilities?"
+          },
+          "hint": {
+            "zh": "使用带明显共同偏移的教师 logits，手算跨视图与 batch 的均值及 EMA，再检查不原地更新。",
+            "en": "Use teacher logits with a clear common offset; hand-calculate the view/batch mean and EMA, and check that inputs are not mutated."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "local-crops",
+          "question": {
+            "zh": "新增一个局部学生视图会改变哪些配对和归约系数？",
+            "en": "Which pairings and reduction factors change when one local student view is added?"
+          },
+          "hint": {
+            "zh": "局部视图与两个教师都配对，但不会成为教师；重新计数有效项，不能固定除以旧项数。",
+            "en": "The local view pairs with both teachers but is not itself a teacher; recount valid terms instead of dividing by the old term count."
+          }
+        },
+        {
+          "id": "collapse-scope",
+          "question": {
+            "zh": "合成 logits 匹配成功，能否说明图像预训练已经避免表示塌缩？",
+            "en": "Does successful synthetic-logit matching prove that image pretraining avoids representation collapse?"
+          },
+          "hint": {
+            "zh": "本实验验证温度、目标和梯度路由；完整预训练还依赖数据增强、教师更新、网络和训练策略。",
+            "en": "The experiment verifies temperatures, targets and gradient routing; full pretraining also depends on augmentation, teacher updates, networks and the training recipe."
+          }
+        }
+      ]
+    },
+    {
+      "id": "representation/mae",
+      "source": "problems/representation/mae/README.md",
+      "functions": [
+        "normalize_patch_targets",
+        "masked_reconstruction_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "MAE 的预测目标与 BEiT 的离散词元目标有什么不同？",
+            "en": "How do MAE targets differ from BEiT’s discrete visual-token targets?"
+          },
+          "hint": {
+            "zh": "MAE 在本题中回归像素向量，BEiT 对视觉码本类别做交叉熵；两者共享 mask 位置但目标空间不同。",
+            "en": "This MAE exercise regresses pixel vectors, whereas BEiT classifies visual-codebook labels; masking is similar but the target spaces differ."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "开启像素归一化时，方差分母和 epsilon 的位置是什么？",
+            "en": "With pixel normalization enabled, what are the variance divisor and epsilon placement?"
+          },
+          "hint": {
+            "zh": "按每个 patch 的 P 个坐标计算均值，使用 P−1 的样本方差，并在平方根内加 epsilon。",
+            "en": "Compute the mean over P coordinates per patch, use sample variance with divisor P−1, and add epsilon inside the square root."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何验证可见 patch 不贡献损失或预测梯度？",
+            "en": "How can you verify that visible patches contribute neither loss nor prediction gradients?"
+          },
+          "hint": {
+            "zh": "只改变 mask 为假的预测，损失应不变；手算非均匀掩码的全局平均，再检查空 mask 的零值和梯度。",
+            "en": "Change predictions only where the mask is false; loss should remain unchanged. Check the global masked mean and zero loss/gradients for an empty mask."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "mask-weighting",
+          "question": {
+            "zh": "不同图像遮挡数不同时，逐图平均与本题的全局平均等价吗？",
+            "en": "If images have different masked counts, is averaging per image equivalent to this exercise’s global mean?"
+          },
+          "hint": {
+            "zh": "分别构造一张图遮挡一个 patch、另一张遮挡三个 patch；本题每个 masked patch 权重相同。",
+            "en": "Use one image with one masked patch and another with three; this exercise gives every masked patch the same weight."
+          }
+        },
+        {
+          "id": "architecture-scope",
+          "question": {
+            "zh": "本题的像素损失是否已经实现 MAE 的非对称编码器结构？",
+            "en": "Does implementing the pixel loss also implement MAE’s asymmetric encoder architecture?"
+          },
+          "hint": {
+            "zh": "损失题从预测向量开始；可见 patch 编码、mask token 恢复和图像解码器属于完整模型的另外部分。",
+            "en": "The loss exercise starts from prediction vectors; visible-patch encoding, mask-token restoration and the image decoder are separate model components."
+          }
+        }
+      ]
+    },
+    {
+      "id": "representation/beit",
+      "source": "problems/representation/beit/README.md",
+      "functions": [
+        "masked_token_cross_entropy"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "BEiT 的伪标签来自哪里，与人工图像类别有何区别？",
+            "en": "Where do BEiT targets come from, and how do they differ from human image-class labels?"
+          },
+          "hint": {
+            "zh": "它使用视觉 tokenizer 产生的离散代码；本题接收代码 ID，只监督被遮挡的词元位置。",
+            "en": "A visual tokenizer supplies discrete codes; the exercise receives those code IDs and supervises masked token positions only."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "为什么要先选择 masked 位置再读取对应标签？",
+            "en": "Why should masked positions be selected before reading the corresponding token labels?"
+          },
+          "hint": {
+            "zh": "未遮挡标签可以是占位值，不能拿它们去 gather；有效目标范围只在被监督位置检查。",
+            "en": "Unmasked labels may contain sentinel values and must not be gathered; validate label ranges only at supervised positions."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何用不均匀 mask 和极大 logits 检查损失实现？",
+            "en": "How can uneven masks and large logits test the loss implementation?"
+          },
+          "hint": {
+            "zh": "手算所有被选词元的稳定交叉熵均值，再检查行平移不变性以及可见位置的零梯度。",
+            "en": "Hand-calculate the mean stable cross-entropy over selected tokens, then check row-shift invariance and zero gradients at visible positions."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "empty-mask",
+          "question": {
+            "zh": "没有任何遮挡词元时，本题怎样保留合法的反向传播？",
+            "en": "With no masked tokens, how does this exercise preserve a valid backward pass?"
+          },
+          "hint": {
+            "zh": "返回与 logits 计算图相连的标量零；不要对空张量求均值，也不要返回脱离图的 Python 数字。",
+            "en": "Return scalar zero connected to the logits graph; do not average an empty tensor or return a detached Python number."
+          }
+        },
+        {
+          "id": "soft-targets",
+          "question": {
+            "zh": "把 BEiT 的整数词元标签换成 iBOT 软目标后，还能使用同一接口吗？",
+            "en": "Can the same interface be used after replacing BEiT’s integer labels with iBOT soft targets?"
+          },
+          "hint": {
+            "zh": "整数 gather 与概率分布交叉熵的输入契约不同；iBOT 还要处理教师中心化、温度和逐图归约。",
+            "en": "Integer gathering and probability-target cross-entropy have different input contracts; iBOT also needs teacher centering, temperatures and per-image reduction."
+          }
+        }
+      ]
+    },
+    {
+      "id": "representation/ibot",
+      "source": "problems/representation/ibot/README.md",
+      "functions": [
+        "teacher_patch_targets",
+        "ibot_patch_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "iBOT 的在线 tokenizer 与 BEiT 的离线 tokenizer 有何区别？",
+            "en": "How does iBOT’s online tokenizer differ from BEiT’s offline tokenizer?"
+          },
+          "hint": {
+            "zh": "iBOT 教师产生软 patch 分布并随训练更新；本题把教师和中心作为固定目标端，聚焦 patch 蒸馏。",
+            "en": "The iBOT teacher produces soft patch distributions and evolves during training; this exercise treats teacher/center as fixed targets for patch distillation."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "为什么先在每张图内部归约，再对 batch 求均值？",
+            "en": "Why reduce within each image before averaging across the batch?"
+          },
+          "hint": {
+            "zh": "每张图用自己的 masked 数量作分母；空 mask 的图贡献零，但仍计入 batch 均值。",
+            "en": "Each image uses its own masked count as denominator; an empty-mask image contributes zero but still participates in the batch mean."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "如何同时检测教师温度、学生温度和梯度归属错误？",
+            "en": "How can you detect teacher-temperature, student-temperature and gradient-ownership errors together?"
+          },
+          "hint": {
+            "zh": "用不同温度和非零中心计算独立软目标；检查学生梯度包含温度缩放，教师与中心没有梯度。",
+            "en": "Compute independent soft targets using different temperatures and a nonzero center; check student temperature scaling and absence of teacher/center gradients."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "unequal-masks",
+          "question": {
+            "zh": "两张图分别遮挡一个和三个 patch 时，每个 patch 的权重相同吗？",
+            "en": "Do patches have equal weights when two images mask one and three patches respectively?"
+          },
+          "hint": {
+            "zh": "本题按图等权，两个图内的单个 patch 权重不同；这与 BEiT 或 MAE 的全局 masked 均值不同。",
+            "en": "Images receive equal weight, so individual patches in those images have different weights; this differs from BEiT or MAE’s global masked mean."
+          }
+        },
+        {
+          "id": "class-token",
+          "question": {
+            "zh": "只完成 patch 分支，是否已经涵盖完整 iBOT 训练目标？",
+            "en": "Does implementing only the patch branch cover the full iBOT training objective?"
+          },
+          "hint": {
+            "zh": "完整方法还包含跨视图 class-token 自蒸馏和教师更新；DINO 练习提供对应的分布蒸馏基础。",
+            "en": "The full method also includes cross-view class-token distillation and teacher updates; the DINO exercise supplies the relevant distribution-distillation foundation."
+          }
+        }
+      ]
+    },
+    {
+      "id": "representation/deepcluster",
+      "source": "problems/representation/deepcluster/README.md",
+      "functions": [
+        "normalize_features",
+        "assign_clusters",
+        "pseudo_label_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "DeepCluster 的聚类标签为什么属于自监督信号？",
+            "en": "Why are DeepCluster cluster assignments a self-supervised signal?"
+          },
+          "hint": {
+            "zh": "伪标签由当前图像特征聚类产生，而非人工语义类别；聚类与预测阶段交替更新。",
+            "en": "Pseudo-labels come from clustering current image features rather than human semantic classes; clustering and prediction alternate."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "特征归一化和最近中心分配分别沿哪个维度计算？",
+            "en": "Along which dimensions are features normalized and nearest centers assigned?"
+          },
+          "hint": {
+            "zh": "逐样本归一化特征，计算到每个中心的完整平方欧氏距离；不要把中心强制变为单位向量。",
+            "en": "Normalize each sample feature and compute full squared Euclidean distances to every center; do not force the centers to unit length."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样构造能区分欧氏距离与仅比较点积的测试？",
+            "en": "How can a test distinguish Euclidean nearest-center assignment from dot-product ranking?"
+          },
+          "hint": {
+            "zh": "选择范数不同的中心，再加入等距情形，检查最小索引平局规则及伪标签交叉熵梯度。",
+            "en": "Choose centers with different norms, add a distance tie, and check lowest-index tie-breaking and pseudo-label cross-entropy gradients."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "pca-boundary",
+          "question": {
+            "zh": "输入已经做过 PCA 和白化，是否意味着完整预处理已由本题实现？",
+            "en": "Does receiving PCA-whitened inputs mean this exercise implements the full preprocessing pipeline?"
+          },
+          "hint": {
+            "zh": "本题从预处理后的向量开始；PCA、白化和完整 K-means 训练不在核心函数范围内。",
+            "en": "The exercise starts from preprocessed vectors; PCA, whitening and full K-means fitting are outside its core functions."
+          }
+        },
+        {
+          "id": "sampling-loss",
+          "question": {
+            "zh": "按簇平衡采样与给交叉熵强行加逆频率权重是否一样？",
+            "en": "Is balanced sampling across clusters equivalent to inserting inverse-frequency weights into cross-entropy?"
+          },
+          "hint": {
+            "zh": "先区分采样分布和每个样本的损失权重；本题损失是给定伪标签的普通 batch 均值。",
+            "en": "Separate the sampling distribution from per-sample loss weights; this exercise uses an ordinary batch mean for supplied pseudo-labels."
+          }
+        }
+      ]
+    },
+    {
+      "id": "representation/instance_discrimination",
+      "source": "problems/representation/instance_discrimination/README.md",
+      "functions": [
+        "instance_nce_loss",
+        "update_memory"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "原始实例判别的 binary NCE 与 InfoNCE 多类分类有何区别？",
+            "en": "How does original instance-discrimination binary NCE differ from InfoNCE multiclass classification?"
+          },
+          "hint": {
+            "zh": "binary NCE 区分数据与噪声，包含固定配分函数和 K/N 噪声比例；不能直接替换为候选 softmax。",
+            "en": "Binary NCE distinguishes data from noise with a fixed partition function and K/N noise ratio; it cannot be replaced by candidate softmax."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "如何在不直接指数化巨大相似度的情况下计算 NCE？",
+            "en": "How can NCE be computed without directly exponentiating huge similarities?"
+          },
+          "hint": {
+            "zh": "在 log 空间写出数据与噪声的对数赔率，再用稳定 softplus 分别处理正项和负项。",
+            "en": "Express data-versus-noise log odds in log space and use stable softplus for the positive and negative terms."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "记忆库更新怎样与 MoCo 的队列更新区分开来？",
+            "en": "How do memory-bank updates differ from MoCo queue updates?"
+          },
+          "hint": {
+            "zh": "本题按实例 ID 更新指定行，先 EMA 再归一化，其余行不变；返回值脱离梯度且不修改原库。",
+            "en": "Update rows by instance ID using EMA then normalization, leaving other rows unchanged; return a detached copy without mutating the original bank."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "noise-collisions",
+          "question": {
+            "zh": "均匀噪声采样中出现重复或碰到正例 ID，应当自动去重吗？",
+            "en": "Should repeated noise IDs or collisions with the positive ID be automatically deduplicated?"
+          },
+          "hint": {
+            "zh": "题面保留原始噪声抽样语义；去重会改变目标和噪声分布，不能悄悄改为无放回采样。",
+            "en": "The contract preserves the original noise-sampling semantics; deduplication changes the objective and distribution rather than retaining sampling with replacement."
+          }
+        },
+        {
+          "id": "normalizer",
+          "question": {
+            "zh": "为什么题目把 log Z 作为固定参数而不是当前候选分数的 logsumexp？",
+            "en": "Why is log Z a fixed parameter rather than logsumexp over the current candidate scores?"
+          },
+          "hint": {
+            "zh": "固定配分函数近似是原 NCE 建模的一部分；改成每行候选归一化会变成不同的分类目标。",
+            "en": "A fixed partition-function approximation belongs to the original NCE model; normalizing each candidate row instead creates a different classification objective."
+          }
+        }
+      ]
+    },
+    {
+      "id": "representation/rotnet",
+      "source": "problems/representation/rotnet/README.md",
+      "functions": [
+        "rotation_batch",
+        "rotation_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "图像旋转预测为什么不需要人工类别标签？",
+            "en": "Why does image-rotation prediction not require human class labels?"
+          },
+          "hint": {
+            "zh": "训练标签由已知的图像变换产生，四个类别对应施加的旋转；它们不表示图像的语义类别。",
+            "en": "The known image transformation supplies the label; four classes encode applied rotations rather than semantic image categories."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "四种旋转与展开后的标签顺序怎样一一对应？",
+            "en": "How do the four rotations correspond to labels in the expanded batch?"
+          },
+          "hint": {
+            "zh": "先按题面的 batch 展开顺序写出样本索引和角度，再核对逆时针 90° 的空间坐标变化。",
+            "en": "Write sample indices and angles in the specified expanded-batch order, then verify spatial coordinates for a 90° counterclockwise rotation."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "为什么不能用旋转对称的图像作为唯一正确性样例？",
+            "en": "Why should rotationally symmetric images not be the only correctness examples?"
+          },
+          "hint": {
+            "zh": "用带不同角点和非对称纹理的小图，逐元素检查方向与顺序，再检查四类交叉熵梯度。",
+            "en": "Use a small image with distinct corners and asymmetric texture to check direction and ordering elementwise, followed by four-class cross-entropy gradients."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "shortcut-learning",
+          "question": {
+            "zh": "旋转标签预测准确是否足以证明学到了通用视觉语义？",
+            "en": "Does accurate rotation-label prediction prove that general visual semantics were learned?"
+          },
+          "hint": {
+            "zh": "旋转任务可能利用边框、插值或数据特征；合成实验只证明本题的变换和优化路径可用。",
+            "en": "Rotation prediction may exploit borders, interpolation or dataset cues; the synthetic experiment verifies the transformation and optimization path only."
+          }
+        },
+        {
+          "id": "vq-distinction",
+          "question": {
+            "zh": "本题 RotNet 与题库中的 Rotation Trick 是同一种方法吗？",
+            "en": "Is this RotNet exercise the same method as the catalog’s Rotation Trick exercise?"
+          },
+          "hint": {
+            "zh": "RotNet 预测输入图像的旋转角度；Rotation Trick 是向量量化的梯度传递技巧，监督对象不同。",
+            "en": "RotNet predicts input-image rotation angles; Rotation Trick changes gradient transport for vector quantization, so the learning targets differ."
+          }
+        }
+      ]
+    },
+    {
+      "id": "representation/dinov2_koleo",
+      "source": "problems/representation/dinov2_koleo/README.md",
+      "functions": [
+        "nearest_neighbors",
+        "koleo_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "DINOv2 中 KoLeo 正则如何鼓励特征在单位球面上分散？",
+            "en": "How does DINOv2’s KoLeo regularizer encourage features to spread over the unit sphere?"
+          },
+          "hint": {
+            "zh": "先逐行归一化，再找到最近的非自身邻居；最小化最近邻距离的负对数会惩罚拥挤。",
+            "en": "Normalize rows, find the nearest non-self neighbor, and minimize negative log neighbor distance to penalize crowding."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "为什么找最近邻时必须排除自身，并固定等距时的选择规则？",
+            "en": "Why must nearest-neighbor search exclude self and define deterministic ties?"
+          },
+          "hint": {
+            "zh": "自身相似度通常最大，选中自身会失去有效距离；等距按最小索引选择便于复现梯度分支。",
+            "en": "Self-similarity is usually largest and gives an uninformative distance; lowest-index tie-breaking makes the selected gradient branch reproducible."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "怎样检查邻居选择停止梯度，而距离两端仍能收到梯度？",
+            "en": "How can you verify discrete neighbor selection while preserving gradients at both distance endpoints?"
+          },
+          "hint": {
+            "zh": "用不等距的小 batch 固定邻居索引，再独立计算欧氏距离及数值梯度；不要 detach 被选特征。",
+            "en": "Use a small batch without ties to fix neighbor indices, then independently compute distances and finite-difference gradients; do not detach selected features."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "epsilon-placement",
+          "question": {
+            "zh": "官方 KoLeo 代码中的两个 epsilon 放置位置分别是什么？",
+            "en": "Where are the two epsilon terms placed in the official KoLeo distance objective?"
+          },
+          "hint": {
+            "zh": "除了行归一化下界，PairwiseDistance 在坐标差内固定加 1e-8，函数 eps 控制归一化下界，以及对数输入中的距离偏移。",
+            "en": "Besides the row-normalization floor, PairwiseDistance adds a fixed 1e-8 inside coordinate differences; the function’s eps controls the normalization floor and is added to the distance before taking its log."
+          }
+        },
+        {
+          "id": "method-scope",
+          "question": {
+            "zh": "实现 KoLeo 是否等同于实现了完整 DINOv2？",
+            "en": "Is implementing KoLeo equivalent to implementing all of DINOv2?"
+          },
+          "hint": {
+            "zh": "KoLeo 是 DINOv2 采用的既有正则组件；完整配方还包括 DINO/iBOT 蒸馏、数据整理、网络和大规模训练。",
+            "en": "KoLeo is an existing regularizer adopted by DINOv2; the full recipe also includes DINO/iBOT distillation, curated data, networks and large-scale training."
+          }
+        }
+      ]
     }
   ]
 }

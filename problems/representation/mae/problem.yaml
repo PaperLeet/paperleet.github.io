@@ -1,0 +1,95 @@
+id: representation/mae
+number: 182
+title: MAE 掩码像素重建与目标归一化
+title_en: MAE Masked Pixel Reconstruction and Target Normalization
+paper_id: mae
+paper:
+  title: Masked Autoencoders Are Scalable Vision Learners
+  authors: Kaiming He, Xinlei Chen, Saining Xie, Yanghao Li, Piotr Dollár, Ross Girshick
+  venue: CVPR 2022
+  arxiv: '2111.06377'
+  url: https://arxiv.org/abs/2111.06377
+  anchors:
+  - 'Section 3: reconstruction target and normalized pixel loss'
+  - 'Official models_mae.py forward_loss: patch variance and masked mean'
+  official_code: https://github.com/facebookresearch/mae
+parent: null
+type: implement
+difficulty: M
+functions:
+- name: normalize_patch_targets
+  signature: 'normalize_patch_targets(target: Tensor, eps: float=1e-06) -> Tensor'
+- name: masked_reconstruction_loss
+  signature: 'masked_reconstruction_loss(prediction: Tensor, target: Tensor, mask: Tensor, norm_pix_loss:
+    bool=False, eps: float=1e-06) -> Tensor'
+module:
+  goal: 实现 patch 内样本方差归一化，以及只对遮挡 patch 求均值的像素重建损失。
+  goal_en: Normalize pixel targets with within-patch sample variance and average reconstruction MSE over
+    masked patches.
+  scope: 实现两个损失核心函数；CPU 实验训练共享线性解码器，不实现 ViT、patchify 或完整图像预训练。
+  scope_en: Implement two loss-core functions; the CPU experiment trains a shared linear decoder, without
+    ViT, patchification or full image pretraining.
+  required_functions:
+  - normalize_patch_targets
+  - masked_reconstruction_loss
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  layout: '[B,N,P] prediction/target; boolean [B,N] mask, True means removed'
+  dtype: Shared finite float32/float64 dtype and device; nonempty axes; preserve storage and strides.
+  normalization: Per patch sample variance with divisor P-1 and eps inside sqrt; requires P>=2.
+  reduction: Mean squared pixel error within each patch, then global mean over masked patches. Empty mask
+    returns differentiable zero.
+  gradients: Standalone normalization is differentiable. Loss detaches target as fixed data; only predictions
+    receive gradients.
+  parameters: norm_pix_loss is bool; eps is finite positive Python int/float, excluding bool/Tensor.
+tests:
+  T0: 2
+  T1: 2
+  T2: 5
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+tags:
+- Representation Learning
+- Self-Supervised Learning
+- Masked Image Modeling
+- Pixel Reconstruction
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-11-06'
+verified_sources:
+  checked_at: '2026-11-06'
+  links:
+  - https://arxiv.org/abs/2111.06377
+  - https://github.com/facebookresearch/mae/blob/main/models_mae.py
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2111.06377
+  anchor: 'Section 3: reconstruction target and normalized pixel loss'
+  adaptation: 120 real Adam updates, lr .06, train a shared 3-to-4 linear decoder from 24 deterministic
+    synthetic context vectors to fixed pixels. No image encoder or benchmark claim.
+mutants:
+- id: m1_population_variance
+  bug: Use population variance instead of the official sample variance
+- id: m2_patch_axis
+  bug: Normalize across patches instead of pixel coordinates
+- id: m3_inverted_mask
+  bug: Reconstruct visible instead of removed patches
+- id: m4_all_patches
+  bug: Average every patch instead of only removed patches
+- id: m5_pixel_sum
+  bug: Sum pixel errors instead of averaging within a patch
+- id: m6_target_gradient
+  bug: Let reconstruction loss change its target
+- id: m7_skip_normalization
+  bug: Ignore the normalized-pixel option
+- id: m8_prediction_stop
+  bug: Detach the predicted pixels
+- id: m9_strided_prediction_stop
+  bug: Detach only noncontiguous predictions
+- id: m10_strided_normalizer_stop
+  bug: Detach only noncontiguous normalization inputs

@@ -1,51 +1,78 @@
 # Self-supervised learning collection
 
-Verified on 2026-11-06. Practice order: CPC / InfoNCE → SimCLR → MoCo →
-SimSiam → Barlow Twins → VICReg → I-JEPA. The chronological roadmap is a
-separate view: MoCo's first preprint predates SimCLR. Existing published
-module and paper numbers remain unchanged.
+Verified on 2026-11-06. The collection contains 17 papers with executable numerical
+exercises. InfoNCE and SimCLR remain the entry points; the expansion covers
+instance discrimination, transformation prediction, clustering, momentum targets,
+self-distillation, redundancy reduction and masked prediction. Existing public
+paper and module numbers are unchanged; the ten new exercises are 179–188.
 
-## Source and exercise scope
+## Primary sources and exercise scope
 
-| Paper | Primary source | Numerical core |
+| Paper | Primary source / released implementation | Exercised numerical mechanism |
 | --- | --- | --- |
-| CPC / InfoNCE | [CPC §2.3, Eq. 4](https://arxiv.org/abs/1807.03748) | Stable positive classification from supplied logits, arbitrary target positions; the denominator includes the positive. No implicit normalization or temperature. |
-| SimCLR | [ICML paper, Eq. 1 / Algorithm 1](https://proceedings.mlr.press/v119/chen20j.html) | Reuse module 84: all 2B anchors, self excluded, same-view negatives retained, both directions averaged. |
-| MoCo | [CVPR paper, Eqs. 1–2 / Algorithm 1](https://arxiv.org/abs/1911.05722) | Reuse module 85: query-only contrastive gradient, momentum encoder and circular dictionary. |
-| SimSiam | [CVPR paper, §3 / Algorithm 1](https://arxiv.org/abs/2011.10566), [official implementation](https://github.com/facebookresearch/simsiam) | Symmetric cross-view negative cosine; only targets stop gradients. |
-| Barlow Twins | [ICML paper](https://proceedings.mlr.press/v139/zbontar21a.html), [official implementation](https://github.com/facebookresearch/barlowtwins/blob/main/main.py) | Batchwise feature normalization and cross-correlation. Fix population variance plus epsilon to match official BatchNorm; sum both diagonal and full off-diagonal penalties. |
-| VICReg | [ICLR paper](https://arxiv.org/abs/2105.04906) | Reuse variance, invariance and covariance exercise. |
-| I-JEPA | [CVPR paper](https://arxiv.org/abs/2301.08243) | Reuse masked target representation prediction and momentum update exercise. |
+| CPC / InfoNCE | [CPC §2.3, Eq. 4](https://arxiv.org/abs/1807.03748) | Positive identification from supplied logits and arbitrary positive positions. |
+| Instance Discrimination | [CVPR paper](https://arxiv.org/abs/1805.01978), [official NCE criterion](https://github.com/zhirongw/lemniscate.pytorch/blob/master/lib/NCECriterion.py) | Original sampled **binary NCE** with a fixed partition-function estimate and K/N noise prior; indexed memory-bank EMA. This is distinct from candidate softmax InfoNCE. |
+| SimCLR | [ICML paper](https://proceedings.mlr.press/v119/chen20j.html) | Two-view NT-Xent with all 2B anchors, self exclusion and same-view negatives. |
+| MoCo | [CVPR paper](https://arxiv.org/abs/1911.05722) | Query-only contrastive gradients, a momentum encoder and a circular dictionary. |
+| RotNet | [ICLR paper](https://arxiv.org/abs/1803.07728), [official code](https://github.com/gidariss/FeatureLearningRotNet) | Four exact counterclockwise rotations and a four-class prediction objective. Unrelated to the existing VQ Rotation Trick exercise. |
+| DeepCluster | [ECCV paper](https://arxiv.org/abs/1807.05520), [official clustering code](https://github.com/facebookresearch/deepcluster/blob/main/clustering.py) | L2 normalization of already PCA-whitened features, Euclidean nearest-center assignments and pseudo-label cross-entropy. |
+| SwAV | [NeurIPS paper](https://arxiv.org/abs/2006.09882), [official code](https://github.com/facebookresearch/swav) | Single-process finite-iteration Sinkhorn assignments and stopped-target swapped prediction. |
+| BYOL | [NeurIPS paper](https://arxiv.org/abs/2006.07733), [official code](https://github.com/google-deepmind/deepmind-research/tree/master/byol) | Normalized squared regression in both directions, summed before the batch mean, plus detached target-parameter EMA. |
+| SimSiam | [CVPR paper](https://arxiv.org/abs/2011.10566), [official code](https://github.com/facebookresearch/simsiam) | Cross-view negative cosine with stopped targets and a two-direction average. |
+| Barlow Twins | [ICML paper](https://proceedings.mlr.press/v139/zbontar21a.html), [official code](https://github.com/facebookresearch/barlowtwins/blob/main/main.py) | Population-variance batch normalization and full cross-correlation redundancy reduction. |
+| VICReg | [ICLR paper](https://arxiv.org/abs/2105.04906) | Separate variance, invariance and covariance terms. |
+| DINO | [ICCV paper](https://arxiv.org/abs/2104.14294), [official code](https://github.com/facebookresearch/dino/blob/main/main_dino.py) | Centered/sharpened teacher targets, multi-view cross-entropy excluding matching global views, and raw-logit center EMA. |
+| BEiT | [ICLR paper](https://arxiv.org/abs/2106.08254), [official code](https://github.com/microsoft/unilm/tree/master/beit) | Discrete-token cross-entropy averaged across all selected masked positions. |
+| MAE | [CVPR paper](https://arxiv.org/abs/2111.06377), [official loss](https://github.com/facebookresearch/mae/blob/main/models_mae.py) | Per-patch sample-variance target normalization and global masked-patch pixel MSE. |
+| iBOT | [ICLR paper](https://arxiv.org/abs/2111.07832), [official code](https://github.com/bytedance/ibot/blob/main/main_ibot.py) | Same-view masked-patch soft-target distillation, reduced within each image before the batch mean. The separate class-token branch is covered conceptually by DINO. |
+| DINOv2 | [paper](https://arxiv.org/abs/2304.07193), [official KoLeo component](https://github.com/facebookresearch/dinov2/blob/main/dinov2/loss/koleo_loss.py) | Non-self nearest neighbors and the KoLeo regularizer adopted by DINOv2. KoLeo alone is not the full DINOv2 recipe; DINO/iBOT exercises cover its distillation components. |
+| I-JEPA | [CVPR paper](https://arxiv.org/abs/2301.08243) | Masked target-representation prediction and momentum updates. |
 
-## Curation and roadmap evidence
+The source boundary is explicit in each exercise. Inputs may be already encoded
+features, scores, token IDs or patch predictions. Bounded synthetic CPU experiments
+optimize these components; they do not claim full image pretraining or benchmark
+reproduction. In particular, DeepCluster does not reimplement PCA/Faiss, BEiT does
+not train a visual tokenizer, and DINOv2's data curation and large-scale training
+are described separately from its KoLeo exercise. Parameter conventions and
+intentional boundary extensions are stated alongside their original sources.
 
-The original papers and their released implementations establish numerical
-contracts. Independent curriculum evidence is [Stanford CS231n's 2022
-self-supervised learning lecture](https://cs231n.stanford.edu/slides/2022/lecture_14_jiajun.pdf).
-The research comparison [Exploring the Equivalence of Siamese Self-Supervised
-Learning via A Unified Gradient Framework](https://arxiv.org/abs/2112.05141)
-groups MoCo/SimCLR, SimSiam and Barlow Twins/VICReg into the contrastive,
-asymmetric and feature-decorrelation families. [Meta's I-JEPA research
-announcement](https://ai.meta.com/blog/yann-lecun-ai-model-i-jepa/)
-supplies an additional author-maintained account of predictive representation
-learning. Inclusion confidence is high for these canonical mechanism examples;
-this is a compact learning sequence, not an exhaustive survey or a popularity
-ranking.
+## Curation and reading order
 
-The roadmap uses first arXiv announcement years and the actual publication venue.
-Its four arrows represent explicitly labelled mechanism relationships:
-CPC→MoCo and CPC→SimCLR reuse contrastive candidate classification;
-SimCLR→SimSiam compares two-view Siamese objectives with changed gradient
-ownership; Barlow Twins→VICReg connects redundancy reduction with separately
-controlled variance and covariance. The SimCLR→SimSiam label is a conceptual
-comparison, not a claim that SimCLR alone originated SimSiam. I-JEPA is shown
-without an invented direct inheritance edge.
+The default paper and practice lists share a learning order, rather than a
+publication-date sort. The contrastive foundations come first, followed by early
+pretext/clustering tasks, non-contrastive methods, redundancy reduction and
+teacher/masked prediction. Explicit user-selected sorting still works.
 
-Five added cover thumbnails are first-page renders of the linked arXiv PDFs,
-168 pixels wide, WebP quality 72, with metadata stripped. Existing thumbnails
-are reused for the other two papers.
+The original papers and official code establish the numerical contracts.
+Independent curricular cross-checks are Stanford's [2022 SSL lecture](https://cs231n.stanford.edu/slides/2022/lecture_14_jiajun.pdf),
+[2025 SSL lecture](https://cs231n.stanford.edu/slides/2025/lecture_12.pdf),
+and [2025 lecture 13 DINO/DINOv2 recap](https://cs231n.stanford.edu/slides/2025/lecture_13.pdf).
+The [unified gradient analysis](https://arxiv.org/abs/2112.05141) also provides a
+research comparison of contrastive, asymmetric and feature-decorrelation methods.
+This selection covers established mechanism families, with high inclusion
+confidence; it is not an exhaustive ranking or a claim about current popularity.
 
-Each new package supplies bilingual statements and notes, independent numerical
-or gradient oracles, deliberate faulty implementations, and a bounded synthetic
-CPU experiment. These experiments demonstrate the exercised mechanism; they
-do not claim full image pretraining or paper benchmark reproduction.
+## Roadmap
+
+The representative roadmap retains the existing 14-node readability limit.
+RotNet, Instance Discrimination and DeepCluster remain fully available in the
+17-paper collection and practice list. The map uses first arXiv dates and actual
+publication venues, including DINOv2's TMLR 2024 publication after its 2023 preprint.
+
+Arrows describe the labelled mechanism relationships: contrastive classification
+into MoCo/SimCLR; SimCLR's two-view setup into BYOL; BYOL's stopped-target design
+into SimSiam and momentum-teacher design into DINO; Barlow Twins into VICReg; DINO and BEiT into iBOT; iBOT into DINOv2. The
+MAE–I-JEPA arrow explicitly compares pixel and latent masked targets rather than
+asserting exclusive historical descent. No crossing, node pass-through or
+transitively redundant arrow is accepted by the existing layout checks.
+
+Six new thumbnail files are first-page renders from the linked original PDFs,
+168 pixels wide, WebP quality 72, with metadata stripped. Existing BYOL and prior
+collection thumbnails are reused.
+
+The ten added exercises retain their full starter sources and provided validation
+helpers. Catalog bootstrap allocations move from 96/64 KiB to 88/72 KiB for
+metadata/immutable starters, respectively, within the unchanged 160 KiB total
+compressed budget. The 256 KiB wire-response bounds, exact source hashes,
+bounded decoder, compatibility assets, and initial JavaScript budgets remain
+unchanged. This avoids removing teaching content to satisfy a per-asset split.

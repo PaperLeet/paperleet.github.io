@@ -1,0 +1,93 @@
+id: representation/ibot
+number: 184
+title: iBOT 中心化教师与掩码 Patch 蒸馏
+title_en: iBOT Centered Teacher and Masked Patch Distillation
+paper_id: ibot
+paper:
+  title: 'iBOT: Image BERT Pre-Training with Online Tokenizer'
+  authors: Jinghao Zhou, Chen Wei, Huiyu Wang, Wei Shen, Cihang Xie, Alan Yuille, Tao Kong
+  venue: ICLR 2022
+  arxiv: '2111.07832'
+  url: https://arxiv.org/abs/2111.07832
+  anchors:
+  - 'Section 3: online tokenizer and masked patch self-distillation'
+  - 'Official main_ibot.py iBOTLoss.forward: centered detached patch teacher, per-image masked mean'
+  official_code: https://github.com/bytedance/ibot
+parent: null
+type: implement
+difficulty: M
+functions:
+- name: teacher_patch_targets
+  signature: 'teacher_patch_targets(teacher_logits: Tensor, center: Tensor, teacher_temp: float=0.04)
+    -> Tensor'
+- name: ibot_patch_loss
+  signature: 'ibot_patch_loss(student_logits: Tensor, teacher_logits: Tensor, mask: Tensor, center: Tensor,
+    student_temp: float=0.1, teacher_temp: float=0.04) -> Tensor'
+module:
+  goal: 构造中心化且停止梯度的教师 patch 概率，并实现图内遮挡均值后再批均值的软目标交叉熵。
+  goal_en: Build centered stopped teacher patch probabilities and compute soft-target CE with per-image
+    masked means followed by a batch mean.
+  scope: 实现同一全局视图的单 crop patch 分支；不实现 CLS 跨视图损失、多 crop、中心 EMA 或教师 EMA。
+  scope_en: Implement the same-view single-crop patch branch; CLS cross-view loss, multicrop, center EMA
+    and teacher EMA remain outside this exercise.
+  required_functions:
+  - teacher_patch_targets
+  - ibot_patch_loss
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  layout: Matched [B,N,K] student/teacher logits; [K] center; boolean [B,N] mask
+  dtype: Shared finite float32/float64 dtype/device and nonempty axes; no input mutation; support strides.
+  teacher: softmax((teacher-center)/teacher_temp), detached including center; targets stay soft.
+  reduction: Sum selected patch CE within each image and divide by max(mask_count,1), then mean all B
+    images, including empty images.
+  parameters: Temperatures are finite positive Python int/float, excluding bool/Tensor.
+  gradients: Only student logits receive gradients. Empty masks give differentiable zero; K=1 is valid.
+tests:
+  T0: 2
+  T1: 2
+  T2: 5
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 35
+tags:
+- Representation Learning
+- Self-Supervised Learning
+- Masked Image Modeling
+- Self-Distillation
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-11-06'
+verified_sources:
+  checked_at: '2026-11-06'
+  links:
+  - https://arxiv.org/abs/2111.07832
+  - https://github.com/bytedance/ibot/blob/main/main_ibot.py
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2111.07832
+  anchor: 'Section 3: online tokenizer and masked patch self-distillation'
+  adaptation: 120 real Adam updates, lr .08, optimize a 3-by-4-by-4 student table against fixed soft teacher
+    targets using temperatures .7/.5; no EMA, encoder or benchmark claim.
+mutants:
+- id: m1_no_center
+  bug: Skip teacher logit centering
+- id: m2_teacher_temperature
+  bug: Ignore teacher temperature
+- id: m3_teacher_gradient
+  bug: Leak gradients into teacher logits and center
+- id: m4_student_temperature
+  bug: Ignore student temperature
+- id: m5_global_mask_mean
+  bug: Use global-token averaging instead of image-balanced averaging
+- id: m6_visible_loss
+  bug: Include all patches in each image
+- id: m7_wrong_image_pairing
+  bug: Pair student images with reversed teacher images
+- id: m8_hard_teacher
+  bug: Replace soft teacher probabilities with hard argmax labels
+- id: m9_strided_student_stop
+  bug: Detach only noncontiguous student logits

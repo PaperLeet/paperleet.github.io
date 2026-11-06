@@ -1,0 +1,95 @@
+id: representation/byol
+number: 179
+title: BYOL 归一化回归与动量目标
+title_en: BYOL Normalized Regression and Momentum Targets
+paper_id: byol
+paper:
+  title: 'Bootstrap Your Own Latent: A New Approach to Self-Supervised Learning'
+  authors: Jean-Bastien Grill et al.
+  venue: NeurIPS 2020
+  arxiv: '2006.07733'
+  url: https://arxiv.org/abs/2006.07733
+  anchors:
+  - 'Section 3.1, Equations 1–3: target EMA and normalized regression'
+  - Algorithm 1 and official helpers.regression_loss/byol_experiment representation loss
+  official_code: https://github.com/google-deepmind/deepmind-research/tree/master/byol
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: byol_loss
+  signature: 'byol_loss(p1: Tensor, p2: Tensor, z1: Tensor, z2: Tensor, eps: float = 1e-12) -> Tensor'
+- name: ema_update
+  signature: 'ema_update(online: Tensor, target: Tensor, momentum: float = .99) -> Tensor'
+module:
+  goal: 实现双向归一化回归与停止梯度的参数 EMA，理解 BYOL 的缓慢目标网络。
+  goal_en: Implement symmetric normalized regression and detached parameter EMA for a slowly moving BYOL target.
+  scope: 两个函数，配套 80 步向量表与线性预测头训练及目标 EMA；不实现图像编码器或下游基准。
+  scope_en: Two functions with 80 table/linear-predictor updates and target EMA; no image encoder or downstream
+    benchmark.
+  required_functions:
+  - byol_loss
+  - ema_update
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: Preserve shared float32/float64 dtype and device; support strided inputs and do not modify inputs.
+  device: CPU; no downloads or pretrained weights.
+  layout: Loss inputs share finite [B,D], B>=1,D>=1. EMA accepts arbitrary matching nonempty parameter shapes.
+  normalization: Normalize by sqrt(max(sum of squares,eps)); default squared-norm floor 1e-12 follows official JAX
+    helper, not a norm floor of 1e-12.
+  reduction: Sum both crossed directional squared distances, then mean over B. Do not divide by two or D.
+  autograd: Loss updates only predictions; both targets are detached. EMA detaches both inputs, returns independent
+    storage and never mutates inputs.
+  momentum: Finite Python scalar in [0,1]; m=1 freezes target and m=0 copies online. eps is finite positive Python
+    scalar.
+tests:
+  T0: 2
+  T1: 1
+  T2: 3
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 30
+tags:
+- Self-supervised Learning
+- BYOL
+- Momentum Teacher
+- Regression
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-11-06'
+verified_sources:
+  checked_at: '2026-11-06'
+  links:
+  - https://arxiv.org/html/2006.07733v3
+  - https://github.com/google-deepmind/deepmind-research/blob/master/byol/utils/helpers.py
+  - https://github.com/google-deepmind/deepmind-research/blob/master/byol/byol_experiment.py
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2006.07733
+  anchor: 'Section 3.1, Equations 1–3: target EMA and normalized regression; Algorithm 1 and official helpers.regression_loss/byol_experiment
+    representation loss'
+  adaptation: Two functions with 80 table/linear-predictor updates and target EMA; no image encoder or downstream
+    benchmark.
+mutants:
+- id: m1_average_directions
+  bug: Average rather than sum the two directional losses.
+- id: m2_live_targets
+  bug: Backpropagate through target projections.
+- id: m3_same_view
+  bug: Use same-view rather than crossed targets.
+- id: m4_wrong_epsilon
+  bug: Clamp the norm rather than squared norm to eps.
+- id: m5_feature_mean
+  bug: Average features rather than sum squared feature differences.
+- id: m6_reverse_ema
+  bug: Put the momentum weight on the online tensor.
+- id: m7_live_ema
+  bug: Keep EMA inputs attached to autograd.
+- id: m8_skip_normalization
+  bug: Regress unnormalized predictions.
+- id: m9_strided_detach
+  bug: Detach the regression loss only for strided predictions.

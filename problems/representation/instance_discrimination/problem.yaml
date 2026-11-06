@@ -1,0 +1,90 @@
+id: representation/instance_discrimination
+number: 186
+title: 实例判别：Binary NCE 与记忆库
+title_en: 'Instance Discrimination: Binary NCE and Memory Bank'
+paper_id: instance-discrimination
+paper:
+  title: Unsupervised Feature Learning via Non-Parametric Instance Discrimination
+  authors: Zhirong Wu, Yuanjun Xiong, Stella X. Yu, Dahua Lin
+  venue: CVPR 2018
+  arxiv: '1805.01978'
+  url: https://arxiv.org/abs/1805.01978
+  anchors:
+  - 'Section 3.2: noise-contrastive estimation'
+  - 'Official NCECriterion.py and NCEAverage.py: fixed partition function, K/N prior and indexed memory update'
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: instance_nce_loss
+  signature: 'instance_nce_loss(queries: Tensor, memory: Tensor, candidates: Tensor, temperature: float=0.2, log_z:
+    float=0.0) -> Tensor'
+- name: update_memory
+  signature: 'update_memory(memory: Tensor, indices: Tensor, features: Tensor, momentum: float=0.5, eps: float=1e-12)
+    -> Tensor'
+module:
+  goal: 实现固定配分函数与均匀噪声先验下的原始 binary NCE，并按实例 ID 更新归一化记忆库。
+  goal_en: Implement original binary NCE with a fixed partition constant and uniform noise prior, plus normalized
+    per-instance memory updates.
+  scope: 实现候选 binary NCE 和记忆库 EMA；采样索引、log Z 与已编码特征由调用者提供。
+  scope_en: Implement sampled binary NCE and bank EMA; sampling indices, log Z and encoded features are supplied.
+  required_functions:
+  - instance_nce_loss
+  - update_memory
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  layout: queries [B,D], memory [N,D], candidates [B,K+1]; update indices [B], features [B,D]
+  dtype: Finite float32/float64; preserve dtype/device; int64 indices.
+  device: CPU, no downloads or pretrained weights.
+  contract: First candidate positive, K>=1 uniform-noise draws; duplicates/collisions allowed. Fixed finite log_z;
+    no automatic feature normalization. Only queries get loss gradients. Memory update requires unique IDs, returns
+    detached copy with row-normalized EMA and leaves unselected rows intact.
+tests:
+  T0: 1
+  T1: 1
+  T2: 6
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 40
+tags:
+- Representation Learning
+- Self Supervision
+- instance-discrimination
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-11-06'
+verified_sources:
+  checked_at: '2026-11-06'
+  links:
+  - https://arxiv.org/abs/1805.01978
+  - https://github.com/zhirongw/lemniscate.pytorch/blob/master/lib/NCECriterion.py
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/1805.01978
+  anchor: 'Section 3.2: noise-contrastive estimation'
+  adaptation: Six normalized learnable instance vectors, indexed bank EMA .95, fixed Z=exp(5)+5, 80 actual SGD steps.
+    Enumerating the five other toy instances is a deterministic teaching schedule, not reproduction of the original
+    stochastic noise sampler.
+mutants:
+- id: m1_infonce
+  bug: Use candidate softmax instead of original binary NCE.
+- id: m2_wrong_noise
+  bug: Use 1/N instead of K/N noise prior.
+- id: m3_bank_gradient
+  bug: Let the persistent memory receive autograd gradients.
+- id: m4_average_noise
+  bug: Average the noise terms rather than summing them.
+- id: m5_reverse_momentum
+  bug: Swap old/new weights in the memory EMA.
+- id: m6_no_bank_normalize
+  bug: Store unnormalized EMA rows.
+- id: m7_ignore_z
+  bug: Ignore the fixed partition constant.
+- id: m8_fixed_norm_floor
+  bug: Ignore the caller epsilon in the memory row norm floor.
+- id: m9_alias_frozen_bank
+  bug: Return the original bank storage at momentum one without normalizing selected rows.

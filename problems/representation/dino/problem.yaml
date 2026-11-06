@@ -1,0 +1,104 @@
+id: representation/dino
+number: 181
+title: DINO 教师中心化与多视图蒸馏
+title_en: DINO Teacher Centering and Multi-View Distillation
+paper_id: dino
+paper:
+  title: Emerging Properties in Self-Supervised Vision Transformers
+  authors: Mathilde Caron, Hugo Touvron, Ishan Misra, Hervé Jégou, Julien Mairal, Piotr Bojanowski, Armand Joulin
+  venue: ICCV 2021
+  arxiv: '2104.14294'
+  url: https://arxiv.org/abs/2104.14294
+  anchors:
+  - 'Section 3: self-distillation, multi-crop, centering and sharpening'
+  - Official main_dino.py DINOLoss.forward and DINOLoss.update_center
+  official_code: https://github.com/facebookresearch/dino
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: teacher_probabilities
+  signature: 'teacher_probabilities(teacher: Tensor, center: Tensor, temperature: float = .04) -> Tensor'
+- name: dino_loss
+  signature: 'dino_loss(student: Tensor, teacher: Tensor, center: Tensor, student_temperature: float = .1, teacher_temperature:
+    float = .04) -> Tensor'
+- name: update_center
+  signature: 'update_center(center: Tensor, teacher: Tensor, momentum: float = .9) -> Tensor'
+module:
+  goal: 实现中心化锐化的停止梯度教师分布、多视图交叉熵和 raw-logit 中心 EMA。
+  goal_en: Implement centered sharpened stopped teacher distributions, multi-view cross-entropy and raw-logit center
+    EMA.
+  scope: 三个函数和 80 步合成学生分数表训练；教师 logits 已给定，不实现 ViT、图像增强或教师参数 EMA。
+  scope_en: Three functions and 80 synthetic student-score updates; teacher logits are given, without ViT, augmentations
+    or teacher-parameter EMA.
+  required_functions:
+  - teacher_probabilities
+  - dino_loss
+  - update_center
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: Preserve shared float32/float64 dtype and device; support strided inputs and do not modify inputs.
+  device: CPU; no downloads or pretrained weights.
+  layout: teacher [2,B,K], student [V,B,K] with V>=2, center [K], B>=1,K>=1. First two student views match teacher
+    global view indices.
+  teacher: softmax((teacher-center)/teacher_temperature) is fully detached, including center. Student logits are
+    only divided by student_temperature.
+  pairing: Teacher view t supervises every student view v except v=t. Mean over examples and all 2*(V-1) pairs.
+  center: EMA uses the mean raw teacher logits over both global views and batch; return detached independent [K]
+    storage. Caller updates after computing loss with the previous center.
+  parameters: Temperatures are finite positive Python scalars. Center momentum is a finite Python scalar in [0,1];
+    bool and tensor scalars rejected.
+tests:
+  T0: 2
+  T1: 1
+  T2: 3
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 35
+tags:
+- Self-supervised Learning
+- DINO
+- Self-Distillation
+- Centering
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-11-06'
+verified_sources:
+  checked_at: '2026-11-06'
+  links:
+  - https://arxiv.org/abs/2104.14294
+  - https://github.com/facebookresearch/dino/blob/main/main_dino.py
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2104.14294
+  anchor: 'Section 3: self-distillation, multi-crop, centering and sharpening; Official main_dino.py DINOLoss.forward
+    and DINOLoss.update_center'
+  adaptation: Three functions and 80 synthetic student-score updates; teacher logits are given, without ViT, augmentations
+    or teacher-parameter EMA.
+mutants:
+- id: m1_no_center
+  bug: Omit teacher centering.
+- id: m2_no_sharpening
+  bug: Ignore teacher temperature.
+- id: m3_live_teacher
+  bug: Train teacher logits instead of stopping them.
+- id: m4_same_view_pairs
+  bug: Include same-global-view pairs in the distillation loss.
+- id: m5_sum_pairs
+  bug: Sum rather than average multi-view terms.
+- id: m6_ignore_student_temperature
+  bug: Ignore student softmax temperature.
+- id: m7_first_teacher_center
+  bug: Update the center from only one global view.
+- id: m8_reverse_center_ema
+  bug: Reverse old center and batch-center EMA weights.
+- id: m9_live_center_update
+  bug: Retain gradients through the center update.
+- id: m10_strided_detach
+  bug: Detach the distillation loss only for strided student views.
+- id: m11_truncate_views
+  bug: Ignore all student crops after the third view.
