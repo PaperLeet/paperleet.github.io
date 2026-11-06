@@ -1,0 +1,173 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Build centered stopped teacher patch probabilities and compute soft-target CE with per-image masked means followed by a batch mean. Implement the same-view single-crop patch…">
+    <title>iBOT: iBOT Centered Teacher and Masked Patch Distillation in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/representation/ibot/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/representation/ibot/">
+    <meta property="og:title" content="iBOT: iBOT Centered Teacher and Masked Patch Distillation in Python | PaperLeet">
+    <meta property="og:description" content="Build centered stopped teacher patch probabilities and compute soft-target CE with per-image masked means followed by a batch mean. Implement the same-view single-crop patch…">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="iBOT: iBOT Centered Teacher and Masked Patch Distillation in Python | PaperLeet">
+    <meta name="twitter:description" content="Build centered stopped teacher patch probabilities and compute soft-target CE with per-image masked means followed by a batch mean. Implement the same-view single-crop patch…">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      /* Boot colours match the theme tokens so the swap to the real shell does not jump. */
+      html { background: #f7f8fa; color: #262626; --startup-bar: #fff; --startup-line: #e5e5e5; --startup-muted: #5c5c5c; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #eff1f6; --startup-bar: #262626; --startup-line: #3d3d3d; --startup-muted: #a8a8ad; }
+      body { margin: 0; }
+      .startup-screen { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; box-sizing: border-box; font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Helvetica, Arial, sans-serif; }
+      .startup-bar { display: flex; align-items: center; gap: 8px; height: 56px; padding: 0 calc(max(0px, (100% - 1480px) / 2) + clamp(16px, 2.8vw, 40px)); box-sizing: border-box; border-bottom: 1px solid var(--startup-line); background: var(--startup-bar); font-size: 20px; font-weight: 700; letter-spacing: -.4px; }
+      .startup-card { box-sizing: border-box; width: 100%; max-width: 440px; margin: auto; padding: 24px; text-align: center; }
+      .startup-spinner { display: inline-block; width: 20px; height: 20px; box-sizing: border-box; border: 2px solid #8883; border-top-color: #ffa116; border-radius: 50%; animation: startup-spin .7s linear infinite; }
+      .startup-card:has(#startup-retry:not([hidden])) .startup-spinner { display: none; }
+      .startup-card h1 { margin: 12px 0 4px; font-size: 16px; font-weight: 600; }
+      .startup-card p { margin: 4px 0 12px; color: var(--startup-muted); font-size: 14px; }
+      .startup-card .startup-brand { color: inherit; font-size: 20px; font-weight: 700; }
+      .startup-card h1 .startup-english { font-size: 14px; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; font-size: 14px; font-weight: 600; color: inherit; border: 1px solid var(--startup-line); border-radius: 8px; padding: 6px 14px; background: var(--startup-bar); cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+      @keyframes startup-spin { to { transform: rotate(360deg); } }
+      @media (prefers-reduced-motion: reduce) { .startup-spinner { animation-duration: 2s; } }
+      /* Phones and tablets: the identity row plus the space the scrolling navigation will take. */
+      @media (max-width: 860px) { .startup-bar { height: 89px; padding: 0 24px 40px; } }
+      @media (max-width: 760px) { .startup-bar { padding-inline: 12px; font-size: 0; } }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-L2423Ihl.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-BoSU9blm.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>iBOT Centered Teacher and Masked Patch Distillation</h1><p><a href="/papers/ibot/">iBOT</a> · ICLR 2022 · Medium · 35 minutes</p><p>Build centered stopped teacher patch probabilities and compute soft-target CE with per-image masked means followed by a batch mean.</p><p>Implement the same-view single-crop patch branch; CLS cross-view loss, multicrop, center EMA and teacher EMA remain outside this exercise.</p><h2>Functions to implement</h2><ul><li><code>teacher_patch_targets(teacher_logits: Tensor, center: Tensor, teacher_temp: float=0.04) -&gt; Tensor</code></li><li><code>ibot_patch_loss(student_logits: Tensor, teacher_logits: Tensor, mask: Tensor, center: Tensor, student_temp: float=0.1, teacher_temp: float=0.04) -&gt; Tensor</code></li></ul><section aria-label="Problem description"><h1>iBOT: centered teacher and masked patch distillation</h1>
+<h2>1. Problem</h2>
+<p><a href="https://arxiv.org/abs/2111.07832">iBOT</a> combines image-level self-distillation with masked patch prediction from an online teacher. Its patch targets are distributions over learned prototypes, rather than fixed tokenizer IDs. This exercise isolates the <strong>same-view, single-global-crop patch branch</strong> on supplied logits.</p>
+<p>Implement <code>teacher_patch_targets(teacher_logits, center, teacher_temp=.04)</code> and <code>ibot_patch_loss(student_logits, teacher_logits, mask, center, student_temp=.1, teacher_temp=.04)</code>. Student and teacher logits are <code>[B,N,K]</code>, the center is <code>[K]</code>, and Boolean mask <code>[B,N]</code> selects student patches to supervise. Return detached <code>[B,N,K]</code> teacher probabilities and one scalar loss.</p>
+<h2>2. Core equations</h2>
+<p>Center the teacher's prototype scores before temperature-softmax, and stop the complete teacher branch:</p>
+<p>$$
+q_{bnk}=\operatorname{sg}!\left[\operatorname{softmax}<em>k\left(\frac{t</em>{bnk}-c_k}{\tau_t}\right)\right],\qquad
+\log p_{bnk}=\operatorname{logsoftmax}<em>k\left(\frac{s</em>{bnk}}{\tau_s}\right).
+$$</p>
+<p>The <a href="https://github.com/bytedance/ibot/blob/main/main_ibot.py">official <code>iBOTLoss.forward</code></a> computes a masked mean <strong>within each image</strong>, then averages all images. With $M_b=\sum_n m_{bn}$:</p>
+<p>$$
+\ell_{bn}=-\sum_k q_{bnk}\log p_{bnk},\qquad
+\mathcal L=\frac1B\sum_b\frac{\sum_n m_{bn}\ell_{bn}}{\max(M_b,1)}.
+$$</p>
+<p>An image with zero masked patches contributes zero and still counts in <code>B</code>. For a selected student score, the gradient is $(p_{bnk}-q_{bnk})/(B M_b\tau_s)$. Teacher logits and center have no gradient. Matching <code>p=q</code> yields teacher entropy, generally a positive value; zero cross entropy is not the target for a soft teacher.</p>
+<h2>3. From equations to code</h2>
+<ol>
+<li>Subtract the <code>[K]</code> center, divide by teacher temperature, apply final-axis softmax and detach the entire target.</li>
+<li>Divide student logits by student temperature and use stable final-axis log-softmax.</li>
+<li>Multiply by teacher probabilities, sum over prototypes and negate.</li>
+<li>Mask the patch losses. Divide each image's sum by its masked count clamped to one, then average all images.</li>
+</ol>
+<p>Use the helper in this file; keep supplied validation. Do not replace teacher probabilities with argmax labels, swap image correspondence or average over all masked patches globally. The CLS branch's cross-view pairing is not the pairing of this patch branch.</p>
+<h2>4. Exercise conventions</h2>
+<ul>
+<li>Matched nonempty <code>[B,N,K]</code> student/teacher tensors and <code>[K]</code> center share float32/float64 dtype, device and finite values. Mask is Boolean <code>[B,N]</code> on the same device. Preserve inputs, dtype/device and support strided views.</li>
+<li>Both temperatures are finite positive Python int/float; reject bool and Tensor scalars. Defaults follow the nominal official temperatures; no temperature schedule is applied here.</li>
+<li>The teacher target, including the center, is stopped. Visible student patches receive zero gradients; empty whole masks return differentiable zero. <code>K=1</code> has target probability one and zero CE.</li>
+<li>The center is supplied and fixed during this call. Center EMA, teacher EMA, multi-crop averaging, shared projection-head architecture and the image-level CLS objective remain outside this module. <code>[K]</code> simplifies the official broadcast center shape <code>[1,1,K]</code>.</li>
+<li>Student score offsets and teacher score offsets may vary per patch without changing probabilities. Adding the same prototype vector to teacher logits and center also preserves targets.</li>
+</ul>
+<p>Tests use independent scalar probabilities and CE, exact and finite-difference student gradients, stopped teacher/center checks, unequal and empty mask rows, consistent permutations, soft-target entropy, singleton vocabulary and extreme scores.</p>
+<h2>5. Interactive charts and CPU experiment</h2>
+<p>The Lab directly optimizes a <strong><code>3×4×4</code> student logit table</strong> against fixed deterministic teacher logits and a center. Images contain <code>1,3,0</code> selected patches. Adam performs <strong>120 actual updates at <code>.08</code></strong>, with student/teacher temperatures <code>.7/.5</code> to make the soft distributions easy to inspect. Teacher and center are included in the optimizer as a gradient-boundary check; they must remain fixed.</p>
+<p>Charts show your CE alongside the teacher entropy floor, independently computed image-balanced KL, and teacher/student probabilities for one masked patch. Reference CPU KL decreases from about <code>.10581</code> to <code>1.8e-7</code>; CE approaches <code>.81916</code>, not zero. T3 requires KL below <code>1e-5</code> and <code>.001</code> of baseline, oracle agreement within <code>1e-12</code>, and zero drift in teacher, center and visible student logits. This bounded synthetic distillation task does not train an encoder, update an online tokenizer or reproduce iBOT benchmark results.</p>
+<h2>6. Run your implementation</h2>
+<p>Complete the functions in the Python editor on the right, then click <strong>Run tests</strong>. Inspect each failed check, update your implementation, and run again. Passing every required check marks the problem as solved and unlocks the notes.</p>
+<h2>7. Further reading</h2>
+<p>Read iBOT Section 3 and both branches of the official <code>iBOTLoss</code>. Why does patch matching use the same global view while the class-token objective uses cross-view terms? What distinct roles do teacher centering and temperature play? Why must teacher weights and center be updated outside gradient descent on this objective?</p>
+<p>Compare <a href="https://arxiv.org/abs/2106.08254">BEiT</a> hard token targets and <a href="https://arxiv.org/abs/2104.14294">DINO</a> image-level self-distillation. Derive when image-balanced masked means equal the global masked-token mean and when they differ.</p></section><p><a href="https://arxiv.org/abs/2111.07832">Read paper · arXiv:2111.07832</a></p><h2>Related exercises</h2><ul><li><a href="/papers/ibot/">All iBOT exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>

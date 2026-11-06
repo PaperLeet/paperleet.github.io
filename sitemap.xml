@@ -140,6 +140,16 @@
   <url><loc>https://paperleet.com/papers/cpc-infonce/</loc></url>
   <url><loc>https://paperleet.com/papers/simsiam/</loc></url>
   <url><loc>https://paperleet.com/papers/barlow-twins/</loc></url>
+  <url><loc>https://paperleet.com/papers/byol/</loc></url>
+  <url><loc>https://paperleet.com/papers/swav/</loc></url>
+  <url><loc>https://paperleet.com/papers/dino/</loc></url>
+  <url><loc>https://paperleet.com/papers/mae/</loc></url>
+  <url><loc>https://paperleet.com/papers/beit/</loc></url>
+  <url><loc>https://paperleet.com/papers/ibot/</loc></url>
+  <url><loc>https://paperleet.com/papers/deepcluster/</loc></url>
+  <url><loc>https://paperleet.com/papers/instance-discrimination/</loc></url>
+  <url><loc>https://paperleet.com/papers/rotnet/</loc></url>
+  <url><loc>https://paperleet.com/papers/dinov2/</loc></url>
   <url><loc>https://paperleet.com/problems/rl/gae/</loc></url>
   <url><loc>https://paperleet.com/problems/rl/ppo_clip/</loc></url>
   <url><loc>https://paperleet.com/problems/rl/dpo/</loc></url>
@@ -304,6 +314,16 @@
   <url><loc>https://paperleet.com/problems/representation/infonce/</loc></url>
   <url><loc>https://paperleet.com/problems/representation/simsiam/</loc></url>
   <url><loc>https://paperleet.com/problems/representation/barlow_twins/</loc></url>
+  <url><loc>https://paperleet.com/problems/representation/byol/</loc></url>
+  <url><loc>https://paperleet.com/problems/representation/swav/</loc></url>
+  <url><loc>https://paperleet.com/problems/representation/dino/</loc></url>
+  <url><loc>https://paperleet.com/problems/representation/mae/</loc></url>
+  <url><loc>https://paperleet.com/problems/representation/beit/</loc></url>
+  <url><loc>https://paperleet.com/problems/representation/ibot/</loc></url>
+  <url><loc>https://paperleet.com/problems/representation/deepcluster/</loc></url>
+  <url><loc>https://paperleet.com/problems/representation/instance_discrimination/</loc></url>
+  <url><loc>https://paperleet.com/problems/representation/rotnet/</loc></url>
+  <url><loc>https://paperleet.com/problems/representation/dinov2_koleo/</loc></url>
   <url><loc>https://paperleet.com/collections/self-supervised-learning/</loc></url>
   <url><loc>https://paperleet.com/collections/llm-basics/</loc></url>
   <url><loc>https://paperleet.com/collections/llm-frontier/</loc></url>

@@ -1,0 +1,175 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Normalize pixel targets with within-patch sample variance and average reconstruction MSE over masked patches. Implement two loss-core functions; the CPU experiment trains a…">
+    <title>MAE: MAE Masked Pixel Reconstruction and Target Normalization in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/representation/mae/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/representation/mae/">
+    <meta property="og:title" content="MAE: MAE Masked Pixel Reconstruction and Target Normalization in Python | PaperLeet">
+    <meta property="og:description" content="Normalize pixel targets with within-patch sample variance and average reconstruction MSE over masked patches. Implement two loss-core functions; the CPU experiment trains a…">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="MAE: MAE Masked Pixel Reconstruction and Target Normalization in Python | PaperLeet">
+    <meta name="twitter:description" content="Normalize pixel targets with within-patch sample variance and average reconstruction MSE over masked patches. Implement two loss-core functions; the CPU experiment trains a…">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      /* Boot colours match the theme tokens so the swap to the real shell does not jump. */
+      html { background: #f7f8fa; color: #262626; --startup-bar: #fff; --startup-line: #e5e5e5; --startup-muted: #5c5c5c; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #eff1f6; --startup-bar: #262626; --startup-line: #3d3d3d; --startup-muted: #a8a8ad; }
+      body { margin: 0; }
+      .startup-screen { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; box-sizing: border-box; font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Helvetica, Arial, sans-serif; }
+      .startup-bar { display: flex; align-items: center; gap: 8px; height: 56px; padding: 0 calc(max(0px, (100% - 1480px) / 2) + clamp(16px, 2.8vw, 40px)); box-sizing: border-box; border-bottom: 1px solid var(--startup-line); background: var(--startup-bar); font-size: 20px; font-weight: 700; letter-spacing: -.4px; }
+      .startup-card { box-sizing: border-box; width: 100%; max-width: 440px; margin: auto; padding: 24px; text-align: center; }
+      .startup-spinner { display: inline-block; width: 20px; height: 20px; box-sizing: border-box; border: 2px solid #8883; border-top-color: #ffa116; border-radius: 50%; animation: startup-spin .7s linear infinite; }
+      .startup-card:has(#startup-retry:not([hidden])) .startup-spinner { display: none; }
+      .startup-card h1 { margin: 12px 0 4px; font-size: 16px; font-weight: 600; }
+      .startup-card p { margin: 4px 0 12px; color: var(--startup-muted); font-size: 14px; }
+      .startup-card .startup-brand { color: inherit; font-size: 20px; font-weight: 700; }
+      .startup-card h1 .startup-english { font-size: 14px; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; font-size: 14px; font-weight: 600; color: inherit; border: 1px solid var(--startup-line); border-radius: 8px; padding: 6px 14px; background: var(--startup-bar); cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+      @keyframes startup-spin { to { transform: rotate(360deg); } }
+      @media (prefers-reduced-motion: reduce) { .startup-spinner { animation-duration: 2s; } }
+      /* Phones and tablets: the identity row plus the space the scrolling navigation will take. */
+      @media (max-width: 860px) { .startup-bar { height: 89px; padding: 0 24px 40px; } }
+      @media (max-width: 760px) { .startup-bar { padding-inline: 12px; font-size: 0; } }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-L2423Ihl.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-BoSU9blm.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>MAE Masked Pixel Reconstruction and Target Normalization</h1><p><a href="/papers/mae/">MAE</a> · CVPR 2022 · Medium · 30 minutes</p><p>Normalize pixel targets with within-patch sample variance and average reconstruction MSE over masked patches.</p><p>Implement two loss-core functions; the CPU experiment trains a shared linear decoder, without ViT, patchification or full image pretraining.</p><h2>Functions to implement</h2><ul><li><code>normalize_patch_targets(target: Tensor, eps: float=1e-06) -&gt; Tensor</code></li><li><code>masked_reconstruction_loss(prediction: Tensor, target: Tensor, mask: Tensor, norm_pix_loss: bool=False, eps: float=1e-06) -&gt; Tensor</code></li></ul><section aria-label="Problem description"><h1>MAE: masked pixel reconstruction</h1>
+<h2>1. Problem</h2>
+<p><a href="https://arxiv.org/abs/2111.06377">Masked Autoencoders</a> learn representations by predicting image content removed from the encoder's input. The original method uses an asymmetric encoder–decoder and a high masking ratio. This exercise isolates its pixel reconstruction objective on already patchified tensors.</p>
+<p>Implement <code>normalize_patch_targets(target, eps=1e-6)</code> and <code>masked_reconstruction_loss(prediction, target, mask, norm_pix_loss=False, eps=1e-6)</code>. Prediction and target have shape <code>[B,N,P]</code>: images, patches, and flattened pixel coordinates. <code>mask[b,n]=True</code> means a removed patch whose reconstruction is supervised. Return normalized targets of the same shape and one scalar loss, respectively.</p>
+<h2>2. Core equations</h2>
+<p>Optional target normalization acts independently on each patch. To match the <a href="https://github.com/facebookresearch/mae/blob/main/models_mae.py">released <code>forward_loss</code></a>, use <strong>sample variance</strong>: the original <code>target.var(dim=-1)</code> divides by <code>P-1</code>.</p>
+<p>$$
+\mu_{bn}=\frac1P\sum_p x_{bnp},\quad
+v_{bn}=\frac1{P-1}\sum_p(x_{bnp}-\mu_{bn})^2,\quad
+\hat x_{bnp}=\frac{x_{bnp}-\mu_{bn}}{\sqrt{v_{bn}+\epsilon}}.
+$$</p>
+<p>Let $t=x$ for raw targets and $t=\hat x$ for normalized targets. With $M=\sum_{bn}m_{bn}$:</p>
+<p>$$
+e_{bn}=\frac1P\sum_p(\mathrm{prediction}<em>{bnp}-\operatorname{sg}(t</em>{bnp}))^2,\qquad
+\mathcal L=\frac{\sum_{bn}m_{bn}e_{bn}}{\max(M,1)}.
+$$</p>
+<p><code>sg</code> treats the supplied target as fixed data inside the loss. The standalone normalizer remains differentiable. Detaching supplied targets and defining the empty-mask result as zero make the exercise boundary explicit; official MAE receives image data and trains with nonempty masks.</p>
+<p>Example: <code>[-1,1]</code> has sample variance <code>2</code>, so normalization divides by <code>sqrt(2+eps)</code>. If one image has one masked patch and another has two, all three patches receive equal weight.</p>
+<h2>3. From equations to code</h2>
+<ol>
+<li>Center over the final pixel axis, preserving dimensions for broadcasting.</li>
+<li>Sum squared centered pixels and divide by <code>P-1</code>; add epsilon inside the square root.</li>
+<li>In the loss, detach the target and normalize it only when <code>norm_pix_loss=True</code>.</li>
+<li>Average pixel squared error within each patch. Multiply by the mask and divide the total by the number of removed patches, clamped to at least one.</li>
+</ol>
+<p>Keep the provided input checks. The loss may call this file's normalizer; neither function may import a reference implementation. Do not detach predictions or normalize predictions automatically.</p>
+<h2>4. Exercise conventions</h2>
+<ul>
+<li>Nonempty <code>[B,N,P]</code> tensors share finite float32/float64 values, dtype, and device. Support strided inputs and preserve every input. Mask is Boolean <code>[B,N]</code> on the same device.</li>
+<li>Raw reconstruction allows <code>P=1</code>. Normalized targets require <code>P&gt;=2</code>. Constant patches normalize to zero.</li>
+<li><code>eps</code> is a positive finite Python int/float; reject bool and Tensor scalars. <code>norm_pix_loss</code> is a Python bool.</li>
+<li>Average over <strong>all masked patches</strong>, not over image-wise averages. Visible patches have exactly zero prediction gradient. An empty mask returns a scalar zero connected to predictions with zero gradient.</li>
+<li>A per-patch offset leaves normalized targets unchanged. For nonzero scale <code>s</code>, scaling targets by <code>s</code> and epsilon by <code>s²</code> multiplies normalized targets by <code>sign(s)</code>; epsilon remains positive.</li>
+</ul>
+<p>Tests independently compute scalar values, derive prediction gradients, finite-difference the normalizer's VJP, and cover unequal masks, offsets, replication, empty/full masks and one-pixel boundaries.</p>
+<h2>5. Interactive charts and CPU experiment</h2>
+<p>The Lab trains a <strong>shared 3-to-4 linear decoder</strong>, including bias, with 16 trainable model parameters. There are 24 deterministic trigonometric context vectors arranged as six images of four patches; 14 patches are supervised. Targets come from one fixed linear map. Adam runs <strong>120 actual updates at learning rate <code>.06</code></strong>, using your raw-target loss and recording every ten steps. Targets are included in the optimizer deliberately: correct gradient stopping keeps them unchanged.</p>
+<p>Charts compare your objective with an independent Python masked-pixel MSE and show one reconstructed patch. On the reference CPU run, MSE fell from about <code>.671</code> to <code>6.6e-6</code>. T3 requires MSE below <code>1e-4</code> and below <code>.001</code> of baseline, objective/oracle agreement within <code>1e-12</code>, and zero target drift. This is a synthetic decoder experiment; it does not reproduce image masking, a ViT encoder, or MAE's benchmark results.</p>
+<h2>6. Run your implementation</h2>
+<p>Complete the functions in the Python editor on the right, then click <strong>Run tests</strong>. Inspect each failed check, update your implementation, and run again. Passing every required check marks the problem as solved and unlocks the notes.</p>
+<h2>7. Further reading</h2>
+<p>Read MAE Section 3 and the official <code>forward_loss</code> alongside its <code>patchify</code> and random masking pipeline. Why does MAE reconstruct only removed patches? How does target normalization change sensitivity to brightness and contrast? Why is sample variance different from the population variance used by Barlow Twins' BatchNorm?</p>
+<p>Compare <a href="https://arxiv.org/abs/2106.08254">BEiT</a>, whose targets are discrete tokenizer IDs, and <a href="https://arxiv.org/abs/2111.07832">iBOT</a>, whose targets are soft online-teacher distributions. Each exercise isolates a different prediction target and reduction contract.</p></section><p><a href="https://arxiv.org/abs/2111.06377">Read paper · arXiv:2111.06377</a></p><h2>Related exercises</h2><ul><li><a href="/papers/mae/">All MAE exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>

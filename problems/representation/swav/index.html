@@ -1,0 +1,167 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Implement finite-iteration single-process Sinkhorn assignments and cross-view soft-target prediction. Prototype scores are inputs; two functions and 80 synthetic score-table…">
+    <title>SwAV: SwAV Balanced Assignments and Swapped Prediction in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/representation/swav/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/representation/swav/">
+    <meta property="og:title" content="SwAV: SwAV Balanced Assignments and Swapped Prediction in Python | PaperLeet">
+    <meta property="og:description" content="Implement finite-iteration single-process Sinkhorn assignments and cross-view soft-target prediction. Prototype scores are inputs; two functions and 80 synthetic score-table…">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="SwAV: SwAV Balanced Assignments and Swapped Prediction in Python | PaperLeet">
+    <meta name="twitter:description" content="Implement finite-iteration single-process Sinkhorn assignments and cross-view soft-target prediction. Prototype scores are inputs; two functions and 80 synthetic score-table…">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      /* Boot colours match the theme tokens so the swap to the real shell does not jump. */
+      html { background: #f7f8fa; color: #262626; --startup-bar: #fff; --startup-line: #e5e5e5; --startup-muted: #5c5c5c; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #eff1f6; --startup-bar: #262626; --startup-line: #3d3d3d; --startup-muted: #a8a8ad; }
+      body { margin: 0; }
+      .startup-screen { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; box-sizing: border-box; font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Helvetica, Arial, sans-serif; }
+      .startup-bar { display: flex; align-items: center; gap: 8px; height: 56px; padding: 0 calc(max(0px, (100% - 1480px) / 2) + clamp(16px, 2.8vw, 40px)); box-sizing: border-box; border-bottom: 1px solid var(--startup-line); background: var(--startup-bar); font-size: 20px; font-weight: 700; letter-spacing: -.4px; }
+      .startup-card { box-sizing: border-box; width: 100%; max-width: 440px; margin: auto; padding: 24px; text-align: center; }
+      .startup-spinner { display: inline-block; width: 20px; height: 20px; box-sizing: border-box; border: 2px solid #8883; border-top-color: #ffa116; border-radius: 50%; animation: startup-spin .7s linear infinite; }
+      .startup-card:has(#startup-retry:not([hidden])) .startup-spinner { display: none; }
+      .startup-card h1 { margin: 12px 0 4px; font-size: 16px; font-weight: 600; }
+      .startup-card p { margin: 4px 0 12px; color: var(--startup-muted); font-size: 14px; }
+      .startup-card .startup-brand { color: inherit; font-size: 20px; font-weight: 700; }
+      .startup-card h1 .startup-english { font-size: 14px; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; font-size: 14px; font-weight: 600; color: inherit; border: 1px solid var(--startup-line); border-radius: 8px; padding: 6px 14px; background: var(--startup-bar); cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+      @keyframes startup-spin { to { transform: rotate(360deg); } }
+      @media (prefers-reduced-motion: reduce) { .startup-spinner { animation-duration: 2s; } }
+      /* Phones and tablets: the identity row plus the space the scrolling navigation will take. */
+      @media (max-width: 860px) { .startup-bar { height: 89px; padding: 0 24px 40px; } }
+      @media (max-width: 760px) { .startup-bar { padding-inline: 12px; font-size: 0; } }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-L2423Ihl.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-BoSU9blm.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>SwAV Balanced Assignments and Swapped Prediction</h1><p><a href="/papers/swav/">SwAV</a> · NeurIPS 2020 · Medium · 35 minutes</p><p>Implement finite-iteration single-process Sinkhorn assignments and cross-view soft-target prediction.</p><p>Prototype scores are inputs; two functions and 80 synthetic score-table updates, without image encoders, queues or prototype-parameter training.</p><h2>Functions to implement</h2><ul><li><code>sinkhorn_assignments(scores: Tensor, epsilon: float = .05, iterations: int = 3) -&gt; Tensor</code></li><li><code>swapped_prediction_loss(scores1: Tensor, scores2: Tensor, assignments1: Tensor, assignments2: Tensor, temperature: float = .1) -&gt; Tensor</code></li></ul><section aria-label="Problem description"><h1>SwAV: balanced assignments and swapped prediction</h1>
+<h2>1. Problem</h2>
+<p>Implement <code>sinkhorn_assignments(scores, epsilon=.05, iterations=3)</code> and <code>swapped_prediction_loss(scores1, scores2, assignments1, assignments2, temperature=.1)</code>. Turn prototype scores into balanced soft assignments, then predict each view's assignments from the other view's scores.</p>
+<p>The source is <a href="https://arxiv.org/abs/2006.09882">SwAV</a>, Section 3. This exercise implements the single-process, two-view objective. The input tensors are already prototype scores; an image encoder, distributed synchronization, queue and prototype normalization are outside its scope.</p>
+<h2>2. Core equations</h2>
+<p>Let scores have shape <code>[B,K]</code>. Initialize a <code>K×B</code> matrix and normalize its total mass:</p>
+<p>$$
+Q=\exp(S^\top/\epsilon),\qquad Q\leftarrow Q/\sum_{ki}Q_{ki}.
+$$</p>
+<p>Repeat exactly <code>iterations</code> times, with prototype rows first and example columns second:</p>
+<p>$$
+Q_{ki}\leftarrow\frac{Q_{ki}}{\sum_jQ_{kj}}\frac1K,
+\qquad Q_{ki}\leftarrow\frac{Q_{ki}}{\sum_lQ_{li}}\frac1B.
+$$</p>
+<p>Return assignments <code>A=(BQ).T</code>, detached from autograd. For prediction probabilities <code>P_v=softmax(S_v/temperature)</code>, use</p>
+<p>$$
+L=-\frac1{2B}\sum_{i,k}\left[\mathrm{sg}(A_{2,ik})\log P_{1,ik}
++\mathrm{sg}(A_{1,ik})\log P_{2,ik}\right].
+$$</p>
+<p>The assignment epsilon and prediction temperature have separate roles.</p>
+<h2>3. Equations to code</h2>
+<p>Perform Sinkhorn in log space with <code>logsumexp</code> to avoid overflowing exponentials. Subtract each normalization's log sum and <code>log(K)</code> or <code>log(B)</code> in the specified order; exponentiate after adding <code>log(B)</code> at the end. The result must match the finite iteration procedure, rather than an unspecified fully converged transport solution.</p>
+<p>Use stable <code>log_softmax</code> for prediction. Cross the two views and average the two directional cross-entropies. Stop gradients on assignments in both functions, including assignments supplied directly by the caller.</p>
+<h2>4. Conventions</h2>
+<p>Inputs are finite nonempty <code>[B,K]</code> float32/float64 tensors. The loss's four tensors share shape, dtype and device. Inputs may be strided and must remain unchanged. Assignments are nonnegative with each row summing to one within <code>1e-5</code>. The loss is scalar; only scores receive gradients.</p>
+<p><code>epsilon</code> and <code>temperature</code> are finite positive Python numbers. <code>iterations</code> is a positive Python integer; bool and Tensor scalar controls are rejected. Validation helpers are supplied.</p>
+<p>After every finite iteration, returned example rows sum to one. Prototype column sums approach <code>B/K</code> as Sinkhorn converges; finite iterations need not balance them exactly. <code>B</code> need not equal <code>K</code>, and <code>K=1</code> is valid. Tests cover finite-iteration scalar values, both marginal axes, permutation and global-shift invariance, extreme scores, analytic score gradients and stopped assignments.</p>
+<h2>5. Interactive plots and CPU lab</h2>
+<p>Fixed trigonometric <code>6×3</code> evidence tensors include a shared prototype bias. Compute assignments with epsilon <code>.2</code> and 40 Sinkhorn iterations, then train two independent <code>6×3</code> score tables for 80 Adam updates at learning rate <code>.04</code>, using prediction temperature <code>.3</code>. There are 36 learned parameters; initial predictions oppose the other view's evidence. Record loss and assignment entropy every eight steps, and plot the fixed assignment mass of each prototype.</p>
+<p>The experiment calls both submitted functions. Independent scalar calculations check assignments and each loss. Its acceptance requires final cross-entropy minus the assignment-entropy lower bound below <code>.002</code>, a loss decrease above <code>.1</code>, scalar errors below <code>1e-11</code>, and prototype imbalance below <code>1e-8</code>. CPU float64, seed 42. This bounded experiment demonstrates balanced targets and swapped prediction; it does not measure learned image representations.</p>
+<h2>6. Run your implementation</h2>
+<p>Complete the functions in the Python editor on the right, then click <strong>Run tests</strong>. Inspect each failed check, update your implementation, and run again. Passing every required check marks the problem as solved and unlocks the notes.</p>
+<h2>7. Further reading</h2>
+<p>Compare the assignment epsilon with the prediction temperature. Inspect a single Sinkhorn iteration to see why its final column normalization guarantees per-example probability rows but can perturb prototype balance. Swapping views changes which scores predict which targets, while detached assignments prevent an extra gradient path through clustering.</p>
+<p>Sources: <a href="https://arxiv.org/abs/2006.09882">paper</a> and <a href="https://github.com/facebookresearch/swav/blob/main/main_swav.py">official training loop and distributed Sinkhorn</a>. This exercise specializes the algorithm to one process and two views; its tests and vector experiment are independently authored.</p></section><p><a href="https://arxiv.org/abs/2006.09882">Read paper · arXiv:2006.09882</a></p><h2>Related exercises</h2><ul><li><a href="/papers/swav/">All SwAV exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>
