@@ -137,6 +137,9 @@
   <url><loc>https://paperleet.com/papers/dancegrpo/</loc></url>
   <url><loc>https://paperleet.com/papers/mixgrpo/</loc></url>
   <url><loc>https://paperleet.com/papers/flow-dppo/</loc></url>
+  <url><loc>https://paperleet.com/papers/cpc-infonce/</loc></url>
+  <url><loc>https://paperleet.com/papers/simsiam/</loc></url>
+  <url><loc>https://paperleet.com/papers/barlow-twins/</loc></url>
   <url><loc>https://paperleet.com/problems/rl/gae/</loc></url>
   <url><loc>https://paperleet.com/problems/rl/ppo_clip/</loc></url>
   <url><loc>https://paperleet.com/problems/rl/dpo/</loc></url>
@@ -298,6 +301,10 @@
   <url><loc>https://paperleet.com/problems/diffusion_rl/dancegrpo/</loc></url>
   <url><loc>https://paperleet.com/problems/diffusion_rl/mixgrpo/</loc></url>
   <url><loc>https://paperleet.com/problems/diffusion_rl/flow_dppo/</loc></url>
+  <url><loc>https://paperleet.com/problems/representation/infonce/</loc></url>
+  <url><loc>https://paperleet.com/problems/representation/simsiam/</loc></url>
+  <url><loc>https://paperleet.com/problems/representation/barlow_twins/</loc></url>
+  <url><loc>https://paperleet.com/collections/self-supervised-learning/</loc></url>
   <url><loc>https://paperleet.com/collections/llm-basics/</loc></url>
   <url><loc>https://paperleet.com/collections/llm-frontier/</loc></url>
   <url><loc>https://paperleet.com/collections/multimodal/</loc></url>

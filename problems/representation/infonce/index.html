@@ -1,0 +1,166 @@
+<!DOCTYPE html><html lang="en" data-routing="path"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Implement stable InfoNCE from candidate logits, keeping the positive in the denominator and gradients for every candidate. Implement one objective; input validation and a…">
+    <title>CPC / InfoNCE: InfoNCE Positive-Candidate Classification in Python | PaperLeet</title>
+    <link rel="canonical" href="https://paperleet.com/problems/representation/infonce/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PaperLeet">
+    <meta property="og:url" content="https://paperleet.com/problems/representation/infonce/">
+    <meta property="og:title" content="CPC / InfoNCE: InfoNCE Positive-Candidate Classification in Python | PaperLeet">
+    <meta property="og:description" content="Implement stable InfoNCE from candidate logits, keeping the positive in the denominator and gradients for every candidate. Implement one objective; input validation and a…">
+    <meta property="og:image" content="https://paperleet.com/brand/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PaperLeet - LeetCode for AI Researchers">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://paperleet.com/brand/social-card.png">
+    <meta name="twitter:title" content="CPC / InfoNCE: InfoNCE Positive-Candidate Classification in Python | PaperLeet">
+    <meta name="twitter:description" content="Implement stable InfoNCE from candidate logits, keeping the positive in the denominator and gradients for every candidate. Implement one objective; input validation and a…">
+    <meta name="application-name" content="PaperLeet">
+    <link rel="icon" type="image/x-icon" sizes="32x32 48x48 96x96" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon.png">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "PaperLeet",
+        "url": "https://paperleet.com/"
+      }
+    </script>
+    <style>
+      /* Boot colours match the theme tokens so the swap to the real shell does not jump. */
+      html { background: #f7f8fa; color: #262626; --startup-bar: #fff; --startup-line: #e5e5e5; --startup-muted: #5c5c5c; }
+      html[data-theme="dark"] { background: #1a1a1a; color: #eff1f6; --startup-bar: #262626; --startup-line: #3d3d3d; --startup-muted: #a8a8ad; }
+      body { margin: 0; }
+      .startup-screen { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; box-sizing: border-box; font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Helvetica, Arial, sans-serif; }
+      .startup-bar { display: flex; align-items: center; gap: 8px; height: 56px; padding: 0 calc(max(0px, (100% - 1480px) / 2) + clamp(16px, 2.8vw, 40px)); box-sizing: border-box; border-bottom: 1px solid var(--startup-line); background: var(--startup-bar); font-size: 20px; font-weight: 700; letter-spacing: -.4px; }
+      .startup-card { box-sizing: border-box; width: 100%; max-width: 440px; margin: auto; padding: 24px; text-align: center; }
+      .startup-spinner { display: inline-block; width: 20px; height: 20px; box-sizing: border-box; border: 2px solid #8883; border-top-color: #ffa116; border-radius: 50%; animation: startup-spin .7s linear infinite; }
+      .startup-card:has(#startup-retry:not([hidden])) .startup-spinner { display: none; }
+      .startup-card h1 { margin: 12px 0 4px; font-size: 16px; font-weight: 600; }
+      .startup-card p { margin: 4px 0 12px; color: var(--startup-muted); font-size: 14px; }
+      .startup-card .startup-brand { color: inherit; font-size: 20px; font-weight: 700; }
+      .startup-card h1 .startup-english { font-size: 14px; }
+      .startup-card a, .startup-card button { display: inline-block; font: inherit; font-size: 14px; font-weight: 600; color: inherit; border: 1px solid var(--startup-line); border-radius: 8px; padding: 6px 14px; background: var(--startup-bar); cursor: pointer; text-decoration: none; }
+      .startup-card [hidden] { display: none; }
+      @keyframes startup-spin { to { transform: rotate(360deg); } }
+      @media (prefers-reduced-motion: reduce) { .startup-spinner { animation-duration: 2s; } }
+      /* Phones and tablets: the identity row plus the space the scrolling navigation will take. */
+      @media (max-width: 860px) { .startup-bar { height: 89px; padding: 0 24px 40px; } }
+      @media (max-width: 760px) { .startup-bar { padding-inline: 12px; font-size: 0; } }
+    </style>
+    <script>
+      // Apply a validated preference before the page paints or the app loads.
+      (() => {
+        let theme;
+        try {
+          const saved = localStorage.getItem("paperleet.theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch {}
+        if (!theme) {
+          try {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          } catch {
+            theme = "light";
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').content = theme === "dark" ? "#1a1a1a" : "#ffffff";
+      })();
+    </script>
+    <script id="app-startup">
+      (() => {
+        let ready = false, failed = false, slow = false;
+        const language = typeof navigator === 'undefined' ? 'en' : navigator.languages?.[0] || navigator.language || 'en';
+        let english = !/^zh(?:-|$)/i.test(language);
+        try {
+          const saved = localStorage.getItem('paperleet.locale');
+          if (saved === 'zh' || saved === 'en') english = saved === 'en';
+        } catch {}
+        function update() {
+          if (ready) return;
+          const title = document.getElementById('startup-title');
+          const message = document.getElementById('startup-message');
+          const retry = document.getElementById('startup-retry');
+          if (!title || !message || !retry) return;
+          title.textContent = failed
+            ? (english ? 'The page could not load' : '页面暂时无法加载')
+            : (english ? 'Opening PaperLeet…' : '正在打开 PaperLeet…');
+          message.textContent = failed
+            ? (english ? 'A page resource could not be loaded. Reload to try again.' : '页面资源未能加载，请重新加载后再试。')
+            : slow
+              ? (english ? 'Loading is taking longer than expected. You can reload to try again.' : '加载时间较长，可以重新加载后再试。')
+              : (english ? 'Loading the page. Please wait.' : '正在加载页面，请稍候。');
+          retry.textContent = english ? 'Reload page' : '重新加载';
+          retry.hidden = !failed && !slow;
+          const url = new URL(location.href);
+          url.searchParams.set('_paperleet_reload', String(Date.now()));
+          retry.href = url.href;
+        }
+        function fail(event) {
+          if (ready) return;
+          if (event.type === 'error' && event.target !== window && event.target?.tagName !== 'SCRIPT') return;
+          failed = true;
+          update();
+        }
+        const timer = setTimeout(() => { slow = true; update(); }, 10000);
+        function finish() {
+          ready = true;
+          clearTimeout(timer);
+          window.removeEventListener('error', fail, true);
+          window.removeEventListener('unhandledrejection', fail);
+          document.removeEventListener('DOMContentLoaded', update);
+          document.removeEventListener('paperleet:ready', finish);
+        }
+        window.addEventListener('error', fail, true);
+        window.addEventListener('unhandledrejection', fail);
+        document.addEventListener('DOMContentLoaded', update);
+        document.addEventListener('paperleet:ready', finish);
+      })();
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-BtwVgMRG.js"></script>
+    <link rel="modulepreload" crossorigin="" href="/assets/_commonjsHelpers-CqkleIqs.js">
+    <link rel="modulepreload" crossorigin="" href="/assets/index-CO9dNzeH.js">
+    <link rel="stylesheet" crossorigin="" href="/assets/index-BoSU9blm.css">
+  <style id="prerender-style">#prerender-catalog{font:16px/1.65 system-ui,sans-serif;max-width:1120px;margin:auto;padding:24px;color:inherit}#prerender-catalog header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #bbb;padding-bottom:16px}#prerender-catalog header img{width:40px;height:40px;vertical-align:middle;margin-right:10px}#prerender-catalog h1{font-size:30px;line-height:1.25;margin:28px 0 12px}#prerender-catalog h2{font-size:22px;margin-top:28px}#prerender-catalog a{color:#a05f00}#prerender-catalog li{margin:12px 0}#prerender-catalog pre{overflow:auto;padding:16px;background:#8881}#prerender-catalog .catalog-grid{list-style:none;padding:0;display:grid;gap:12px}#prerender-catalog .catalog-grid li{border:1px solid #8884;border-radius:12px;padding:16px;margin:0}#prerender-catalog .catalog-grid p{margin:6px 0}#prerender-catalog .source{color:#777}#prerender-catalog .startup-status{font-size:13px;border-top:1px solid #8884;margin-top:32px;padding-top:12px}#prerender-catalog .startup-status p{margin:4px 0}#prerender-catalog .startup-status [hidden]{display:none}</style></head>
+  <body>
+    <div id="root"><main id="prerender-catalog"><header><a href="/">PaperLeet</a><nav aria-label="Main navigation"><a href="/">Papers</a> · <a href="/#/community">Community</a> · <a href="/#/interviews">Interviews</a></nav></header><h1>InfoNCE Positive-Candidate Classification</h1><p><a href="/papers/cpc-infonce/">CPC / InfoNCE</a> · arXiv 2018 · Easy · 20 minutes</p><p>Implement stable InfoNCE from candidate logits, keeping the positive in the denominator and gradients for every candidate.</p><p>Implement one objective; input validation and a six-context CPU score-table optimization lab are provided.</p><h2>Functions to implement</h2><ul><li><code>info_nce_loss(logits: Tensor, positive_indices: Tensor) -&gt; Tensor</code></li></ul><section aria-label="Problem description"><h1>InfoNCE: identify the positive candidate</h1>
+<h2>1. Problem</h2>
+<p>Implement <code>info_nce_loss(logits, positive_indices)</code> to raise the probability of the designated positive among <code>K</code> candidates for each context. Inputs are already <strong>logits</strong>, and the positive column may differ between rows.</p>
+<p><a href="https://arxiv.org/abs/1807.03748">Contrastive Predictive Coding (CPC)</a> predicts future representations from context and constructs a learning signal from positive and negative candidates. This exercise implements the InfoNCE objective in Section 2.3, Equation (4). Positive indices express known sample correspondences in the prediction task rather than human category labels.</p>
+<h2>2. Core equations</h2>
+<p>Let <code>s[b,j]</code> be a logit and <code>p[b]</code> the positive column. Each row contains one positive and <code>K−1</code> negatives:</p>
+<p>$$
+\ell_b=-\log\frac{\exp(s_{b,p_b})}{\sum_{j=0}^{K-1}\exp(s_{b,j})},\qquad
+L=\frac1B\sum_{b=0}^{B-1}\ell_b.
+$$</p>
+<p>Keep the positive in both numerator and denominator. Compute the stable equivalent:</p>
+<p>$$
+\ell_b=\operatorname{logsumexp}<em>j(s</em>{b,j})-s_{b,p_b},\qquad
+\frac{\partial L}{\partial s_{b,j}}=\frac{\operatorname{softmax}(s_b)_j-\mathbf1[j=p_b]}B.
+$$</p>
+<p>If exponentiated scores are <code>[2,3,5]</code> and the positive column is <code>1</code>, loss is <code>log(10/3)</code>. Equal candidate scores give <code>log(K)</code>; one candidate gives zero loss and zero gradient.</p>
+<h2>3. Equations to code</h2>
+<ul>
+<li>Reduce <code>logsumexp</code> across candidates (<code>dim=1</code>) to obtain <code>[B]</code>.</li>
+<li>Gather each row's positive logit using <code>positive_indices</code>, also obtaining <code>[B]</code>.</li>
+<li>Subtract and average over all contexts, returning a scalar Tensor.</li>
+</ul>
+<p>Avoid exponentiating large raw logits. Adding a constant to every candidate in one row must leave the loss unchanged. Different contexts have independent softmax denominators. These inputs already specify scores: apply no additional L2 normalization, temperature scaling or stop-gradient.</p>
+<h2>4. Exercise conventions</h2>
+<p><code>logits</code> is a finite float32/float64 <code>[B,K]</code> tensor with <code>B&gt;=1,K&gt;=1</code>. <code>positive_indices</code> is int64 <code>[B]</code> on the same device, with <code>0&lt;=p&lt;K</code>. Preserve the floating dtype, device and derivatives of every logit. Accept strided tensors and leave both inputs intact. Supplied <code>_check_inputs</code> rejects empty axes, shape/dtype mismatches, invalid indices and NaN/Inf.</p>
+<p>Gradients must include each candidate's denominator contribution. Tests cover an independent scalar oracle, closed forms, analytical derivatives, finite differences, context/candidate permutations, row offsets, large scores and actual optimization.</p>
+<h2>5. Interactive plots and CPU lab</h2>
+<p>The exercise page shows actual optimization of six contexts with four candidates each: a <code>6×4</code> score table containing 24 trainable parameters. Initial scores use fixed trigonometric expressions; positive columns are <code>[1,3,0,2,1,0]</code>. Run 80 full-batch SGD updates at learning rate <code>1.5</code>, logging loss, mean positive probability and strict top-1 accuracy every ten updates. Ties count as incorrect.</p>
+<p>This original teaching lab demonstrates how InfoNCE changes candidate probabilities. It contains no CPC encoder or autoregressive network; plotted metrics describe training on the score table. T3 calls your loss and requires all six positives to rank first, mean positive probability above <code>.9</code>, loss below <code>.1</code>, and agreement with an independent scalar objective.</p>
+<h2>6. Run your implementation</h2>
+<p>Complete the functions in the Python editor on the right, then click <strong>Run tests</strong>. Inspect each failed check, update your implementation, and run again. Passing every required check marks the problem as solved and unlocks the notes.</p>
+<h2>7. Extensions and sources</h2>
+<p>Continue with <a href="#/representation/simclr">SimCLR</a>, which builds <code>2B</code> candidates from two views and excludes each anchor itself before positive classification. <a href="#/representation/moco">MoCo</a> supplies candidates through a momentum encoder and a queue. These methods specify where scores and candidates come from; this exercise establishes the objective first.</p>
+<p>Source: <a href="https://arxiv.org/html/1807.03748v2">CPC</a>, Section 2.3, Equations (4) and (5), Aaron van den Oord, Yazhe Li and Oriol Vinyals, 2018. The paper uses positive scores <code>f</code>; this exercise accepts <code>s=log(f)</code>. Its mutual-information bound assumes the paper's positive/negative sampling scheme and is not an unconditional estimate for an arbitrary score table. Statements, validation, tests, implementations and synthetic experiment are original PaperLeet teaching material.</p></section><p><a href="https://arxiv.org/abs/1807.03748">Read paper · arXiv:1807.03748</a></p><h2>Related exercises</h2><ul><li><a href="/papers/cpc-infonce/">All CPC / InfoNCE exercises</a></li></ul><aside class="startup-status" aria-live="polite"><strong id="startup-title">Opening PaperLeet…</strong><p id="startup-message" role="status">Loading interactive practice.</p><a id="startup-retry" href="?reload=1" hidden="">Reload page</a><noscript><p>You can read the paper and exercise here. Enable JavaScript to run Python and save your progress.</p></noscript></aside></main></div>
+  
+
+</body></html>
