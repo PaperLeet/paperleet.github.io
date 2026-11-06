@@ -6,10 +6,7 @@ import { parseArxivUrl } from './arxivLinks';
 
 type Practice = { problems: Problem[]; saved: Record<string, Saved> };
 export function paperModules(paper: Paper, problems: Problem[]) {
-  return paper.module_ids.flatMap((id) => {
-    const problem = problems.find((p) => p.id === id);
-    return problem ? [problem] : [];
-  });
+  return paper.module_ids.flatMap(id => problems.find(problem => problem.id === id) ?? []);
 }
 export function matchingPaperModules(paper: Paper, problems: Problem[], query = "", difficulty = "all", runtime = "all", moduleNumbers = false) {
   const normalized = query.trim().toLowerCase();
