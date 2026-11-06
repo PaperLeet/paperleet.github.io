@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "reviewed_on": "2026-10-28",
+  "reviewed_on": "2026-11-06",
   "modules": [
     {
       "id": "architecture/attention",
@@ -2000,6 +2000,72 @@
       ]
     },
     {
+      "id": "representation/infonce",
+      "source": "problems/representation/infonce/README.md",
+      "functions": [
+        "info_nce_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "InfoNCE 把什么事件看作分类目标？正例位置来自哪里，为什么正例也必须留在分母中？",
+            "en": "What event does InfoNCE classify? Where does the positive index come from, and why must the positive remain in the denominator?"
+          },
+          "hint": {
+            "zh": "每个上下文对应一组候选，正例由预测任务中的样本对应关系确定。把该事件的概率写出来，再区分候选索引与人工类别标签。",
+            "en": "Each context has candidate samples, and the prediction task supplies the positive correspondence. Write its probability before distinguishing candidate indices from human category labels."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "从 [B,K] logits 和 [B] 正例索引到零维损失，哪些轴需要归约，怎样避免指数溢出？",
+            "en": "Starting with [B,K] logits and [B] positive indices, which axes are reduced and how do you avoid exponent overflow?"
+          },
+          "hint": {
+            "zh": "先分别确定每行的归一化范围和正例列，再考虑跨上下文的平均。输入已经是 logits；核对是否意外加入温度、向量归一化或 detach。",
+            "en": "Identify the normalization range and positive column within each row, then the average across contexts. Inputs are already logits; check for unintended temperature scaling, vector normalization or detach."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "同分候选、K=1、大幅逐行平移和非连续切片，分别能检查损失的哪些性质？",
+            "en": "Which properties do equal scores, K=1, large row offsets and strided views test?"
+          },
+          "hint": {
+            "zh": "从候选概率推导前两个边界，再比较平移前后的数值。对需梯度的父张量切片做反传，既检查选中列，也检查未参与计算的列。",
+            "en": "Derive the first two boundaries from candidate probabilities, then compare values before and after shifts. Backpropagate through a view of a differentiable parent tensor and inspect both selected and unused columns."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "candidate-count-versus-batch",
+          "question": {
+            "zh": "增加一个负例和重复整个 batch 对损失的影响为什么不同？",
+            "en": "Why does adding one negative differ from duplicating the whole batch?"
+          },
+          "hint": {
+            "zh": "前者改变每个上下文的候选概率分母，后者只重复被平均的同一组事件。保持正例索引不变，用小分数表分别比较两种操作。",
+            "en": "The first changes each context's candidate denominator; the second repeats the same averaged events. Keep positive indices consistent and compare the two operations on a small score table."
+          }
+        },
+        {
+          "id": "mutual-information-assumptions",
+          "question": {
+            "zh": "能否把任意训练分数表的 log(K)−loss 直接解释成互信息估计？",
+            "en": "Can log(K) minus the loss of an arbitrary trained score table be interpreted directly as mutual information?"
+          },
+          "hint": {
+            "zh": "回到 CPC 对正例条件分布与负例边缘分布的采样假设。候选数量和一个数值损失本身不足以证明分数表满足这些假设。",
+            "en": "Revisit CPC's assumptions about conditional positive samples and marginal negative samples. Candidate count and a numerical loss alone do not establish that a score table satisfies those assumptions."
+          }
+        }
+      ]
+    },
+    {
       "id": "representation/clip",
       "source": "problems/representation/clip/README.md",
       "functions": [
@@ -2196,6 +2262,140 @@
           "hint": {
             "zh": "在精确代数下，先用 q1、再用 q2 得到 k2=m²*k0+m*(1-m)*q1+(1-m)*q2。一次 m² 更新却给出 m²*k0+(1-m²)*q2；当 0<m<1 时，只有 q1=q2 才相同，m=0、1 是退化端点。不要把固定在线参数的闭式公式直接用于变化轨迹；实际浮点比较还需合理容差，返回参数仍应 detach。",
             "en": "In exact algebra, two steps give k2=m²*k0+m*(1-m)*q1+(1-m)*q2. One m² update toward q2 gives m²*k0+(1-m²)*q2. For 0<m<1 these agree only when q1=q2; m=0 and m=1 are degenerate endpoints. A fixed-online closed form does not cover a changing trajectory. Floating comparisons need appropriate tolerance, and returned parameters remain detached."
+          }
+        }
+      ]
+    },
+    {
+      "id": "representation/simsiam",
+      "source": "problems/representation/simsiam/README.md",
+      "functions": [
+        "negative_cosine_similarity",
+        "simsiam_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "SimSiam 没有负例和动量编码器，停止梯度在两个视图之间改变了什么？",
+            "en": "Without negatives or a momentum encoder, what does stop-gradient change between SimSiam's two views?"
+          },
+          "hint": {
+            "zh": "分别追踪预测向量和作为目标的投影向量。比较前向损失是否变化，以及哪些路径仍应收到梯度；不要把目标停止梯度理解为冻结整个共享编码器。",
+            "en": "Trace the predictor output and the projection used as a target separately. Compare forward values and surviving gradient paths; stopping a target does not freeze the whole shared encoder."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "四个 [B,D] 输出应该怎样交叉配对，归一化和两次平均各沿什么范围进行？",
+            "en": "How should the four [B,D] outputs be cross-paired, and what are the scopes of normalization and the two averages?"
+          },
+          "hint": {
+            "zh": "标出两个视图，再区分逐行特征点积、样本均值和方向均值。归一化的 epsilon 是范数的下界；单方向函数应承担目标侧的梯度截断。",
+            "en": "Label both views and separate the per-row feature dot product, example mean and directional mean. Epsilon floors each norm; the directional function owns the stopped-target operation."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "为什么只对齐损失值不能发现漏掉 detach？零预测向量能否用“零损失”推断“零梯度”？",
+            "en": "Why can matching loss values miss an omitted detach? Does a zero loss for a zero prediction imply a zero gradient?"
+          },
+          "hint": {
+            "zh": "分别检查预测与目标的梯度，并使用非对称的交叉配对。零向量与极小向量需遵守 1e-12 范数下界；用局部扰动核对预测侧导数。",
+            "en": "Inspect prediction and target gradients separately and use asymmetric cross-view pairs. Zero and tiny vectors follow the 1e-12 norm floor; check the prediction derivative with a local perturbation."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "shared-encoder-gradient-path",
+          "question": {
+            "zh": "当 p1 由 z1 经过预测头得到时，z1 又在另一方向作为停止梯度的目标，它还能更新吗？",
+            "en": "If p1 is computed from z1 while z1 is also a stopped target in the other direction, can z1 still receive an update?"
+          },
+          "hint": {
+            "zh": "画出同一 z1 的两次使用，分别追踪预测路径和目标路径。检查其中一条被截断是否意味着另一条也被截断。",
+            "en": "Draw both uses of z1 and trace the prediction and target paths separately. Check whether stopping one use also stops the other."
+          }
+        },
+        {
+          "id": "epsilon-and-aligned-directions",
+          "question": {
+            "zh": "两个同向但范数都小于 epsilon 的非零向量，负余弦结果一定是 −1 吗？",
+            "en": "Must two aligned nonzero vectors with norms below epsilon produce negative cosine −1?"
+          },
+          "hint": {
+            "zh": "把真实范数和归一化时使用的分母分别写出。比较未触发下界的单位方向解释与触发下界时的缩放，避免把一般非零情况等同于单位范数结果。",
+            "en": "Write the actual norms and the normalization denominators separately. Compare unit-direction reasoning outside the clamp with scaling inside it, rather than assuming every nonzero vector normalizes to unit length."
+          }
+        }
+      ]
+    },
+    {
+      "id": "representation/barlow_twins",
+      "source": "problems/representation/barlow_twins/README.md",
+      "functions": [
+        "cross_correlation",
+        "barlow_twins_loss"
+      ],
+      "prompts": [
+        {
+          "focus": "explain",
+          "question": {
+            "zh": "Barlow Twins 的 [D,D] 交叉相关矩阵比较什么？对角项与非对角项分别约束什么行为？",
+            "en": "What does Barlow Twins' [D,D] cross-correlation compare, and what do its diagonal and off-diagonal penalties constrain?"
+          },
+          "hint": {
+            "zh": "行与列分别属于两个视图的特征坐标，每一项沿样本轴积累。将对应特征的一致性与不同特征之间的冗余分开讨论。",
+            "en": "Rows and columns index features from different views, with each entry accumulated across examples. Distinguish agreement of matching coordinates from redundancy between different coordinates."
+          }
+        },
+        {
+          "focus": "implement",
+          "question": {
+            "zh": "沿哪个轴标准化，方差分母与 epsilon 如何放置，两种平方误差怎样计数？",
+            "en": "Which axis is standardized, what are the variance denominator and epsilon placement, and how are the squared errors counted?"
+          },
+          "hint": {
+            "zh": "以官方无 affine 的训练态 BatchNorm 为参照，核对总体统计与跨视图矩阵的尺度。矩阵通常不对称，需要考虑完整非对角区域，两侧的统计量都应保持可微。",
+            "en": "Use training-mode affine-free BatchNorm as the reference for population statistics and matrix scaling. Cross-correlation is generally asymmetric, so consider the full off-diagonal region and retain derivatives through both views' statistics."
+          }
+        },
+        {
+          "focus": "verify",
+          "question": {
+            "zh": "恒定特征、D=1、复制 batch 和交换视图，各能暴露什么错误？",
+            "en": "What bugs can constant features, D=1, a duplicated batch and swapped views expose?"
+          },
+          "hint": {
+            "zh": "从零方差和空的非对角集合开始手算。再比较总体统计的重复样本行为，以及交换视图后矩阵方向与最终标量的关系；同时检查两组输入梯度。",
+            "en": "Start with zero variance and an empty off-diagonal set. Then compare population statistics under replication and the matrix orientation versus scalar loss after swapping views, while checking gradients of both inputs."
+          }
+        }
+      ],
+      "followups": [
+        {
+          "id": "epsilon-aware-scale",
+          "question": {
+            "zh": "固定 epsilon 时缩放输入为何不严格保持相关矩阵？怎样设计一个精确的缩放对照？",
+            "en": "Why does input scaling fail to preserve correlation exactly with fixed epsilon, and how can you construct an exact scaling comparison?"
+          },
+          "hint": {
+            "zh": "标准差平方随输入尺度的平方变化，epsilon 是否也变化决定了比值。使用非零尺度并比较同步缩放 epsilon 的情况，仍为浮点误差保留容差。",
+            "en": "Variance scales with the square of the input scale; whether epsilon scales too determines the ratio. Use a nonzero scale and compare a correspondingly scaled epsilon, allowing for floating-point error."
+          }
+        },
+        {
+          "id": "rank-and-collapse",
+          "question": {
+            "zh": "当 D>B−1 时，中心化后的秩限制与精确常数初始化怎样影响对单位矩阵目标的理解？",
+            "en": "When D>B−1, how do centered rank and exactly constant initialization affect the identity-matrix target?"
+          },
+          "hint": {
+            "zh": "先考虑中心化表示最多有多少独立方向，再区分“损失惩罚塌缩”与“在精确塌缩点存在非零梯度”。合成训练应从相关但不恒定的特征开始。",
+            "en": "First count the independent directions available after centering. Then distinguish a penalty for collapse from a nonzero derivative at exact collapse. Start the teaching optimization from correlated but nonconstant features."
           }
         }
       ]

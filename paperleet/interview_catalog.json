@@ -847,12 +847,15 @@
       "id": "representation",
       "name": "表征与对比学习",
       "name_en": "Representation & contrastive learning",
-      "description": "从图文对齐、当前 batch 对比与历史队列，走到特征去冗余和掩码潜在预测。",
-      "description_en": "Move from paired image-text alignment, in-batch contrast and historical queues to feature regularization and masked latent prediction.",
+      "description": "从 InfoNCE 正例分类与图文对齐出发，学习当前 batch 对比、历史队列、停止梯度、特征去冗余和掩码潜在预测。",
+      "description_en": "Start with InfoNCE positive classification and image-text alignment, then study in-batch contrast, historical queues, stopped targets, feature redundancy reduction and masked latent prediction.",
       "modules": [
+        "representation/infonce",
         "representation/clip",
         "representation/simclr",
         "representation/moco",
+        "representation/simsiam",
+        "representation/barlow_twins",
         "representation/vicreg",
         "representation/ijepa"
       ],

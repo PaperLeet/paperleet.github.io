@@ -111,11 +111,11 @@ try{
  }
  await stop();await render(Handbook,{filters:{...trainingFilters,concept:attention},problems:published});assert.equal(document.querySelectorAll('select option').length,1);assert.equal(document.querySelector('select').value,attention,'An explicit evidence concept remains readable outside the selected curriculum');
  await stop();
- const representationModules=['clip','simclr','moco','vicreg','ijepa'].map(name=>'representation/'+name);
+ const representationModules=['infonce','clip','simclr','moco','simsiam','barlow_twins','vicreg','ijepa'].map(name=>'representation/'+name);
  const representationFilters={...nav.emptyInterviewFilters(),company:'google',role:'ml',stage:'technical',track:'representation',q:'视觉 & contrast',saved:true,page:2};
  assert.deepEqual(nav.readInterviewRoute(nav.interviewHref(representationFilters)),representationFilters,'The representation curriculum is a valid complete interview scope');
  const beforeRepresentation=loads.length;await render(Handbook,{filters:representationFilters,problems:published});assert.equal(loads.length,beforeRepresentation,'Selecting the curriculum keeps guide contents deferred');
- assert.deepEqual([...document.querySelectorAll('select option')].map(option=>option.value),representationModules,'The curriculum order spans cross-modal pairs, in-batch negatives, historical keys, feature regularization and masked targets');
+ assert.deepEqual([...document.querySelectorAll('select option')].map(option=>option.value),representationModules,'The curriculum order spans positive classification, cross-modal pairs, in-batch negatives, historical keys, stopped targets, redundancy reduction and masked prediction');
  for(const [index,id] of representationModules.entries()){
   if(index){const count=loads.length;await act(async()=>{const choice=document.querySelector('select');choice.value=id;choice.dispatchEvent(new dom.window.Event('change',{bubbles:true}));});await settle(()=>loads.length===count+1);}else await open();
   const request=take();assert.equal(request.id,id);await reply(request);assert.equal(document.querySelectorAll('.preparation-prompt-list > li').length,3);assert.equal(document.querySelector('h4').textContent,content(id).prompts[0].question.en);
