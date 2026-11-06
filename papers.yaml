@@ -1,5 +1,152 @@
 # Paper numbers are public library IDs; module numbers remain stable CLI IDs.
 papers:
+  - id: byol
+    category: representation
+    number: 143
+    short_title: BYOL
+    year: 2020
+    tags:
+    - Self-Supervised Learning
+    - Non-contrastive Learning
+    summary: 通过在线预测器、停止梯度目标和指数移动平均学习双视图表示。
+    summary_en: Learn two-view representations with an online predictor, stopped targets and an exponential moving
+      average.
+    scope: 实现双向归一化平方回归与目标参数 EMA，验证梯度归属。
+    scope_en: Implement symmetric normalized squared regression and target-parameter EMA, with gradient-ownership
+      checks.
+    module_ids:
+    - representation/byol
+  - id: swav
+    category: representation
+    number: 144
+    short_title: SwAV
+    year: 2020
+    tags:
+    - Self-Supervised Learning
+    - Clustering
+    summary: 用平衡的簇分配作为跨视图预测目标，不显式枚举成对负样本。
+    summary_en: Use balanced cluster assignments as cross-view prediction targets without enumerating negative pairs.
+    scope: 实现单进程 Sinkhorn 分配和停止梯度的 swapped prediction 损失。
+    scope_en: Implement single-process Sinkhorn assignments and stopped-target swapped prediction.
+    module_ids:
+    - representation/swav
+  - id: dino
+    category: representation
+    number: 145
+    short_title: DINO
+    year: 2021
+    tags:
+    - Self-Supervised Learning
+    - Self-distillation
+    summary: 用中心化、锐化的动量教师分布监督多个学生视图。
+    summary_en: Train multiple student views with centered and sharpened momentum-teacher distributions.
+    scope: 实现教师概率、排除同视图的多视图交叉熵和中心 EMA。
+    scope_en: Implement teacher probabilities, multi-view cross-entropy excluding matching views, and center EMA.
+    module_ids:
+    - representation/dino
+  - id: mae
+    category: representation
+    number: 146
+    short_title: MAE
+    year: 2022
+    tags:
+    - Self-Supervised Learning
+    - Masked Image Modeling
+    summary: 重建被遮挡图像块的像素，学习非对称编码器与解码器中的监督目标。
+    summary_en: Reconstruct masked-patch pixels, studying the target used by an asymmetric encoder and decoder.
+    scope: 实现逐 patch 像素归一化和仅 masked patch 的重建损失。
+    scope_en: Implement per-patch pixel normalization and masked-only reconstruction loss.
+    module_ids:
+    - representation/mae
+  - id: beit
+    category: representation
+    number: 147
+    short_title: BEiT
+    year: 2022
+    tags:
+    - Self-Supervised Learning
+    - Masked Image Modeling
+    summary: 把图像转成离散视觉词元，只预测被遮挡位置的词元标签。
+    summary_en: Tokenize images into discrete visual codes and predict labels only at masked positions.
+    scope: 实现稀疏掩码上的离散词元交叉熵及正确的归约和梯度。
+    scope_en: Implement discrete-token cross-entropy on a sparse mask with correct reduction and gradients.
+    module_ids:
+    - representation/beit
+  - id: ibot
+    category: representation
+    number: 148
+    short_title: iBOT
+    year: 2022
+    tags:
+    - Self-Supervised Learning
+    - Self-distillation
+    summary: 把动量教师作为在线 tokenizer，对遮挡 patch 做自蒸馏。
+    summary_en: Use a momentum teacher as an online tokenizer for masked-patch self-distillation.
+    scope: 实现中心化教师 patch 目标及逐图归约的掩码蒸馏损失。
+    scope_en: Implement centered teacher patch targets and masked distillation with per-image reduction.
+    module_ids:
+    - representation/ibot
+  - id: deepcluster
+    category: representation
+    number: 149
+    short_title: DeepCluster
+    year: 2018
+    tags:
+    - Self-Supervised Learning
+    - Clustering
+    summary: 交替聚类视觉特征和预测簇伪标签，用无标签图像训练表示。
+    summary_en: Alternate clustering visual features and predicting cluster pseudo-labels to learn from unlabeled
+      images.
+    scope: 从已白化特征出发，实现归一化、最近簇分配和伪标签预测。
+    scope_en: Starting from whitened features, implement normalization, nearest-cluster assignment and pseudo-label
+      prediction.
+    module_ids:
+    - representation/deepcluster
+  - id: instance-discrimination
+    category: representation
+    number: 150
+    short_title: Instance Discrimination
+    year: 2018
+    tags:
+    - Self-Supervised Learning
+    - Memory Bank
+    summary: 把每个图像实例看作一个类别，借助记忆库和噪声对比估计学习特征。
+    summary_en: Treat each image instance as a class and learn using a memory bank and noise-contrastive estimation.
+    scope: 实现原始采样 binary NCE 目标及按实例 ID 更新的归一化记忆库。
+    scope_en: Implement the original sampled binary NCE objective and normalized memory updates keyed by instance
+      ID.
+    module_ids:
+    - representation/instance_discrimination
+  - id: rotnet
+    category: representation
+    number: 151
+    short_title: RotNet
+    year: 2018
+    tags:
+    - Self-Supervised Learning
+    - Pretext Tasks
+    summary: 通过预测图像的四种旋转角度，从图像自身生成训练标签。
+    summary_en: Create training labels from an image itself by predicting one of four rotations.
+    scope: 生成四种直角旋转及标签，训练四类旋转预测目标。
+    scope_en: Generate four right-angle rotations with labels and train a four-class rotation objective.
+    module_ids:
+    - representation/rotnet
+  - id: dinov2
+    category: representation
+    number: 152
+    short_title: DINOv2
+    year: 2023
+    tags:
+    - Self-Supervised Learning
+    - Representation Regularization
+    summary: 结合图像级与 patch 级自蒸馏、数据整理和均匀性正则，学习通用视觉特征。
+    summary_en: Combine image and patch self-distillation, data curation and uniformity regularization for general
+      visual features.
+    scope: 本题聚焦 DINOv2 使用的 KoLeo 正则；DINO 和 iBOT 题分别覆盖其蒸馏主干。
+    scope_en: This exercise isolates DINOv2’s KoLeo regularizer; the DINO and iBOT exercises cover its distillation
+      components.
+    module_ids:
+    - representation/dinov2_koleo
   - id: cpc-infonce
     category: representation
     number: 140

@@ -111,7 +111,7 @@ try{
  }
  await stop();await render(Handbook,{filters:{...trainingFilters,concept:attention},problems:published});assert.equal(document.querySelectorAll('select option').length,1);assert.equal(document.querySelector('select').value,attention,'An explicit evidence concept remains readable outside the selected curriculum');
  await stop();
- const representationModules=['infonce','clip','simclr','moco','simsiam','barlow_twins','vicreg','ijepa'].map(name=>'representation/'+name);
+ const representationModules=["infonce","instance_discrimination","clip","simclr","moco","rotnet","deepcluster","swav","byol","simsiam","barlow_twins","vicreg","dino","beit","mae","ibot","dinov2_koleo","ijepa"].map(name=>'representation/'+name);
  const representationFilters={...nav.emptyInterviewFilters(),company:'google',role:'ml',stage:'technical',track:'representation',q:'视觉 & contrast',saved:true,page:2};
  assert.deepEqual(nav.readInterviewRoute(nav.interviewHref(representationFilters)),representationFilters,'The representation curriculum is a valid complete interview scope');
  const beforeRepresentation=loads.length;await render(Handbook,{filters:representationFilters,problems:published});assert.equal(loads.length,beforeRepresentation,'Selecting the curriculum keeps guide contents deferred');

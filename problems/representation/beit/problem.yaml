@@ -1,0 +1,87 @@
+id: representation/beit
+number: 183
+title: BEiT 掩码离散视觉 Token 预测
+title_en: BEiT Masked Discrete Visual Token Prediction
+paper_id: beit
+paper:
+  title: 'BEiT: BERT Pre-Training of Image Transformers'
+  authors: Hangbo Bao, Li Dong, Songhao Piao, Furu Wei
+  venue: ICLR 2022
+  arxiv: '2106.08254'
+  url: https://arxiv.org/abs/2106.08254
+  anchors:
+  - 'Section 2: masked image modeling with discrete visual tokens'
+  - 'Official engine_for_pretraining.py: input_ids[bool_masked_pos] and CrossEntropyLoss'
+  official_code: https://github.com/microsoft/unilm/tree/master/beit
+parent: null
+type: implement
+difficulty: M
+functions:
+- name: masked_token_cross_entropy
+  signature: 'masked_token_cross_entropy(logits: Tensor, token_ids: Tensor, mask: Tensor) -> Tensor'
+module:
+  goal: 从完整 patch logits 中选取遮挡位置，对固定离散视觉 token 计算稳定交叉熵。
+  goal_en: Select masked patch logits and compute stable cross-entropy against fixed discrete visual token
+    IDs.
+  scope: 实现预先给定 token IDs 的损失核心；CPU 实验训练共享 token 分类头，不训练 tokenizer 或 ViT。
+  scope_en: Implement the loss core with supplied token IDs; a CPU experiment learns a shared token head
+    without training a tokenizer or ViT.
+  required_functions:
+  - masked_token_cross_entropy
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  layout: '[B,N,K] logits; int64 [B,N] token_ids; boolean [B,N] mask, True means supervised masked position'
+  dtype: Finite float32/float64 logits; matching nonempty batch and patch axes and shared device.
+  labels: Masked IDs lie in [0,K). Unselected IDs are ignored and may be sentinel values.
+  reduction: Global mean over masked tokens. Empty mask returns differentiable zero; K=1 is valid.
+  gradients: Only logits are differentiable; visible logits have zero gradient. Use stable log-sum-exp
+    or log-softmax.
+tests:
+  T0: 2
+  T1: 2
+  T2: 3
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 25
+tags:
+- Representation Learning
+- Self-Supervised Learning
+- Masked Image Modeling
+- Discrete Tokens
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-11-06'
+verified_sources:
+  checked_at: '2026-11-06'
+  links:
+  - https://arxiv.org/abs/2106.08254
+  - https://github.com/microsoft/unilm/blob/master/beit/engine_for_pretraining.py
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2106.08254
+  anchor: 'Section 2: masked image modeling with discrete visual tokens'
+  adaptation: 100 real Adam updates, lr .08, train a shared 4-class linear head on six masked positions
+    among twelve deterministic synthetic contexts. No tokenizer or benchmark pretraining.
+mutants:
+- id: m1_all_tokens
+  bug: Include visible positions in the objective
+- id: m2_visible_tokens
+  bug: Select visible rather than masked positions
+- id: m3_batch_divisor
+  bug: Divide summed token errors by batch size
+- id: m4_probabilities_as_scores
+  bug: Apply softmax before the logit cross entropy
+- id: m5_wrong_label
+  bug: Shift every target class by one
+- id: m6_stopped_logits
+  bug: Detach the selected logits
+- id: m7_wrong_sign
+  bug: Maximize rather than minimize negative log likelihood
+- id: m8_strided_logits_stop
+  bug: Detach only noncontiguous vocabulary scores
+- id: m9_gather_visible_ids
+  bug: Gather all token IDs before masking and only sanitize negative sentinels

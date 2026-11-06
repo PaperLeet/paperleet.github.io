@@ -23,7 +23,7 @@ export const paperCollections: PaperCollection[] = [
     name_en: "Self-Supervised Learning",
     roadmap: true,
     learningOrder: true,
-    paperIds: ["cpc-infonce", "simclr", "moco", "simsiam", "barlow-twins", "vicreg", "i-jepa"],
+    paperIds: ["cpc-infonce", "instance-discrimination", "simclr", "moco", "rotnet", "deepcluster", "swav", "byol", "simsiam", "barlow-twins", "vicreg", "dino", "beit", "mae", "ibot", "dinov2", "i-jepa"],
   },
   {
     id: "llm-basics",

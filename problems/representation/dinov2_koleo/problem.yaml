@@ -1,0 +1,87 @@
+id: representation/dinov2_koleo
+number: 188
+title: DINOv2：KoLeo 特征均匀性正则
+title_en: 'DINOv2: KoLeo Feature-Spreading Regularization'
+paper_id: dinov2
+paper:
+  title: 'DINOv2: Learning Robust Visual Features without Supervision'
+  authors: Maxime Oquab et al.
+  venue: TMLR 2024; arXiv 2023
+  arxiv: '2304.07193'
+  url: https://arxiv.org/abs/2304.07193
+  anchors:
+  - KoLeo regularizer in the training recipe
+  - 'Official dinov2/loss/koleo_loss.py: nearest neighbor and forward'
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: nearest_neighbors
+  signature: 'nearest_neighbors(unit_features: Tensor) -> Tensor'
+- name: koleo_loss
+  signature: 'koleo_loss(features: Tensor, eps: float=1e-08) -> Tensor'
+module:
+  goal: 实现 DINOv2 采用的 KoLeo 最近邻熵正则，正确区分离散邻居选择与双端点梯度。
+  goal_en: Implement the KoLeo nearest-neighbor entropy regularizer adopted by DINOv2, separating discrete neighbor
+    selection from both endpoint gradients.
+  scope: 仅实现 KoLeo 组件；DINO/iBOT 自蒸馏主干由其它题覆盖，不复现数据整理或大规模训练。
+  scope_en: Implement only KoLeo; separate DINO/iBOT exercises cover the distillation backbone, while data curation
+    and large-scale training are outside scope.
+  required_functions:
+  - nearest_neighbors
+  - koleo_loss
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  layout: features [B,D], B>=2,D>=1; nearest_neighbors accepts normalized rows and returns int64 [B]
+  dtype: Finite float32/float64; preserve dtype/device; int64 indices.
+  device: CPU, no downloads or pretrained weights.
+  contract: Normalize rows with max(norm,eps). Strictly exclude self and choose lowest-index ties. Keep gradients
+    through both endpoints. Match official distance ||z_i-z_nn+1e-8||_2 and outer log(distance+eps); average over
+    B. No input mutation. PairwiseDistance coordinate epsilon is fixed at 1e-8; the caller eps controls only normalization
+    and the outer log.
+tests:
+  T0: 1
+  T1: 1
+  T2: 5
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 40
+tags:
+- Representation Learning
+- Self Supervision
+- dinov2
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-11-06'
+verified_sources:
+  checked_at: '2026-11-06'
+  links:
+  - https://arxiv.org/abs/2304.07193
+  - https://github.com/facebookresearch/dinov2/blob/main/dinov2/loss/koleo_loss.py
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2304.07193
+  anchor: KoLeo regularizer in the training recipe
+  adaptation: Six learnable 3D vectors, 18 parameters, 100 actual SGD updates at lr .06; measures sphere spacing
+    with KoLeo alone, not full DINOv2 or downstream image performance.
+mutants:
+- id: m1_self_neighbor
+  bug: Include the anchor itself as a neighbor.
+- id: m2_farthest
+  bug: Select farthest non-self vectors.
+- id: m3_no_normalize
+  bug: Compute neighbors and distances on raw features.
+- id: m4_detach_neighbor
+  bug: Detach selected neighbors and lose their endpoint gradients.
+- id: m5_wrong_sign
+  bug: Minimize positive log distance.
+- id: m6_missing_pair_epsilon
+  bug: Omit the official PairwiseDistance coordinate epsilon.
+- id: m7_sum_loss
+  bug: Sum regularization over the batch.
+- id: m8_fixed_norm_floor
+  bug: Fix normalization epsilon at 1e-12 instead of using the caller floor.

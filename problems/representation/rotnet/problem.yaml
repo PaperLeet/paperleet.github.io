@@ -1,0 +1,82 @@
+id: representation/rotnet
+number: 187
+title: RotNet 四方向旋转预测
+title_en: 'RotNet: Predicting Four Image Rotations'
+paper_id: rotnet
+paper:
+  title: Unsupervised Representation Learning by Predicting Image Rotations
+  authors: Spyros Gidaris, Praveer Singh, Nikos Komodakis
+  venue: ICLR 2018
+  arxiv: '1803.07728'
+  url: https://arxiv.org/abs/1803.07728
+  anchors:
+  - 'Section 3: image rotation prediction'
+  - 'Official dataloader.py: rotate_img and four rotation labels'
+type: implement
+parent: null
+difficulty: E
+functions:
+- name: rotation_batch
+  signature: 'rotation_batch(images: Tensor) -> tuple[Tensor, Tensor]'
+- name: rotation_loss
+  signature: 'rotation_loss(logits: Tensor, labels: Tensor) -> Tensor'
+module:
+  goal: 通过精确图像变换生成自监督标签，并实现四分类训练目标。
+  goal_en: Generate self-supervised labels using exact image transformations and implement the four-way objective.
+  scope: 实现四个逆时针旋转视图与分类损失；使用八张合成非对称图案训练线性分类器。
+  scope_en: Implement four counterclockwise views and their classification loss; train a linear classifier on eight
+    asymmetric synthetic glyphs.
+  required_functions:
+  - rotation_batch
+  - rotation_loss
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  layout: images [B,C,H,H] -> views [4B,C,H,H], int64 labels [4B]; logits [M,4]
+  dtype: Finite float32/float64; preserve dtype/device; int64 indices.
+  device: CPU, no downloads or pretrained weights.
+  contract: Rotation-major blocks 0/90/180/270 degrees CCW; labels 0/1/2/3 each repeated B times. Exact pixel permutations,
+    no interpolation or detach. Stable mean CE for supplied labels; preserve floating dtype/device and input data.
+tests:
+  T0: 1
+  T1: 1
+  T2: 5
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 25
+tags:
+- Representation Learning
+- Self Supervision
+- rotnet
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-11-06'
+verified_sources:
+  checked_at: '2026-11-06'
+  links:
+  - https://arxiv.org/abs/1803.07728
+  - https://github.com/gidariss/FeatureLearningRotNet/blob/master/dataloader.py
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/1803.07728
+  anchor: 'Section 3: image rotation prediction'
+  adaptation: Eight 4x4 synthetic asymmetric glyphs, 32 rotations, a 16x4 linear head, 80 actual SGD updates at
+    lr .6. Rotation training accuracy is not downstream representation quality.
+mutants:
+- id: m1_clockwise
+  bug: Swap clockwise/counterclockwise 90-degree views.
+- id: m2_tile_labels
+  bug: Use sample-major labels for rotation-major views.
+- id: m3_identity_180
+  bug: Leave the 180-degree view unrotated.
+- id: m4_detach_views
+  bug: Detach augmented views from input images.
+- id: m5_sum_loss
+  bug: Sum instead of averaging cross entropy.
+- id: m6_exp_overflow
+  bug: Exponentiate unshifted logits.
+- id: m7_first_channel
+  bug: Drop all but the first image channel before generating rotated views.

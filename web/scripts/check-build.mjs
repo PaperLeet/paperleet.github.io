@@ -13,8 +13,10 @@ const starterAsset=fs.readFileSync('dist/data/'+catalog.starters.url);
 assert.equal(starterAsset.length,catalog.starters.bytes,'The published starter descriptor retains the exact response length');
 assert.equal(createHash('sha256').update(starterAsset).digest('hex'),catalog.starters.sha256,'The published source bytes match their immutable identity');
 assert.equal(catalog.starters.url,`starters/${catalog.starters.sha256}.json`);
-assert(catalogSource.length<256*1024&&zlib.gzipSync(catalogSource).length<96*1024,'The metadata manifest retains the 256 KiB raw / 96 KiB gzip budget');
-assert(starterAsset.length<=256*1024&&zlib.gzipSync(starterAsset).length<64*1024,'The immutable starter pack stays within its raw decoder bound and 64 KiB gzip budget');
+// Allocate 88 + 72 KiB within the unchanged 160 KiB cold-bootstrap budget.
+// Preserve exact starter sources as the curriculum grows; metadata gets a tighter cap.
+assert(catalogSource.length<256*1024&&zlib.gzipSync(catalogSource).length<88*1024,'The metadata manifest retains the 256 KiB raw / 88 KiB gzip budget');
+assert(starterAsset.length<=256*1024&&zlib.gzipSync(starterAsset).length<72*1024,'The immutable starter pack stays within its raw decoder bound and 72 KiB gzip budget');
 assert(zlib.gzipSync(catalogSource).length+zlib.gzipSync(starterAsset).length<160*1024,'The complete cold catalog bootstrap stays within 160 KiB gzip');
 for(const name of ['index-v5.json','index-v4.json','index-v3.json','index.json'])assert.deepEqual(fs.readFileSync('dist/data/'+name),fs.readFileSync('public/data/'+name),'Existing clients retain the unchanged '+name+' asset');
 for(const name of fs.readdirSync('public/data/starters')){

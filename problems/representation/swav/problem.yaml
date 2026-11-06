@@ -1,0 +1,97 @@
+id: representation/swav
+number: 180
+title: SwAV 平衡分配与交换预测
+title_en: SwAV Balanced Assignments and Swapped Prediction
+paper_id: swav
+paper:
+  title: Unsupervised Learning of Visual Features by Contrasting Cluster Assignments
+  authors: Mathilde Caron, Ishan Misra, Julien Mairal, Priya Goyal, Piotr Bojanowski, Armand Joulin
+  venue: NeurIPS 2020
+  arxiv: '2006.09882'
+  url: https://arxiv.org/abs/2006.09882
+  anchors:
+  - 'Section 3: swapped prediction and online clustering'
+  - Official main_swav.py distributed_sinkhorn and two-crop loss
+  official_code: https://github.com/facebookresearch/swav
+type: implement
+parent: null
+difficulty: M
+functions:
+- name: sinkhorn_assignments
+  signature: 'sinkhorn_assignments(scores: Tensor, epsilon: float = .05, iterations: int = 3) -> Tensor'
+- name: swapped_prediction_loss
+  signature: 'swapped_prediction_loss(scores1: Tensor, scores2: Tensor, assignments1: Tensor, assignments2: Tensor,
+    temperature: float = .1) -> Tensor'
+module:
+  goal: 实现单进程有限步 Sinkhorn 平衡软分配，再以另一视图的分配训练当前视图。
+  goal_en: Implement finite-iteration single-process Sinkhorn assignments and cross-view soft-target prediction.
+  scope: 输入为原型分数；两个函数和 80 步合成分数表优化，不包含图像编码器、队列或原型参数训练。
+  scope_en: Prototype scores are inputs; two functions and 80 synthetic score-table updates, without image encoders,
+    queues or prototype-parameter training.
+  required_functions:
+  - sinkhorn_assignments
+  - swapped_prediction_loss
+  provided_functions: []
+  optional: false
+conventions:
+  seed: 42
+  dtype: Preserve shared float32/float64 dtype and device; support strided inputs and do not modify inputs.
+  device: CPU; no downloads or pretrained weights.
+  layout: All score/assignment tensors share nonempty [B,K], B>=1,K>=1.
+  sinkhorn: Initialize K-by-B mass proportional to exp(scores.T/epsilon); repeat prototype row normalization to
+    1/K then sample column normalization to 1/B; return B*Q.T detached. Log-domain arithmetic preserves these finite
+    iterations.
+  marginals: Returned sample rows sum to one; prototype column sums approach B/K, not necessarily exact at finite
+    iterations.
+  loss: Average CE(q2,softmax(scores1/tau)) and CE(q1,softmax(scores2/tau)), mean over examples. Assignments are
+    detached nonnegative rows summing to one within 1e-5.
+  parameters: epsilon and temperature are finite positive Python scalars; iterations is a positive Python int, not
+    bool.
+tests:
+  T0: 2
+  T1: 1
+  T2: 3
+  T3: 1
+t3_budget_s: 10
+estimated_minutes: 35
+tags:
+- Self-supervised Learning
+- SwAV
+- Clustering
+- Sinkhorn
+viz:
+- toy_experiment
+browser:
+  backend: numpy-autograd-wasm
+sources_verified: '2026-11-06'
+verified_sources:
+  checked_at: '2026-11-06'
+  links:
+  - https://arxiv.org/abs/2006.09882
+  - https://github.com/facebookresearch/swav/blob/main/main_swav.py
+toy:
+  kind: teaching_adaptation
+  source: https://arxiv.org/abs/2006.09882
+  anchor: 'Section 3: swapped prediction and online clustering; Official main_swav.py distributed_sinkhorn and two-crop
+    loss'
+  adaptation: Prototype scores are inputs; two functions and 80 synthetic score-table updates, without image encoders,
+    queues or prototype-parameter training.
+mutants:
+- id: m1_no_prototype_balance
+  bug: Skip prototype row normalization.
+- id: m2_missing_batch_scale
+  bug: Return total-mass assignments rather than probability rows.
+- id: m3_ignore_epsilon
+  bug: Ignore the assignment temperature.
+- id: m4_live_sinkhorn
+  bug: Retain gradients through the balanced assignment solve.
+- id: m5_same_view
+  bug: Use same-view target assignments.
+- id: m6_live_assignments
+  bug: Train the supplied assignment targets.
+- id: m7_direction_sum
+  bug: Sum rather than average the two directions.
+- id: m8_ignore_prediction_temperature
+  bug: Ignore the prediction softmax temperature.
+- id: m9_strided_detach
+  bug: Detach the swapped loss only for strided scores.
