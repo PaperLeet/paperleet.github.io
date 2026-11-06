@@ -107,7 +107,12 @@ try{
  await render(Ranking,{problems:[searchable,...problems.slice(1)],filters:{...filters,q:'Need scaling'}});assert.equal(rows().length,1);assert(rows()[0].querySelector('.interview-search-paper').textContent.includes('Attention Is All You Need'));
  await render(Ranking,{filters:{...filters,q:'not-a-topic'}});assert.equal(rows().length,0);assert(document.body.textContent.includes('No matching concepts'));
  await render(Ranking,{filters:{...filters,q:'Attention'}});
- const guide=document.querySelector('.preparation-guide');await act(async()=>{guide.open=true;guide.dispatchEvent(new dom.window.Event('toggle'));await new Promise(resolve=>setTimeout(resolve,30));});
+ const guide=document.querySelector('.preparation-guide');
+ await act(async()=>{guide.open=true;guide.dispatchEvent(new dom.window.Event('toggle'));});
+ // Lazy guide imports can outlast a single tick; wait outside the opening act so effects can run.
+ const guideDeadline=Date.now()+10000,guideSettled=()=>guide.querySelector('.preparation-guide-body[aria-busy="false"]');
+ while(!guideSettled()&&Date.now()<guideDeadline)await act(async()=>new Promise(resolve=>setTimeout(resolve,10)));
+ assert(guideSettled(),'The opened study guide must finish loading');
  assert.equal(document.querySelectorAll('.preparation-prompt-list > li').length,3);
  assert([...document.querySelectorAll('.preparation-hint')].every(hint=>!hint.open));
  assert.equal(document.querySelector('progress').value,1,'Opening prompts never awards a pass');
