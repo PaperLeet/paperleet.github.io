@@ -141,7 +141,7 @@ export default function RebuttalEditor({ value, onChange, readOnly = false, loca
         </select>
       </div>
       <div className="rbe-tool-group">
-        {tool("quote", t("引用", "Quote"), <Quote size={16} />, `${mod}+Shift+Q`)}
+        {tool("quote", t("引用", "Quote"), <Quote size={16} />, `${mod}+Shift+9`)}
         {tool("hr", t("分隔线", "Horizontal rule"), <Minus size={16} />, `${mod}+Shift+H`)}
         {tool("boxed", t("文字方框", "Boxed text"), <Square size={16} />, `${mod}+Shift+B`)}
         {tool("list", t("项目列表", "Bullet list"), <List size={17} />)}

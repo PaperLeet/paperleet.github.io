@@ -51,9 +51,7 @@ export function accountReturnHref(route: string): string | undefined {
   return valid === undefined ? undefined : `#/${valid}`;
 }
 
-export function isAccountRoute(route: string): boolean {
-  return route === "account" || route.startsWith(continuationPrefix) || route.startsWith(errorPrefix);
-}
+export { isAccountRoute } from './accountEntry';
 
 export function organizationLoginError(route: string): string | undefined {
   if (!route.startsWith(errorPrefix)) return undefined;

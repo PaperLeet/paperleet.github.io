@@ -32,14 +32,15 @@ import {
 } from "./social";
 import type { AccountUser } from "./social";
 import type { AccountCapabilities } from "./social";
-import { organizationLoginError } from "./accountNavigation";
+import { accountReturnHref, organizationLoginError } from "./accountNavigation";
 import { decodeProblemHash } from "./reports";
 import { AvatarImageError } from "./profileAvatar";
 import AvatarCropper from "./AvatarCropper";
 import { readProfileEditPolicy } from "./profileEditPolicy";
 import "./lc-profile.css";
 
-export default function Account({ returnTo }: { returnTo?: string }) {
+export default function Account({ returnTo: requestedReturnTo, route }: { returnTo?: string; route?: string }) {
+  const returnTo = route === undefined ? requestedReturnTo : accountReturnHref(route);
   const { user, loading, capabilities, error, refresh } = useAccount();
   const { t } = useI18n();
   useEffect(() => {

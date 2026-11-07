@@ -49,6 +49,23 @@ try {
   assert.equal(accountReturnHref("account/continue/https://evil.test"), undefined);
   assert.equal(accountReturnHref("account/continue/account/continue/community"), undefined);
   assert.equal(accountReturnHref("account/continue/%2F%2Fevil.test"), undefined);
+  const { accountEntryHref } = await server.ssrLoadModule("/src/accountEntry.ts");
+  const { emptyInterviewFilters, interviewHref } = await server.ssrLoadModule("/src/interviewNavigation.ts");
+  const filteredInterview = interviewHref({ ...emptyInterviewFilters(), company: 'nvidia', role: 'research', q: '视觉 & scale 😀 #/%? +=', page: 3, sort: 'helpful' });
+  for (const source of ['rebuttal', '#/rebuttal/paper_ABC-42', '#/u/researcher?tab=solutions&page=2', filteredInterview, 'architecture/attention', '#/community/problem/architecture%2Fattention']) {
+    const entry = accountEntryHref(source), route = decodeProblemHash(entry);
+    assert(entry.startsWith('#/account/continue/'), 'The shell constructs only a local account request');
+    assert.equal(accountReturnHref(route), accountReturnHref(decodeProblemHash(signInHref(source))), 'Deferred validation preserves the exact existing continuation');
+    const page = renderToString(React.createElement(Account, { route }));
+    assert(page.includes('href="' + accountReturnHref(route).replaceAll('&', '&amp;') + '"'), 'Account validates before rendering the return link');
+  }
+  for (const source of ['https://evil.test/', '//evil.test', 'javascript:alert(1)', '#/%ZZ', '#/#/rebuttal', '#/account/continue/community', 'rebuttal/../account', 'rebuttal/paper?review=private', '#/community%252Fproblem%252Farchitecture%252Fattention']) {
+    const entry = accountEntryHref(source), route = decodeProblemHash(entry);
+    assert(entry === '#/account' || entry.startsWith('#/account/continue/'), 'Untrusted data cannot become an external shell link');
+    assert.equal(accountReturnHref(route), undefined, 'The unchanged allowlist rejects invalid continuations at the account boundary');
+    const page = renderToString(React.createElement(Account, { route, returnTo: 'https://evil.test/' }));
+    assert(page.includes('href="#/community"') && !page.includes('href="https://evil.test/"'), 'Validated route takes precedence before any return link or OAuth destination');
+  }
   const nav = renderToString(React.createElement(AccountNav, { returnTo: "architecture/attention" }));
   assert(nav.includes('account-menu-trigger') && !nav.includes('href='), "Local practice keeps preferences available through the avatar without requiring an account service");
   const login = renderToString(
@@ -192,3 +209,5 @@ try {
 } finally {
   await server.close();
 }
+
+await import("./check-account-entry.mjs");

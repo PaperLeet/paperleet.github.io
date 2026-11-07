@@ -204,7 +204,7 @@ export function rebuttalShortcut(event: { key: string; code?: string; ctrlKey: b
   if (key === "z") return event.shiftKey ? "redo" : "undo";
   if (key === "y" && !event.shiftKey) return "redo";
   if (event.shiftKey) {
-    if (key === "q") return "quote";
+    if (event.code === "Digit9" || key === "9" || key === "(") return "quote";
     if (key === "h") return "hr";
     if (key === "b") return "boxed";
     if (key === "c") return "color";
