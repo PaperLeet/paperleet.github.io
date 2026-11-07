@@ -28,6 +28,21 @@ try {
     assert.equal(accountReturnHref(accountRoute), `#/${route}`);
   }
   assert.equal(accountReturnHref(decodeProblemHash(signInHref("#/community/problem/architecture%2Fattention"))), "#/community/problem/architecture/attention");
+  for (const route of ["rebuttal", "rebuttal/paper_ABC-42", `rebuttal/${"a".repeat(150)}`]) {
+    for (const source of [route, `#/${route}`]) {
+      const accountRoute = decodeProblemHash(signInHref(source));
+      assert(isAccountRoute(accountRoute));
+      assert.equal(accountReturnHref(accountRoute), `#/${route}`, "Rebuttal sign-in must preserve the exact library/paper destination");
+    }
+    assert.equal(accountReturnHref(`account/error/expired/${route}`), `#/${route}`);
+  }
+  for (const route of ["rebuttal/", `rebuttal/${"a".repeat(151)}`, "rebuttal/../account", "rebuttal/paper/other",
+    "rebuttal?", "rebuttal?title=private", "rebuttal/paper?review=private", "rebuttal/paper%2Fother",
+    "rebuttal/paper%252Fother", "rebuttal/paper#other", "rebuttal/paper\r\nLocation: https://evil.test"]) {
+    assert.equal(signInHref(route), "#/account", `Invalid rebuttal continuation: ${route}`);
+    assert.equal(accountReturnHref(`account/continue/${route}`), undefined);
+    assert.equal(accountReturnHref(`account/error/expired/${route}`), undefined);
+  }
   for (const route of ["https://evil.test/", "//evil.test", "javascript:alert(1)", "account", "account/continue/community", "community/problem/../attention", "community/problem/architecture/attention?x=y", "#/%2F%2Fevil.test", "#/%ZZ", "messages/../account", "messages/researcher?to=other", "messages//evil.test", "messages/ab", "#/account/continue/submit", "#/community%252Fproblem%252Farchitecture%252Fattention"]) {
     assert.equal(signInHref(route), "#/account", `Unsafe/recursive continuation: ${route}`);
   }
