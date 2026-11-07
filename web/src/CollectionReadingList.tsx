@@ -10,6 +10,7 @@ import {emptyLibraryFilters,libraryHref,readLibraryRoute,withLibraryContext} fro
 import type {Paper,Problem,Saved} from './types';
 import readingData from './data/collection-reading-lists.json';
 import './collection-reading-list.css';
+import CollectionFavoriteButton from './CollectionFavorites';
 
 type ReadingPaper={id:string;short_title:string;title:string;year:number;url:string;summary:string;summary_en:string;priority:boolean;paper_id?:string};
 type ReadingStage={id:string;title:string;title_en:string;papers:ReadingPaper[]};
@@ -51,6 +52,7 @@ export default function CollectionReadingList({collectionId,papers,problems,save
  if(!collection||!reading)return null;
  return <main className="home paper-library collection-page collection-reading-page" ref={root}>
   <header className="collection-page-header">
+   <CollectionFavoriteButton collectionId={collectionId} returnTo={returnTo}/>
    <AppLink className="back-link" href="#"><ArrowLeft size={15} aria-hidden="true"/>{t('全部论文','All papers')}</AppLink>
    <div className="collection-page-title-row">
     <div className="collection-page-identity"><span className={`collection-page-mark collection-${collectionId}`} aria-hidden="true"><BookOpen size={25}/></span><div><h1>{t(collection.name,collection.name_en)}</h1><div className="collection-page-meta"><span>{all.length} {t('篇论文','papers')}</span><span>{available} {t('篇可练','with exercises')}</span></div></div></div>

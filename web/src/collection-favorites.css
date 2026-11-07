@@ -1,0 +1,13 @@
+.collection-card-shell{position:relative;min-width:0;scroll-snap-align:start}
+.collection-card-shell .collection-open{top:auto;bottom:15px}
+.collection-favorite-button{position:relative;display:inline-grid;place-items:center;width:38px;height:38px;padding:0;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--muted);cursor:pointer;vertical-align:middle}
+.collection-favorite-button[aria-pressed=true]{color:#ad760d;background:#fff5d6;border-color:#dfbc61}
+.collection-favorite-button:hover{filter:brightness(1.08)}
+.collection-favorite-button:focus-visible{outline:3px solid #eebd45;outline-offset:3px}
+.collection-favorite-button:disabled,.collection-favorite-button[aria-disabled=true]{cursor:wait;opacity:.7}
+.collection-card-shell>.collection-favorite-button{position:absolute;top:12px;right:12px;z-index:2;border-color:#ffffff3d;background:#102b42b8;color:#fff}
+.collection-card-shell>.collection-favorite-button[aria-pressed=true]{color:#ffda72;background:#173148ed;border-color:#ffda7280}
+.collection-favorite-error{position:absolute;top:1px;right:3px;font-size:11px;font-weight:800;color:inherit}
+.collection-page-header{position:relative}
+.collection-page-favorite{position:absolute;top:0;right:0}
+.collection-page-header>.back-link{max-width:calc(100% - 52px)}

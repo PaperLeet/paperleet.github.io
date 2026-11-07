@@ -27,6 +27,7 @@ export { paperModules, matchingPaperModules, paperProgress } from './libraryPrac
 
 // Collection discovery loads independently of search and the first usable list.
 const LibraryCollections = deferredFeature<import('./LibraryCollections').Props>(()=>import('./LibraryCollections'), ['精选合集','featured collections'], {loading:()=><div className="library-collections-placeholder" aria-hidden="true"/>});
+const CollectionFavorite=deferredFeature<import('./CollectionFavorites').Props>(()=>import('./CollectionFavorites'),['收藏','favorites'],{loading:()=>null});
 const FilterFields=deferredFeature<import('./LibraryResultControls').LibraryFilterFieldsProps>(()=>import('./LibraryResultControls').then(module=>({default:module.LibraryFilterFields})),['筛选条件','filter options'],{failure:(props,retry)=><span role="alert"><FeatureRetry retry={()=>{if(props.canAct()){props.onRetry();retry();}}} label={['筛选加载失败，点击重试','Filters unavailable — retry']}/></span>});
 const ResultControls = deferredFeature<import('./LibraryResultControls').Props>(()=>import('./LibraryResultControls'), ['列表显示','list display'], {loading:()=>null});
 const FilterIcon = deferredFeature<Record<string,never>>(()=>import('./LibraryResultControls').then(module=>({default:module.LibraryFilterIcon})),['',''],{loading:()=>null,failure:()=>null});
@@ -176,6 +177,7 @@ function PracticePaperLibrary({ papers, categories, problems, saved, collectionI
   const solvedSummary = <div className="library-progress" style={{'--solved':solvedModules/(overviewModules.length||1)} as import('react').CSSProperties}><CheckCircle2 size={16} /><BilingualText zh="已通过模块" en="Modules solved" /><b>{companyReady?solvedModules:'—'} / {companyReady?overviewModules.length:'—'}</b></div>;
   return <main className={`home paper-library${selectedCollection ? " collection-page" : ""}`}>
     {selectedCollection ? <header className="collection-page-header">
+      <CollectionFavorite collectionId={selectedCollection.id} returnTo={viewHref}/>
       <AppLink className="back-link" href="#"><ArrowLeft size={15} aria-hidden="true" />{t("全部论文", "All papers")}</AppLink>
       <div className="collection-page-title-row">
         <div className="collection-page-identity"><span className={`collection-page-mark collection-${selectedCollection.id}`} aria-hidden="true"><BookOpen size={25} /></span><div><h1>{t(selectedCollection.name, selectedCollection.name_en)}</h1><div className="collection-page-meta"><span>{course ? t("课程", "Course") : `${selectedCollection.readingCount||listedPapers.length} ${t("篇论文", "papers")}`}</span>{selectedCollection.readingCount&&<span>{listedPapers.length} {t('篇可练','with exercises')}</span>}<span>{listedModules.length} {t("道题", "modules")}</span></div>{solvedSummary}</div></div>
