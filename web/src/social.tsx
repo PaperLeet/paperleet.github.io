@@ -4,7 +4,7 @@ import { createContext, lazy, Suspense, useContext, useEffect, useRef, useState 
 import type { ReactNode } from "react";
 import { useI18n } from "./i18n";
 import { publicSite, hostedEdition, hostedAppAvailable, hostedAppHref } from "./deployment";
-import { signInHref } from './accountNavigation';
+import { accountEntryHref } from './accountEntry';
 import { apiFetch } from "./apiClient";
 import { initialDeploymentHealth, unavailableDeploymentHealth, type DeploymentHealth } from './deploymentHealth';
 import { deferredFeature } from './deferredFeature';
@@ -384,7 +384,7 @@ export function AccountNav(props: import('./HeaderAccountMenu').HeaderAccountMen
   const {t} = useI18n();
   const label = t('登录', 'Sign in');
   return <div className="account-nav-actions">
-    {!user && hostedAppAvailable && (loading ? <span className="header-signin-placeholder" aria-hidden="true">{label}</span> : <AppLink className="header-signin-cta" href={hostedAppHref(signInHref(props.returnTo || ''))}
+    {!user && hostedAppAvailable && (loading ? <span className="header-signin-placeholder" aria-hidden="true">{label}</span> : <AppLink className="header-signin-cta" href={hostedAppHref(accountEntryHref(props.returnTo || ''))}
       title={t('保存解答与成绩，换设备继续练习', 'Save solutions and results, and continue on another device')}>
       {label}
     </AppLink>)}

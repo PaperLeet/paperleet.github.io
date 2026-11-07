@@ -119,6 +119,12 @@ try {
   const keyboard = { key: "b", code: "KeyB", ctrlKey: true, metaKey: false, shiftKey: false, altKey: false };
   assert.equal(rebuttalShortcut(keyboard), "bold");
   assert.equal(rebuttalShortcut({ ...keyboard, shiftKey: true }), "boxed");
+  for (const binding of [{ key: "(", code: "Digit9" }, { key: "9", code: "" }, { key: "(", code: "" }]) {
+    for (const mod of [{ ctrlKey: true, metaKey: false }, { ctrlKey: false, metaKey: true }]) {
+      assert.equal(rebuttalShortcut({ ...keyboard, ...binding, ...mod, shiftKey: true }), "quote");
+    }
+  }
+  assert.equal(rebuttalShortcut({ ...keyboard, key: "Q", code: "KeyQ", metaKey: true, shiftKey: true }), undefined, "The macOS logout shortcut must never be a quote alias");
   assert.equal(rebuttalShortcut({ ...keyboard, isComposing: true }), undefined);
   assert.equal(rebuttalShortcut({ ...keyboard, key: "+", code: "Equal" }), undefined, "Browser zoom is untouched without Shift");
   assert.equal(rebuttalShortcut({ ...keyboard, key: "+", code: "Equal", shiftKey: true }), "large");
@@ -135,6 +141,7 @@ try {
   const click = async name => act(async () => { const button = named(name); assert(button, `Missing ${name}`); button.click(); });
   const key = async (element, options) => act(async () => element.dispatchEvent(new dom.window.KeyboardEvent("keydown", { bubbles: true, cancelable: true, ...options })));
   await render({});
+  assert.equal(named("Quote").title, "Quote (Ctrl/⌘+Shift+9)", "The visible shortcut matches the safe binding");
   const field = document.querySelector("textarea"); field.focus(); field.setSelectionRange(0, 5, "backward"); field.scrollTop = 42; field.scrollLeft = 7;
   await click("Bold"); assert.equal(field.value, "**First** line\nSecond line"); assert.equal(document.activeElement, field);
   assert.deepEqual([field.selectionStart, field.selectionEnd, field.selectionDirection, field.scrollTop, field.scrollLeft], [2, 7, "backward", 42, 7]);
@@ -143,7 +150,7 @@ try {
   await click("Preview"); assert.equal(document.querySelector("textarea"), field); assert(field.parentElement.hidden);
   assert(document.querySelector(".rbe-rendered strong")); await click("Write"); assert.equal(document.activeElement, field); assert.equal(field.selectionStart, 2); assert.equal(field.scrollTop, 42);
   await key(field, { key: "z", ctrlKey: true }); assert.equal(field.value, "First line\nSecond line");
-  field.setSelectionRange(0, field.value.length); await key(field, { key: "Q", ctrlKey: true, shiftKey: true }); assert.equal(field.value, "> First line\n> Second line");
+  field.setSelectionRange(0, field.value.length); await key(field, { key: "(", code: "Digit9", ctrlKey: true, shiftKey: true }); assert.equal(field.value, "> First line\n> Second line");
   await key(field, { key: "z", ctrlKey: true });
   field.setSelectionRange(0, 5); await key(field, { key: "C", metaKey: true, shiftKey: true }); assert(field.value.includes(String.raw`\\color`));
   await click("Preview"); assert(!document.querySelector(".rbe-rendered .katex-error")); await click("Copy"); assert.equal(copied, field.value, "Copy retains the exact OpenReview source, not preview-normalized TeX");

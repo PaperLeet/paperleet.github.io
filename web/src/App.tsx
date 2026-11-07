@@ -53,7 +53,7 @@ import { reloadApp } from './appRecovery';
 import { useBrowserJudge } from "./useBrowserJudge";
 import { browserBudget } from './browserBudgets';
 import { topicIdFromRoute, topicFromProblem } from "./communityTopics";
-import { accountReturnHref, isAccountRoute, signInHref } from "./accountNavigation";
+import { accountEntryHref, isAccountRoute } from "./accountEntry";
 import { publicSite, hostedEdition, hostedAppHref, hostedAppAvailable } from "./deployment";
 import { type ExperimentView } from "./experimentResults";
 import type { ConsoleTab } from "./WorkspaceConsole";
@@ -490,7 +490,7 @@ function Workspace() {
           showRunError(t("当前版本暂未开放服务端提交。", "Server submissions are not available yet."));
           return;
         }
-        location.assign(hostedAppHref(signInHref(id)));
+        location.assign(hostedAppHref(accountEntryHref(id)));
         return;
       }
       if (hosted && (!user || !online || practice.conflicts[problem.id])) {
@@ -517,7 +517,7 @@ function Workspace() {
   }
   function signInToSubmit() {
     if (publicSite && !hostedAppAvailable) return;
-    location.assign(hostedAppHref(signInHref(id)));
+    location.assign(hostedAppHref(accountEntryHref(id)));
   }
   const tabs = [
     ["description", t("题目", "Description")],
@@ -585,7 +585,7 @@ function Workspace() {
         </section>}
         {(practice.conflicts[problem.id] || (!health && healthError) || (hosted && !browserAvailable && (!user || !online))) &&
           <WorkspaceAccessNotice conflict={!!practice.conflicts[problem.id]} local={browserWorkspace} saving={practice.saving} health={!!health} signedIn={!!user} testAuth={testAuth}
-            signIn={signInHref(id)} onResolve={keep => practice.resolveConflict(problem.id, keep)} onRefresh={() => void refreshHealth()}/>}
+            signIn={accountEntryHref(id)} onResolve={keep => practice.resolveConflict(problem.id, keep)} onRefresh={() => void refreshHealth()}/>}
         {!running&&!runFailed&&!runCancelled&&<WorkspaceTestResults key={`${practice.owner}:${problem.id}`} problem={problem} report={report} syntax={syntaxFailure} source={currentSource} sourceState={reportSource} canRun={canRun} running={running}
           onEdit={focusEditor} onRun={()=>void run()} onLocate={practice.ready?focusEditor:undefined}>
           {hosted&&report?.runtime==='browser-numpy-wasm'&&<BrowserResultActions problem={problem} report={report} sourceState={reportSource} signedIn={!!user} online={online} ready={progressReady} conflict={!!practice.conflicts[problem.id]} syncError={!!practice.error} busy={running} onSignIn={signInToSubmit} onVerify={()=>void run('server',report)} onRefresh={()=>void refreshHealth()} onLab={()=>openLab('run')}/>}
@@ -742,7 +742,7 @@ function Workspace() {
           }
         />
       ) : accountPage ? (
-        <Account returnTo={accountReturnHref(id)} />
+        <Account route={id} />
       ) : profileUsername ? (
         <UserProfile key={profileUsername} username={profileUsername} route={id} />
       ) : submissionPage ? (
