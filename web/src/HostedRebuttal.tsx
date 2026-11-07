@@ -17,7 +17,7 @@ import type { RebuttalPaperRow, RebuttalRole } from './rebuttalCloud';
 import './rebuttal.css';
 import './hostedRebuttal.css';
 
-const RebuttalStudio = deferredFeature(() => import('./RebuttalStudio'), ['回复工作台', 'Rebuttal workspace']);
+const RebuttalStudio = deferredFeature(() => import('./RebuttalStudio'), ['回复中心', 'Rebuttal Hub']);
 
 type Translator = (zh: string, en: string) => string;
 const roleName = (role: RebuttalRole, t: Translator) => role === 'owner' ? t('所有者', 'Owner') : role === 'editor' ? t('可编辑', 'Editor') : t('只读', 'Viewer');
@@ -28,7 +28,7 @@ export default function HostedRebuttal({ route = 'rebuttal' }: { route?: string 
   const view = readRebuttalRoute(route);
   if (!view) return <main className="rst-shell hreb-shell"><h1>{t('找不到这篇论文', 'Paper not found')}</h1><AppLink href={rebuttalHref()}>{t('返回我的论文', 'Back to my papers')}</AppLink></main>;
   if (loading) return <main className="rst-shell hreb-shell"><p role="status">{t('正在确认账号…', 'Checking your account…')}</p></main>;
-  if (!user) return <main className="rst-shell hreb-shell hreb-access"><FileText size={28} /><h1>Rebuttal Studio</h1>
+  if (!user) return <main className="rst-shell hreb-shell hreb-access"><FileText size={28} /><h1>Rebuttal Hub</h1>
     {error ? <><p role="alert">{error}</p><button className="rst-button" onClick={() => void refresh()}>{t('重试', 'Retry')}</button></> : <p>{t('登录后管理论文，与合作者一起准备回复。', 'Sign in to manage papers and prepare responses with collaborators.')}</p>}
     <AppLink className="rst-button rst-primary" href={signInHref(rebuttalHref(view.paperId))}>{t('登录', 'Sign in')}</AppLink>
   </main>;

@@ -1,7 +1,6 @@
 /* OpenReview's reading palette and typography, scoped to the rebuttal route.
    Reference: openreview/openreview-web styles/utils/_constants.scss and global.scss. */
 .app:has(.rst-shell) {
-  --font-sans: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
   --bg: #fffdfa;
   --surface: #fffdfa;
   --surface-alt: #f7f6f4;
@@ -28,9 +27,6 @@
   --rst-danger-bg: #f2dede;
   --shadow: 0 5px 15px #0003;
   min-height: 100vh;
-  font-family: var(--font-sans);
-  font-size: 14px;
-  line-height: 1.42857143;
   color: var(--text);
   background: var(--bg);
   color-scheme: light;
@@ -60,15 +56,16 @@
   --rst-danger-bg: #432c2d;
   color-scheme: dark;
 }
-.app:has(.rst-shell) .topbar { height: 60px; background: var(--bg); border-bottom: 1px solid var(--line); }
-.app:has(.rst-shell) .nav-inner { max-width: 1170px; padding-inline: 15px; gap: 26px; }
-.app:has(.rst-shell) .brand, .app:has(.rst-shell) .brand > span > span { color: var(--rst-red); letter-spacing: 0; }
-.app:has(.rst-shell) .topbar nav { gap: 22px; color: var(--rst-link); }
+/* Keep shared navigation geometry and typography; only its palette changes. */
+.app:has(.rst-shell) .topbar { --topbar-bg: var(--bg); background: var(--bg); border-color: var(--line); }
+.app:has(.rst-shell) .brand, .app:has(.rst-shell) .brand > span > span { color: var(--rst-red); }
+.app:has(.rst-shell) .topbar nav { color: var(--rst-link); }
 .app:has(.rst-shell) .topbar nav .active { color: var(--rst-red); }
 .app:has(.rst-shell) .topbar nav .active:after { background: var(--rst-red); }
-.app:has(.rst-shell) .language-toggle, .app:has(.rst-shell) .theme-switcher { border-radius: 4px; border-color: var(--line); background: var(--bg); }
+.app:has(.rst-shell) .language-toggle, .app:has(.rst-shell) .theme-switcher { border-color: var(--line); background: var(--bg); }
 .app:has(.rst-shell) .language-toggle .selected { color: var(--rst-red); }
-.app:has(.rst-shell) .theme-switcher button.selected { background: var(--surface2); color: var(--text); border-radius: 2px; }
+.app:has(.rst-shell) .theme-switcher button.selected { background: var(--surface2); color: var(--text); }
+.rst-shell, .hreb-members { --font-sans: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Microsoft YaHei", sans-serif; }
 .rst-shell { max-width: 1170px; padding: 20px 15px 32px; margin: auto; font-family: var(--font-sans); font-size: 14px; line-height: 1.42857143; }
 .rst-shell :is(button, a, summary):focus-visible { outline: 2px solid var(--rst-input-border); outline-offset: 2px; }
 .rst-shell :is(h1, h2, h3) { color: var(--rst-heading); }
@@ -360,11 +357,6 @@
   .rst-paper-heading { grid-template-columns: minmax(0, 1fr) auto auto auto; gap: 14px; }
   .rst-paper-heading > .rst-back { grid-column: 1; justify-self: start; }
   .rst-version-layout { grid-template-columns: 220px minmax(0, 1fr); gap: 16px; }
-}
-@media (max-width: 900px) {
-  .app:has(.rst-shell) .topbar { height: 90px; }
-  .app:has(.rst-shell) .nav-inner { gap: 0 10px; padding-inline: 15px; }
-  .app:has(.rst-shell) .topbar nav { gap: 4px; }
 }
 @media (max-width: 760px) {
   .rst-shell { padding: 18px 14px; }

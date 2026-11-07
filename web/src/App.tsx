@@ -72,7 +72,7 @@ const BrowserLearningNotice=deferredFeature<Parameters<typeof import('./BrowserL
 function BrowserFailureFallback(){const {t}=useI18n();return <>{t("当前环境暂时无法运行测试","Tests cannot run in this environment")}</>;}
 const BrowserFailureMessage=deferredFeature<{reason:string}>(()=>import("./BrowserFailureMessage"),["运行错误","run error"],{loading:BrowserFailureFallback,failure:BrowserFailureFallback});
 const CatalogFeedback=deferredFeature(()=>import('./CatalogFeedback'),['题库','Catalog']);
-const HostedRebuttal=deferredFeature(()=>import("./HostedRebuttal"),["回复","Rebuttal"]);
+const HostedRebuttal=deferredFeature(()=>import("./HostedRebuttal"),["回复中心","Rebuttal Hub"]);
 const ChallengePanels=deferredFeature(()=>import('./ChallengePanels'),['练习','practice']);
 const EditorTools=deferredFeature(()=>import('./EditorTools'),['',''],{loading:()=> <EditorToolsFallback/>,failure:(_props,retry)=><EditorToolsFallback retry={retry}/>});
 const BrowserRunProgressBody=deferredFeature<import('react').ComponentProps<typeof import('./BrowserRunProgress').BrowserRunProgressBody>>(()=>import('./BrowserRunProgress').then(module=>({default:module.BrowserRunProgressBody})),['运行进度','run progress'],{loading:()=>null,failure:(_props,retry)=><FeatureRetry retry={retry}/>});
@@ -636,7 +636,7 @@ function Workspace() {
               <BilingualText zh="社区" en="Community" />
             </AppLink>}
             <AppLink className={interviewPage ? "active" : ""} aria-current={interviewPage ? "page" : undefined} href="#/interviews"><BilingualText zh="面经" en="Interviews" /></AppLink>
-            {hostedAppAvailable && capabilities?.rebuttal_workspaces && <AppLink className={rebuttalPage ? "active" : ""} aria-current={rebuttalPage ? "page" : undefined} href={hostedAppHref("#/rebuttal")}><BilingualText zh="回复" en="Rebuttal" /></AppLink>}
+            {hostedAppAvailable && capabilities?.rebuttal_workspaces && <AppLink className={rebuttalPage ? "active" : ""} aria-current={rebuttalPage ? "page" : undefined} href={hostedAppHref("#/rebuttal")}><BilingualText zh="回复中心" en="Rebuttal Hub" /></AppLink>}
             <MainNavigationVisibility />
           </nav>
           {problem&&!loadError&&<div className="workspace-toolbar">
