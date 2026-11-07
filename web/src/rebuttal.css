@@ -1,6 +1,6 @@
 /* OpenReview's reading palette and typography, scoped to the rebuttal route.
    Reference: openreview/openreview-web styles/utils/_constants.scss and global.scss. */
-.app.rebuttal-view {
+.app:has(.rst-shell) {
   --font-sans: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
   --bg: #fffdfa;
   --surface: #fffdfa;
@@ -35,7 +35,7 @@
   background: var(--bg);
   color-scheme: light;
 }
-[data-theme="dark"] .app.rebuttal-view {
+[data-theme="dark"] .app:has(.rst-shell) {
   --bg: #20252b;
   --surface: #252b32;
   --surface-alt: #292f36;
@@ -60,15 +60,15 @@
   --rst-danger-bg: #432c2d;
   color-scheme: dark;
 }
-.app.rebuttal-view .topbar { height: 60px; background: var(--bg); border-bottom: 1px solid var(--line); }
-.app.rebuttal-view .nav-inner { max-width: 1170px; padding-inline: 15px; gap: 26px; }
-.app.rebuttal-view .brand, .app.rebuttal-view .brand > span > span { color: var(--rst-red); letter-spacing: 0; }
-.app.rebuttal-view .topbar nav { gap: 22px; color: var(--rst-link); }
-.app.rebuttal-view .topbar nav .active { color: var(--rst-red); }
-.app.rebuttal-view .topbar nav .active:after { background: var(--rst-red); }
-.app.rebuttal-view .language-toggle, .app.rebuttal-view .theme-switcher { border-radius: 4px; border-color: var(--line); background: var(--bg); }
-.app.rebuttal-view .language-toggle .selected { color: var(--rst-red); }
-.app.rebuttal-view .theme-switcher button.selected { background: var(--surface2); color: var(--text); border-radius: 2px; }
+.app:has(.rst-shell) .topbar { height: 60px; background: var(--bg); border-bottom: 1px solid var(--line); }
+.app:has(.rst-shell) .nav-inner { max-width: 1170px; padding-inline: 15px; gap: 26px; }
+.app:has(.rst-shell) .brand, .app:has(.rst-shell) .brand > span > span { color: var(--rst-red); letter-spacing: 0; }
+.app:has(.rst-shell) .topbar nav { gap: 22px; color: var(--rst-link); }
+.app:has(.rst-shell) .topbar nav .active { color: var(--rst-red); }
+.app:has(.rst-shell) .topbar nav .active:after { background: var(--rst-red); }
+.app:has(.rst-shell) .language-toggle, .app:has(.rst-shell) .theme-switcher { border-radius: 4px; border-color: var(--line); background: var(--bg); }
+.app:has(.rst-shell) .language-toggle .selected { color: var(--rst-red); }
+.app:has(.rst-shell) .theme-switcher button.selected { background: var(--surface2); color: var(--text); border-radius: 2px; }
 .rst-shell { max-width: 1170px; padding: 20px 15px 32px; margin: auto; font-family: var(--font-sans); font-size: 14px; line-height: 1.42857143; }
 .rst-shell :is(button, a, summary):focus-visible { outline: 2px solid var(--rst-input-border); outline-offset: 2px; }
 .rst-shell :is(h1, h2, h3) { color: var(--rst-heading); }
@@ -362,9 +362,9 @@
   .rst-version-layout { grid-template-columns: 220px minmax(0, 1fr); gap: 16px; }
 }
 @media (max-width: 900px) {
-  .app.rebuttal-view .topbar { height: 90px; }
-  .app.rebuttal-view .nav-inner { gap: 0 10px; padding-inline: 15px; }
-  .app.rebuttal-view .topbar nav { gap: 4px; }
+  .app:has(.rst-shell) .topbar { height: 90px; }
+  .app:has(.rst-shell) .nav-inner { gap: 0 10px; padding-inline: 15px; }
+  .app:has(.rst-shell) .topbar nav { gap: 4px; }
 }
 @media (max-width: 760px) {
   .rst-shell { padding: 18px 14px; }
