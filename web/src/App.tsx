@@ -72,6 +72,7 @@ const BrowserLearningNotice=deferredFeature<Parameters<typeof import('./BrowserL
 function BrowserFailureFallback(){const {t}=useI18n();return <>{t("当前环境暂时无法运行测试","Tests cannot run in this environment")}</>;}
 const BrowserFailureMessage=deferredFeature<{reason:string}>(()=>import("./BrowserFailureMessage"),["运行错误","run error"],{loading:BrowserFailureFallback,failure:BrowserFailureFallback});
 const CatalogFeedback=deferredFeature(()=>import('./CatalogFeedback'),['题库','Catalog']);
+const HostedRebuttal=deferredFeature(()=>import("./HostedRebuttal"),["回复","Rebuttal"]);
 const ChallengePanels=deferredFeature(()=>import('./ChallengePanels'),['练习','practice']);
 const EditorTools=deferredFeature(()=>import('./EditorTools'),['',''],{loading:()=> <EditorToolsFallback/>,failure:(_props,retry)=><EditorToolsFallback retry={retry}/>});
 const BrowserRunProgressBody=deferredFeature<import('react').ComponentProps<typeof import('./BrowserRunProgress').BrowserRunProgressBody>>(()=>import('./BrowserRunProgress').then(module=>({default:module.BrowserRunProgressBody})),['运行进度','run progress'],{loading:()=>null,failure:(_props,retry)=><FeatureRetry retry={retry}/>});
@@ -232,6 +233,7 @@ function Workspace() {
   const loadedProblem = sourceProblem?.detail_url ? details[sourceProblem.detail_url] : sourceProblem;
   const problem = loadedProblem ? localize(loadedProblem) : undefined;
   const communityPaneScope=JSON.stringify([problem?.id,practice.owner,user?.id,accountLoading]);
+  const rebuttalPage = /^rebuttal(\/[\w-]{1,150})?$/.test(path);
   const submissionPage = path === "submit";
   const submissionResultId = /^submission\/([a-f0-9]{32})$/.exec(path)?.[1];
   const communityPath = id.split('?')[0];
@@ -526,7 +528,7 @@ function Workspace() {
     ["solution", t("题解", "Solutions")],
     ...(hostedAppAvailable?[["discussion",t("讨论","Discuss")]]:[]),
   ];
-  const libraryActive=!problem&&path!=='daily-challenge'&&!submissionPage&&!communityPage&&!messagesPage&&!interviewPage&&!accountPage&&!settingsPage&&!achievementsPage&&!profileUsername;
+  const libraryActive=!rebuttalPage&&!problem&&path!=='daily-challenge'&&!submissionPage&&!communityPage&&!messagesPage&&!interviewPage&&!accountPage&&!settingsPage&&!achievementsPage&&!profileUsername;
   const resultState = running ? "running" : hasCurrentSyntaxError ? "failed" : report && reportSource === "current" ? isPassed(problem!, report) ? "passed" : "failed" : reportSource === "changed" || syntaxFailure ? "stale" : undefined;
   const workspaceSaveState = practice.error || (problem && practice.conflicts[problem.id]) ? "warning"
     : practice.loading || !practice.ready ? "loading"
@@ -634,6 +636,7 @@ function Workspace() {
               <BilingualText zh="社区" en="Community" />
             </AppLink>}
             <AppLink className={interviewPage ? "active" : ""} aria-current={interviewPage ? "page" : undefined} href="#/interviews"><BilingualText zh="面经" en="Interviews" /></AppLink>
+            {hostedAppAvailable && capabilities?.rebuttal_workspaces && <AppLink className={rebuttalPage ? "active" : ""} aria-current={rebuttalPage ? "page" : undefined} href={hostedAppHref("#/rebuttal")}><BilingualText zh="回复" en="Rebuttal" /></AppLink>}
             <MainNavigationVisibility />
           </nav>
           {problem&&!loadError&&<div className="workspace-toolbar">
@@ -701,7 +704,7 @@ function Workspace() {
           if (replaced) setToast(t('代码已载入，请留意保存状态并重新运行测试。', 'Code loaded. Check the save status and run tests again.'));
           return replaced;
         }} />}
-      {submissionResultId ? (
+      {rebuttalPage ? (<HostedRebuttal route={id} />) : submissionResultId ? (
         <SubmissionResultPage runId={submissionResultId} problems={problems}
           nextProblemFor={entry => nextPractice(entry, papers.find(paper => paper.id === entry.paper_id)?.module_ids || [], problems, learningSaved)} />
       ) : path === 'favorites' ? (

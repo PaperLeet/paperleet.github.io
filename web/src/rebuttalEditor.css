@@ -1,0 +1,66 @@
+.rbe-editor {
+  min-width: 0;
+  border: 1px solid var(--line, #ddd);
+  border-radius: 2px;
+  background: var(--surface, #fffdfa);
+  color: var(--text, #333);
+  font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 14px;
+  line-height: 1.42857143;
+}
+.rbe-editor [hidden] { display: none !important; }
+.rbe-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--line, #ddd); padding: 0 10px; }
+.rbe-modes { display: flex; gap: 4px; }
+.rbe-editor button, .rbe-editor select { font: inherit; }
+.rbe-modes button { border: 0; border-bottom: 2px solid transparent; border-radius: 0; padding: 10px 13px 8px; background: transparent; color: var(--rst-link, #3e6775); cursor: pointer; }
+.rbe-modes button[aria-selected="true"] { border-bottom-color: var(--rst-red, #8c1b13); color: var(--rst-red, #8c1b13); font-weight: 700; }
+.rbe-copy { display: inline-flex; align-items: center; gap: 6px; padding: 5px 8px; border: 1px solid var(--line, #ddd); border-radius: 4px; color: var(--rst-link, #3e6775); background: var(--surface, #fffdfa); cursor: pointer; }
+.rbe-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 0; padding: 7px 5px; border-bottom: 1px solid var(--line, #ddd); background: var(--surface-alt, #f7f6f4); }
+.rbe-tool-group { display: flex; align-items: center; flex-wrap: nowrap; gap: 1px; padding: 0 5px; border-right: 1px solid var(--line, #ddd); }
+.rbe-tool-group:last-child { border-right: 0; }
+.rbe-toolbar button { display: inline-flex; justify-content: center; align-items: center; width: 30px; height: 31px; padding: 0; border: 1px solid transparent; border-radius: 3px; background: transparent; color: var(--rst-link, #3e6775); cursor: pointer; }
+.rbe-toolbar button:hover:not(:disabled), .rbe-copy:hover:not(:disabled) { border-color: var(--rst-input-border, #508496); background: var(--surface2, #efece3); }
+.rbe-editor .rbe-toolbar select { width: auto; max-width: 105px; height: 31px; padding: 2px 5px; border: 1px solid var(--line, #ddd); border-radius: 3px; background: var(--surface, #fffdfa); color: var(--text, #333); cursor: pointer; }
+.rbe-editor button:disabled { opacity: .4; cursor: not-allowed; }
+.rbe-editor :is(button, select):focus-visible { outline: 2px solid var(--rst-input-border, #508496); outline-offset: 2px; }
+.rbe-editor [role="tabpanel"] textarea { display: block; width: 100%; box-sizing: border-box; min-height: 340px; padding: 16px; margin: 0; border: 0; border-radius: 0; resize: vertical; background: var(--rst-input-bg, #fffaf4); color: var(--text, #333); font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Microsoft YaHei", sans-serif; font-size: 14px; line-height: 1.65; tab-size: 2; }
+.rbe-editor [role="tabpanel"] textarea:focus { outline: 2px solid var(--rst-input-border, #508496); outline-offset: -2px; }
+.rbe-editor [role="tabpanel"] textarea[readonly] { background: var(--surface, #fffdfa); }
+.rbe-rendered { min-height: 340px; padding: 16px; overflow-wrap: anywhere; }
+.rbe-empty { color: var(--muted, #616161); margin: 0; }
+.rbe-actions, .rbe-footer { padding: 10px 12px; border-top: 1px solid var(--line, #ddd); }
+.rbe-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.rbe-message { margin: 0; padding: 8px 12px; color: var(--rst-danger, #a94442); }
+.rst-markdown.rbe-preview { max-width: 100%; overflow-x: auto; overflow-wrap: break-word; font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Microsoft YaHei", sans-serif; font-size: 14px; line-height: 1.42857143; color: var(--text, #333); }
+.rst-markdown.rbe-preview :is(h1, h2, h3, h4, h5, h6) { color: var(--rst-heading, #2c3a4a); margin: 0 0 8px; line-height: 1.35; }
+.rst-markdown.rbe-preview h1 { font-size: 22px; font-weight: 700; }
+.rst-markdown.rbe-preview h2 { font-size: 20px; font-weight: 500; }
+.rst-markdown.rbe-preview h3 { font-size: 16px; }
+.rst-markdown.rbe-preview :is(h4, h5, h6) { font-size: 12px; font-weight: 400; }
+.rst-markdown.rbe-preview p { margin: 0 0 8px; }
+.rst-markdown.rbe-preview strong { color: var(--rst-heading, #2c3a4a); }
+.rst-markdown.rbe-preview :is(ul, ol) { padding-left: 24px; margin: 0 0 8px; }
+.rst-markdown.rbe-preview li > p { margin-bottom: 2px; }
+.rst-markdown.rbe-preview blockquote { margin: 0 0 8px; border-left: 5px solid var(--line, #ccc); padding: 4px 8px; color: var(--text-secondary, #616161); background: transparent; font-size: 14px; }
+.rst-markdown.rbe-preview blockquote > p:last-child { margin-bottom: 0; }
+.rst-markdown.rbe-preview hr { border: 0; border-top: 1px solid var(--line, #ddd); margin: 8px 0; }
+.rst-markdown.rbe-preview a { color: var(--rst-link, #3e6775); text-decoration: underline; }
+.rst-markdown.rbe-preview code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--rst-red, #8c1b13); font-size: .9em; }
+.rst-markdown.rbe-preview pre { margin: 0 0 8px; padding: 8px; background: var(--surface-alt, #f7f6f4); border: 1px solid var(--line, #ddd); border-radius: 0; overflow-x: auto; }
+.rst-markdown.rbe-preview pre code { color: var(--text, #333); white-space: pre; }
+.rst-markdown.rbe-preview table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; margin: 0 0 8px; }
+.rst-markdown.rbe-preview :is(th, td) { padding: 4px; text-align: left; vertical-align: top; border: 0; border-top: 1px solid var(--line, #ddd); }
+.rst-markdown.rbe-preview th { border-top: 0; border-bottom: 2px solid var(--line, #ddd); }
+.rst-markdown.rbe-preview .katex-display { margin: 8px 0; overflow-x: auto; overflow-y: hidden; padding: 2px 0; }
+.rst-markdown.rbe-preview .katex-display > .katex { text-align: left; }
+.rst-markdown.rbe-preview .katex { white-space: normal; }
+.rst-markdown.rbe-preview .katex-html { white-space: nowrap; }
+@media (max-width: 600px) {
+  .rbe-toolbar { gap: 7px 0; }
+  .rbe-toolbar button { width: 32px; height: 34px; }
+  .rbe-editor .rbe-toolbar select { height: 34px; }
+  .rbe-editor [role="tabpanel"] textarea { min-height: 300px; padding: 12px; font-size: 16px; }
+  .rbe-rendered { min-height: 300px; padding: 12px; }
+}
+
+.rbe-footer:has(.rst-editor-bottom) { padding: 0; border-top: 0; }
