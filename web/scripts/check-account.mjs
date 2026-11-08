@@ -212,3 +212,4 @@ try {
 }
 
 await import("./check-account-entry.mjs");
+await import("./check-ai-settings.mjs");

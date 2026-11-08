@@ -25,7 +25,7 @@ const server = await createServer({server:{middlewareMode:true,hmr:false},appTyp
 let root;
 const requests=[];
 const caps={can_submit:true,automation_enabled:true,generation:{ready:true},attempts:{ready:true}};
-const alice={user:{id:'a'.repeat(32)},health:{mode:'hosted'}}, bob={user:{id:'b'.repeat(32)},health:{mode:'hosted'}};
+const alice={user:{id:'a'.repeat(32)},health:{mode:'hosted'},capabilities:{personal_ai_settings:true}}, bob={user:{id:'b'.repeat(32)},health:{mode:'hosted'},capabilities:{personal_ai_settings:true}};
 const makeProposal=(id='c'.repeat(32),patch={})=>({id,arxiv_id:'2002.02126',arxiv_url:'https://arxiv.org/abs/2002.02126',status:'pool',created_at:'2026-10-15T00:00:00Z',updated_at:'2026-10-15T00:00:00Z',version:1,problem:{title:'Loss function',title_en:'Loss function',statement:'Return a scalar loss.',starter_code:'def loss(x):\n    pass\n',functions:[{name:'loss',signature:'loss(x)',returns:'A scalar float.'}]},review_summary:{approve:0,needs_changes:0,total:0,minimum_reviews:5,approval_ratio:.8,review_hours:48},viewer:{can_review:false,has_attempted:false,reason:'Try this version first.'},...patch});
 const A=makeProposal(), B=makeProposal('d'.repeat(32),{problem:{title:'Other candidate',statement:'Return x.',starter_code:'return x'}});
 const next=(url,method='GET')=>{const index=requests.findIndex(request=>request.url===url&&request.method===method);assert(index>=0,`Missing ${method} ${url}; queued ${requests.map(r=>r.method+' '+r.url)}`);return requests.splice(index,1)[0];};
@@ -48,7 +48,12 @@ try {
   assert.equal(arxivPaperUrl('http://www.arxiv.org/abs/hep-th/9901001v2'),'https://arxiv.org/abs/hep-th/9901001v2');
   for (const invalid of ['https://arxiv.org.evil.test/abs/2002.02126','https://u@arxiv.org/abs/2002.02126','https://arxiv.org:443/pdf/2002.02126','https://arxiv.org:4000/pdf/2002.02126','https://arxiv.org/html/2002.02126','https://arxiv.org/abs/2013.02126','https://arxiv.org/abs/2002.02126v0','https://arxiv.org/pdf/2002.02126v3.pdf?download=1','https://arxiv.org/abs/2002.02126#section','https://arxiv.org/abs/2002.02126.pdf','https://arxiv.org/abs/2002.02126/','https://arxiv.org/ABS/2002.02126','javascript:alert(1)']) assert.equal(arxivPaperUrl(invalid),undefined,invalid);
   assert.equal(poolRoute('#/submit?proposal=../secret').id,undefined);
-  globalThis.fetch=(url,options={})=>new Promise((resolve,reject)=>requests.push({url,method:options.method||'GET',body:options.body,signal:options.signal,resolve,reject}));
+  let aiResponse, statusCalls=0;
+  const readyAI=owner=>({user_id:owner,configured:true,provider:'gemini',model:'fixture-model',source:'personal',available:true,region:null});
+  globalThis.fetch=(url,options={})=>{
+    if(url==='/api/account/ai-settings/status') {statusCalls++; if(aiResponse==='deferred') return new Promise((resolve,reject)=>requests.push({url,method:'GET',signal:options.signal,resolve,reject})); return Promise.resolve(new Response(JSON.stringify(aiResponse||readyAI(globalThis.__poolAccount.user.id))));}
+    return new Promise((resolve,reject)=>requests.push({url,method:options.method||'GET',body:options.body,signal:options.signal,resolve,reject}));
+  };
   const tree=()=>React.createElement(LocaleProvider,null,React.createElement(Submissions,{onPublished(){}}));
   async function start({hash='#/submit',account=alice,keepStorage=false,capabilities=caps,items=[A,B],total=items.length}={}) {
     if(!keepStorage)sessionStorage.clear();
@@ -79,6 +84,24 @@ try {
   await submit();const oldOwner=next('/api/paper-pool','POST');globalThis.__poolAccount=bob;await act(async()=>root.render(tree()));await listReply();
   assert.equal(document.querySelector('.pool-submission-form textarea').value,'');await edit('.pool-submission-form textarea','Bob draft');await reply(oldOwner,{proposal:A});assert.equal(document.querySelector('.pool-submission-form textarea').value,'Bob draft');assert(!document.querySelector('.pool-feedback'));
   await stop();
+
+  for(const invalid of [
+    {...readyAI(alice.user.id),configured:false,provider:null,model:null,source:null},
+    {...readyAI(alice.user.id),configured:false,provider:null,model:null,source:null,available:false},
+    readyAI(bob.user.id), {...readyAI(alice.user.id),source:'server'},
+  ]) {
+    aiResponse=invalid;await start();assert(button('Submit paper').disabled,'Missing, unavailable, wrong-owner or server AI cannot enable personal submission');
+    await edit('.pool-submission-form input',A.arxiv_url);await submit();assert(!requests.some(r=>r.method==='POST'));await stop();
+  }
+  aiResponse=undefined;
+  const beforeOld=statusCalls;await start({account:{...alice,capabilities:{}}});assert(button('Submit paper').disabled);assert.equal(statusCalls,beforeOld,'Old API capability does not call unsupported settings');await stop();
+  await start();assert(document.querySelector('.personal-ai-connection').textContent.includes('Gemini · fixture-model'));
+  await edit('.pool-submission-form input',A.arxiv_url);aiResponse={...readyAI(alice.user.id),configured:false,provider:null,model:null,source:null};
+  await submit();assert(!requests.some(r=>r.method==='POST'),'Fresh check blocks a deleted key before paper submission');assert(document.body.textContent.includes('Connect your API key before submitting'));await stop();
+  aiResponse='deferred';await start();const staleStatus=next('/api/account/ai-settings/status');
+  globalThis.__poolAccount=bob;await act(async()=>root.render(tree()));await listReply();
+  const bobStatus=next('/api/account/ai-settings/status');assert(staleStatus.signal.aborted);await reply(staleStatus,readyAI(alice.user.id));assert(button('Submit paper').disabled,'Late previous-account status stays hidden');
+  await reply(bobStatus,{...readyAI(bob.user.id),provider:'deepseek',model:'deepseek-chat'});assert(document.querySelector('.personal-ai-connection').textContent.includes('DeepSeek · deepseek-chat'));await stop();aiResponse=undefined;
 
   await start({capabilities:{...caps,automation_enabled:false,generation:{ready:false,reason:'Worker not configured'}}});
   assert(document.querySelector('.pool-service-notice').textContent.includes('Automatic generation is not ready'));assert(!document.querySelector('.pool-service-notice').textContent.includes('Worker not configured'),'Availability uses localized product wording');assert(!button('Submit paper').disabled,'Proposals can be retained while automation is explicitly unavailable');await stop();
@@ -138,7 +161,7 @@ try {
   assert(!requests.some(r=>r.method==='POST'),'Opening the audited review entry never mutates a proposal');
   assert(![...moderation.querySelectorAll('button')].some(el=>/publish/i.test(el.textContent)),'There is no shortcut around catalog publication review');
   await stop();
-  await start({account:{user:null,health:{mode:'hosted'}}});assert(document.querySelector('.pool-submission-form a.button').textContent.includes('Sign in'));assert(document.querySelector('.pool-submission-form input').disabled);await stop();
+  await start({account:{user:null,health:{mode:'hosted'},capabilities:{personal_ai_settings:true}}});assert(document.querySelector('.pool-submission-form a.button').textContent.includes('Sign in'));assert(document.querySelector('.pool-submission-form input').disabled);await stop();
   console.log('PASS paper pool: hosted arXiv-only flow, canonicalization, duplicate links, owner-scoped draft recovery, stale account/detail rejection, real capability gates, queued trial recovery, failed-trial review eligibility, version-bound reasoned votes and own-author restrictions');
 } finally {
   if(root)await act(async()=>root.unmount());

@@ -56,6 +56,7 @@ export type AccountUser = PublicUser & {
   profile_edit_policy?: ProfileEditPolicy;
 };
 export type AccountCapabilities = {
+  personal_ai_settings?: boolean;
   rebuttal_workspaces?: boolean;
   rebuttal_assembly_drafts?: boolean;
   rebuttal_reviewer_versions?: boolean;
@@ -140,6 +141,7 @@ export class SocialError extends Error {
 export async function socialApi<T>(path: string, body?: unknown, signal?: AbortSignal): Promise<T> {
   const response = await apiFetch(`/api/${path}`, {
     cache: "no-store",
+    ...(/^account\/ai-settings(?:[/?]|$)/.test(path) ? { redirect: "error" as const } : {}),
     ...(signal ? { signal } : {}),
     ...(body === undefined
       ? {}
