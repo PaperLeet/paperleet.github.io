@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { X } from 'lucide-react';
+import { CheckCircle2, CircleAlert, LoaderCircle, X } from 'lucide-react';
 import { useI18n } from './i18n';
 import { socialApi, useAccount } from './social';
 import './ai-settings.css';
@@ -67,6 +67,10 @@ function AISettingsForm({ owner, canAct, onChanged }: { owner: string; canAct: (
     if (code === 'ai_settings_unavailable') return t('个人 AI 设置暂不可用。', 'Personal AI settings are unavailable.');
     if (code === 'ai_key_unavailable') return t('已保存的密钥无法读取，请重新填写。', 'The saved key cannot be read. Enter it again.');
     if (code === 'api_key_required') return t('请填写 API key。', 'Enter an API key.');
+    if (code === 'provider_timeout' || record(reason) && reason.name === 'AbortError') return t('连接超时，请重试。', 'The connection timed out. Try again.');
+    if (code === 'provider_rate_limited') return t('服务商额度已用完或请求受限，请检查额度后重试。', 'The provider quota or rate limit was reached. Check your usage and try again.');
+    if (code === 'provider_unavailable') return t('暂时无法连接服务商，请稍后重试。', 'Could not reach the provider. Try again shortly.');
+    if (code === 'provider_invalid_response') return t('服务商返回了无效响应，请重试。', 'The provider returned an invalid response. Try again.');
     if (status === 429) return t('请求过于频繁，请稍后重试。', 'Too many requests. Try again shortly.');
     if (/key|auth|credential/.test(code) || status === 403) return t('密钥未通过验证，请检查权限。', 'The key was rejected. Check its permissions.');
     if (/model/.test(code)) return t('模型不可用，请选择其他模型。', 'This model is unavailable. Choose another model.');
@@ -95,7 +99,11 @@ function AISettingsForm({ owner, canAct, onChanged }: { owner: string; canAct: (
     // Clear the form before a page enters the browser's back/forward cache.
     const clearPassword = () => {
       if (passwordInput.current) { passwordInput.current.value = ''; passwordInput.current.removeAttribute('value'); }
-      setApiKey(''); setTestedModel(null);
+      setApiKey(''); setTestedModel(null); setNotice(''); setError('');
+      if (pending.current) {
+        generation.current++; controllers.current.forEach(controller => controller.abort()); controllers.current.clear();
+        pending.current = false; setBusy(''); setBlocked(true);
+      }
     };
     window.addEventListener('pagehide', clearPassword);
     return () => { window.removeEventListener('pagehide', clearPassword); active.current = false; generation.current++; controllers.current.forEach(controller => controller.abort()); controllers.current.clear(); };
@@ -108,6 +116,7 @@ function AISettingsForm({ owner, canAct, onChanged }: { owner: string; canAct: (
     if (pending.current || !active.current || !owns.current() || !settings || blocked) return;
     if (action !== 'remove' && (!settings.available || !hasKey) || (action === 'test' || action === 'save') && !modelId(model.trim())) return;
     pending.current = true; const epoch = generation.current; setBusy(action); setError(''); setNotice('');
+    if (action === 'test') setTestedModel(null);
     const body = action === 'remove' ? { provider, expected_revision: settings.revision, expected_user_id: owner } : {
       provider, ...(action !== 'models' ? { model: model.trim() } : {}), ...(apiKey.trim() ? { api_key: apiKey.trim() } : {}),
       ...(regionalProvider(provider) ? { region } : {}),
@@ -124,7 +133,7 @@ function AISettingsForm({ owner, canAct, onChanged }: { owner: string; canAct: (
         setModels(rows); setCustomModel(false); setNotice(rows.length ? t('模型列表已更新', 'Model list updated') : t('没有可用模型，请填写模型 ID。', 'No models returned. Enter a model ID.'));
       } else if (action === 'test') {
         if (result.ok !== true || result.provider !== provider || result.model !== model.trim() || (result.region ?? null) !== (regionalProvider(provider) ? region : null)) throw Error('invalid_response');
-        setTestedModel(model.trim()); setNotice(t('连接成功', 'Connection successful'));
+        setTestedModel(model.trim()); setNotice(`${t('连接成功', 'Connection successful')} · ${model.trim()}`);
       } else {
         const next = readSettings(result, owner);
         if (next.revision !== settings.revision + 1) throw Error('invalid_response');
@@ -132,25 +141,30 @@ function AISettingsForm({ owner, canAct, onChanged }: { owner: string; canAct: (
       }
     } catch (reason) {
       if (current(epoch)) {
-        setError(message(reason)); setTestedModel(null);
+        setError((action === 'test' ? t('连接失败：', 'Connection failed: ') : '') + message(reason)); setTestedModel(null);
         const status = record(reason) && typeof reason.status === 'number' ? reason.status : 0;
         if ((action === 'save' || action === 'remove') && (!status || status >= 500 || status === 409)) setBlocked(true);
       }
     } finally { if (current(epoch)) { pending.current = false; setBusy(''); } }
   }
+  const feedback = error
+    ? <p className="ai-settings-feedback ai-settings-error" role="alert"><CircleAlert size={18} aria-hidden="true" /><span>{error}</span></p>
+    : busy === 'test'
+      ? <p className="ai-settings-feedback" role="status"><LoaderCircle size={18} className="ai-settings-spinner" aria-hidden="true" /><span>{t('正在测试连接…', 'Testing connection…')}</span></p>
+      : notice ? <p className="ai-settings-feedback ai-settings-success" role="status"><CheckCircle2 size={18} aria-hidden="true" /><span>{notice}</span></p> : null;
   return <div className="ai-settings-form">
-    {error && <p className="ai-settings-error" role="alert">{error}</p>}
-    {notice && <p role="status">{notice}</p>}
+    {!settings && feedback}
     {busy === 'load' && <p role="status">{t('正在读取 AI 设置…', 'Loading AI settings…')}</p>}
     {settings && <>
       <label><span>{t('服务商', 'Provider')}</span><select aria-label={t('AI 服务商', 'AI provider')} value={provider} disabled={!!busy} onChange={event => choose(event.target.value as Provider)}>{providers.filter(item => settings.providers.some(row => row.id === item.id)).map(item => <option key={item.id} value={item.id}>{item.label}{settings.active_provider === item.id ? ` · ${t('正在使用', 'Active')}` : settings.providers.find(row => row.id === item.id)?.configured ? ` · ${t('已保存', 'Saved')}` : ''}</option>)}</select></label>
       {regionalProvider(provider) && <label><span>{t('区域', 'Region')}</span><select aria-label={t('API 区域', 'API region')} disabled={!!busy} value={region} onChange={event => { setRegion(event.target.value as Region); setApiKey(''); setModels([]); setTestedModel(null); setError(''); setNotice(''); }}><option value="international">{t('国际', 'International')}</option><option value="china">{t('中国大陆', 'China')}</option></select></label>}
       <div className="ai-settings-state">{settings.active_provider === provider && <span className="ai-settings-active">{t('正在使用', 'Active')} · {providers.find(item => item.id === provider)?.label} · {selected?.model}{regionalProvider(provider) ? ` · ${selected?.region === 'china' ? t('中国大陆', 'China') : t('国际', 'International')}` : ''}</span>}{storedKey && <span>{t('密钥已保存', 'Key saved')}</span>}{testedModel === model.trim() && <span>{t('连接已测试', 'Connection tested')}</span>}</div>
       {!settings.available && <p role="status">{t('个人 AI 设置暂不可用。', 'Personal AI settings are unavailable.')}</p>}
-      <label><span>API key</span><input ref={keyInput} aria-label="API key" type="password" autoComplete="off" spellCheck={false} autoCapitalize="off" maxLength={8192} disabled={!enabled} value={apiKey} placeholder={storedKey ? t('留空以使用已保存密钥', 'Leave blank to use the saved key') : ''} onChange={event => { setApiKey(event.target.value); setModels([]); setTestedModel(null); setNotice(''); }} /></label>
-      <div className="ai-settings-models"><label><span>{models.length ? t('模型', 'Model') : t('模型 ID', 'Model ID')}</span>{models.length ? <select aria-label={t('AI 模型', 'AI model')} disabled={!enabled} value={manualModel ? '__custom__' : model} onChange={event => { setCustomModel(event.target.value === '__custom__'); if (event.target.value !== '__custom__') setModel(event.target.value); setTestedModel(null); setNotice(''); }}><option value="">{t('选择模型', 'Choose a model')}</option>{models.map(item => <option value={item.id} key={item.id}>{item.name}</option>)}<option value="__custom__">{t('自定义模型…', 'Custom model…')}</option></select> : <input aria-label={t('模型 ID', 'Model ID')} autoComplete="off" spellCheck={false} maxLength={200} disabled={!enabled} value={model} onChange={event => { setModel(event.target.value); setTestedModel(null); setNotice(''); }} />}</label><button type="button" disabled={!enabled || !hasKey} onClick={() => void perform('models')}>{busy === 'models' ? t('读取中…', 'Loading…') : t('读取模型', 'Load models')}</button></div>
-      {models.length > 0 && manualModel && <label><span>{t('模型 ID', 'Model ID')}</span><input aria-label={t('模型 ID', 'Model ID')} autoComplete="off" spellCheck={false} maxLength={200} disabled={!enabled} value={model} onChange={event => { setModel(event.target.value); setTestedModel(null); setNotice(''); }} /></label>}
+      <label><span>API key</span><input ref={keyInput} aria-label="API key" type="password" autoComplete="off" spellCheck={false} autoCapitalize="off" maxLength={8192} disabled={!enabled} value={apiKey} placeholder={storedKey ? t('留空以使用已保存密钥', 'Leave blank to use the saved key') : ''} onChange={event => { setApiKey(event.target.value); setModels([]); setTestedModel(null); setError(''); setNotice(''); }} /></label>
+      <div className="ai-settings-models"><label><span>{models.length ? t('模型', 'Model') : t('模型 ID', 'Model ID')}</span>{models.length ? <select aria-label={t('AI 模型', 'AI model')} disabled={!enabled} value={manualModel ? '__custom__' : model} onChange={event => { setCustomModel(event.target.value === '__custom__'); if (event.target.value !== '__custom__') setModel(event.target.value); setTestedModel(null); setError(''); setNotice(''); }}><option value="">{t('选择模型', 'Choose a model')}</option>{models.map(item => <option value={item.id} key={item.id}>{item.name}</option>)}<option value="__custom__">{t('自定义模型…', 'Custom model…')}</option></select> : <input aria-label={t('模型 ID', 'Model ID')} autoComplete="off" spellCheck={false} maxLength={200} disabled={!enabled} value={model} onChange={event => { setModel(event.target.value); setTestedModel(null); setError(''); setNotice(''); }} />}</label><button type="button" disabled={!enabled || !hasKey} onClick={() => void perform('models')}>{busy === 'models' ? t('读取中…', 'Loading…') : t('读取模型', 'Load models')}</button></div>
+      {models.length > 0 && manualModel && <label><span>{t('模型 ID', 'Model ID')}</span><input aria-label={t('模型 ID', 'Model ID')} autoComplete="off" spellCheck={false} maxLength={200} disabled={!enabled} value={model} onChange={event => { setModel(event.target.value); setTestedModel(null); setError(''); setNotice(''); }} /></label>}
       <div className="ai-settings-actions"><button type="button" disabled={!enabled || !hasKey || !modelId(model.trim())} onClick={() => void perform('test')}>{busy === 'test' ? t('测试中…', 'Testing…') : t('测试连接', 'Test connection')}</button><button type="button" className="ai-settings-primary" disabled={!enabled || !hasKey || !modelId(model.trim())} onClick={() => void perform('save')}>{busy === 'save' ? t('保存中…', 'Saving…') : t('保存并使用', 'Save and use')}</button>{selected?.configured && <button type="button" className="ai-settings-delete" disabled={!!busy || blocked} onClick={() => void perform('remove')}>{t('删除密钥', 'Delete key')}</button>}</div>
+      {feedback}
       <p className="ai-settings-privacy">{t('密钥在账号内加密保存。AI 操作会将所选内容发送给此服务商，用量由服务商计费。', 'Your key is encrypted in your account. AI actions send selected content to this provider; usage is billed by the provider.')}</p>
     </>}
     {(!settings || blocked) && !busy && <button type="button" onClick={() => void load()}>{t('重新读取设置', 'Reload settings')}</button>}
