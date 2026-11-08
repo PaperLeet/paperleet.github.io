@@ -8,6 +8,8 @@ export function accountEntryHref(destination: string): string {
       ? query < 0 ? decodeURIComponent(raw) : decodeURIComponent(raw.slice(0, query)) + raw.slice(query)
       : destination;
     if (/^(?:[a-z][\w+.-]*:|[\/#]|account(?:\/|$))/i.test(route) || /[\r\n\\]/.test(route)) return '#/account';
+    // A sharing secret stays in this tab; only the static join page crosses sign-in.
+    if (/^rebuttal\/join\/[A-Za-z0-9_-]{43}$/.test(route)) return "#/account/continue/rebuttal%2Fjoin";
     return `#/account/continue/${encodeURIComponent(route)}`;
   } catch { return '#/account'; }
 }

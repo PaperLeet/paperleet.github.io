@@ -246,3 +246,4 @@ try {
   await server.close();
 }
 await import('./check-rebuttal-invitations.mjs');
+await import('./check-rebuttal-sharing.mjs');

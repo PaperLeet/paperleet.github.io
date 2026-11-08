@@ -15,6 +15,10 @@ import {
   rebuttalHref, rebuttalRequestId, useRebuttalCloud, useRebuttalInvitations, validateCloudProject,
 } from './rebuttalCloud';
 import type { RebuttalInvitation, RebuttalPaperRow, RebuttalRole } from './rebuttalCloud';
+import RebuttalJoin from './RebuttalJoin';
+import { sharingErrorText, useRebuttalShareLinks } from './rebuttalSharing';
+import type { ShareRole } from './rebuttalSharing';
+import { rebuttalShareHref } from './rebuttalShareHandoff';
 import './rebuttal.css';
 import './hostedRebuttal.css';
 
@@ -28,6 +32,7 @@ export default function HostedRebuttal({ route = 'rebuttal' }: { route?: string 
   const { t } = useI18n();
   const view = readRebuttalRoute(route);
   if (!view) return <main className="rst-shell hreb-shell"><h1>{t('找不到这篇论文', 'Paper not found')}</h1><AppLink href={rebuttalHref()}>{t('返回我的论文', 'Back to my papers')}</AppLink></main>;
+  if (view.join) return <RebuttalJoin initialToken={view.token} invalid={view.invalid} />;
   if (loading) return <main className="rst-shell hreb-shell"><p role="status">{t('正在确认账号…', 'Checking your account…')}</p></main>;
   if (!user) return <main className="rst-shell hreb-shell hreb-access"><FileText size={28} /><h1>Rebuttal Hub</h1>
     {error ? <><p role="alert">{error}</p><button className="rst-button" onClick={() => void refresh()}>{t('重试', 'Retry')}</button></> : <p>{t('登录后管理论文，与合作者一起准备回复。', 'Sign in to manage papers and prepare responses with collaborators.')}</p>}
@@ -195,8 +200,10 @@ function PaperLibrary({ owner, initialTab, invitationsAvailable }: { owner: stri
 
 function PaperWorkspace({ owner, paperId }: { owner: string; paperId: string }) {
   const { t } = useI18n();
+  const { capabilities } = useAccount();
   const { state, store } = useRebuttalCloud(owner, paperId);
   const [sharing, setSharing] = useState(false), [leaving, setLeaving] = useState(false);
+  const links = useRebuttalShareLinks(owner, paperId, state.document?.role === 'owner' && capabilities?.rebuttal_invite_links === true, sharing);
   const personalDraft = useRef<{ flush: () => Promise<boolean>; hasPending: () => boolean } | null>(null);
   const mounted = useRef(true);
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
@@ -230,15 +237,15 @@ function PaperWorkspace({ owner, paperId }: { owner: string; paperId: string }) 
     <RebuttalStudio key={`${paperId}:${state.reloadVersion}`} hosted={{ project: state.project, readOnly: state.document.role === 'viewer' || state.blocked || state.loading || state.memberBusy || store.hasPendingMember() || leaving,
       saveStatus: state.status, role: state.document.role, onPersonalDraft: bridge => { personalDraft.current = bridge; }, onChange: project => { store.update(project); }, onBack: () => { void back(); },
       onShare: () => setSharing(true), onRefresh: () => { void store.flush().then(async saved => { if (saved && (await personalDraft.current?.flush() ?? true)) await store.refresh(); }); } }} />
-    {sharing && <MembersDialog state={state} store={store} onClose={() => setSharing(false)} />}
+    {sharing && <MembersDialog state={state} store={store} links={links} onClose={() => setSharing(false)} />}
   </div>;
 }
 
-function MembersDialog({ state, store, onClose }: { state: ReturnType<typeof useRebuttalCloud>['state']; store: ReturnType<typeof useRebuttalCloud>['store']; onClose: () => void }) {
-  const { t } = useI18n();
+function MembersDialog({ state, store, links, onClose }: { state: ReturnType<typeof useRebuttalCloud>['state']; store: ReturnType<typeof useRebuttalCloud>['store']; links: ReturnType<typeof useRebuttalShareLinks>; onClose: () => void }) {
+  const { t, locale } = useI18n();
   const { capabilities } = useAccount();
   const [username, setUsername] = useState(''), [role, setRole] = useState<'editor' | 'viewer'>('editor'), [copied, setCopied] = useState(false);
-  const [notice, setNotice] = useState('');
+  const [notice, setNotice] = useState(''), [manualLink, setManualLink] = useState('');
   const dialog = useRef<HTMLElement>(null);
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;
@@ -257,27 +264,64 @@ function MembersDialog({ state, store, onClose }: { state: ReturnType<typeof use
   const paper = state.document!;
   const canManage = paper.role === 'owner' && !state.blocked;
   const invitationsAvailable = capabilities?.inbox_rebuttal_invitations === true;
+  const emailsAvailable = capabilities?.rebuttal_email_sharing === true;
+  const deliveryAvailable = capabilities?.rebuttal_email_delivery === true;
+  const linksAvailable = capabilities?.rebuttal_invite_links === true;
   const disabled = state.memberBusy || state.status === 'conflict' || store.hasPendingMember();
+  const address = username.trim().replace(/^@/, '');
+  const isEmail = address.includes('@');
+  const validAddress = isEmail ? emailsAvailable && deliveryAvailable && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address) : /^[a-z0-9_]{3,24}$/.test(address);
+  function deliveryText(status: string, compact = false) {
+    if (status === 'sent') return compact ? t('邮件已发送', 'Email sent') : t('邀请邮件已发送', 'Invitation email sent');
+    if (status === 'queued' || status === 'sending') return t('邀请邮件正在发送', 'Invitation email is being sent');
+    if (status === 'unknown') return t('邮件发送结果未确认', 'Email delivery is unconfirmed');
+    if (status === 'quota') return t('邮件发送已达限额，请稍后重发', 'Email limit reached. Resend later.');
+    if (status === 'unavailable') return t('邮件发送暂不可用', 'Email delivery is unavailable');
+    return t('邮件发送失败', 'Email delivery failed');
+  }
   async function invite(event: FormEvent) {
-    event.preventDefault(); const exact = username.trim().replace(/^@/, '');
-    if (!/^[a-z0-9_]{3,24}$/.test(exact) || disabled || !invitationsAvailable) return;
+    event.preventDefault(); const exact = address;
+    if (!validAddress || disabled || !invitationsAvailable) return;
     setNotice('');
-    if (await store.changeMember({ username: exact, role })) {
+    if (await store.changeMember(isEmail ? { email: exact.toLowerCase(), role } : { username: exact, role })) {
       setUsername('');
-      setNotice(store.getSnapshot().document?.invitations.some(invitation => invitation.user.username === exact)
-        ? t('邀请已发送 · 等待接受', 'Invitation sent · Awaiting acceptance') : t('成员权限已更新', 'Member permission updated'));
+      const pending = store.getSnapshot().document?.invitations.find(invitation => invitation.kind === 'email' ? invitation.email === exact.toLowerCase() : invitation.user.username === exact);
+      setNotice(pending?.kind === 'email' ? deliveryText(pending.delivery_status) : pending ? t('邀请已发送 · 等待接受', 'Invitation sent · Awaiting acceptance') : t('成员权限已更新', 'Member permission updated'));
     }
+  }
+  async function copyToken(token: string) {
+    const href = new URL(rebuttalShareHref(token), location.href).href;
+    try { await navigator.clipboard.writeText(href); setManualLink(''); setNotice(t('邀请链接已复制', 'Invitation link copied')); }
+    catch { setManualLink(href); setNotice(t('请复制邀请链接', 'Copy the invitation link')); }
+  }
+  async function share(role?: ShareRole, action?: 'create' | 'revoke') {
+    setManualLink(''); setNotice('');
+    const result = await links.store.change(role, action);
+    if (result?.token) await copyToken(result.token);
+    else if (result) setNotice(t('邀请链接已撤销', 'Invitation link revoked'));
   }
   return <div className="hreb-overlay"><section ref={dialog} className="hreb-members" role="dialog" aria-modal="true" aria-labelledby="hreb-members-title">
     <header><h2 id="hreb-members-title"><Users size={18} />{t('论文成员', 'Paper members')}</h2><button className="rst-icon-button" disabled={state.memberBusy} aria-label={t('关闭成员窗口', 'Close members')} onClick={onClose}><X size={18} /></button></header>
     {state.error && <p className="hreb-error" role="alert">{state.error}</p>}
     {notice && <p className="hreb-notice" role="status">{notice}</p>}
-    {canManage && (invitationsAvailable ? <form className="hreb-invite" onSubmit={invite}><label><span>{t('精确用户名', 'Exact username')}</span><input autoComplete="off" spellCheck={false} maxLength={25} disabled={disabled} value={username} onChange={event => setUsername(event.target.value)} placeholder="username" /></label><label><span>{t('权限', 'Permission')}</span><select value={role} disabled={disabled} onChange={event => setRole(event.target.value as 'editor' | 'viewer')}><option value="editor">{t('可编辑', 'Editor')}</option><option value="viewer">{t('只读', 'Viewer')}</option></select></label><button className="rst-button rst-primary" disabled={disabled || !/^[a-z0-9_]{3,24}$/.test(username.trim().replace(/^@/, ''))}>{state.memberBusy ? t('正在发送…', 'Sending…') : t('发送邀请', 'Send invitation')}</button></form> : <p className="hreb-notice">{t('协作邀请正在更新，请稍后刷新。', 'Invitations are updating. Refresh shortly.')}</p>)}
-    <h3 className="hreb-member-heading">{t('已加入', 'Members')}</h3>
+    {canManage && (invitationsAvailable ? <form className="hreb-invite" onSubmit={invite}><label><span>{emailsAvailable ? t('邮箱或用户名', 'Email or username') : t('精确用户名', 'Exact username')}</span><input autoComplete="off" spellCheck={false} maxLength={emailsAvailable ? 254 : 25} disabled={disabled} value={username} onChange={event => setUsername(event.target.value)} placeholder={emailsAvailable ? 'name@university.edu' : 'username'} /></label><label><span>{t('权限', 'Permission')}</span><select value={role} disabled={disabled} onChange={event => setRole(event.target.value as 'editor' | 'viewer')}><option value="editor">{t('可编辑', 'Editor')}</option><option value="viewer">{t('只读', 'Viewer')}</option></select></label><button className="rst-button rst-primary" disabled={disabled || !validAddress}>{state.memberBusy ? t('正在发送…', 'Sending…') : t('发送邀请', 'Send invitation')}</button></form> : <p className="hreb-notice">{t('协作邀请正在更新，请稍后刷新。', 'Invitations are updating. Refresh shortly.')}</p>)}
+    {canManage && isEmail && emailsAvailable && !deliveryAvailable && <p className="hreb-notice">{t('邮件发送暂不可用，请使用邀请链接。', 'Email delivery is unavailable. Use an invitation link.')}</p>}
+    <h3 className="hreb-member-heading">{t('协作者', 'Collaborators')}</h3>
     <ul className="hreb-member-list">{paper.members.map(member => <li key={member.user.id}><span><strong>{member.user.display_name}</strong><span>@{member.user.username}</span></span>
       {canManage && member.role !== 'owner' ? <div><select aria-label={`${member.user.username} ${t('权限', 'permission')}`} disabled={disabled} value={member.role} onChange={event => void store.changeMember({ username: member.user.username, role: event.target.value as 'editor' | 'viewer' })}><option value="editor">{t('可编辑', 'Editor')}</option><option value="viewer">{t('只读', 'Viewer')}</option></select><button className="hreb-remove" disabled={disabled} onClick={() => void store.changeMember({ action: 'remove', user_id: member.user.id })}>{t('移除', 'Remove')}</button></div> : <span>{roleName(member.role, t)}</span>}
-    </li>)}</ul>
-    {canManage && paper.invitations.length > 0 && <><h3 className="hreb-member-heading">{t('待接受的邀请', 'Pending invitations')}</h3><ul className="hreb-member-list">{paper.invitations.map(invitation => <li key={invitation.id}><span><strong>{invitation.user.display_name}</strong><span>@{invitation.user.username}</span></span><div><span>{roleName(invitation.role, t)}</span><span className="hreb-pending-badge">{t('等待接受', 'Pending')}</span><button className="hreb-remove" disabled={disabled} onClick={async () => { if (await store.changeMember({ action: 'remove', user_id: invitation.user.id })) setNotice(t('邀请已取消', 'Invitation cancelled')); }}>{t('取消邀请', 'Cancel invitation')}</button></div></li>)}</ul></>}
-    <footer>{store.hasPendingMember() && <button className="rst-button" disabled={state.memberBusy || state.status === 'conflict'} onClick={() => void store.changeMember()}>{t('重试原操作', 'Retry original operation')}</button>}<button className="rst-button" onClick={async () => { try { await navigator.clipboard.writeText(new URL(publicHref(rebuttalHref(paper.project.id)) || rebuttalHref(paper.project.id), location.href).href); setCopied(true); } catch { setCopied(false); } }}>{copied ? t('已复制', 'Copied') : t('复制论文链接', 'Copy paper link')}</button></footer>
+    </li>)}{canManage && paper.invitations.map(invitation => <li key={invitation.id}><span><strong>{invitation.kind === 'email' ? invitation.email : invitation.user.display_name}</strong><span>{invitation.kind === 'email' ? deliveryText(invitation.delivery_status, true) : `@${invitation.user.username}`}</span></span><div><span>{roleName(invitation.role, t)}</span><span className="hreb-pending-badge">{t('等待接受', 'Pending')}</span>
+      {invitation.kind === 'email' && deliveryAvailable && <button className="rst-button" disabled={disabled} onClick={async () => { if (await store.changeMember({ email: invitation.email, role: invitation.role })) { const latest = store.getSnapshot().document?.invitations.find(item => item.kind === 'email' && item.email === invitation.email); if (latest?.kind === 'email') setNotice(deliveryText(latest.delivery_status)); } }}>{t('重发', 'Resend')}</button>}
+      <button className="hreb-remove" disabled={disabled} onClick={async () => { if (await store.changeMember(emailsAvailable || invitation.kind === 'email' ? { action: 'cancel_invitation', invitation_id: invitation.id } : { action: 'remove', user_id: invitation.user.id })) setNotice(t('邀请已取消', 'Invitation cancelled')); }}>{t('取消邀请', 'Cancel invitation')}</button></div></li>)}</ul>
+    {canManage && linksAvailable && <section className="hreb-share-links" aria-label={t('邀请链接', 'Invitation links')}>
+      {links.state.error && <p className="hreb-error" role="alert">{sharingErrorText(links.state.error, t)}</p>}
+      {links.state.loading && <p role="status">{t('正在读取邀请链接…', 'Loading invitation links…')}</p>}
+      {links.state.links.map(link => { const cached = links.state.tokens[link.role]; const label = link.role === 'viewer' ? t('只读链接', 'View link') : t('编辑链接', 'Edit link'); return <div className="hreb-share-link" key={link.role}>
+        <button className="rst-button" disabled={links.state.busy || links.state.loading || links.state.pending} onClick={() => cached && link.active ? void copyToken(cached.token) : void share(link.role, 'create')}>{link.active && !cached ? t(`重新生成${label}`, `Regenerate ${label.toLowerCase()}`) : label}</button>
+        {link.active && <><span>{t('有效期至', 'Expires')} {new Date(link.expires_at!).toLocaleDateString(locale === 'zh' ? 'zh-CN' : 'en-US')}</span><button className="hreb-remove" disabled={links.state.busy || links.state.loading || links.state.pending} aria-label={`${t('撤销', 'Revoke')} ${label}`} onClick={() => void share(link.role, 'revoke')}>{t('撤销', 'Revoke')}</button></>}
+      </div>; })}
+      {links.state.pending ? <button className="rst-button" disabled={links.state.busy} onClick={() => void share()}>{t('重试链接操作', 'Retry link action')}</button> : links.state.error && <button className="rst-button" disabled={links.state.busy || links.state.loading} onClick={() => void links.store.load()}>{t('刷新邀请链接', 'Refresh invitation links')}</button>}
+      {manualLink && <input className="hreb-link-copy" aria-label={t('邀请链接', 'Invitation link')} readOnly value={manualLink} onFocus={event => event.target.select()} />}
+    </section>}
+    <footer>{store.hasPendingMember() && <button className="rst-button" disabled={state.memberBusy || state.status === 'conflict'} onClick={() => void store.changeMember()}>{t('重试原操作', 'Retry original operation')}</button>}{(!canManage || !linksAvailable) && <button className="rst-button" onClick={async () => { try { await navigator.clipboard.writeText(new URL(publicHref(rebuttalHref(paper.project.id)) || rebuttalHref(paper.project.id), location.href).href); setCopied(true); } catch { setCopied(false); } }}>{copied ? t('已复制', 'Copied') : t('复制论文链接', 'Copy paper link')}</button>}</footer>
   </section></div>;
 }

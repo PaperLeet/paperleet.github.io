@@ -2,11 +2,15 @@ import { useEffect, useMemo, useRef, useSyncExternalStore } from 'react';
 import { socialApi } from './social';
 import { makeId, validateWorkspace } from './rebuttalModel';
 import type { RebuttalProject } from './rebuttalModel';
+import { isRebuttalShareToken } from './rebuttalShareHandoff';
 
 export type RebuttalRole = 'owner' | 'editor' | 'viewer';
 export type RebuttalPerson = { id: string; display_name: string; username: string };
 export type RebuttalMember = { user: RebuttalPerson; role: RebuttalRole };
-export type RebuttalPendingMember = { id: string; user: RebuttalPerson; role: 'editor' | 'viewer'; created_at: string };
+export type RebuttalEmailDelivery = 'queued' | 'sending' | 'sent' | 'unavailable' | 'quota' | 'failed' | 'unknown';
+export type RebuttalPendingMember = { id: string; role: 'editor' | 'viewer'; created_at: string } & (
+  { kind?: 'username'; user: RebuttalPerson } | { kind: 'email'; user: null; email: string; expires_at: string; delivery_status: RebuttalEmailDelivery }
+);
 export type RebuttalInvitation = {
   id: string; paper_id: string; title: string; venue: string; owner: RebuttalPerson; role: 'editor' | 'viewer'; created_at: string;
 };
@@ -27,7 +31,7 @@ export type RebuttalCloudState = {
 export type RebuttalRequest = (path: string, body?: unknown, signal?: AbortSignal) => Promise<unknown>;
 type Storage = Pick<globalThis.Storage, 'getItem' | 'setItem' | 'removeItem'>;
 type SaveCommand = { project: RebuttalProject; expected_revision: number; request_id: string; expected_user_id: string };
-type MemberChange = { username: string; role: 'editor' | 'viewer' } | { action: 'remove'; user_id: string };
+type MemberChange = { username: string; role: 'editor' | 'viewer' } | { email: string; role: 'editor' | 'viewer' } | { action: 'remove'; user_id: string } | { action: 'cancel_invitation'; invitation_id: string };
 type MemberCommand = MemberChange & { expected_revision: number; request_id: string; expected_user_id: string };
 const projectLimit = 200 * 1024;
 const identifier = (value: unknown): value is string => typeof value === 'string' && /^[a-zA-Z0-9_-]{1,150}$/.test(value);
@@ -41,10 +45,12 @@ const errorCode = (error: unknown) => record(error) && typeof error.code === 'st
 const projectSignature = ({ updatedAt: _updatedAt, createdAt: _createdAt, ...content }: RebuttalProject) => JSON.stringify(content);
 export const rebuttalRequestId = () => makeId().replaceAll('-', '');
 export const rebuttalHref = (id?: string) => id ? `#/rebuttal/${encodeURIComponent(id)}` : '#/rebuttal';
-export function readRebuttalRoute(route: string): { paperId?: string; tab?: 'invitations' } | undefined {
+export function readRebuttalRoute(route: string): { paperId?: string; tab?: 'invitations'; join?: boolean; token?: string; invalid?: boolean } | undefined {
   const path = route.replace(/^#\/?/, '');
   if (path === 'rebuttal' || path === 'rebuttal/') return {};
   if (path === 'rebuttal/invitations' || path === 'rebuttal/invitations/') return { tab: 'invitations' };
+  if (path === 'rebuttal/join' || path === 'rebuttal/join/') return { join: true };
+  if (path.startsWith('rebuttal/join/')) { const token = path.slice('rebuttal/join/'.length); return isRebuttalShareToken(token) ? { join: true, token } : { join: true, invalid: true }; }
   const match = /^rebuttal\/([a-zA-Z0-9_-]{1,150})\/?$/.exec(path);
   return match ? { paperId: match[1] } : undefined;
 }
@@ -72,10 +78,17 @@ export function readRebuttalPaper(value: unknown, id?: string): RebuttalPaper {
   const invitations = ((value.invitations || []) as unknown[]).map<RebuttalPendingMember>(item => {
     if (!record(item) || !identifier(item.id) || (item.role !== 'editor' && item.role !== 'viewer') ||
       typeof item.created_at !== 'string' || !Number.isFinite(Date.parse(item.created_at))) throw Error('Invalid pending invitation');
+    if (item.kind === 'email') {
+      if (item.user !== null || typeof item.email !== 'string' || item.email.length > 254 || !/^[^\s@]+@[^\s@]+$/.test(item.email) ||
+        typeof item.expires_at !== 'string' || !Number.isFinite(Date.parse(item.expires_at)) || !['queued', 'sending', 'sent', 'unavailable', 'quota', 'failed', 'unknown'].includes(String(item.delivery_status))) throw Error('Invalid email invitation');
+      return { id: item.id, kind: 'email', user: null, email: item.email, role: item.role, created_at: item.created_at, expires_at: item.expires_at, delivery_status: item.delivery_status as RebuttalEmailDelivery };
+    }
     return { id: item.id, user: person(item.user), role: item.role, created_at: item.created_at };
   });
-  if (new Set(invitations.map(item => item.id)).size !== invitations.length || new Set(invitations.map(item => item.user.id)).size !== invitations.length ||
-    invitations.some(item => members.some(member => member.user.id === item.user.id))) throw Error('Invalid pending invitations');
+  const pendingUsers = invitations.flatMap(item => item.user ? [item.user.id] : []);
+  const pendingEmails = invitations.flatMap(item => item.kind === 'email' ? [item.email.toLowerCase()] : []);
+  if (new Set(invitations.map(item => item.id)).size !== invitations.length || new Set(pendingUsers).size !== pendingUsers.length || new Set(pendingEmails).size !== pendingEmails.length ||
+    pendingUsers.some(id => members.some(member => member.user.id === id))) throw Error('Invalid pending invitations');
   return { project, revision: value.revision, role: value.role, owner, members, invitations };
 }
 export function readRebuttalInvitations(value: unknown, owner?: string): RebuttalInvitation[] {
@@ -242,6 +255,8 @@ export function createRebuttalCloud(options: {
       if (record(member) && member.expected_user_id === owner && integer(member.expected_revision) &&
         identifier(member.request_id)) {
         const change: MemberChange | undefined = member.action === 'remove' && identifier(member.user_id) ? { action: 'remove', user_id: member.user_id } :
+          member.action === 'cancel_invitation' && identifier(member.invitation_id) ? { action: 'cancel_invitation', invitation_id: member.invitation_id } :
+          typeof member.email === 'string' && member.email.length <= 254 && /^[^\s@]+@[^\s@]+$/.test(member.email) && (member.role === 'editor' || member.role === 'viewer') ? { email: member.email, role: member.role } :
           typeof member.username === 'string' && /^[a-z0-9_]{3,24}$/.test(member.username) && (member.role === 'editor' || member.role === 'viewer') ? { username: member.username, role: member.role } : undefined;
         if (change) memberCommand = { ...change, expected_revision: member.expected_revision, request_id: member.request_id, expected_user_id: owner };
       }

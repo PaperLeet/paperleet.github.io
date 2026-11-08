@@ -34,6 +34,10 @@ try {
   assert.equal(document.querySelector('link[rel="canonical"]').href,'https://paperleet.com/papers/flow-matching/');
   assert.equal(publicHref('#/lists/llm-basics'),'/collections/llm-basics/');
   assert.equal(publicHref('#/community/demo'),'/#/community/demo');
+  const sharingRoute = `#/rebuttal/join/${'a'.repeat(43)}`;
+  const sharingUrl = new URL(publicHref(sharingRoute), location.href);
+  assert.equal(sharingUrl.pathname, '/');assert.equal(sharingUrl.search, '');
+  assert.equal(sharingUrl.hash, sharingRoute, 'Sharing tokens stay in the fragment, outside HTTP paths and queries');
   assert.equal(publicHref('#section'),'#section');
   assert.equal(routeHash('https://paperleet.test/#section'),'#');
   assert.equal(routeHash('https://paperleet.test/papers/flow-matching/#section'),'#/papers/flow-matching');
