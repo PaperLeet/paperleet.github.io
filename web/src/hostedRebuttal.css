@@ -81,7 +81,6 @@
 .hreb-join-paper p { margin: 12px 0; }
 .hreb-join .hreb-error .rst-button { margin: 10px; }
 @media (max-width: 767px) {
-  .hreb-workspace .rst-hosted-heading .rst-save { display: flex; grid-column: 1 / -1; grid-row: 3; margin-left: 0; }
   .hreb-heading { align-items: flex-start; flex-direction: column; gap: 16px; }
   .hreb-heading h1 { font-size: 26px; }
   .hreb-toolbar { flex-wrap: wrap; }
@@ -103,13 +102,4 @@
   .hreb-invitation-actions { align-self: flex-end; }
   .hreb-member-list li { flex-wrap: wrap; }
   .hreb-member-list li > div { flex-wrap: wrap; gap: 8px; }
-}
-@media (max-width: 360px) {
-  .hreb-workspace .rst-hosted-heading { grid-template-columns: minmax(0, 1fr) auto auto; }
-  .hreb-workspace .rst-hosted-heading > .rst-back { grid-column: 1 / -1; grid-row: 1; }
-  .hreb-workspace .rst-hosted-heading > .rst-button { grid-column: 1; grid-row: 2; justify-self: start; }
-  .hreb-workspace .rst-hosted-heading > .rst-share-button { grid-column: 2; }
-  .hreb-workspace .rst-hosted-heading > .rst-icon-button { grid-column: 3; grid-row: 2; }
-  .hreb-workspace .rst-hosted-heading > div { grid-row: 3; }
-  .hreb-workspace .rst-hosted-heading .rst-save { grid-row: 4; }
 }

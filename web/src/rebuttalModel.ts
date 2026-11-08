@@ -15,7 +15,10 @@ export type Experiment = {
   id: string; issueId: string; title: string; protocol: string; metric: string;
   owner: string; status: "planned" | "running" | "done"; result: string;
 };
-export type ProjectSnapshot = { id: string; createdAt: string; label: string; markdown: string };
+export type ProjectSnapshot = {
+  id: string; createdAt: string; label: string; markdown: string;
+  scope?: string; reviewerName?: string;
+};
 export type RebuttalProject = {
   id: string; title: string; venue: string; context: string;
   reviews: Reviewer[]; issues: Issue[]; experiments: Experiment[];
@@ -311,15 +314,20 @@ export function assembleResponse(project: RebuttalProject, reviewerId?: string):
 }
 
 /** Save an immutable export version; later draft edits never change this Markdown. */
-export function saveResponseSnapshot(project: RebuttalProject, label?: string, markdown = assembleResponse(project)): RebuttalProject {
-  if (!markdown.trim()) throw Error("Write a response before saving a version.");
+export function saveResponseSnapshot(project: RebuttalProject, label?: string, markdown?: string, scope = "all"): RebuttalProject {
+  scope = snapshotScope(scope);
+  const reviewer = scope === "all" ? undefined : project.reviews.find(review => review.id === scope.slice("reviewer-".length));
+  if (scope !== "all" && !reviewer) throw Error("This reviewer is no longer part of the paper.");
+  const source = string(markdown === undefined ? assembleResponse(project, reviewer?.id) : markdown, "version Markdown", 2_000_000);
+  if (!source.trim()) throw Error("Write a response before saving a version.");
   const snapshots = project.snapshots || [];
   if (snapshots.length >= 100) throw Error("A paper can contain up to 100 saved versions.");
   const now = new Date().toISOString();
   const snapshot: ProjectSnapshot = {
     id: makeId(), createdAt: now,
-    label: string(label?.trim() || `Version ${snapshots.length + 1}`, "version label", 300),
-    markdown: string(markdown, "version Markdown", 2_000_000),
+    label: string(label?.trim() || `Version ${snapshots.filter(version => version.scope === scope).length + 1}`, "version label", 300),
+    markdown: source, scope,
+    ...(reviewer ? { reviewerName: string(reviewer.name, "version reviewer name", 300) } : {}),
   };
   return { ...project, updatedAt: now, snapshots: [...snapshots, snapshot] };
 }
@@ -363,6 +371,13 @@ function identifier(value: unknown): string {
   const id = string(value, "identifier", 150);
   if (!/^[a-zA-Z0-9_-]+$/.test(id)) throw Error("Invalid identifier");
   return id;
+}
+function snapshotScope(value: unknown): string {
+  const scope = string(value, "version scope", 159);
+  if (scope === "all") return scope;
+  if (!scope.startsWith("reviewer-")) throw Error("Invalid version scope");
+  identifier(scope.slice("reviewer-".length));
+  return scope;
 }
 function list(value: unknown, name: string, max: number): unknown[] {
   if (!Array.isArray(value) || value.length > max) throw Error(`Invalid ${name}`);
@@ -424,8 +439,14 @@ export function validateWorkspace(value: unknown): Workspace {
     if (project.snapshots !== undefined) {
       extra.snapshots = list(project.snapshots, "saved versions", 100).map(rawSnapshot => {
         const snapshot = object(rawSnapshot);
+        const metadata: Pick<ProjectSnapshot, "scope" | "reviewerName"> = {};
+        if (snapshot.scope !== undefined) metadata.scope = snapshotScope(snapshot.scope);
+        if (snapshot.reviewerName !== undefined) {
+          if (!metadata.scope?.startsWith("reviewer-")) throw Error("A version reviewer name requires a reviewer scope");
+          metadata.reviewerName = string(snapshot.reviewerName, "version reviewer name", 300);
+        }
         return { id: identifier(snapshot.id), createdAt: date(snapshot.createdAt, "version date"),
-          label: string(snapshot.label, "version label", 300), markdown: string(snapshot.markdown, "version Markdown", 2_000_000) };
+          label: string(snapshot.label, "version label", 300), markdown: string(snapshot.markdown, "version Markdown", 2_000_000), ...metadata };
       });
       uniqueIds(extra.snapshots, "version");
     }

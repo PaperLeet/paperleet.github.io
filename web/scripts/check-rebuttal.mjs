@@ -206,6 +206,49 @@ try {
   assert.throws(() => saveResponseSnapshot({ ...project, snapshots: Array(100).fill(versioned.snapshots[0]) }), "The history cap must not silently delete earlier versions");
   assert.throws(() => validateWorkspace({ ...workspace, projects: [{ ...versioned, snapshots: [versioned.snapshots[0], versioned.snapshots[0]] }] }));
 
+  const legacySnapshot = { id: "legacy-unscoped", createdAt: project.updatedAt, label: "Previous export", markdown: "Legacy source stays unchanged" };
+  const scopedHistoryProject = { ...newProject(), id: "scoped-history", reviews: [
+    { id: "r1", name: "Reviewer One", text: "First review" }, { id: "r2", name: "Reviewer Two", text: "Second review" },
+  ], issues: [
+    { ...project.issues[0], id: "history-issue-r1", reviewerId: "r1", response: "Only reviewer one response" },
+    { ...project.issues[0], id: "history-issue-r2", reviewerId: "r2", response: "Only reviewer two response" },
+  ], snapshots: [legacySnapshot] };
+  const reviewerOneV1 = saveResponseSnapshot(scopedHistoryProject, undefined, undefined, "reviewer-r1");
+  const reviewerTwoV1 = saveResponseSnapshot(reviewerOneV1, undefined, "Personal edited reviewer two source", "reviewer-r2");
+  const renamedHistory = { ...reviewerTwoV1, reviews: reviewerTwoV1.reviews.map(review => review.id === "r1" ? { ...review, name: "Renamed reviewer one" } : review) };
+  const reviewerOneV2 = saveResponseSnapshot(renamedHistory, undefined, "Revised reviewer one source", "reviewer-r1");
+  assert.deepEqual(reviewerOneV2.snapshots.slice(1).map(version => [version.scope, version.label]), [
+    ["reviewer-r1", "Version 1"], ["reviewer-r2", "Version 1"], ["reviewer-r1", "Version 2"],
+  ], "Each reviewer starts and advances an independent version sequence");
+  assert.equal(reviewerOneV2.snapshots[1].reviewerName, "Reviewer One", "Renaming a reviewer does not rename historical versions");
+  assert.equal(reviewerOneV2.snapshots[3].reviewerName, "Renamed reviewer one");
+  assert(reviewerOneV2.snapshots[1].markdown.includes("Only reviewer one response"));
+  assert(!reviewerOneV2.snapshots[1].markdown.includes("Only reviewer two response"), "An omitted Markdown argument assembles the selected reviewer only");
+  assert.equal(reviewerOneV2.snapshots[2].markdown, "Personal edited reviewer two source", "Saving keeps the author's exact selected source");
+  assert.deepEqual(scopedHistoryProject.snapshots, [legacySnapshot]);
+  const wholePaperV1 = saveResponseSnapshot(reviewerOneV2);
+  assert.equal(wholePaperV1.snapshots.at(-1).label, "Version 1", "Legacy unscoped exports are not silently numbered as All-reviewer versions");
+  assert.equal(wholePaperV1.snapshots.at(-1).scope, "all");
+  assert(!Object.hasOwn(wholePaperV1.snapshots.at(-1), "reviewerName"));
+  const historicalWorkspace = { version: 1, activeProjectId: wholePaperV1.id, projects: [wholePaperV1] };
+  assert.deepEqual(validateWorkspace(JSON.parse(JSON.stringify(historicalWorkspace))), historicalWorkspace);
+  assert.deepEqual(wholePaperV1.snapshots[0], legacySnapshot, "Legacy snapshots round-trip without invented scope or reviewer names");
+  const deletedReviewer = { ...wholePaperV1, reviews: wholePaperV1.reviews.filter(review => review.id !== "r1"), issues: wholePaperV1.issues.filter(issue => issue.reviewerId !== "r1") };
+  assert.deepEqual(validateWorkspace({ ...historicalWorkspace, projects: [deletedReviewer] }).projects[0].snapshots, wholePaperV1.snapshots,
+    "Deleting a reviewer preserves that reviewer's immutable scoped history");
+  assert.throws(() => saveResponseSnapshot(deletedReviewer, undefined, "New source", "reviewer-r1"), "A missing reviewer cannot receive a new version");
+  assert.throws(() => saveResponseSnapshot(scopedHistoryProject, undefined, "New source", "invalid-scope"));
+  const snapshotWorkspace = metadata => ({ ...workspace, projects: [{ ...project, snapshots: [{ ...legacySnapshot, ...metadata }] }] });
+  for (const metadata of [
+    { scope: null }, { scope: "" }, { scope: "reviewer-" }, { scope: "reviewer-a/b" }, { scope: "reviewer-a b" },
+    { scope: "reviewer-审稿人" }, { scope: `reviewer-${"x".repeat(151)}` }, { scope: "all", reviewerName: "Reviewer" },
+    { reviewerName: "Reviewer" }, { scope: "reviewer-r1", reviewerName: null },
+    { scope: "reviewer-r1", reviewerName: "x".repeat(301) }, { scope: "reviewer-r1", reviewerName: [] },
+  ]) assert.throws(() => validateWorkspace(snapshotWorkspace(metadata)), "Invalid history metadata must be rejected");
+  const longestHistoryMetadata = { scope: `reviewer-${"x".repeat(150)}`, reviewerName: "名".repeat(300) };
+  assert.deepEqual(validateWorkspace(snapshotWorkspace(longestHistoryMetadata)).projects[0].snapshots[0], { ...legacySnapshot, ...longestHistoryMetadata });
+  assert.deepEqual(validateWorkspace(snapshotWorkspace({ scope: "reviewer-deleted" })).projects[0].snapshots[0], { ...legacySnapshot, scope: "reviewer-deleted" });
+
   const imported = importReviewFile({ notes: [
     { id: "review123", content: { reviewer: { value: "Reviewer ABC" }, summary: { value: "A good paper." }, strengths: "Useful experiments.", weaknesses: { value: "1. The ablation is missing." }, questions: { value: "Why use this objective?" }, rating: { value: "6" } } },
     { id: "decision", content: { decision: { value: "Accept" } } },

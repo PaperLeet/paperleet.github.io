@@ -7,7 +7,7 @@ import { tmpdir } from 'node:os';
 
 const hostedSupported = (await readFile('src/RebuttalStudio.tsx', 'utf8')).includes('HostedStudioSession');
 const dom = new JSDOM('<!doctype html><div id="root"></div>', { url: 'https://paperleet.test/rebuttal/?paper=paper_a', pretendToBeVisual: true });
-const context = { locale: 'en', account: { user: { id: 'account_a' }, loading: false, capabilities: { rebuttal_assembly_drafts: true } }, request: null };
+const context = { locale: 'en', account: { user: { id: 'account_a' }, loading: false, capabilities: { rebuttal_assembly_drafts: true, rebuttal_reviewer_versions: true } }, request: null };
 const globals = { window: dom.window, document: dom.window.document, navigator: dom.window.navigator, location: dom.window.location, history: dom.window.history,
   localStorage: dom.window.localStorage, sessionStorage: dom.window.sessionStorage, Element: dom.window.Element, HTMLElement: dom.window.HTMLElement,
   HTMLInputElement: dom.window.HTMLInputElement, HTMLTextAreaElement: dom.window.HTMLTextAreaElement, HTMLButtonElement: dom.window.HTMLButtonElement,
@@ -122,7 +122,7 @@ try {
     assert.equal(documents.get('account_a:all').source, '');
     context.account.capabilities = {}; await render('old-api', { role: 'viewer', readOnly: true }); await click('Assemble'); assert.equal(source().readOnly, true); assert.match(document.body.textContent, /Personal drafts are updating/);
     assert.equal(source().value, 'Original shared opening'); assert.equal(button('Copy for OpenReview').disabled, false); assert.equal(button('.md').disabled, false, 'Old backends retain their generated export without personal drafts');
-    context.account.capabilities = { rebuttal_assembly_drafts: true };
+    context.account.capabilities = { rebuttal_assembly_drafts: true, rebuttal_reviewer_versions: true };
 
     // The actual hosted wrapper must settle both queues before refresh/reload remounts the editor.
     const { default: HostedHub } = await server.ssrLoadModule('/src/HostedRebuttal.tsx');
@@ -177,3 +177,4 @@ try {
   URL.createObjectURL = createURL; URL.revokeObjectURL = revokeURL; dom.window.close();
   for (const [key, value] of prior) value ? Object.defineProperty(globalThis, key, value) : delete globalThis[key];
 }
+await import('./check-rebuttal-versions-ui.mjs');
