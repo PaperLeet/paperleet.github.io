@@ -103,6 +103,8 @@ The website displays browser test and server submission results automatically, w
 
 Online accounts, synchronized drafts, profiles and community discussions require the separately operated application. The standalone local edition hides these routes and makes no account API requests. Browser and native local practice remain available without sign-in.
 
+Rebuttal Hub saves response versions separately for each reviewer and for **All reviewers**. Each group has its own Version 1, Version 2 sequence, and later draft edits leave saved Markdown unchanged. Unclassified older exports remain under **Legacy versions**; removing a reviewer preserves their history under the captured reviewer name. Owners and editors can explicitly save the selected Assembly source as a shared version, with a total limit of 100 versions per paper. Shared-version saving requires a compatible hosted backend; existing history remains readable during an upgrade.
+
 Each account can submit **1 paper proposal**, publish **5 discussion posts**, and publish **50 replies** per day. These are separate quotas that reset at **00:00 UTC**. Deleting published content does not restore the day's quota.
 
 AI assistance can help draft and improve content. Review the text, verify its claims and sources, and take responsibility for the final publication. Automated bulk posting and replying are not allowed. Paper proposals enter the maintainer review process; submitting one does not automatically publish a new exercise.

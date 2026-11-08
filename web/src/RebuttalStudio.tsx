@@ -79,6 +79,8 @@ export default function RebuttalStudio({ hosted }: { hosted?: HostedStudioSessio
   const [inPaper, setInPaper] = useState(() => !!hosted || initial.workspace.projects.some(p => p.id === paperFromUrl()));
   const [newUserName, setNewUserName] = useState("");
   const [snapshotId, setSnapshotId] = useState("");
+  const [legacyHistory, setLegacyHistory] = useState(false);
+  const explicitAssemblyScope = useRef(false);
   const user = directory.users.find(u => u.id === directory.activeUserId)!;
   const activeUserId = useRef(user.id);
   activeUserId.current = user.id;
@@ -108,10 +110,12 @@ export default function RebuttalStudio({ hosted }: { hosted?: HostedStudioSessio
   const issues = project.issues.filter(issue => (reviewerFilter === "all" || issue.reviewerId === reviewerFilter) && `${issue.title} ${issue.quote}`.toLowerCase().includes(query.toLowerCase()));
   const selected = issues.find(issue => issue.id === selectedId) || issues[0];
   const exportReviewerId = exportReviewer === "all" ? undefined : exportReviewer.slice("reviewer-".length);
+  const versionScopeAvailable = exportReviewer === "all" || project.reviews.some(review => `reviewer-${review.id}` === exportReviewer);
+  const versionsAvailable = !hosted || capabilities?.rebuttal_reviewer_versions === true;
   const draftCloud = !!hosted;
   const draftAvailable = !hosted || !!accountUser && !accountLoading && capabilities?.rebuttal_assembly_drafts === true;
   const draftSharedReadOnly = readOnly;
-  const draft = useAssemblyDraft({ owner: hosted ? !accountLoading && accountUser?.id || "" : user.id, paperId: project.id, scope: exportReviewer, cloud: draftCloud, available: draftAvailable, enabled: draftAvailable && inPaper && (stage === "export" || stage === "history"), request: hosted ? socialApi : undefined });
+  const draft = useAssemblyDraft({ owner: hosted ? !accountLoading && accountUser?.id || "" : user.id, paperId: project.id, scope: exportReviewer, cloud: draftCloud, available: draftAvailable, enabled: draftAvailable && inPaper && (stage === "export" || stage === "history" && !legacyHistory && versionScopeAvailable), request: hosted ? socialApi : undefined });
   useEffect(() => { hostedRef.current?.onPersonalDraft?.({ flush: flushPersonalDrafts, hasPending: draft.hasPending }); return () => hostedRef.current?.onPersonalDraft?.(null); }, [draft.flushAll, draft.hasPending, draft.failedScope]);
   const generated = toOpenReviewMarkdown(assembleResponse(project, exportReviewerId));
   const assembled = draftAvailable && !draft.state.ready ? "" : draft.state.source ?? generated;
@@ -119,7 +123,18 @@ export default function RebuttalStudio({ hosted }: { hosted?: HostedStudioSessio
   const pending = project.issues.filter(issue => (!exportReviewerId || issue.reviewerId === exportReviewerId) && !issue.response.trim()).length;
   const activeReviewer = project.reviews.find(r => r.id === reviewerFilter) || meaningfulReviews[0] || project.reviews[0];
   const visibleExperiments = project.experiments.filter(e => reviewerFilter === "all" || project.issues.some(i => i.id === e.issueId && i.reviewerId === reviewerFilter));
-  const snapshot = project.snapshots?.find(item => item.id === snapshotId);
+  const historyScope = legacyHistory ? "legacy" : exportReviewer;
+  const historyScopes = project.reviews.map(review => ({ scope: `reviewer-${review.id}`, name: review.name }));
+  for (const item of project.snapshots || []) {
+    if (item.scope?.startsWith("reviewer-") && !historyScopes.some(group => group.scope === item.scope)) historyScopes.push({ scope: item.scope, name: `${item.reviewerName || item.scope.slice("reviewer-".length)} ${t("（已移除）", "(removed)")}` });
+  }
+  historyScopes.push({ scope: "all", name: t("所有审稿人", "All reviewers") });
+  if (project.snapshots?.some(item => item.scope === undefined)) historyScopes.push({ scope: "legacy", name: t("旧版本", "Legacy versions") });
+  const historyVersions = (project.snapshots || []).filter(item => legacyHistory ? item.scope === undefined : item.scope === exportReviewer);
+  const snapshot = historyVersions.find(item => item.id === snapshotId) || historyVersions.at(-1);
+  const historyName = historyScopes.find(group => group.scope === historyScope)?.name || "";
+  const versionLabel = (label: string) => label.replace(/^Version (\d+)$/, "V$1");
+  const canSaveVersion = !draftSharedReadOnly && versionsAvailable && versionScopeAvailable && !(stage === "history" && legacyHistory) && draftAvailable && draft.state.ready && draft.state.status !== "loading" && !!assembled.trim();
   const selectedExperiments = project.experiments.filter(experiment => experiment.issueId === selected?.id);
   const experimentIssues = project.issues.filter(issue => issue.reviewerId === activeReviewer?.id);
   const suggestionChanged = !!(suggestion && selected && (selected.response !== suggestion.base || assistanceSource(project, selected) !== suggestion.source));
@@ -159,7 +174,7 @@ export default function RebuttalStudio({ hosted }: { hosted?: HostedStudioSessio
     return () => window.removeEventListener("popstate", navigate);
   }, []);
   useEffect(() => { if (!notice) return; const timer = setTimeout(() => setNotice(""), 7000); return () => clearTimeout(timer); }, [notice]);
-  useEffect(() => { setReviewerFilter("all"); setExportReviewer("all"); setSelectedId(""); setSuggestion(null); setQuery(""); setStage("overview"); setSnapshotId(""); setExpandedSummaries([]); setExperimentDraft(null); setRemoved(null); }, [project.id, user.id]);
+  useEffect(() => { setReviewerFilter("all"); setExportReviewer("all"); explicitAssemblyScope.current = false; setLegacyHistory(false); setSelectedId(""); setSuggestion(null); setQuery(""); setStage("overview"); setSnapshotId(""); setExpandedSummaries([]); setExperimentDraft(null); setRemoved(null); }, [project.id, user.id]);
   useEffect(() => { if (stage !== "experiments") setExperimentDraft(null); }, [stage]);
   useEffect(() => {
     if (!settings) return;
@@ -225,16 +240,31 @@ export default function RebuttalStudio({ hosted }: { hosted?: HostedStudioSessio
       const firstReviewer = meaningfulReviews[0] || project.reviews[0];
       if (firstReviewer) setReviewerFilter(firstReviewer.id);
     }
-    if (next === "export") setExportReviewer(assemblyScope(reviewerFilter));
+    if (next === "export") {
+      if (stage !== "history" || !versionScopeAvailable) setExportReviewer(reviewerFilter === "all" || project.reviews.some(review => review.id === reviewerFilter) ? assemblyScope(reviewerFilter) : project.reviews[0] ? `reviewer-${project.reviews[0].id}` : "all");
+      setLegacyHistory(false);
+    }
+    if (next === "history" && stage !== "history") {
+      if (stage !== "export" && !explicitAssemblyScope.current) {
+        const reviewer = project.reviews.find(review => review.id === reviewerFilter) || project.reviews[0];
+        setExportReviewer(reviewer ? `reviewer-${reviewer.id}` : "all");
+      }
+      setLegacyHistory(false); setSnapshotId("");
+    }
     setStage(next);
   }
   function showReviewer(id: string, next: Stage = "experiments") {
     setExperimentDraft(null);
-    setReviewerFilter(id); setExportReviewer(`reviewer-${id}`); setQuery(""); setSelectedId(""); setStage(next);
+    setReviewerFilter(id); setExportReviewer(`reviewer-${id}`); setLegacyHistory(false); explicitAssemblyScope.current = false; setQuery(""); setSelectedId(""); setStage(next);
+  }
+  function selectVersionScope(scope: string) {
+    setLegacyHistory(scope === "legacy");
+    if (scope !== "legacy") { setExportReviewer(scope); explicitAssemblyScope.current = true; }
+    setSnapshotId("");
   }
   function saveVersion() {
-    if (draftSharedReadOnly || !draftAvailable || !draft.state.ready || draft.state.status === "loading") return;
-    try { const next = saveResponseSnapshot(project, undefined, toOpenReviewMarkdown(assembled)); updateProject(next); setSnapshotId(next.snapshots?.at(-1)?.id || ""); setNotice(t("已保存回复版本", "Response version saved")); }
+    if (!canSaveVersion) return;
+    try { const next = saveResponseSnapshot(project, undefined, toOpenReviewMarkdown(assembled), exportReviewer); updateProject(next); setSnapshotId(next.snapshots?.at(-1)?.id || ""); setNotice(t("已保存回复版本", "Response version saved")); }
     catch (error) { setNotice(error instanceof Error ? error.message : t("无法保存版本", "Could not save version")); }
   }
   function openReviews() { setStage("reviews"); }
@@ -434,12 +464,16 @@ export default function RebuttalStudio({ hosted }: { hosted?: HostedStudioSessio
   const userControl = <details className="rst-user-menu"><summary><UserRound size={16} />{user.name}</summary><div><label>{t("本地用户", "Local user")}<select disabled={!!busy || readOnly} value={user.id} onChange={e => switchUser(e.target.value)}>{directory.users.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label><form onSubmit={e => { e.preventDefault(); addUser(); }}><input aria-label={t("新用户名称", "New user name")} maxLength={80} placeholder={t("新用户名称", "New user name")} value={newUserName} onChange={e => setNewUserName(e.target.value)} /><button className="rst-button" disabled={!!busy || !newUserName.trim()}>{t("添加", "Add")}</button></form></div></details>;
 
   return <main className={`rst-shell${readOnly ? " rst-read-only" : ""}`}>
-    {hosted && <div className="rst-cloud-tools"><button className="rst-text-button" onClick={hosted.onRefresh}>{t("刷新", "Refresh")}</button></div>}
     <input hidden ref={backupInput} type="file" accept=".json" onChange={restore} />
     {initial.userError && <div className="rst-alert" role="alert">{t("无法读取用户列表，原记录已保留。", "Could not read the user list. Original records are preserved.")}</div>}
     {saveError && <div className="rst-alert" role="alert">{t("保存失败，请导出备份。", "Could not save. Export a backup.")}</div>}
     {!inPaper ? <RebuttalLibrary key={user.id} workspace={workspace} onOpen={enterPaper} onCreate={(title, venue) => addProject(false, title, venue)} onArchive={(id, archived) => { if (!busy) updateProject({ archived }, id); }} onImport={() => { if (!busy) backupInput.current?.click(); }} onExport={() => download("paperleet-rebuttal-backup.json", JSON.stringify(workspace, null, 2), "application/json")} onSample={() => addProject(true)} userControl={userControl} /> : <>
-    <div className={`rst-paper-heading${hosted ? " rst-hosted-heading" : ""}`}><button className="rst-back" disabled={!!busy} onClick={backToLibrary}><ArrowLeft size={17} />{t("我的论文", "My papers")}</button><div><h1>{project.title || t("未命名论文", "Untitled paper")}</h1><span>{project.venue}</span></div><span className="rst-save"><span className={(hosted ? hosted.saveStatus === "error" || hosted.saveStatus === "conflict" : saveError) ? "rst-error-dot" : "rst-local-dot"} />{hosted ? readOnly ? t("仅查看", "View only") : hosted.saveStatus === "saved" ? t("已保存", "Saved") : hosted.saveStatus === "saving" ? t("正在保存…", "Saving…") : t("尚未保存", "Unsaved") : saveError ? t("尚未保存", "Unsaved") : saved ? t("已保存", "Saved") : t("正在保存…", "Saving…")}</span><button className="rst-button" disabled={!!busy} onClick={openReviews}><Upload size={15} />{t("审稿原文", "Reviews")}</button>{hosted && <button className="rst-button rst-share-button" onClick={hosted.onShare}>{hosted.role === "owner" ? t("邀请", "Invite") : t("成员", "Members")}</button>}<button className="rst-icon-button" title={t("论文设置", "Paper settings")} aria-label={t("论文设置", "Paper settings")} onClick={() => setSettings(true)}><Settings2 size={17} /></button></div>
+    <div className="rst-paper-navigation"><button className="rst-back" disabled={!!busy} onClick={backToLibrary}><ArrowLeft size={17} />{t("我的论文", "My papers")}</button>{hosted && <button className="rst-text-button" onClick={hosted.onRefresh}>{t("刷新", "Refresh")}</button>}</div>
+    <div className={`rst-paper-heading${hosted ? " rst-hosted-heading" : ""}`}>
+      <div className="rst-paper-identity"><h1>{project.title || t("未命名论文", "Untitled paper")}</h1><span>{project.venue}</span></div>
+      <span className="rst-save"><span className={(hosted ? hosted.saveStatus === "error" || hosted.saveStatus === "conflict" : saveError) ? "rst-error-dot" : "rst-local-dot"} />{hosted ? readOnly ? t("仅查看", "View only") : hosted.saveStatus === "saved" ? t("已保存", "Saved") : hosted.saveStatus === "saving" ? t("正在保存…", "Saving…") : t("尚未保存", "Unsaved") : saveError ? t("尚未保存", "Unsaved") : saved ? t("已保存", "Saved") : t("正在保存…", "Saving…")}</span>
+      <div className="rst-paper-actions"><button className="rst-button" disabled={!!busy} onClick={openReviews}><Upload size={15} />{t("审稿原文", "Reviews")}</button>{hosted && <button className="rst-button rst-share-button" onClick={hosted.onShare}>{hosted.role === "owner" ? t("邀请", "Invite") : t("成员", "Members")}</button>}<button className="rst-icon-button" title={t("论文设置", "Paper settings")} aria-label={t("论文设置", "Paper settings")} onClick={() => setSettings(true)}><Settings2 size={17} /></button></div>
+    </div>
     <div className="rst-stage-bar"><nav aria-label={t("论文工作区", "Paper workspace")}>
       {([["overview", t("Reviewer 总览", "Reviewers"), ListChecks], ["experiments", t("实验", "Experiments"), FlaskConical], ["issues", t("逐条回复", "Responses"), MessageSquare], ["export", t("拼接回复", "Assemble"), FileText], ["history", t("历史版本", "Versions"), History]] as const).map(([key, label, Icon]) => <button key={key} disabled={!!busy} aria-current={stage === key ? "page" : undefined} className={stage === key ? "active" : ""} onClick={() => showStage(key)}><Icon size={16} />{label}</button>)}
     </nav></div>
@@ -466,7 +500,15 @@ export default function RebuttalStudio({ hosted }: { hosted?: HostedStudioSessio
         </article>;
       })}</div> : <div className="rst-simple-empty"><MessageSquare size={30} /><h3>{t("导入这篇论文的审稿意见", "Add this paper's reviews")}</h3><button className="rst-button" onClick={openReviews}>{t("导入审稿", "Import reviews")}</button></div>}
     </section>}
-    {stage === "history" && <section className="rst-version-view"><div className="rst-section-heading"><h2>{t("历史版本", "Response versions")}</h2><button className="rst-button" disabled={draftSharedReadOnly || !draftAvailable || !draft.state.ready || draft.state.status === "loading" || !assembled.trim()} onClick={saveVersion}><Plus size={15} />{draftCloud ? t("保存共享版本", "Save shared version") : t("保存当前版本", "Save current version")}</button></div>{project.snapshots?.length ? <div className="rst-version-layout"><div className="rst-version-list">{[...project.snapshots].reverse().map(item => <button key={item.id} className={snapshotId === item.id ? "selected" : ""} onClick={() => setSnapshotId(item.id)}><strong>{item.label}</strong><span>{new Date(item.createdAt).toLocaleString(locale === "zh" ? "zh-CN" : "en-US")}</span></button>)}</div>{snapshot ? <section className="rst-version-content"><header><h3>{snapshot.label}</h3><button className="rst-button" onClick={() => download("rebuttal-version.md", toOpenReviewMarkdown(snapshot.markdown), "text/markdown")}><ArrowDownToLine size={14} />Markdown</button></header><Preview text={snapshot.markdown} /></section> : <div className="rst-simple-empty"><History size={28} /><p>{t("选择一个版本", "Select a version")}</p></div>}</div> : <div className="rst-simple-empty"><History size={28} /><p>{t("暂无保存版本", "No saved versions")}</p></div>}</section>}
+    {stage === "history" && <section className="rst-version-view">
+      <div className="rst-section-heading"><h2>{t("历史版本", "Response versions")}</h2><button className="rst-button" disabled={!canSaveVersion} onClick={saveVersion}><Plus size={15} />{draftCloud ? t("保存共享版本", "Save shared version") : t("保存当前版本", "Save current version")}</button></div>
+      <label className="rst-version-scope"><span>{t("版本范围", "Version scope")}</span><select aria-label={t("版本范围", "Version scope")} value={historyScope} onChange={e => selectVersionScope(e.target.value)}>{historyScopes.map(group => <option value={group.scope} key={group.scope}>{group.name}</option>)}</select></label>
+      {!versionsAvailable && <p className="rst-assembly-status" role="status">{t("历史版本正在更新，请稍后刷新。", "Versions are updating. Refresh shortly.")}</p>}
+      {historyVersions.length ? <div className="rst-version-layout"><div className="rst-version-list">{[...historyVersions].reverse().map(item => <button key={item.id} className={snapshot?.id === item.id ? "selected" : ""} onClick={() => setSnapshotId(item.id)}><strong>{versionLabel(item.label)}</strong><span>{new Date(item.createdAt).toLocaleString(locale === "zh" ? "zh-CN" : "en-US")}</span></button>)}</div>
+        {snapshot && <section className="rst-version-content"><header><h3>{historyName} · {versionLabel(snapshot.label)}</h3><button className="rst-button" onClick={() => download("rebuttal-version.md", toOpenReviewMarkdown(snapshot.markdown), "text/markdown")}><ArrowDownToLine size={14} />Markdown</button></header><Preview text={snapshot.markdown} /></section>}
+      </div> : <div className="rst-simple-empty"><History size={28} /><p>{t("暂无保存版本", "No saved versions")}</p></div>}
+    </section>}
+
 
     {stage === "reviews" && <>
       <div className="rst-review-layout">
@@ -546,7 +588,7 @@ export default function RebuttalStudio({ hosted }: { hosted?: HostedStudioSessio
 
     {stage === "export" && <section className="rst-export">
       <aside><h2>{t("拼接回复", "Assemble responses")}</h2>
-        <Field label={t("导出范围", "INCLUDE")}><select value={exportReviewer} onChange={e => setExportReviewer(e.target.value)}><option value="all">{t("所有审稿人", "All reviewers")}</option>{project.reviews.map(r => <option value={`reviewer-${r.id}`} key={r.id}>{r.name}</option>)}</select></Field>
+        <Field label={t("导出范围", "INCLUDE")}><select value={exportReviewer} onChange={e => { setExportReviewer(e.target.value); explicitAssemblyScope.current = true; setLegacyHistory(false); }}><option value="all">{t("所有审稿人", "All reviewers")}</option>{project.reviews.map(r => <option value={`reviewer-${r.id}`} key={r.id}>{r.name}</option>)}</select></Field>
         <Field label={t("开场说明", "OPENING")}><textarea disabled={draftSharedReadOnly} maxLength={200000} rows={4} value={project.opening} placeholder="We thank the reviewers for their thoughtful feedback." onChange={e => updateProject({ opening: e.target.value })} /></Field>
         <Field label={t("结尾说明", "CLOSING")}><textarea disabled={draftSharedReadOnly} maxLength={200000} rows={3} value={project.closing} placeholder={t("总结澄清和修改…", "Summarize clarifications and revisions…")} onChange={e => updateProject({ closing: e.target.value })} /></Field>
         <Field label={t("自定义词数目标（0 = 不限）", "WORD TARGET (0 = UNLIMITED)")}><input disabled={draftSharedReadOnly} type="number" min="0" max="100000" step="1" value={project.wordLimit} onChange={e => updateProject({ wordLimit: Math.floor(Math.max(0, Math.min(100000, Number(e.target.value) || 0))) })} /></Field>
@@ -555,9 +597,10 @@ export default function RebuttalStudio({ hosted }: { hosted?: HostedStudioSessio
       <div className="rst-export-document">
         <div className="rst-export-toolbar"><div className="rst-assembly-status" role="status">{!draftAvailable ? t("个人草稿服务正在更新，请稍后刷新。", "Personal drafts are updating. Refresh shortly.") : draft.state.status === "loading" ? t("正在读取个人草稿…", "Loading personal draft…") : draft.state.status === "saving" ? t("个人草稿保存中…", "Saving personal draft…") : draft.state.status === "error" || draft.state.status === "conflict" ? t("个人草稿未保存", "Personal draft unsaved") : draft.state.source === null ? t("自动拼接", "Auto assembled") : draftCloud ? t("个人草稿已保存", "Personal draft saved") : t("个人草稿已保存到本机", "Personal draft saved locally")}</div><div>
           <button className="rst-button" disabled={!draftAvailable || !draft.state.ready || draft.state.status === "loading" || draft.state.blocked || draft.state.source === null} onClick={() => { if (draft.state.source !== generated && !window.confirm(t("重新拼接将替换当前个人改写，是否继续？", "Reassemble and replace your personal edits?"))) return; draft.store.update(null); }}>{t("重新拼接", "Reassemble")}</button>
-          <button className="rst-button" disabled={draftSharedReadOnly || !draftAvailable || !draft.state.ready || draft.state.status === "loading" || !assembled.trim()} onClick={saveVersion}><History size={14} />{draftCloud ? t("保存共享版本", "Save shared version") : t("保存当前版本", "Save current version")}</button>
+          <button className="rst-button" disabled={!canSaveVersion} onClick={saveVersion}><History size={14} />{draftCloud ? t("保存共享版本", "Save shared version") : t("保存当前版本", "Save current version")}</button>
           <button className="rst-button" disabled={!assembled.trim()} onClick={() => download("openreview-response.md", toOpenReviewMarkdown(assembled), "text/markdown")}><ArrowDownToLine size={14} />.md</button>
         </div></div>
+        {!versionsAvailable && <p className="rst-assembly-status rst-version-rollout" role="status">{t("历史版本正在更新，请稍后刷新。", "Versions are updating. Refresh shortly.")}</p>}
         {(draft.state.error || draft.state.recoveryError) && <div className="rst-assembly-error" role="alert"><p>{assemblyErrorText(draft.state, locale)}</p><div>
           {!draft.state.blocked && draft.state.status !== "conflict" && <button className="rst-button" onClick={() => void (draft.state.ready ? draft.store.flush() : draft.store.load())}>{t("重试保存", "Retry save")}</button>}
           {draftCloud && <button className="rst-button" disabled={draft.state.status === "saving" || draft.state.status === "loading"} onClick={() => { if (draft.state.dirty && !window.confirm(t("加载已保存版本将替换当前个人改写，是否继续？", "Load the saved draft and replace your personal edits?"))) return; void draft.store.load(true); }}>{t("加载已保存版本", "Load saved draft")}</button>}
