@@ -311,8 +311,7 @@ export function assembleResponse(project: RebuttalProject, reviewerId?: string):
 }
 
 /** Save an immutable export version; later draft edits never change this Markdown. */
-export function saveResponseSnapshot(project: RebuttalProject, label?: string): RebuttalProject {
-  const markdown = assembleResponse(project);
+export function saveResponseSnapshot(project: RebuttalProject, label?: string, markdown = assembleResponse(project)): RebuttalProject {
   if (!markdown.trim()) throw Error("Write a response before saving a version.");
   const snapshots = project.snapshots || [];
   if (snapshots.length >= 100) throw Error("A paper can contain up to 100 saved versions.");

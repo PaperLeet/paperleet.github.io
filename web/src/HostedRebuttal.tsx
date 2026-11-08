@@ -197,20 +197,22 @@ function PaperWorkspace({ owner, paperId }: { owner: string; paperId: string }) 
   const { t } = useI18n();
   const { state, store } = useRebuttalCloud(owner, paperId);
   const [sharing, setSharing] = useState(false), [leaving, setLeaving] = useState(false);
+  const personalDraft = useRef<{ flush: () => Promise<boolean>; hasPending: () => boolean } | null>(null);
   const mounted = useRef(true);
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
   async function back() {
     setLeaving(true); const saved = await store.flush();
-    if (mounted.current) { setLeaving(false); if (saved || !store.hasPending()) appLocation.hash = rebuttalHref(); }
+    const personalSaved = await personalDraft.current?.flush() ?? true;
+    if (mounted.current) { setLeaving(false); if ((saved || !store.hasPending()) && personalSaved) appLocation.hash = rebuttalHref(); }
   }
   useEffect(() => {
     const followLink = (event: MouseEvent) => {
-      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || !store.hasPending()) return;
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || !store.hasPending() && !personalDraft.current?.hasPending()) return;
       const anchor = (event.target as Element | null)?.closest<HTMLAnchorElement>('a[href]');
       if (!anchor || anchor.target === '_blank' || anchor.hasAttribute('download')) return;
       const target = new URL(anchor.href, location.href); if (target.href === location.href) return;
       event.preventDefault(); event.stopPropagation();
-      void store.flush().then(saved => { if (saved && mounted.current) location.assign(target.href); });
+      void store.flush().then(async saved => { const personalSaved = await personalDraft.current?.flush() ?? true; if (saved && personalSaved && mounted.current) location.assign(target.href); });
     };
     window.addEventListener('click', followLink, true);
     return () => window.removeEventListener('click', followLink, true);
@@ -223,11 +225,11 @@ function PaperWorkspace({ owner, paperId }: { owner: string; paperId: string }) 
     {(state.error || state.recoveryUnavailable) && <section className="rst-shell hreb-banner"><div className="hreb-error" role="alert"><p>{conflict ? t('服务器版本已变化，当前草稿已保留。加载服务器版本会替换当前未保存修改。', 'The server version changed. Your draft is preserved. Loading the server version will replace your unsaved changes.') : state.error || t('浏览器暂时无法备份草稿，请下载副本。', 'Browser draft recovery is unavailable. Download a copy.')}</p><div>
       <button className="rst-button" onClick={() => downloadRebuttalProject(state.project!)}><Download size={14} />{t('下载当前草稿', 'Download draft')}</button>
       {!conflict && !state.blocked && <button className="rst-button" disabled={state.status === 'saving' || state.memberBusy} onClick={() => void (store.hasPendingMember() ? store.changeMember() : store.flush())}>{t('重试保存', 'Retry save')}</button>}
-      <button className="rst-button" disabled={state.status === 'saving' || state.memberBusy} onClick={() => void store.refresh(true)}><RefreshCw size={14} />{t('加载服务器版本', 'Load server version')}</button>
+      <button className="rst-button" disabled={state.status === 'saving' || state.memberBusy} onClick={() => void (async () => { if (await personalDraft.current?.flush() ?? true) await store.refresh(true); })()}><RefreshCw size={14} />{t('加载服务器版本', 'Load server version')}</button>
     </div></div></section>}
     <RebuttalStudio key={`${paperId}:${state.reloadVersion}`} hosted={{ project: state.project, readOnly: state.document.role === 'viewer' || state.blocked || state.loading || state.memberBusy || store.hasPendingMember() || leaving,
-      saveStatus: state.status, role: state.document.role, onChange: project => { store.update(project); }, onBack: () => { void back(); },
-      onShare: () => setSharing(true), onRefresh: () => { void store.flush().then(saved => { if (saved) void store.refresh(); }); } }} />
+      saveStatus: state.status, role: state.document.role, onPersonalDraft: bridge => { personalDraft.current = bridge; }, onChange: project => { store.update(project); }, onBack: () => { void back(); },
+      onShare: () => setSharing(true), onRefresh: () => { void store.flush().then(async saved => { if (saved && (await personalDraft.current?.flush() ?? true)) await store.refresh(); }); } }} />
     {sharing && <MembersDialog state={state} store={store} onClose={() => setSharing(false)} />}
   </div>;
 }

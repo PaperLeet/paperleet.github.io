@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import type { ChangeEvent, ReactNode } from "react";
 import RebuttalEditor from "./RebuttalEditor";
+import { assemblyErrorText, assemblyScope, useAssemblyDraft } from "./rebuttalAssemblyDraft";
 import { toOpenReviewMarkdown } from "./rebuttalFormatting";
 import Preview from "./RebuttalPreview";
 import { ArrowDownToLine, ArrowLeft, ArrowRight, Check, ChevronRight, ClipboardList, Copy, FileText, FlaskConical, ListChecks, Loader2, MessageSquare, Plus, Quote, Search, Settings2, Sparkles, Trash2, Upload, UserRound, History, X } from "lucide-react";
 import { useI18n } from "./i18n";
 import { apiFetch } from "./apiClient";
-import { useAccount } from "./social";
+import { socialApi, useAccount } from "./social";
 import { assembleResponse, countWords, demoProject, reviewerOverview, saveResponseSnapshot, importReviewFile, makeId, newProject, readWorkspace, splitReviews, validateWorkspace, writeWorkspace, removeConcern, removeExperiment, restoreRemovedContent } from "./rebuttalModel";
 import type { Experiment, Issue, RebuttalProject, Reviewer, Workspace, RemovedContent } from "./rebuttalModel";
 import RebuttalLibrary from "./RebuttalLibrary";
@@ -18,6 +19,7 @@ export type HostedStudioSession = {
   project: RebuttalProject; readOnly: boolean; saveStatus: "saved" | "saving" | "error" | "conflict";
   onChange: (project: RebuttalProject) => void; onBack: () => void; onShare: () => void;
   onRefresh: () => void; role: "owner" | "editor" | "viewer";
+  onPersonalDraft?: (bridge: { flush: () => Promise<boolean>; hasPending: () => boolean } | null) => void;
 };
 
 type Stage = "overview" | "reviews" | "experiments" | "issues" | "export" | "history";
@@ -54,7 +56,7 @@ function assistanceSource(project: RebuttalProject, issue: Issue) {
 
 export default function RebuttalStudio({ hosted }: { hosted?: HostedStudioSession }) {
   const { t, locale } = useI18n();
-  const { user: accountUser } = useAccount();
+  const { user: accountUser, loading: accountLoading, capabilities } = useAccount();
   const [initial] = useState(() => hosted ? {
     workspace: { version: 1 as const, activeProjectId: hosted.project.id, projects: [hosted.project] },
     error: false, userError: false,
@@ -97,7 +99,6 @@ export default function RebuttalStudio({ hosted }: { hosted?: HostedStudioSessio
   const [removed, setRemoved] = useState<(RemovedContent & { ownerId: string }) | null>(null);
   const [experimentDraft, setExperimentDraft] = useState<{ issueId: string; title: string; newIssueTitle: string } | null>(null);
   const [exportReviewer, setExportReviewer] = useState("all");
-  const [exportSource, setExportSource] = useState(false);
   const backupInput = useRef<HTMLInputElement>(null);
   const reviewInput = useRef<HTMLInputElement>(null);
   const mounted = useRef(true);
@@ -106,9 +107,16 @@ export default function RebuttalStudio({ hosted }: { hosted?: HostedStudioSessio
   const meaningfulReviews = project.reviews.filter(review => hasReviewContent(review) || project.issues.some(issue => issue.reviewerId === review.id));
   const issues = project.issues.filter(issue => (reviewerFilter === "all" || issue.reviewerId === reviewerFilter) && `${issue.title} ${issue.quote}`.toLowerCase().includes(query.toLowerCase()));
   const selected = issues.find(issue => issue.id === selectedId) || issues[0];
-  const assembled = assembleResponse(project, exportReviewer === "all" ? undefined : exportReviewer);
+  const exportReviewerId = exportReviewer === "all" ? undefined : exportReviewer.slice("reviewer-".length);
+  const draftCloud = !!hosted;
+  const draftAvailable = !hosted || !!accountUser && !accountLoading && capabilities?.rebuttal_assembly_drafts === true;
+  const draftSharedReadOnly = readOnly;
+  const draft = useAssemblyDraft({ owner: hosted ? !accountLoading && accountUser?.id || "" : user.id, paperId: project.id, scope: exportReviewer, cloud: draftCloud, available: draftAvailable, enabled: draftAvailable && inPaper && (stage === "export" || stage === "history"), request: hosted ? socialApi : undefined });
+  useEffect(() => { hostedRef.current?.onPersonalDraft?.({ flush: flushPersonalDrafts, hasPending: draft.hasPending }); return () => hostedRef.current?.onPersonalDraft?.(null); }, [draft.flushAll, draft.hasPending, draft.failedScope]);
+  const generated = toOpenReviewMarkdown(assembleResponse(project, exportReviewerId));
+  const assembled = draft.state.source ?? generated;
   const words = countWords(assembled);
-  const pending = project.issues.filter(issue => (exportReviewer === "all" || issue.reviewerId === exportReviewer) && !issue.response.trim()).length;
+  const pending = project.issues.filter(issue => (!exportReviewerId || issue.reviewerId === exportReviewerId) && !issue.response.trim()).length;
   const activeReviewer = project.reviews.find(r => r.id === reviewerFilter) || meaningfulReviews[0] || project.reviews[0];
   const visibleExperiments = project.experiments.filter(e => reviewerFilter === "all" || project.issues.some(i => i.id === e.issueId && i.reviewerId === reviewerFilter));
   const snapshot = project.snapshots?.find(item => item.id === snapshotId);
@@ -170,6 +178,11 @@ export default function RebuttalStudio({ hosted }: { hosted?: HostedStudioSessio
     return () => { document.removeEventListener("keydown", keydown); previous?.focus(); };
   }, [settings, busy]);
 
+  async function flushPersonalDrafts() {
+    const ok = await draft.flushAll();
+    if (!ok && mounted.current) { const scope = draft.failedScope(); if (scope) setExportReviewer(scope); setStage("export"); setNotice(t("个人草稿尚未保存，请重试或下载。", "Your personal draft is unsaved. Retry or download it.")); }
+    return ok;
+  }
   function updateProject(change: Partial<RebuttalProject> | ((value: RebuttalProject) => RebuttalProject), id = project.id) {
     if (readOnly || hostedRef.current?.readOnly) return;
     setWorkspace(current => ({ ...current, projects: current.projects.map(p => p.id === id ? { ...(typeof change === "function" ? change(p) : { ...p, ...change }), updatedAt: new Date().toISOString() } : p) }));
@@ -180,7 +193,7 @@ export default function RebuttalStudio({ hosted }: { hosted?: HostedStudioSessio
     if (busy || readOnly) return;
     setWorkspace(current => ({ ...current, activeProjectId: id })); setInPaper(true); setStage("overview"); paperUrl(id);
   }
-  function backToLibrary() { if (hosted) { hosted.onBack(); return; } setInPaper(false); setSettings(false); paperUrl(); }
+  async function backToLibrary() { if (!await flushPersonalDrafts()) return; if (hosted) { hosted.onBack(); return; } setInPaper(false); setSettings(false); paperUrl(); }
   function addProject(sample = false, title?: string, venue?: string) {
     if (busy || hosted || readOnly) return;
     if (workspace.projects.length >= 100) { setNotice(t("每个用户最多保存 100 篇论文。", "Each user can keep up to 100 papers.")); return; }
@@ -188,8 +201,9 @@ export default function RebuttalStudio({ hosted }: { hosted?: HostedStudioSessio
     setWorkspace(current => ({ ...current, activeProjectId: next.id, projects: [...current.projects, next] }));
     setInPaper(true); setStage("overview"); paperUrl(next.id);
   }
-  function switchUser(id: string, nextDirectory = selectLocalUser(directory, id)) {
+  async function switchUser(id: string, nextDirectory = selectLocalUser(directory, id)) {
     if (busy || id === user.id) return;
+    if (!await flushPersonalDrafts()) return;
     try {
       if (initial.userError) { setNotice(t("用户列表无法读取，请先导出当前备份。", "The user list cannot be read. Export your current backup first.")); return; }
       // A damaged destination must not become the active profile and lock out healthy data.
@@ -211,16 +225,16 @@ export default function RebuttalStudio({ hosted }: { hosted?: HostedStudioSessio
       const firstReviewer = meaningfulReviews[0] || project.reviews[0];
       if (firstReviewer) setReviewerFilter(firstReviewer.id);
     }
-    if (next === "export") setExportReviewer(reviewerFilter);
+    if (next === "export") setExportReviewer(assemblyScope(reviewerFilter));
     setStage(next);
   }
   function showReviewer(id: string, next: Stage = "experiments") {
     setExperimentDraft(null);
-    setReviewerFilter(id); setExportReviewer(id); setQuery(""); setSelectedId(""); setStage(next);
+    setReviewerFilter(id); setExportReviewer(`reviewer-${id}`); setQuery(""); setSelectedId(""); setStage(next);
   }
   function saveVersion() {
-    if (readOnly) return;
-    try { const next = saveResponseSnapshot(project); updateProject(next); setSnapshotId(next.snapshots?.at(-1)?.id || ""); setNotice(t("已保存回复版本", "Response version saved")); }
+    if (draftSharedReadOnly || !draftAvailable || !draft.state.ready || draft.state.status === "loading") return;
+    try { const next = saveResponseSnapshot(project, undefined, toOpenReviewMarkdown(assembled)); updateProject(next); setSnapshotId(next.snapshots?.at(-1)?.id || ""); setNotice(t("已保存回复版本", "Response version saved")); }
     catch (error) { setNotice(error instanceof Error ? error.message : t("无法保存版本", "Could not save version")); }
   }
   function openReviews() { setStage("reviews"); }
@@ -452,7 +466,7 @@ export default function RebuttalStudio({ hosted }: { hosted?: HostedStudioSessio
         </article>;
       })}</div> : <div className="rst-simple-empty"><MessageSquare size={30} /><h3>{t("导入这篇论文的审稿意见", "Add this paper's reviews")}</h3><button className="rst-button" onClick={openReviews}>{t("导入审稿", "Import reviews")}</button></div>}
     </section>}
-    {stage === "history" && <section className="rst-version-view"><div className="rst-section-heading"><h2>{t("历史版本", "Response versions")}</h2><button className="rst-button" disabled={readOnly || !assembleResponse(project).trim()} onClick={saveVersion}><Plus size={15} />{t("保存当前版本", "Save current version")}</button></div>{project.snapshots?.length ? <div className="rst-version-layout"><div className="rst-version-list">{[...project.snapshots].reverse().map(item => <button key={item.id} className={snapshotId === item.id ? "selected" : ""} onClick={() => setSnapshotId(item.id)}><strong>{item.label}</strong><span>{new Date(item.createdAt).toLocaleString(locale === "zh" ? "zh-CN" : "en-US")}</span></button>)}</div>{snapshot ? <section className="rst-version-content"><header><h3>{snapshot.label}</h3><button className="rst-button" onClick={() => download("rebuttal-version.md", toOpenReviewMarkdown(snapshot.markdown), "text/markdown")}><ArrowDownToLine size={14} />Markdown</button></header><Preview text={snapshot.markdown} /></section> : <div className="rst-simple-empty"><History size={28} /><p>{t("选择一个版本", "Select a version")}</p></div>}</div> : <div className="rst-simple-empty"><History size={28} /><p>{t("暂无保存版本", "No saved versions")}</p></div>}</section>}
+    {stage === "history" && <section className="rst-version-view"><div className="rst-section-heading"><h2>{t("历史版本", "Response versions")}</h2><button className="rst-button" disabled={draftSharedReadOnly || !draftAvailable || !draft.state.ready || draft.state.status === "loading" || !assembled.trim()} onClick={saveVersion}><Plus size={15} />{draftCloud ? t("保存共享版本", "Save shared version") : t("保存当前版本", "Save current version")}</button></div>{project.snapshots?.length ? <div className="rst-version-layout"><div className="rst-version-list">{[...project.snapshots].reverse().map(item => <button key={item.id} className={snapshotId === item.id ? "selected" : ""} onClick={() => setSnapshotId(item.id)}><strong>{item.label}</strong><span>{new Date(item.createdAt).toLocaleString(locale === "zh" ? "zh-CN" : "en-US")}</span></button>)}</div>{snapshot ? <section className="rst-version-content"><header><h3>{snapshot.label}</h3><button className="rst-button" onClick={() => download("rebuttal-version.md", toOpenReviewMarkdown(snapshot.markdown), "text/markdown")}><ArrowDownToLine size={14} />Markdown</button></header><Preview text={snapshot.markdown} /></section> : <div className="rst-simple-empty"><History size={28} /><p>{t("选择一个版本", "Select a version")}</p></div>}</div> : <div className="rst-simple-empty"><History size={28} /><p>{t("暂无保存版本", "No saved versions")}</p></div>}</section>}
 
     {stage === "reviews" && <>
       <div className="rst-review-layout">
@@ -530,7 +544,28 @@ export default function RebuttalStudio({ hosted }: { hosted?: HostedStudioSessio
       })}</div>}
     </section>}
 
-    {stage === "export" && <section className="rst-export"><aside><h2>{t("拼接回复", "Assemble responses")}</h2><Field label={t("导出范围", "INCLUDE")}><select value={exportReviewer} onChange={e => setExportReviewer(e.target.value)}><option value="all">{t("所有审稿人", "All reviewers")}</option>{project.reviews.map(r => <option value={r.id} key={r.id}>{r.name}</option>)}</select></Field><Field label={t("开场说明", "OPENING")}><textarea disabled={readOnly} maxLength={200000} rows={4} value={project.opening} placeholder="We thank the reviewers for their thoughtful feedback." onChange={e => updateProject({ opening: e.target.value })} /></Field><Field label={t("结尾说明", "CLOSING")}><textarea disabled={readOnly} maxLength={200000} rows={3} value={project.closing} placeholder={t("总结澄清和修改…", "Summarize clarifications and revisions…")} onChange={e => updateProject({ closing: e.target.value })} /></Field><Field label={t("自定义词数目标（0 = 不限）", "WORD TARGET (0 = UNLIMITED)")}><input disabled={readOnly} type="number" min="0" max="100000" step="1" value={project.wordLimit} onChange={e => updateProject({ wordLimit: Math.floor(Math.max(0, Math.min(100000, Number(e.target.value) || 0))) })} /></Field><div className="rst-export-meter"><strong className={project.wordLimit > 0 && words > project.wordLimit ? "over" : ""}>{words}<small>{project.wordLimit > 0 ? ` / ${project.wordLimit}` : ""} {t("词 / 中文字", "words / CJK characters")}</small></strong><span>{assembled.length} {t("字符（含 Markdown）", "characters including Markdown")}</span></div></aside><div className="rst-export-document"><div className="rst-export-toolbar"><div><button className={!exportSource ? "active" : ""} onClick={() => setExportSource(false)}>{t("预览", "Preview")}</button><button className={exportSource ? "active" : ""} onClick={() => setExportSource(true)}>{t("OpenReview 源码", "OpenReview source")}</button></div><div><button className="rst-button" disabled={readOnly || !assembleResponse(project).trim()} onClick={saveVersion}><History size={14} />{t("保存全文版本", "Save full version")}</button><button className="rst-button" disabled={!assembled.trim()} onClick={() => download("openreview-response.md", toOpenReviewMarkdown(assembled), "text/markdown")}><ArrowDownToLine size={14} />.md</button><button className="rst-button rst-primary" disabled={!assembled.trim()} onClick={() => copy(assembled)}><Copy size={14} />{t("复制到 OpenReview", "Copy for OpenReview")}</button></div></div>{pending > 0 && <div className="rst-export-warning"><ClipboardList size={16} />{t(`${pending} 条问题未回复`, `${pending} unanswered concerns`)}</div>}{assembled.trim() ? exportSource ? <textarea readOnly aria-label="OpenReview Markdown" className="rst-export-source" value={toOpenReviewMarkdown(assembled)} /> : <div className="rst-paper-preview"><Preview text={assembled} /></div> : <div className="rst-simple-empty"><FileText size={30} /><h3>{t("暂无回复", "No responses yet")}</h3><button className="rst-button" onClick={() => showStage("issues")}>{t("开始回复", "Start writing")}<ArrowRight size={14} /></button></div>}</div></section>}
+    {stage === "export" && <section className="rst-export">
+      <aside><h2>{t("拼接回复", "Assemble responses")}</h2>
+        <Field label={t("导出范围", "INCLUDE")}><select value={exportReviewer} onChange={e => setExportReviewer(e.target.value)}><option value="all">{t("所有审稿人", "All reviewers")}</option>{project.reviews.map(r => <option value={`reviewer-${r.id}`} key={r.id}>{r.name}</option>)}</select></Field>
+        <Field label={t("开场说明", "OPENING")}><textarea disabled={draftSharedReadOnly} maxLength={200000} rows={4} value={project.opening} placeholder="We thank the reviewers for their thoughtful feedback." onChange={e => updateProject({ opening: e.target.value })} /></Field>
+        <Field label={t("结尾说明", "CLOSING")}><textarea disabled={draftSharedReadOnly} maxLength={200000} rows={3} value={project.closing} placeholder={t("总结澄清和修改…", "Summarize clarifications and revisions…")} onChange={e => updateProject({ closing: e.target.value })} /></Field>
+        <Field label={t("自定义词数目标（0 = 不限）", "WORD TARGET (0 = UNLIMITED)")}><input disabled={draftSharedReadOnly} type="number" min="0" max="100000" step="1" value={project.wordLimit} onChange={e => updateProject({ wordLimit: Math.floor(Math.max(0, Math.min(100000, Number(e.target.value) || 0))) })} /></Field>
+        <div className="rst-export-meter"><strong className={project.wordLimit > 0 && words > project.wordLimit ? "over" : ""}>{words}<small>{project.wordLimit > 0 ? ` / ${project.wordLimit}` : ""} {t("词 / 中文字", "words / CJK characters")}</small></strong><span>{assembled.length} {t("字符（含 Markdown）", "characters including Markdown")}</span></div>
+      </aside>
+      <div className="rst-export-document">
+        <div className="rst-export-toolbar"><div className="rst-assembly-status" role="status">{!draftAvailable ? t("个人草稿服务正在更新，请稍后刷新。", "Personal drafts are updating. Refresh shortly.") : draft.state.status === "loading" ? t("正在读取个人草稿…", "Loading personal draft…") : draft.state.status === "saving" ? t("个人草稿保存中…", "Saving personal draft…") : draft.state.status === "error" || draft.state.status === "conflict" ? t("个人草稿未保存", "Personal draft unsaved") : draft.state.source === null ? t("自动拼接", "Auto assembled") : draftCloud ? t("个人草稿已保存", "Personal draft saved") : t("个人草稿已保存到本机", "Personal draft saved locally")}</div><div>
+          <button className="rst-button" disabled={!draftAvailable || !draft.state.ready || draft.state.status === "loading" || draft.state.blocked || draft.state.source === null} onClick={() => { if (draft.state.source !== generated && !window.confirm(t("重新拼接将替换当前个人改写，是否继续？", "Reassemble and replace your personal edits?"))) return; draft.store.update(null); }}>{t("重新拼接", "Reassemble")}</button>
+          <button className="rst-button" disabled={draftSharedReadOnly || !draftAvailable || !draft.state.ready || draft.state.status === "loading" || !assembled.trim()} onClick={saveVersion}><History size={14} />{draftCloud ? t("保存共享版本", "Save shared version") : t("保存当前版本", "Save current version")}</button>
+          <button className="rst-button" disabled={!assembled.trim()} onClick={() => download("openreview-response.md", toOpenReviewMarkdown(assembled), "text/markdown")}><ArrowDownToLine size={14} />.md</button>
+        </div></div>
+        {(draft.state.error || draft.state.recoveryError) && <div className="rst-assembly-error" role="alert"><p>{assemblyErrorText(draft.state, locale)}</p><div>
+          {!draft.state.blocked && draft.state.status !== "conflict" && <button className="rst-button" onClick={() => void (draft.state.ready ? draft.store.flush() : draft.store.load())}>{t("重试保存", "Retry save")}</button>}
+          {draftCloud && <button className="rst-button" disabled={draft.state.status === "saving" || draft.state.status === "loading"} onClick={() => { if (draft.state.dirty && !window.confirm(t("加载已保存版本将替换当前个人改写，是否继续？", "Load the saved draft and replace your personal edits?"))) return; void draft.store.load(true); }}>{t("加载已保存版本", "Load saved draft")}</button>}
+        </div></div>}
+        {pending > 0 && <div className="rst-export-warning"><ClipboardList size={16} />{t(`${pending} 条问题未回复`, `${pending} unanswered concerns`)}</div>}
+        <RebuttalEditor key={`${hosted ? accountUser?.id : user.id}:${project.id}:${exportReviewer}`} assembly value={assembled} onChange={value => { draft.store.update(value); }} readOnly={!draftAvailable || !draft.state.ready || draft.state.status === "loading" || draft.state.blocked} locale={locale} />
+      </div>
+    </section>}
 
     </>}
     {removed && inPaper && removed.ownerId === user.id && removed.projectId === project.id && <div className="rst-undo" role="status"><span>{removed.issue ? t("已删除问题及关联实验", "Concern and linked experiments deleted") : t("已删除实验", "Experiment deleted")}</span><button disabled={!!busy || readOnly} onClick={undoRemoval}>{t("撤销", "Undo")}</button><button aria-label={t("关闭撤销提示", "Dismiss undo notice")} onClick={() => setRemoved(null)}><X size={14} /></button></div>}

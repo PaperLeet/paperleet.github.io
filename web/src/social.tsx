@@ -57,6 +57,7 @@ export type AccountUser = PublicUser & {
 };
 export type AccountCapabilities = {
   rebuttal_workspaces?: boolean;
+  rebuttal_assembly_drafts?: boolean;
   account_identity_management?: boolean;
   login_email_binding_available?: boolean;
   community_translation?: boolean;

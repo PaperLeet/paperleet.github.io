@@ -352,3 +352,5 @@ try {
 } finally {
   await server.close();
 }
+
+await import("./check-rebuttal-assembly-drafts.mjs");
