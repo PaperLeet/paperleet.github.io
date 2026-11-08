@@ -10,7 +10,7 @@ export function inboxListUpdate(current:InboxSnapshot,next:InboxSnapshot) {
     ||next.conversations.some(row=>knownConversations.get(row.id)!==row.last_message.id);
   const counts:InboxCounts={user_id:next.user_id,unread_count:next.unread_count,notification_unread_count:next.notification_unread_count,message_unread_count:next.message_unread_count};
   return {changed,snapshot:{...current,...counts,
-    notifications:current.notifications.map(row=>{const fresh=notifications.get(row.id);return fresh?.latest_event_id===row.latest_event_id&&fresh.unread!==row.unread?{...row,unread:fresh.unread}:row;}),
+    notifications:current.notifications.map(row=>{const fresh=notifications.get(row.id);return fresh?.latest_event_id===row.latest_event_id&&row.kind==='rebuttal_invite'?{...row,unread:fresh.unread,rebuttal_invitation:fresh.rebuttal_invitation}:fresh?.latest_event_id===row.latest_event_id&&fresh.unread!==row.unread?{...row,unread:fresh.unread}:row;}),
     conversations:current.conversations.map(row=>{const fresh=conversations.get(row.id);return fresh?.last_message.id===row.last_message.id&&fresh.unread_count!==row.unread_count?{...row,unread_count:fresh.unread_count}:row;})}};
 }
 
@@ -19,5 +19,5 @@ export function replaceInboxNotifications(current:InboxSnapshot,next:InboxSnapsh
  const update=inboxListUpdate(current,{...next,notifications:current.notifications});
  return {changed:update.changed,snapshot:{...update.snapshot,notifications:next.notifications,
   notifications_next_before:next.notifications_next_before,observed_event_id:next.observed_event_id,
-  notification_kind:next.notification_kind,reviews_included:next.reviews_included}};
+  notification_kind:next.notification_kind,reviews_included:next.reviews_included,rebuttal_invitations_included:next.rebuttal_invitations_included}};
 }

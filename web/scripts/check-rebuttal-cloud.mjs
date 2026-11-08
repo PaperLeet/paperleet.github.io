@@ -14,7 +14,7 @@ const deferred = () => { let resolve, reject; const promise = new Promise((yes, 
 const tick = () => new Promise(resolve => setTimeout(resolve, 0));
 const problem = (status, code) => Object.assign(Error(code), { status, code });
 try {
-  const { createRebuttalCloud, validateCloudProject, readRebuttalRoute, readRebuttalPaper } = await server.ssrLoadModule('/src/rebuttalCloud.ts');
+  const { createRebuttalCloud, createRebuttalInvitations, readRebuttalInvitations, validateCloudProject, readRebuttalRoute, readRebuttalPaper } = await server.ssrLoadModule('/src/rebuttalCloud.ts');
   const { newProject } = await server.ssrLoadModule('/src/rebuttalModel.ts');
   const user = { id: 'account_a', username: 'author_a', display_name: 'Author A' };
   const colleague = { id: 'account_b', username: 'author_b', display_name: 'Author B' };
@@ -25,9 +25,15 @@ try {
 
   assert.deepEqual(readRebuttalRoute('rebuttal/paper_a'), { paperId: 'paper_a' });
   assert.deepEqual(readRebuttalRoute('#/rebuttal'), {});
+  assert.deepEqual(readRebuttalRoute('#/rebuttal/invitations'), { tab: 'invitations' }, 'Notification landing is never parsed as a paper ID');
   assert.equal(readRebuttalRoute('rebuttal/../paper'), undefined);
   assert.throws(() => readRebuttalPaper(detail(), 'another_paper'));
   assert.throws(() => readRebuttalPaper({ ...detail(), members: [] }));
+  assert.deepEqual(readRebuttalPaper(detail()).invitations, [], 'Old servers omit pending invitations');
+  const pendingMember = { id: 'invite_a', user: colleague, role: 'editor', created_at: '2030-01-01T00:00:00Z' };
+  assert.deepEqual(readRebuttalPaper({ ...detail(), invitations: [pendingMember] }).invitations, [pendingMember]);
+  assert.throws(() => readRebuttalPaper({ ...detail(), invitations: [{ ...pendingMember, role: 'owner' }] }));
+  assert.throws(() => readRebuttalPaper({ ...detail(initial, 1, 'owner', [{ user: colleague, role: 'editor' }]), invitations: [pendingMember] }));
   const large = { ...initial, opening: '中'.repeat(70_000) };
   assert.throws(() => validateCloudProject(large), /200 KiB/);
   assert.equal(validateCloudProject(large, false).opening, large.opening);
@@ -168,8 +174,75 @@ try {
   const denied = create({ request: async (_path, body) => { if (!body) return detail(); throw problem(409, 'account_changed'); } });
   await denied.load(); denied.update({ ...initial, title: 'Keep on account mismatch' }); await denied.flush();
   assert.equal(denied.getSnapshot().blocked, true); assert.equal(denied.getSnapshot().project.title, 'Keep on account mismatch');
-  console.log('Rebuttal cloud: serial saves, retries, conflicts, recovery, account isolation, roles, UTF-8 limits and lifecycle passed.');
+  const inviteA = { id: 'invite_a', paper_id: 'paper_a', title: 'Paper A', venue: 'ICLR', owner: colleague, role: 'editor', created_at: '2030-01-01T00:00:00Z' };
+  const inviteB = { ...inviteA, id: 'invite_b', paper_id: 'paper_b', title: 'Paper B', role: 'viewer' };
+  const invitationList = invitations => ({ user_id: user.id, invitations });
+  const invitationStore = options => { const store = createRebuttalInvitations({ owner: user.id, ...options }); stores.push(store); return store; };
+  assert.deepEqual(readRebuttalInvitations(invitationList([inviteA]), user.id), [inviteA]);
+  assert.throws(() => readRebuttalInvitations({ ...invitationList([inviteA]), user_id: colleague.id }, user.id), /account changed/);
+  assert.throws(() => readRebuttalInvitations(invitationList([{ ...inviteA, role: 'owner' }]), user.id));
+
+  // No paper access is fabricated: accepting/declining only removes the confirmed invitation.
+  const responseBodies = [];
+  const decisions = invitationStore({ request: async (path, body) => {
+    if (!body) return invitationList([inviteA, inviteB]);
+    responseBodies.push({ path, body });
+    return { id: path.endsWith('invite_a') ? inviteA.id : inviteB.id, paper_id: path.endsWith('invite_a') ? inviteA.paper_id : inviteB.paper_id,
+      status: body.action === 'accept' ? 'accepted' : 'declined' };
+  } });
+  await decisions.load();
+  assert.deepEqual(await decisions.respond(inviteA, 'accept'), { id: inviteA.id, paper_id: inviteA.paper_id, status: 'accepted' });
+  assert.deepEqual(decisions.getSnapshot().invitations, [inviteB]);
+  assert.equal(responseBodies[0].body.expected_user_id, user.id);
+  assert.equal((await decisions.respond(inviteB, 'decline')).status, 'declined');
+  assert.deepEqual(decisions.getSnapshot().invitations, []);
+
+  // A lost response locks competing actions and retries the exact same accept request.
+  const lostDecision = deferred(), decisionBodies = [];
+  const decisionRetry = invitationStore({ request: async (_path, body) => {
+    if (!body) return invitationList([inviteA, inviteB]);
+    decisionBodies.push(structuredClone(body));
+    if (decisionBodies.length === 1) return lostDecision.promise;
+    return { id: inviteA.id, paper_id: inviteA.paper_id, status: 'accepted' };
+  } });
+  await decisionRetry.load(); const accepting = decisionRetry.respond(inviteA, 'accept');
+  assert.equal(await decisionRetry.respond(inviteB, 'decline'), undefined);
+  lostDecision.reject(Error('response lost')); await accepting;
+  assert.equal(decisionRetry.getSnapshot().pending, true);
+  assert.equal(decisionRetry.getSnapshot().invitations.length, 2);
+  assert.equal(await decisionRetry.respond(inviteA, 'decline'), undefined);
+  assert.equal((await decisionRetry.respond()).status, 'accepted');
+  assert.deepEqual(decisionBodies[0], decisionBodies[1]);
+  assert.equal(decisionRetry.getSnapshot().pending, false);
+
+  // An older GET cannot resurrect an invitation after its action succeeds.
+  const oldInvitationRead = deferred(); let invitationReads = 0;
+  const invitationPolling = invitationStore({ request: async (_path, body) => body ? { id: inviteA.id, paper_id: inviteA.paper_id, status: 'declined' } :
+    ++invitationReads === 1 ? invitationList([inviteA]) : oldInvitationRead.promise });
+  await invitationPolling.load(); const pendingPoll = invitationPolling.load();
+  await invitationPolling.respond(inviteA, 'decline');
+  oldInvitationRead.resolve(invitationList([inviteA])); await pendingPoll;
+  assert.deepEqual(invitationPolling.getSnapshot().invitations, []);
+
+  // A response from the previous account cannot navigate or mutate its successor's state.
+  let invitationOwner = user.id; const switchedInvitation = deferred();
+  const invitationSwitch = invitationStore({ canAct: () => invitationOwner === user.id, request: async (_path, body) => body ? switchedInvitation.promise : invitationList([inviteA]) });
+  await invitationSwitch.load(); const oldAction = invitationSwitch.respond(inviteA, 'accept');
+  invitationOwner = colleague.id; switchedInvitation.resolve({ id: inviteA.id, paper_id: inviteA.paper_id, status: 'accepted' });
+  assert.equal(await oldAction, undefined); assert.equal(invitationSwitch.getSnapshot().invitations.length, 1);
+  const wrongAccount = invitationStore({ request: async () => ({ user_id: colleague.id, invitations: [inviteA] }) });
+  await wrongAccount.load(); assert.deepEqual(wrongAccount.getSnapshot().invitations, []); assert.match(wrongAccount.getSnapshot().error, /account changed/);
+
+  const cancelled = invitationStore({ request: async (_path, body) => { if (!body) return invitationList([inviteA]); throw problem(404, 'invitation_not_found'); } });
+  await cancelled.load(); await cancelled.respond(inviteA, 'accept');
+  assert.equal(cancelled.getSnapshot().pending, false); assert.deepEqual(cancelled.getSnapshot().invitations, []);
+  let unsupportedReads = 0;
+  const oldServer = invitationStore({ request: async () => { unsupportedReads++; throw problem(404, 'not_found'); } });
+  await oldServer.load(); await oldServer.load();
+  assert.equal(oldServer.getSnapshot().unavailable, true); assert.equal(unsupportedReads, 1, 'Do not repeatedly poll an old API');
+  console.log('Rebuttal cloud: serial saves, retries, conflicts, recovery, account isolation, roles, UTF-8 limits, invitations and lifecycle passed.');
 } finally {
   stores.forEach(store => store.dispose());
   await server.close();
 }
+await import('./check-rebuttal-invitations.mjs');

@@ -33,6 +33,11 @@
 .hreb-paper-open > span:first-child { min-width: 0; }
 .hreb-paper-open strong { display: block; color: var(--rst-link); font-size: 16px; line-height: 1.5; font-weight: 600; overflow-wrap: anywhere; }
 .hreb-paper-meta { display: flex; flex-wrap: wrap; gap: 4px 14px; color: var(--muted); margin-top: 6px; }
+.hreb-invitations article { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 20px 12px; border-bottom: 1px solid var(--line); }
+.hreb-invitations article > div:first-child { min-width: 0; }
+.hreb-invitations h2 { color: var(--rst-link); font-size: 16px; overflow-wrap: anywhere; }
+.hreb-invitation-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.hreb-invitations .hreb-paper-meta { overflow-wrap: anywhere; }
 .hreb-progress, .hreb-paper-open time, .hreb-paper-open > svg { color: var(--muted); white-space: nowrap; }
 .hreb-empty { padding: 60px 20px; text-align: center; color: var(--muted); }
 .hreb-empty h2 { margin-top: 10px; font-size: 16px; font-weight: 400; }
@@ -59,6 +64,8 @@
 .hreb-member-list li > span:first-child span { color: var(--muted); }
 .hreb-member-list li > div { display: flex; align-items: center; gap: 12px; }
 .hreb-member-list select { width: 112px; }
+.hreb-member-heading { color: var(--rst-heading); font-size: 14px; margin: 20px 0 0; }
+.hreb-pending-badge { color: var(--muted); padding: 2px 6px; border: 1px solid var(--line); border-radius: 2px; white-space: nowrap; }
 .hreb-remove { border: 0; padding: 6px 0; font: inherit; background: transparent; color: var(--rst-danger); cursor: pointer; white-space: nowrap; }
 .hreb-remove:hover { text-decoration: underline; }
 .hreb-members > footer { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; margin-top: 20px; }
@@ -67,7 +74,7 @@
   .hreb-heading { align-items: flex-start; flex-direction: column; gap: 16px; }
   .hreb-heading h1 { font-size: 26px; }
   .hreb-toolbar { flex-wrap: wrap; }
-  .hreb-toolbar nav { width: 100%; }
+  .hreb-toolbar nav { width: 100%; overflow-x: auto; }
   .hreb-toolbar nav button { flex: 1; padding: 10px; }
   .hreb-search { flex: 1; }
   .hreb-search input { width: 100%; }
@@ -81,6 +88,10 @@
   .hreb-members { max-height: calc(100dvh - 24px); padding: 16px; }
   .hreb-invite { grid-template-columns: minmax(0, 1fr) 110px; }
   .hreb-invite > button { grid-column: 1 / -1; }
+  .hreb-invitations article { align-items: flex-start; flex-direction: column; gap: 14px; padding: 16px 8px; }
+  .hreb-invitation-actions { align-self: flex-end; }
+  .hreb-member-list li { flex-wrap: wrap; }
+  .hreb-member-list li > div { flex-wrap: wrap; gap: 8px; }
 }
 @media (max-width: 360px) {
   .hreb-workspace .rst-hosted-heading { grid-template-columns: minmax(0, 1fr) auto auto; }

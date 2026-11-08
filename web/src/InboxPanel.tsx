@@ -1,4 +1,5 @@
 import ReviewNotification from './ReviewNotification';
+import RebuttalInvitationNotification from './RebuttalInvitationNotification';
 import AppLink from './AppLink';
 import InboxListRefresh from './InboxListRefresh';
 import InboxNotificationFilters from './InboxNotificationFilters';
@@ -17,11 +18,11 @@ export type InboxPanelProps = {owner: string; notifications: boolean; messages: 
 export default function InboxPanel(props:InboxPanelProps){return <AccountInboxPanel key={props.owner} {...props}/>;}
 function AccountInboxPanel({owner, notifications, messages, onCounts}: InboxPanelProps) {
   const {t}=useI18n(),{capabilities,user,loading}=useAccount();
-  const readAllAvailable=capabilities?.inbox_read_all===true,reviewsAvailable=capabilities?.inbox_reviews===true,filtersAvailable=capabilities?.inbox_notification_filters===true;
+  const readAllAvailable=capabilities?.inbox_read_all===true,reviewsAvailable=capabilities?.inbox_reviews===true,invitationsAvailable=capabilities?.inbox_rebuttal_invitations===true,filtersAvailable=capabilities?.inbox_notification_filters===true;
   const visibleOwner=user?.id===owner&&!loading;
   const panelId=useId(),root=useRef<HTMLDivElement>(null),href=useRef(location.href);
   const [tab,setTab]=useState<'notifications'|'messages'>(notifications?'notifications':'messages'),[selectedKind,setKind]=useState<InboxNotificationKind>('all');
-  const kind=filtersAvailable&&(selectedKind!=='review'||reviewsAvailable)?selectedKind:'all',scope=`${filtersAvailable}/${reviewsAvailable}/${kind}`;
+  const kind=filtersAvailable&&(selectedKind!=='review'||reviewsAvailable)&&(selectedKind!=='rebuttal_invite'||invitationsAvailable)?selectedKind:'all',scope=`${filtersAvailable}/${reviewsAvailable}/${invitationsAvailable}/${kind}`;
   const [data,setData]=useState<InboxSnapshot>(),[loadedScope,setLoadedScope]=useState(''),[error,setError]=useState(''),[busy,setBusy]=useState(false),[more,setMore]=useState(false),[snapshotLoading,setSnapshotLoading]=useState(true),[readingId,setReadingId]=useState<string>(),[marked,setMarked]=useState(false),[readError,setReadError]=useState(''),[changed,setChanged]=useState(false);
   const alive=useRef(true),manual=useRef<AbortController|undefined>(undefined),revision=useRef(0),currentData=useRef(data),currentScope=useRef(scope),confirmedScope=useRef(loadedScope),replacing=useRef(false),account=useRef({id:user?.id,loading});
   useLayoutEffect(()=>{currentData.current=data;currentScope.current=scope;confirmedScope.current=loadedScope;account.current={id:user?.id,loading};},[data,scope,loadedScope,user?.id,loading]);
@@ -34,9 +35,9 @@ function AccountInboxPanel({owner, notifications, messages, onCounts}: InboxPane
     const version=++revision.current,requestedScope=scope;
     if(!currentData.current||replace||confirmedScope.current!==scope)setSnapshotLoading(true);
     try{
-      const next=await inboxRequest<InboxSnapshot>(owner,inboxSnapshotPath(kind,filtersAvailable,reviewsAvailable),undefined,signal);
+      const next=await inboxRequest<InboxSnapshot>(owner,inboxSnapshotPath(kind,filtersAvailable,reviewsAvailable,undefined,invitationsAvailable),undefined,signal);
       if(signal?.aborted||!canAct()||currentScope.current!==requestedScope||version!==revision.current)return;
-      confirmInboxFilter(next,kind,filtersAvailable,reviewsAvailable);
+      confirmInboxFilter(next,kind,filtersAvailable,reviewsAvailable,invitationsAvailable);
       const current=currentData.current;
       if(current&&!replace){const update=confirmedScope.current===scope?inboxListUpdate(current,next):replaceInboxNotifications(current,next);setData(update.snapshot);setChanged(update.changed);}
       else{setData(next);setChanged(false);}
@@ -49,20 +50,20 @@ function AccountInboxPanel({owner, notifications, messages, onCounts}: InboxPane
   }});
   useInboxPolling(owner,refresh,visibleOwner&&!readAll.busy&&!busy&&!more,scope);
   const retry=()=>{if(!canAct()||busy||readAll.busy)return;manual.current?.abort();manual.current=new AbortController();setMore(false);replacing.current=true;void refresh(manual.current.signal,confirmedScope.current===scope,true);};
-  const reading=useRef(false),readAttempt=useRef<{notification?:Pick<InboxNotification,'id'|'latest_event_id'>;cutoff:number;includeReviews:boolean}|undefined>(undefined);
+  const reading=useRef(false),readAttempt=useRef<{notification?:Pick<InboxNotification,'id'|'latest_event_id'>;cutoff:number;includeReviews:boolean;includeInvitations:boolean}|undefined>(undefined);
   function changeKind(next:InboxNotificationKind){
-    if(!canAct()||busy||reading.current||readAll.busy||!filtersAvailable||next===kind||next==='review'&&!reviewsAvailable)return;
+    if(!canAct()||busy||reading.current||readAll.busy||!filtersAvailable||next===kind||next==='review'&&!reviewsAvailable||next==='rebuttal_invite'&&!invitationsAvailable)return;
     ++revision.current;manual.current?.abort();replacing.current=false;setMore(false);setSnapshotLoading(true);setError('');setReadError('');setMarked(false);readAttempt.current=undefined;setKind(next);
   }
-  async function read(notification?:Pick<InboxNotification,'id'|'latest_event_id'>,through?:number,includeReviews?:boolean){
+  async function read(notification?:Pick<InboxNotification,'id'|'latest_event_id'>,through?:number,includeReviews?:boolean,includeInvitations?:boolean){
     if(!canAct()||!ready||!data||busy||readAll.busy||snapshotLoading||replacing.current||more||reading.current)return;
-    const cutoff=through??notification?.latest_event_id??data.observed_event_id,include=includeReviews??data.reviews_included===true;
-    ++revision.current;reading.current=true;readAttempt.current={notification,cutoff,includeReviews:include};setReadError('');setBusy(true);setReadingId(notification?.id);setMarked(false);
+    const cutoff=through??notification?.latest_event_id??data.observed_event_id,include=includeReviews??data.reviews_included===true,includeInvites=includeInvitations??data.rebuttal_invitations_included===true;
+    ++revision.current;reading.current=true;readAttempt.current={notification,cutoff,includeReviews:include,includeInvitations:includeInvites};setReadError('');setBusy(true);setReadingId(notification?.id);setMarked(false);
     try{
-      const counts=await inboxRequest<InboxCounts>(owner,'inbox/read',{through_event_id:cutoff,...(include?{include_reviews:true}:{}),...(notification?{notification_ids:[notification.id]}:{})});
+      const counts=await inboxRequest<InboxCounts>(owner,'inbox/read',{through_event_id:cutoff,...(include?{include_reviews:true}:{}),...(includeInvites?{include_rebuttal_invitations:true}:{}),...(notification?{notification_ids:[notification.id]}:{})});
       if(canAct()){
         ++revision.current;onCounts(counts);setError('');setReadError('');setMarked(true);
-        setData(current=>current?{...current,...counts,notifications:current.notifications.map(item=>item.latest_event_id<=cutoff&&(item.kind!=='review'||include)&&(!notification||item.id===notification.id)?{...item,unread:false}:item)}:current);
+        setData(current=>current?{...current,...counts,notifications:current.notifications.map(item=>item.latest_event_id<=cutoff&&(item.kind!=='review'||include)&&(item.kind!=='rebuttal_invite'||includeInvites)&&(!notification||item.id===notification.id)?{...item,unread:false}:item)}:current);
       }
       inboxChanged(owner);
     }catch(e){if(canAct())setReadError(errorMessage(e));}
@@ -78,9 +79,9 @@ function AccountInboxPanel({owner, notifications, messages, onCounts}: InboxPane
     if(!canAct()||!ready||!before||more||busy||readAll.busy||snapshotLoading||replacing.current)return;
     manual.current?.abort();const controller=new AbortController();manual.current=controller;const version=++revision.current,requestedScope=scope;setMore(true);
     try{
-      const next=await inboxRequest<InboxSnapshot>(owner,inboxSnapshotPath(kind,filtersAvailable,reviewsAvailable,{section,value:before}),undefined,controller.signal);
+      const next=await inboxRequest<InboxSnapshot>(owner,inboxSnapshotPath(kind,filtersAvailable,reviewsAvailable,{section,value:before},invitationsAvailable),undefined,controller.signal);
       if(controller.signal.aborted||!canAct()||currentScope.current!==requestedScope||version!==revision.current)return;
-      confirmInboxFilter(next,kind,filtersAvailable,reviewsAvailable);
+      confirmInboxFilter(next,kind,filtersAvailable,reviewsAvailable,invitationsAvailable);
       setData(current=>current?section==='notifications'?{...current,notifications:[...current.notifications,...next.notifications.filter(item=>!current.notifications.some(old=>old.id===item.id))],notifications_next_before:next.notifications_next_before}:{...current,conversations:[...current.conversations,...next.conversations.filter(item=>!current.conversations.some(old=>old.id===item.id))],conversations_next_before:next.conversations_next_before}:next);
       setError('');
     }catch(e){if(!controller.signal.aborted&&canAct()&&version===revision.current)setError(errorMessage(e));}
@@ -93,11 +94,11 @@ function AccountInboxPanel({owner, notifications, messages, onCounts}: InboxPane
       {notifications&&<button type="button" role="tab" id={`${panelId}-notifications`} aria-controls={panelId} tabIndex={tab==='notifications'?0:-1} aria-selected={tab==='notifications'} onClick={()=>{if(canAct())setTab('notifications');}}>{t('通知','Notifications')}{!!data?.notification_unread_count&&<span>{data.notification_unread_count}</span>}</button>}
       {messages&&<button type="button" role="tab" id={`${panelId}-messages`} aria-controls={panelId} tabIndex={tab==='messages'?0:-1} aria-selected={tab==='messages'} onClick={()=>{if(canAct())setTab('messages');}}>{t('私信','Messages')}{!!data?.message_unread_count&&<span>{data.message_unread_count}</span>}</button>}
     </div>
-    {tab==='notifications'&&filtersAvailable&&<InboxNotificationFilters kind={kind} reviews={reviewsAvailable} disabled={busy||readAll.busy} controls={panelId} readAll={readAllAvailable} canAct={canAct} onChange={changeKind}/>}
+    {tab==='notifications'&&filtersAvailable&&<InboxNotificationFilters kind={kind} reviews={reviewsAvailable} invitations={invitationsAvailable} disabled={busy||readAll.busy} controls={panelId} readAll={readAllAvailable} canAct={canAct} onChange={changeKind}/>}
     {data&&<InboxListRefresh changed={ready&&changed} busy={!ready||snapshotLoading||busy||more||readAll.busy} onRefresh={retry}/>}
     <span className="sr-only" role="status">{marked?t('通知已标为已读。','Notifications marked as read.'):null}</span>
     {error&&<div className="inbox-error" role="alert"><p>{error}</p><button type="button" onClick={retry}>{t('重试','Retry')}</button></div>}
-    {readError&&<div className="inbox-error inbox-notification-read-error" role="alert"><p>{readError}</p><button type="button" disabled={busy||readAll.busy||!ready||snapshotLoading||more} onClick={()=>void read(readAttempt.current?.notification,readAttempt.current?.cutoff,readAttempt.current?.includeReviews)}>{t('重试标记已读','Retry mark as read')}</button></div>}
+    {readError&&<div className="inbox-error inbox-notification-read-error" role="alert"><p>{readError}</p><button type="button" disabled={busy||readAll.busy||!ready||snapshotLoading||more} onClick={()=>void read(readAttempt.current?.notification,readAttempt.current?.cutoff,readAttempt.current?.includeReviews,readAttempt.current?.includeInvitations)}>{t('重试标记已读','Retry mark as read')}</button></div>}
     {(!data||tab==='notifications'&&!ready)&&!error&&<p className="inbox-empty" role="status">{t('正在加载…','Loading…')}</p>}
     {data&&<div className="inbox-tab-content" role="tabpanel" id={panelId} aria-labelledby={`${panelId}-${tab}`} aria-busy={!ready||snapshotLoading}>
       {tab==='notifications'?ready&&<>
@@ -111,6 +112,7 @@ function AccountInboxPanel({owner, notifications, messages, onCounts}: InboxPane
 
 export function NotificationRow({notification: item, onRead,onMarkRead,disabled=false,marking=false}: {notification: InboxNotification; onRead: () => void;onMarkRead?:()=>void;disabled?:boolean;marking?:boolean}) {
   const {t} = useI18n(),rowId=useId();
+  if(item.kind==='rebuttal_invite')return <RebuttalInvitationNotification notification={item} onRead={onRead} onMarkRead={onMarkRead} disabled={disabled} marking={marking}/>;
   if(item.kind==='review')return <ReviewNotification notification={item} onRead={onRead} onMarkRead={onMarkRead} disabled={disabled} marking={marking}/>;
   const actor = item.actors[0];
   const name = actor?.anonymous ? t('匿名用户', 'Anonymous') : actor?.display_name || t('一位用户', 'Someone');

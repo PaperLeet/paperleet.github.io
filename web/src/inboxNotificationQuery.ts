@@ -1,14 +1,16 @@
 import type {InboxNotificationKind,InboxSnapshot} from './inbox';
-export const notificationKinds=['all','reply','like','follow','repost','review'] as const;
+export const notificationKinds=['all','reply','like','follow','repost','review','rebuttal_invite'] as const;
 export function isNotificationKind(value:unknown):value is InboxNotificationKind{return typeof value==='string'&&notificationKinds.some(kind=>kind===value);}
-export function inboxSnapshotPath(kind:InboxNotificationKind,filters:boolean,reviews:boolean,before?:{section:'notifications'|'messages';value:number}){
+export function inboxSnapshotPath(kind:InboxNotificationKind,filters:boolean,reviews:boolean,before?:{section:'notifications'|'messages';value:number},invitations=false){
  const params=new URLSearchParams({limit:'20'});
  if(before)params.set((before.section==='notifications'?'notifications':'conversations')+'_before',String(before.value));
  if(reviews)params.set('reviews','1');
+ if(invitations)params.set('rebuttal_invitations','1');
  if(filters)params.set('notification_kind',kind);
  return 'inbox?'+params;
 }
-export function confirmInboxFilter(snapshot:InboxSnapshot,kind:InboxNotificationKind,filters:boolean,reviews:boolean){
+export function confirmInboxFilter(snapshot:InboxSnapshot,kind:InboxNotificationKind,filters:boolean,reviews:boolean,invitations=false){
+ if(invitations&&snapshot.rebuttal_invitations_included!==true)throw Error('Invitation notifications could not be confirmed.');
  if(reviews&&snapshot.reviews_included!==true)throw Error('Review notifications could not be confirmed.');
  if(filters&&(snapshot.notification_kind!==kind||kind!=='all'&&snapshot.notifications.some(item=>item.kind!==kind)))throw Error('Notification filter could not be confirmed.');
 }
