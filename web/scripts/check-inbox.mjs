@@ -281,3 +281,5 @@ try {
   await server.close(); dom.window.close();
   for (const [key, descriptor] of previous) {if (descriptor) Object.defineProperty(globalThis, key, descriptor); else delete globalThis[key];}
 }
+
+await import('./check-inbox-rebuttal-invitations.mjs');

@@ -11,17 +11,17 @@ const InboxPanel = deferredFeature(() => import('./InboxPanel'), ['通知', 'not
 export default function InboxBell() {
   const {user, loading, capabilities} = useAccount();
   if (!user || loading || (!capabilities?.inbox_notifications && !capabilities?.direct_messages)) return null;
-  return <AccountInboxBell key={user.id} owner={user.id} notifications={capabilities.inbox_notifications === true} messages={capabilities.direct_messages === true} reviews={capabilities.inbox_reviews === true}/>;
+  return <AccountInboxBell key={user.id} owner={user.id} notifications={capabilities.inbox_notifications === true} messages={capabilities.direct_messages === true} reviews={capabilities.inbox_reviews === true} invitations={capabilities.inbox_rebuttal_invitations === true}/>;
 }
 
-function AccountInboxBell({owner, notifications, messages, reviews}: {owner: string; notifications: boolean; messages: boolean; reviews:boolean}) {
+function AccountInboxBell({owner, notifications, messages, reviews, invitations}: {owner: string; notifications: boolean; messages: boolean; reviews:boolean;invitations:boolean}) {
   const {t} = useI18n();
   const [open, setOpen] = useState(false), [counts, setCounts] = useState<InboxCounts>();
   const root = useRef<HTMLDivElement>(null), trigger = useRef<HTMLButtonElement>(null), panel = useRef<HTMLElement>(null);
   const id = useId();
   useInboxPolling(owner, async signal => {
     try {
-      const data = await inboxRequest<InboxCounts>(owner, `inbox?summary=${reviews?2:1}`, undefined, signal);
+      const data = await inboxRequest<InboxCounts>(owner, `inbox?summary=${reviews?2:1}${invitations?'&rebuttal_invitations=1':''}`, undefined, signal);
       if (!signal.aborted) setCounts(data);
     } catch { /* Keep the last confirmed count; the open panel has retry controls. */ }
   });
@@ -50,11 +50,11 @@ function AccountInboxBell({owner, notifications, messages, reviews}: {owner: str
   }}>
     <button type="button" className="inbox-bell-trigger" ref={trigger} aria-haspopup="dialog" aria-expanded={open} aria-controls={id} aria-label={label} title={label}
       onClick={() => setOpen(value => !value)} onKeyDown={event => { if (event.key === 'ArrowDown'&&!event.defaultPrevented&&!event.repeat&&!event.nativeEvent.isComposing&&event.nativeEvent.keyCode!==229&&!event.altKey&&!event.ctrlKey&&!event.metaKey&&!event.shiftKey) { event.preventDefault(); setOpen(true); } }}>
-      <Bell size={20}/>{unread > 0 && <span className="inbox-unread-dot" aria-hidden="true">{unread > 99 ? '99+' : unread}</span>}
+      <Bell size={20}/>{unread > 0 && <span className="inbox-unread-dot" aria-hidden="true"/>}
     </button>
     {open && <section className="inbox-popover" id={id} ref={panel} tabIndex={-1} role="dialog" aria-label={t('通知与私信', 'Notifications and messages')}>
       <button type="button" className="inbox-close" aria-label={t('关闭收件箱','Close inbox')} onClick={()=>{setOpen(false);trigger.current?.focus({preventScroll:true});}}><X size={17} aria-hidden="true"/></button>
-      <InboxPanel key={String(reviews)} owner={owner} notifications={notifications} messages={messages} onCounts={setCounts}/>
+      <InboxPanel key={`${reviews}/${invitations}`} owner={owner} notifications={notifications} messages={messages} onCounts={setCounts}/>
     </section>}
   </div>;
 }

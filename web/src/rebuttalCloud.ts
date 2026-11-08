@@ -6,12 +6,17 @@ import type { RebuttalProject } from './rebuttalModel';
 export type RebuttalRole = 'owner' | 'editor' | 'viewer';
 export type RebuttalPerson = { id: string; display_name: string; username: string };
 export type RebuttalMember = { user: RebuttalPerson; role: RebuttalRole };
+export type RebuttalPendingMember = { id: string; user: RebuttalPerson; role: 'editor' | 'viewer'; created_at: string };
+export type RebuttalInvitation = {
+  id: string; paper_id: string; title: string; venue: string; owner: RebuttalPerson; role: 'editor' | 'viewer'; created_at: string;
+};
+export type RebuttalInvitationResult = { id: string; paper_id: string; status: 'accepted' | 'declined' };
 export type RebuttalPaperRow = {
   id: string; title: string; venue: string; updatedAt: string; archived: boolean;
   reviewerCount: number; issueCount: number; readyCount: number; role: RebuttalRole; owner: RebuttalPerson;
 };
 export type RebuttalPaper = {
-  project: RebuttalProject; revision: number; role: RebuttalRole; owner: RebuttalPerson; members: RebuttalMember[];
+  project: RebuttalProject; revision: number; role: RebuttalRole; owner: RebuttalPerson; members: RebuttalMember[]; invitations: RebuttalPendingMember[];
 };
 export type RebuttalSaveStatus = 'saved' | 'saving' | 'error' | 'conflict';
 export type RebuttalCloudState = {
@@ -36,9 +41,10 @@ const errorCode = (error: unknown) => record(error) && typeof error.code === 'st
 const projectSignature = ({ updatedAt: _updatedAt, createdAt: _createdAt, ...content }: RebuttalProject) => JSON.stringify(content);
 export const rebuttalRequestId = () => makeId().replaceAll('-', '');
 export const rebuttalHref = (id?: string) => id ? `#/rebuttal/${encodeURIComponent(id)}` : '#/rebuttal';
-export function readRebuttalRoute(route: string): { paperId?: string } | undefined {
+export function readRebuttalRoute(route: string): { paperId?: string; tab?: 'invitations' } | undefined {
   const path = route.replace(/^#\/?/, '');
   if (path === 'rebuttal' || path === 'rebuttal/') return {};
+  if (path === 'rebuttal/invitations' || path === 'rebuttal/invitations/') return { tab: 'invitations' };
   const match = /^rebuttal\/([a-zA-Z0-9_-]{1,150})\/?$/.exec(path);
   return match ? { paperId: match[1] } : undefined;
 }
@@ -62,7 +68,98 @@ export function readRebuttalPaper(value: unknown, id?: string): RebuttalPaper {
     return { user: person(item.user), role: item.role };
   });
   if (new Set(members.map(item => item.user.id)).size !== members.length || !members.some(item => item.user.id === owner.id && item.role === 'owner')) throw Error('Invalid paper membership');
-  return { project, revision: value.revision, role: value.role, owner, members };
+  if (value.invitations !== undefined && !Array.isArray(value.invitations)) throw Error('Invalid pending invitations');
+  const invitations = ((value.invitations || []) as unknown[]).map<RebuttalPendingMember>(item => {
+    if (!record(item) || !identifier(item.id) || (item.role !== 'editor' && item.role !== 'viewer') ||
+      typeof item.created_at !== 'string' || !Number.isFinite(Date.parse(item.created_at))) throw Error('Invalid pending invitation');
+    return { id: item.id, user: person(item.user), role: item.role, created_at: item.created_at };
+  });
+  if (new Set(invitations.map(item => item.id)).size !== invitations.length || new Set(invitations.map(item => item.user.id)).size !== invitations.length ||
+    invitations.some(item => members.some(member => member.user.id === item.user.id))) throw Error('Invalid pending invitations');
+  return { project, revision: value.revision, role: value.role, owner, members, invitations };
+}
+export function readRebuttalInvitations(value: unknown, owner?: string): RebuttalInvitation[] {
+  if (!record(value) || !Array.isArray(value.invitations)) throw Error('Invalid invitations response');
+  if (owner && value.user_id !== owner) throw Error('Your account changed. Refresh your account and try again.');
+  const invitations = value.invitations.map<RebuttalInvitation>(item => {
+    if (!record(item) || !identifier(item.id) || !identifier(item.paper_id) || typeof item.title !== 'string' || typeof item.venue !== 'string' ||
+      (item.role !== 'editor' && item.role !== 'viewer') || typeof item.created_at !== 'string' || !Number.isFinite(Date.parse(item.created_at))) throw Error('Invalid invitation');
+    return { id: item.id, paper_id: item.paper_id, title: item.title, venue: item.venue, owner: person(item.owner), role: item.role, created_at: item.created_at };
+  });
+  if (new Set(invitations.map(item => item.id)).size !== invitations.length) throw Error('Duplicate invitation identifiers');
+  return invitations;
+}
+
+/** Accept/decline retries retain their exact command until its result is confirmed. */
+export function createRebuttalInvitations(options: { owner: string; request?: RebuttalRequest; canAct?: () => boolean }) {
+  type Command = { id: string; paper_id: string; body: { action: 'accept' | 'decline'; request_id: string; expected_user_id: string } };
+  let state: { invitations: RebuttalInvitation[]; loading: boolean; busy: boolean; error: string; pending: boolean; unavailable: boolean } =
+    { invitations: [], loading: true, busy: false, error: '', pending: false, unavailable: false };
+  let active = true, generation = 0, reading = 0, command: Command | undefined;
+  const listeners = new Set<() => void>(), controllers = new Set<AbortController>();
+  const owns = (epoch = generation) => active && epoch === generation && (options.canAct?.() ?? true);
+  const emit = (patch: Partial<typeof state>) => { if (owns()) { state = { ...state, ...patch }; listeners.forEach(listener => listener()); } };
+  async function call(path: string, body?: unknown) {
+    const controller = new AbortController(); controllers.add(controller);
+    const timeout = setTimeout(() => controller.abort(), 20000);
+    try { return await (options.request || socialApi)(path, body, controller.signal); }
+    finally { clearTimeout(timeout); controllers.delete(controller); }
+  }
+  async function load() {
+    if (!owns() || state.busy || command || state.unavailable) return;
+    const epoch = generation, read = ++reading;
+    emit({ loading: true, error: '' });
+    try {
+      const invitations = readRebuttalInvitations(await call('rebuttal/invitations'), options.owner);
+      if (owns(epoch) && read === reading) emit({ invitations });
+    } catch (error) {
+      if (owns(epoch) && read === reading) emit(statusCode(error) === 404 ? { unavailable: true, invitations: [] } : { error: message(error) });
+    } finally { if (owns(epoch) && read === reading) emit({ loading: false }); }
+  }
+  async function respond(invitation?: RebuttalInvitation, action?: 'accept' | 'decline'): Promise<RebuttalInvitationResult | undefined> {
+    if (!owns() || state.busy || state.unavailable || command && invitation) return;
+    if (!command) {
+      if (!invitation || !action || !state.invitations.some(item => item.id === invitation.id)) return;
+      command = { id: invitation.id, paper_id: invitation.paper_id, body: { action, request_id: rebuttalRequestId(), expected_user_id: options.owner } };
+    }
+    const sent = command, epoch = generation;
+    reading++; emit({ busy: true, pending: true, loading: false, error: '' });
+    try {
+      const result = await call(`rebuttal/invitations/${encodeURIComponent(sent.id)}`, sent.body);
+      if (!owns(epoch)) return;
+      const expectedStatus = sent.body.action === 'accept' ? 'accepted' : 'declined';
+      if (!record(result) || result.id !== sent.id || result.paper_id !== sent.paper_id || result.status !== expectedStatus) throw Error('The invitation result is unconfirmed. Retry the original operation.');
+      command = undefined;
+      emit({ invitations: state.invitations.filter(item => item.id !== sent.id), pending: false });
+      return { id: sent.id, paper_id: sent.paper_id, status: expectedStatus };
+    } catch (error) {
+      if (owns(epoch)) {
+        const code = statusCode(error);
+        if (code && code >= 400 && code < 500 && code !== 408 && code !== 429) command = undefined;
+        emit({ error: message(error), pending: !!command,
+          ...(code === 404 ? { invitations: state.invitations.filter(item => item.id !== sent.id) } : {}) });
+      }
+    } finally { if (owns(epoch)) emit({ busy: false }); }
+  }
+  return {
+    getSnapshot: () => state,
+    subscribe(listener: () => void) { listeners.add(listener); return () => { listeners.delete(listener); }; },
+    load, respond,
+    activate() { active = true; },
+    dispose() { active = false; generation++; reading++; controllers.forEach(controller => controller.abort()); controllers.clear(); state = { ...state, busy: false }; },
+  };
+}
+export function useRebuttalInvitations(owner: string, enabled: boolean) {
+  const current = useRef({ owner, enabled }); current.current = { owner, enabled };
+  const store = useMemo(() => createRebuttalInvitations({ owner, canAct: () => current.current.owner === owner && current.current.enabled }), [owner]);
+  const state = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot);
+  useEffect(() => {
+    if (!enabled) return;
+    store.activate(); void store.load();
+    const interval = setInterval(() => { if (document.visibilityState === 'visible' && navigator.onLine) void store.load(); }, 45000);
+    return () => { clearInterval(interval); store.dispose(); };
+  }, [store, enabled]);
+  return { state, store };
 }
 export function readRebuttalPapers(value: unknown): RebuttalPaperRow[] {
   if (!record(value) || !Array.isArray(value.papers)) throw Error('Invalid paper library');
