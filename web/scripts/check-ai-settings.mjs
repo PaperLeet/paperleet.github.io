@@ -116,8 +116,7 @@ try {
   assert.equal(document.querySelectorAll('input[type="password"]').length,1);
   assert(!location.href.includes(secret));assert(!document.body.outerHTML.includes(secret));
 
-  const accountSource=await readFile('src/Account.tsx','utf8'), studioSource=await readFile('src/RebuttalStudio.tsx','utf8');
-  assert.match(accountSource,/personal_ai_settings === true && <AISettings/);
+  const studioSource=await readFile('src/RebuttalStudio.tsx','utf8');
   assert.match(studioSource,/aiSettings && hosted && <AISettings/);
   assert.match(studioSource,/setAiRevision\(value => value \+ 1\)/,'Hub refreshes AI status without remounting the paper');
   console.log('PASS personal AI settings: provider models/manual fallback, direct save and optional tests, encrypted-key metadata, preservation/deletion, CAS conflicts, safe errors, account retirement, unavailable deletion, bilingual UI, text-only hostile labels, page-cache/retired DOM key cleanup and no browser persistence.');

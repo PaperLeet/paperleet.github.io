@@ -236,7 +236,7 @@ function PaperWorkspace({ owner, paperId }: { owner: string; paperId: string }) 
     </div></div></section>}
     <RebuttalStudio key={`${paperId}:${state.reloadVersion}`} hosted={{ project: state.project, readOnly: state.document.role === 'viewer' || state.blocked || state.loading || state.memberBusy || store.hasPendingMember() || leaving,
       saveStatus: state.status, role: state.document.role, onPersonalDraft: bridge => { personalDraft.current = bridge; }, onChange: project => { store.update(project); }, onBack: () => { void back(); },
-      onShare: () => setSharing(true), onRefresh: () => { void store.flush().then(async saved => { if (saved && (await personalDraft.current?.flush() ?? true)) await store.refresh(); }); } }} />
+      onShare: () => setSharing(true) }} />
     {sharing && <MembersDialog state={state} store={store} links={links} onClose={() => setSharing(false)} />}
   </div>;
 }
