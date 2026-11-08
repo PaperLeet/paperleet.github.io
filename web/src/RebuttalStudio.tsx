@@ -14,6 +14,8 @@ import RebuttalLibrary from "./RebuttalLibrary";
 import { readUsers, writeUsers, createLocalUser, selectLocalUser, workspaceStorage } from "./rebuttalUsers";
 import type { UserDirectory } from "./rebuttalUsers";
 import { deferredFeature } from "./deferredFeature";
+import PersonalAIConnection from "./PersonalAIConnection";
+import { readPersonalAIStatus } from "./personalAI";
 import "./rebuttal.css";
 
 const AISettings = deferredFeature(() => import('./AISettings'), ['AI 设置', 'AI settings']);
@@ -26,7 +28,7 @@ export type HostedStudioSession = {
 };
 
 type Stage = "overview" | "reviews" | "experiments" | "issues" | "export" | "history";
-type AIStatus = { configured: boolean; model: string | null; provider?: string | null; source?: 'personal' | 'server' | null };
+type AIStatus = { configured: boolean; model: string | null; provider?: string | null; source?: 'personal' | 'server' | null; available?: boolean };
 type AnalyzedIssue = Omit<Issue, "id" | "status" | "outline" | "response"> & { experiment?: { title: string; protocol: string; metric: string } };
 
 function download(name: string, content: string, type = "text/plain") {
@@ -68,11 +70,13 @@ export default function RebuttalStudio({ hosted }: { hosted?: HostedStudioSessio
   const readOnly = hosted?.readOnly || false;
   const hostedRef = useRef(hosted); hostedRef.current = hosted;
   const lastSubmittedProject = useRef(hosted?.project);
+  const requestOwner = useRef(accountUser?.id); requestOwner.current = accountLoading ? undefined : accountUser?.id;
   async function localRequest(path: string, options: RequestInit = {}) {
     const body = options.body ? { ...JSON.parse(String(options.body)), project_id: hostedRef.current?.project.id, expected_user_id: accountUser?.id } : undefined;
     const response = await apiFetch(path, { ...options, body: body ? JSON.stringify(body) : undefined,
       headers: { "Content-Type": "application/json", ...options.headers }, cache: "no-store", redirect: "error" });
     const value = await response.json();
+    if (hosted && requestOwner.current !== accountUser?.id) throw Error(t("账号已切换，请重试。", "Account changed. Try again."));
     if (!response.ok) throw Error(typeof value?.error === "string" ? value.error : t("服务暂不可用", "Service unavailable"));
     return value;
   }
@@ -100,7 +104,9 @@ export default function RebuttalStudio({ hosted }: { hosted?: HostedStudioSessio
   const [aiSettings, setAiSettings] = useState(false), [aiRevision, setAiRevision] = useState(0);
   const [busy, setBusy] = useState("");
   const [notice, setNotice] = useState("");
-  const [ai, setAi] = useState<AIStatus>({ configured: false, model: null });
+  const [aiState, setAi] = useState<AIStatus>({ configured: false, model: null });
+  const [aiOwner, setAiOwner] = useState<string>(), [aiLoading, setAiLoading] = useState(!!hosted), [aiError, setAiError] = useState(false);
+  const ai = !hosted || !accountLoading && aiOwner === accountUser?.id ? aiState : { configured: false, model: null };
   const [suggestion, setSuggestion] = useState<{ ownerId: string; projectId: string; issueId: string; text: string; base: string; source: string } | null>(null);
   const [removed, setRemoved] = useState<(RemovedContent & { ownerId: string }) | null>(null);
   const [experimentDraft, setExperimentDraft] = useState<{ issueId: string; title: string; newIssueTitle: string } | null>(null);
@@ -148,10 +154,13 @@ export default function RebuttalStudio({ hosted }: { hosted?: HostedStudioSessio
     const controller = new AbortController();
     let active = true;
     setAi({ configured: false, model: null });
+    setAiOwner(accountUser?.id); setAiLoading(true); setAiError(false);
+    if (hosted && (!accountUser || accountLoading)) return () => { active = false; controller.abort(); };
     localRequest("/api/rebuttal/status", { signal: AbortSignal.any([controller.signal, AbortSignal.timeout(5000)]) })
-      .then(value => { if (active) setAi(value as AIStatus); }).catch(() => {});
+      .then(value => { if (active) setAi(hosted ? readPersonalAIStatus(value, accountUser!.id) : value as AIStatus); })
+      .catch(() => { if (active) setAiError(true); }).finally(() => { if (active) setAiLoading(false); });
     return () => { active = false; controller.abort(); };
-  }, [settings, aiRevision, accountUser?.id]);
+  }, [settings, aiRevision, accountUser?.id, accountLoading]);
   useEffect(() => {
     if (hostedRef.current) {
       const changed = workspace.projects.find(p => p.id === workspace.activeProjectId);
@@ -478,8 +487,9 @@ export default function RebuttalStudio({ hosted }: { hosted?: HostedStudioSessio
     <div className={`rst-paper-heading${hosted ? " rst-hosted-heading" : ""}`}>
       <div className="rst-paper-identity"><h1>{project.title || t("未命名论文", "Untitled paper")}</h1><span>{project.venue}</span></div>
       <span className="rst-save"><span className={(hosted ? hosted.saveStatus === "error" || hosted.saveStatus === "conflict" : saveError) ? "rst-error-dot" : "rst-local-dot"} />{hosted ? readOnly ? t("仅查看", "View only") : hosted.saveStatus === "saved" ? t("已保存", "Saved") : hosted.saveStatus === "saving" ? t("正在保存…", "Saving…") : t("尚未保存", "Unsaved") : saveError ? t("尚未保存", "Unsaved") : saved ? t("已保存", "Saved") : t("正在保存…", "Saving…")}</span>
-      <div className="rst-paper-actions">{hosted && capabilities?.personal_ai_settings === true && <button className="rst-button" onClick={() => setAiSettings(true)}><Sparkles size={15} />{t("AI 设置", "AI settings")}</button>}<button className="rst-button" disabled={!!busy} onClick={openReviews}><Upload size={15} />{t("审稿原文", "Reviews")}</button>{hosted && <button className="rst-button rst-share-button" onClick={hosted.onShare}>{hosted.role === "owner" ? t("邀请", "Invite") : t("成员", "Members")}</button>}<button className="rst-icon-button" title={t("论文设置", "Paper settings")} aria-label={t("论文设置", "Paper settings")} onClick={() => setSettings(true)}><Settings2 size={17} /></button></div>
+      <div className="rst-paper-actions"><button className="rst-button" disabled={!!busy} onClick={openReviews}><Upload size={15} />{t("审稿原文", "Reviews")}</button>{hosted && <button className="rst-button rst-share-button" onClick={hosted.onShare}>{hosted.role === "owner" ? t("邀请", "Invite") : t("成员", "Members")}</button>}<button className="rst-icon-button" title={t("论文设置", "Paper settings")} aria-label={t("论文设置", "Paper settings")} onClick={() => setSettings(true)}><Settings2 size={17} /></button></div>
     </div>
+    {hosted && <PersonalAIConnection state={{ ...ai, loading: aiLoading || aiOwner !== accountUser?.id, error: aiError }} onSettings={capabilities?.personal_ai_settings ? () => setAiSettings(true) : undefined} onRefresh={() => setAiRevision(value => value + 1)} />}
     <div className="rst-stage-bar"><nav aria-label={t("论文工作区", "Paper workspace")}>
       {([["overview", t("Reviewer 总览", "Reviewers"), ListChecks], ["experiments", t("实验", "Experiments"), FlaskConical], ["issues", t("逐条回复", "Responses"), MessageSquare], ["export", t("拼接回复", "Assemble"), FileText], ["history", t("历史版本", "Versions"), History]] as const).map(([key, label, Icon]) => <button key={key} disabled={!!busy} aria-current={stage === key ? "page" : undefined} className={stage === key ? "active" : ""} onClick={() => showStage(key)}><Icon size={16} />{label}</button>)}
     </nav></div>
@@ -522,7 +532,7 @@ export default function RebuttalStudio({ hosted }: { hosted?: HostedStudioSessio
           <header><h2>{t("审稿意见", "Reviews")}</h2>{!hosted && <button className="rst-text-button" disabled={!!busy || readOnly} onClick={() => addProject(true)}>{t("加载示例", "Load example")}</button>}</header>
           <div className="rst-review-inputs">{reviewDraft.map((review, index) => <div key={review.id} className="rst-review-input"><div><span>R{index + 1}</span><input maxLength={300} disabled={!!busy || readOnly} aria-label={t("审稿人名称", "Reviewer name")} value={review.name} onChange={e => setReviewDraft(current => current.map(r => r.id === review.id ? { ...r, name: e.target.value } : r))} /></div><textarea maxLength={200000} disabled={!!busy || readOnly} aria-label={t(`审稿意见 ${index + 1}`, `Review ${index + 1}`)} rows={8} placeholder={t("粘贴这位审稿人的完整意见…", "Paste this reviewer's full review…")} value={review.text} onChange={e => setReviewDraft(current => current.map(r => r.id === review.id ? { ...r, text: e.target.value, summary: undefined, strengths: undefined, rating: undefined, confidence: undefined, aiSummary: undefined } : r))} /></div>)}</div>
           <div className="rst-import-add"><button disabled={!!busy || readOnly} onClick={addReviewer}><Plus size={15} />{t("添加审稿人", "Add reviewer")}</button><button disabled={!!busy || readOnly} onClick={() => reviewInput.current?.click()}><Upload size={15} />{t("导入文件", "Import file")}</button><input hidden ref={reviewInput} type="file" multiple accept=".txt,.md,.json" onChange={importReviews} /></div>
-          <footer><button disabled={!!busy || readOnly || !reviewDraft.some(r => r.text.trim())} className={project.issues.length ? "rst-button" : "rst-button rst-primary"} title={ai.configured ? t("使用已配置的 AI", "Use configured AI") : t("按段落和编号拆解", "Split by paragraphs and numbered items")} onClick={() => analyze(ai.configured)}>{busy ? <Loader2 size={15} className="rst-spin" /> : <ListChecks size={15} />}{busy ? t("正在拆解…", "Analyzing…") : t("拆解为问题", "Extract concerns")}</button>{ai.configured && <button className="rst-button" disabled={!!busy || readOnly || !reviewDraft.some(r => r.text.trim())} onClick={() => analyze(false)}>{t("本地拆解", "Local breakdown")}</button>}</footer>
+          <footer><button disabled={!!busy || readOnly || !reviewDraft.some(r => r.text.trim())} className={project.issues.length ? "rst-button" : "rst-button rst-primary"} title={ai.configured ? t("使用已配置的 AI", "Use configured AI") : hosted ? t("请先配置个人 API key", "Connect your API key first") : t("按段落和编号拆解", "Split by paragraphs and numbered items")} onClick={() => { if (hosted && !ai.configured) { if (capabilities?.personal_ai_settings) setAiSettings(true); else setNotice(t("AI 设置正在更新", "AI settings are updating")); return; } void analyze(!!hosted || ai.configured); }}>{busy ? <Loader2 size={15} className="rst-spin" /> : <ListChecks size={15} />}{busy ? t("正在拆解…", "Analyzing…") : t("拆解为问题", "Extract concerns")}</button>{(ai.configured || hosted) && <button className="rst-button" disabled={!!busy || readOnly || !reviewDraft.some(r => r.text.trim())} onClick={() => analyze(false)}>{t("本地拆解", "Local breakdown")}</button>}</footer>
         </section>
         <section className="rst-breakdown-panel"><header><h2>{t("问题清单", "Concerns")}</h2><span>{project.issues.length}</span></header>
           {project.issues.length ? <div className="rst-breakdown-list">{project.issues.map((issue, index) => <article className="rst-breakdown-item" key={issue.id}><header><span>{index + 1}. {project.reviews.find(r => r.id === issue.reviewerId)?.name}</span><span>{issue.category === "experiment" ? t("需要实验", "Experiment") : t("直接回复", "Direct reply")}</span></header><input disabled={readOnly} maxLength={2000} aria-label={t(`问题 ${index + 1}`, `Concern ${index + 1}`)} value={issue.title} onChange={e => updateIssue(issue.id, { title: e.target.value })} /><details><summary>{t("查看原文", "Source quote")}</summary><p>{issue.quote}</p></details></article>)}</div> : <div className="rst-simple-empty"><ListChecks size={26} /><p>{t("暂无问题", "No concerns yet")}</p></div>}

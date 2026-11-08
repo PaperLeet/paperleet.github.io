@@ -16,6 +16,10 @@ import { arxivPaperUrl, poolApi, poolHref, poolRoute } from './paperPoolApi';
 import type { PaperPoolCapabilities, PaperPoolVote, PoolAttempt, PoolAttemptResponse, PoolDuplicate, PoolList, PoolProposal, PoolSubmission } from './paperPoolTypes';
 import './paper-pool.css';
 import PaperDuplicateCheck, {PaperDuplicateNotice} from './PaperDuplicateCheck';
+import PersonalAIConnection from './PersonalAIConnection';
+import { usePersonalAIStatus } from './personalAI';
+
+const AISettings = deferredFeature(() => import('./AISettings'), ['AI 设置', 'AI settings']);
 
 const TrialEditor = deferredFeature(() => import('./PythonEditor'), ['试做编辑器', 'trial editor'], {
   loading: props => <EditorLoading {...props} />,
@@ -25,8 +29,8 @@ const processing = (status: string) => ['queued', 'submitted', 'suitability', 's
 const reviewable = (status: string) => ['pool', 'ready'].includes(status);
 
 export default function PaperPool() {
-  const {user} = useAccount();
-  return <PoolWorkspace key={user?.id || 'guest'} owner={user?.id} />;
+  const {user, loading} = useAccount();
+  return <PoolWorkspace key={!loading && user?.id || 'guest'} owner={!loading ? user?.id : undefined} />;
 }
 
 function PoolWorkspace({owner}: {owner?: string}) {
@@ -85,6 +89,9 @@ function PoolWorkspace({owner}: {owner?: string}) {
 
 function PoolSubmissionForm({owner, capabilities, onSaved}: {owner?: string; capabilities?: PaperPoolCapabilities; onSaved: () => void}) {
   const {t} = useI18n();
+  const { capabilities: accountCapabilities } = useAccount();
+  const personalAI = usePersonalAIStatus(owner, accountCapabilities?.personal_ai_settings === true);
+  const [aiSettings, setAiSettings] = useState(false);
   const draftOwner = owner ? `account:${owner}` : undefined;
   const [loaded] = useState(() => readProposalDraft(tabDraftStorage(), draftOwner));
   const [draft, setDraft] = useState(() => loaded.record?.draft || emptyProposalDraft());
@@ -103,12 +110,13 @@ function PoolSubmissionForm({owner, capabilities, onSaved}: {owner?: string; cap
     setError(''); setDuplicate(undefined); setSaved(undefined);
   }
   async function submit() {
-    if (!owner || !capabilities?.can_submit || working.current) return;
+    if (!owner || !capabilities?.can_submit || !personalAI.state.configured || working.current) return;
     const arxivUrl = arxivPaperUrl(draftRef.current.paperUrl);
     if (!arxivUrl) {setError(t('请输入有效的 arXiv 论文或 PDF 链接。', 'Enter a valid arXiv abstract or PDF link.')); return;}
     const submitted = draftRef.current, revision = draftRevision.current, storedAtSubmit = storedRevision.current;
     working.current = true; setBusy(true); setError(''); setDuplicate(undefined); setSaved(undefined);
     try {
+      if (!await personalAI.verify() || !mounted.current) return;
       const result = await poolApi<PoolSubmission>('', {arxiv_url: arxivUrl, prompt: submitted.focus.trim(), expected_user_id: owner});
       if (!mounted.current) return;
       if (!result.proposal && !result.duplicate) throw Error(t('服务未返回投稿结果，请刷新后检查。', 'The service did not return a proposal. Refresh to check its status.'));
@@ -119,11 +127,12 @@ function PoolSubmissionForm({owner, capabilities, onSaved}: {owner?: string; cap
           const next = emptyProposalDraft(); draftRef.current = next; setDraft(next); storedRevision.current = undefined; setStored(cleared === 'cleared');
         }
       }
-    } catch (e) {if (mounted.current) setError(errorMessage(e));}
+    } catch (e) {if (mounted.current) { setError(errorMessage(e)); personalAI.refresh(); }}
     finally {working.current = false; if (mounted.current) setBusy(false);}
   }
   return <section className="pool-submit-grid">
     <form className="social-panel social-form pool-submission-form" onSubmit={event => {event.preventDefault(); void submit();}}>
+      {owner && <PersonalAIConnection submission state={personalAI.state} onSettings={accountCapabilities?.personal_ai_settings ? () => setAiSettings(true) : undefined} onRefresh={personalAI.refresh} />}
       <label>{t('arXiv 链接', 'arXiv link')}<input type="url" required maxLength={512} placeholder="https://arxiv.org/abs/…" autoComplete="off" value={draft.paperUrl} onChange={event => edit({paperUrl: event.target.value})} disabled={!owner} /></label>
       {!duplicate && <PaperDuplicateCheck value={draft.paperUrl}/>}
       <label>{t('出题方向（可选）', 'Guidance for the exercise (optional)')}<textarea rows={4} maxLength={4000} value={draft.focus} disabled={!owner} onChange={event => edit({focus: event.target.value})} placeholder={t('例如：围绕核心损失函数出一道 NumPy 练习，重点测试数值稳定性。', 'For example: a NumPy exercise on the core loss, with tests for numerical stability.')} /></label>
@@ -131,11 +140,12 @@ function PoolSubmissionForm({owner, capabilities, onSaved}: {owner?: string; cap
       {error && <p className="pool-error" role="alert">{error}</p>}
       {duplicate && <PaperDuplicateNotice duplicate={duplicate}/>}
       {saved && <div className="pool-feedback" role="status"><strong>{t('论文已提交', 'Paper submitted')}</strong><AppLink href={poolHref(saved.id)}>{t('查看处理进度', 'View progress')}<ArrowUpRight size={14} /></AppLink></div>}
-      {!owner ? <AppLink className="button" href={signInHref('submit')}>{t('登录后投稿', 'Sign in to submit')}</AppLink> : <button className="button" type="submit" disabled={busy || !capabilities?.can_submit}>{busy ? <LoaderCircle size={15} className="spin" /> : <Send size={15} />}{busy ? t('正在提交…', 'Submitting…') : t('提交论文', 'Submit paper')}</button>}
-      {owner && capabilities && !capabilities.can_submit && <p className="pool-muted">{capabilities.reason || t('请先验证学校或公司的邮箱。', 'Verify your school or company email to submit.')}</p>}
+      {!owner ? <AppLink className="button" href={signInHref('submit')}>{t('登录后投稿', 'Sign in to submit')}</AppLink> : <button className="button" type="submit" disabled={busy || !capabilities?.can_submit || !personalAI.state.configured}>{busy ? <LoaderCircle size={15} className="spin" /> : <Send size={15} />}{busy ? t('正在提交…', 'Submitting…') : t('提交论文', 'Submit paper')}</button>}
+      {owner && capabilities && !capabilities.can_submit && personalAI.state.configured && <p className="pool-muted">{capabilities.reason || t('请先验证学校或公司的邮箱。', 'Verify your school or company email to submit.')}</p>}
       {owner && !!(draft.paperUrl || draft.focus) && <small role="status" className="pool-muted">{stored ? t('草稿已保存在此浏览器标签页。', 'Draft saved in this browser tab.') : t('草稿暂时无法保存，请保留此页。', 'Draft storage is unavailable. Keep this page open.')}</small>}
       <PublishingRules action="paper" />
     </form>
+    {aiSettings && <AISettings onChanged={() => { personalAI.refresh(); onSaved(); }} onClose={() => { setAiSettings(false); personalAI.refresh(); onSaved(); }} />}
     <aside className="pool-process social-panel">
       <ol><li><span>1</span><div><strong>{t('管理员初审与适用性检查', 'Intake review & suitability')}</strong><p>{t('投稿先由管理员审核，通过后进入生成与测试流程。', 'A maintainer reviews the submission before generation and testing.')}</p></div></li>
         <li><span>2</span><div><strong>{t('生成并验证题目', 'Generate & validate')}</strong><p>{t('AI 生成题面、返回值要求、初始代码和测试，通过独立验证后进入试做池。', 'AI prepares the statement, return contract, starter and tests. Validation comes before community trials.')}</p></div></li>

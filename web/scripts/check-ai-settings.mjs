@@ -27,17 +27,18 @@ try {
   const { createRoot } = await import('react-dom/client');
   const { default: AISettings } = await server.ssrLoadModule('/src/AISettings.tsx');
   root = createRoot(document.querySelector('#root'));
-  let revision = 0, active = null, available = true, saved = {}, changed = 0, calls = [];
-  const documentValue = (owner=context.account.user.id) => ({ user_id:owner, available, active_provider:active, revision, providers:['gemini','openai','anthropic'].map(id => ({id,label:id,configured:!!saved[id],model:saved[id]||null,updated_at:saved[id]?'2030-01-01T00:00:00Z':null})) });
+  let revision = 0, active = null, available = true, saved = {}, regions = {}, changed = 0, calls = [];
+  const providerIds=['gemini','openai','anthropic','kimi','qwen','deepseek'];
+  const documentValue = (owner=context.account.user.id) => ({ user_id:owner, available, active_provider:active, revision, providers:providerIds.map(id => ({id,label:id,configured:!!saved[id],model:saved[id]||null,region:['kimi','qwen'].includes(id)?regions[id]||'international':null,updated_at:saved[id]?'2030-01-01T00:00:00Z':null})) });
   const defaultRequest = async (path,body) => {
     calls.push({path,body:body&&structuredClone(body)});
     if (!body) return documentValue();
     assert.equal(body.expected_user_id, context.account.user.id);
-    if (path.endsWith('/models')) return {user_id:context.account.user.id,models:[{id:'test-model',name:'Test Model'}]};
-    if (path.endsWith('/test')) return {user_id:context.account.user.id,ok:true,provider:body.provider,model:body.model};
+    if (path.endsWith('/models')) return {user_id:context.account.user.id,provider:body.provider,region:body.region||null,models:[{id:'test-model',name:'Test Model'}]};
+    if (path.endsWith('/test')) return {user_id:context.account.user.id,ok:true,provider:body.provider,model:body.model,region:body.region||null};
     assert.equal(body.expected_revision,revision); revision++;
     if (path.endsWith('/remove')) { delete saved[body.provider]; if(active===body.provider) active=null; }
-    else { saved[body.provider]=body.model; active=body.provider; }
+    else { saved[body.provider]=body.model; regions[body.provider]=body.region; active=body.provider; }
     return documentValue();
   };
   context.request = defaultRequest;
@@ -48,6 +49,7 @@ try {
   const input = async (name,value) => act(async()=>{const node=field(name); assert(node&&!node.disabled); Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value').set.call(node,value); node.dispatchEvent(new window.Event('input',{bubbles:true}));});
   const select = async (name,value) => act(async()=>{const node=field(name); assert(node&&!node.disabled); node.value=value; node.dispatchEvent(new window.Event('change',{bubbles:true}));});
   await render(); assert(field('AI provider')); assert.equal(field('API key').type,'password'); assert.equal(button('Save and use').disabled,true);
+  assert.deepEqual([...field('AI provider').options].map(option=>option.value),providerIds);
   const secret='test-only-not-a-real-provider-key';
   await input('API key',secret); await click('Load models');
   assert.equal(calls.at(-1).body.api_key,secret); assert.equal(revision,0,'Loading models must not save settings');
@@ -64,11 +66,25 @@ try {
   assert.equal(active,'anthropic'); assert.equal(saved.anthropic,'manual-model'); assert.equal(saved.gemini,'test-model');
   await click('Delete key'); assert.equal(saved.anthropic,undefined); assert.equal(field('API key').value,''); assert.equal(changed,3);
 
+  // Regional keys never cross endpoints; the remaining provider uses the same controls.
+  for (const id of ['kimi','qwen','deepseek']) {
+    await select('AI provider',id);
+    if(id!=='deepseek') {assert.equal(field('API region').value,'international'); await select('API region','china');}
+    else assert.equal(field('API region'),null);
+    await input('API key',secret);await input('Model ID',id+'-model');await click('Test connection');
+    assert.equal(calls.at(-1).body.region,id==='deepseek'?undefined:'china');assert.match(document.body.textContent,/Connection tested/);
+    await click('Save and use');assert.equal(active,id);assert.match(document.querySelector('.ai-settings-active').textContent,new RegExp(id+'-model'));
+  }
+  await select('AI provider','kimi');await input('API key',secret);await select('API region','international');
+  assert.equal(field('API key').value,'');assert.equal(button('Test connection').disabled,true);assert.equal(button('Save and use').disabled,true);
+  assert(!document.body.textContent.includes('Connection tested'));assert(!field('API key').placeholder.includes('saved key'));
+  await select('API region','china');await click('Test connection');assert.equal(calls.at(-1).body.region,'china');assert(!('api_key' in calls.at(-1).body));
+
   // Failures never echo provider text/keys. CAS conflicts require an explicit reread.
   await select('AI provider','gemini'); await input('Model ID','new-model'); await click('Test connection');
   context.request = async (path,body) => { if(path==='account/ai-settings'&&body) throw problem(409,'ai_settings_conflict',secret); return defaultRequest(path,body); };
   await click('Save and use'); assert.match(document.body.textContent,/changed in another window/); assert.equal(button('Save and use').disabled,true); assert(!document.body.textContent.includes(secret));
-  context.request=defaultRequest; await click('Reload settings'); assert.equal(field('Model ID').value,'test-model'); assert.equal(field('API key').value,'');
+  context.request=defaultRequest; await click('Reload settings'); assert.equal(field('AI provider').value,'deepseek'); assert.equal(field('Model ID').value,'deepseek-model'); assert.equal(field('API key').value,'');
   await input('API key',secret);
   context.request=async()=>{throw problem(400,'provider_auth_failed',secret);}; await click('Test connection'); assert.match(document.body.textContent,/key was rejected/); assert(!document.body.textContent.includes(secret));
 

@@ -4,7 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { JSDOM } from "jsdom";
 import { createServer } from "vite";
 
-const server = await createServer({ server: { middlewareMode: true, hmr: false, ws: false }, optimizeDeps: { noDiscovery: true, include: [] }, appType: "custom" });
+const server = await createServer({ server: { middlewareMode: true, hmr: false, ws: false }, optimizeDeps: { noDiscovery: true, include: [] }, appType: "custom", plugins: [{name:"studio-account-fixture",enforce:"pre",resolveId(source,importer){if(source==='./social'&&importer?.endsWith('/src/RebuttalStudio.tsx'))return '\0studio-account';},load(id){if(id==='\0studio-account')return 'export const useAccount=()=>({user:{id:"studio_owner"},loading:false,capabilities:{personal_ai_settings:true}});';}}] });
 try {
   const model = await server.ssrLoadModule("/src/rebuttalModel.ts");
   const { newProject, demoProject, splitReviews, importReviewFile, assembleResponse, countWords, reviewerOverview, saveResponseSnapshot,
@@ -305,7 +305,7 @@ try {
     HTMLElement: dom.window.HTMLElement, HTMLInputElement: dom.window.HTMLInputElement,
     HTMLTextAreaElement: dom.window.HTMLTextAreaElement, IS_REACT_ACT_ENVIRONMENT: true,
     fetch: async path => {
-      if (String(path).endsWith('/api/rebuttal/status')) return new Response(JSON.stringify({ configured: true, model: 'test-model' }));
+      if (String(path).endsWith('/api/rebuttal/status')) return new Response(JSON.stringify({ user_id: 'studio_owner', configured: true, provider: 'gemini', model: 'test-model', source: 'personal', available: true }));
       if (String(path).endsWith('/api/rebuttal/summarize')) { assert(delayedSummary); return delayedSummary; }
       assert(String(path).endsWith('/api/rebuttal/analyze'), 'The fixture must not send a live request');
       if (delayedAnalysis) return delayedAnalysis;

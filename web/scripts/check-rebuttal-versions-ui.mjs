@@ -13,7 +13,7 @@ const globals = { window: dom.window, document: dom.window.document, navigator: 
   Element: dom.window.Element, HTMLElement: dom.window.HTMLElement, HTMLInputElement: dom.window.HTMLInputElement,
   HTMLTextAreaElement: dom.window.HTMLTextAreaElement, HTMLButtonElement: dom.window.HTMLButtonElement,
   IS_REACT_ACT_ENVIRONMENT: true, __versionsTest: context,
-  fetch: async path => { assert(String(path).endsWith('/api/rebuttal/status')); return new Response(JSON.stringify({ configured: false, model: null })); } };
+  fetch: async path => { assert(String(path).endsWith('/api/rebuttal/status')); return new Response(JSON.stringify({ user_id: context.account.user?.id, configured: false, model: null, provider: null, source: null, available: true })); } };
 const prior = new Map(Object.keys(globals).map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]));
 for (const [key, value] of Object.entries(globals)) Object.defineProperty(globalThis, key, { value, configurable: true, writable: true });
 let downloaded;
