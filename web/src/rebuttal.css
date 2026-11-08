@@ -214,6 +214,12 @@
 .rst-export-meter strong.over { color: var(--rst-danger); }
 .rst-export-meter small, .rst-export-meter > span { font-size: 14px; font-weight: 400; color: var(--muted); }
 .rst-export-document { border: 1px solid var(--line); border-radius: 4px; overflow: hidden; background: var(--surface); }
+.rst-export-document > .rbe-editor { border: 0; border-radius: 0; }
+.rst-export-document .rbe-editor textarea { min-height: 630px; }
+.rst-assembly-status { color: var(--muted); font-size: 14px; }
+.rst-assembly-error { padding: 12px 16px; border-bottom: 1px solid var(--line); color: var(--rst-danger); background: var(--rst-danger-bg); }
+.rst-assembly-error p { margin: 0 0 8px; overflow-wrap: anywhere; }
+.rst-assembly-error > div { display: flex; gap: 8px; flex-wrap: wrap; }
 .rst-export-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 15px; padding: 12px 17px; border-bottom: 1px solid var(--line); }
 .rst-export-toolbar > div { display: flex; align-items: center; flex-wrap: wrap; min-width: 0; gap: 8px; }
 .rst-export-toolbar > div:first-child button { padding: 5px 7px; font-size: 14px; color: var(--muted); }

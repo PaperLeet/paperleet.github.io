@@ -6,14 +6,14 @@ import { formatRebuttal, rebuttalShortcut, REBUTTAL_COLORS, toOpenReviewMarkdown
 import type { RebuttalFormat } from "./rebuttalFormatting";
 import "./rebuttalEditor.css";
 
-type Props = { value: string; onChange: (value: string) => void; readOnly?: boolean; locale: "zh" | "en"; actions?: ReactNode; footer?: ReactNode };
+type Props = { value: string; onChange: (value: string) => void; readOnly?: boolean; locale: "zh" | "en"; actions?: ReactNode; footer?: ReactNode; assembly?: boolean };
 type Selection = { value: string; start: number; end: number; direction: "forward" | "backward" | "none"; top: number; left: number };
 const HISTORY_LIMIT = 100;
 
-export default function RebuttalEditor({ value, onChange, readOnly = false, locale, actions, footer }: Props) {
+export default function RebuttalEditor({ value, onChange, readOnly = false, locale, actions, footer, assembly = false }: Props) {
   const zh = locale === "zh";
   const id = useId();
-  const [preview, setPreview] = useState(readOnly);
+  const [preview, setPreview] = useState(readOnly && !assembly);
   const [color, setColor] = useState<string>(REBUTTAL_COLORS[0].value);
   const [message, setMessage] = useState("");
   const [copied, setCopied] = useState(false);
@@ -119,10 +119,10 @@ export default function RebuttalEditor({ value, onChange, readOnly = false, loca
   return <div className={`rbe-editor${readOnly ? " rbe-readonly" : ""}`} ref={container}>
     <div className="rbe-head">
       <div className="rbe-modes" role="tablist" aria-label={t("回复编辑模式", "Response editor mode")}>
-        <button type="button" id={`${id}-write`} role="tab" aria-selected={!preview} aria-controls={`${id}-source`} onClick={() => changeMode(false)}>{readOnly ? "Markdown" : t("编辑", "Write")}</button>
+        <button type="button" id={`${id}-write`} role="tab" aria-selected={!preview} aria-controls={`${id}-source`} onClick={() => changeMode(false)}>{assembly ? t("OpenReview 源码", "OpenReview source") : readOnly ? "Markdown" : t("编辑", "Write")}</button>
         <button type="button" id={`${id}-preview`} role="tab" aria-selected={preview} aria-controls={`${id}-rendered`} onClick={() => changeMode(true)}>{t("预览", "Preview")}</button>
       </div>
-      <button type="button" className="rbe-copy" onClick={copy} disabled={!value} title={t("复制 OpenReview Markdown", "Copy OpenReview Markdown")}>{copied ? <Check size={15} /> : <Copy size={15} />}{copied ? t("已复制", "Copied") : t("复制", "Copy")}</button>
+      <button type="button" className="rbe-copy" onClick={copy} disabled={!value} title={t("复制 OpenReview Markdown", "Copy OpenReview Markdown")}>{copied ? <Check size={15} /> : <Copy size={15} />}{copied ? t("已复制", "Copied") : assembly ? t("复制到 OpenReview", "Copy for OpenReview") : t("复制", "Copy")}</button>
     </div>
     {!readOnly && <div className="rbe-toolbar" role="toolbar" aria-label={t("文字格式", "Text formatting")} onKeyDown={toolbarKey} hidden={preview}>
       <div className="rbe-tool-group">
@@ -159,8 +159,8 @@ export default function RebuttalEditor({ value, onChange, readOnly = false, loca
       </div>
     </div>}
     <div id={`${id}-source`} role="tabpanel" aria-labelledby={`${id}-write`} hidden={preview}>
-      <textarea ref={area} value={value} readOnly={readOnly} maxLength={200000} aria-label={t("回复 Markdown", "Response Markdown")} spellCheck
-        placeholder={t("逐条回复审稿人的问题…", "Respond to the reviewer's concern…")}
+      <textarea ref={area} value={value} readOnly={readOnly} maxLength={200000} aria-label={assembly ? "OpenReview Markdown" : t("回复 Markdown", "Response Markdown")} spellCheck
+        placeholder={assembly ? t("编辑完整回复…", "Edit your assembled response…") : t("逐条回复审稿人的问题…", "Respond to the reviewer's concern…")}
         onSelect={remember} onScroll={remember} onBlur={remember} onKeyDown={handleKey} onBeforeInput={() => { beforeInput.current = remember(); }}
         onCompositionStart={() => { composing.current = true; beforeInput.current = remember(); }} onCompositionEnd={() => { composing.current = false; }}
         onChange={event => {
