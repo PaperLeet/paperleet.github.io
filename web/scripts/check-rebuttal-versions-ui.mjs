@@ -69,10 +69,11 @@ try {
 
   await render('versions');
   const navigation = document.querySelector('.rst-paper-navigation'), heading = document.querySelector('.rst-paper-heading');
-  assert(navigation?.contains(button('My papers')) && navigation.contains(button('Refresh')));
+  assert(navigation?.contains(button('My papers')));
+  assert.equal(button('Refresh'), undefined, 'The workspace navigation has no manual Refresh action');
   assert(heading?.contains(document.querySelector('.rst-paper-identity h1')) && heading.contains(document.querySelector('.rst-save')));
   assert(navigation.compareDocumentPosition(heading) & window.Node.DOCUMENT_POSITION_FOLLOWING, 'Navigation precedes the paper identity row');
-  assert(!heading.contains(button('My papers')) && !heading.contains(button('Refresh')));
+  assert(!heading.contains(button('My papers')));
 
   await click('Versions');
   assert.equal(scopeSelect().value, 'reviewer-r1', 'Entering versions from overview starts with the first reviewer');

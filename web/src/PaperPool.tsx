@@ -132,7 +132,7 @@ function PoolSubmissionForm({owner, capabilities, onSaved}: {owner?: string; cap
   }
   return <section className="pool-submit-grid">
     <form className="social-panel social-form pool-submission-form" onSubmit={event => {event.preventDefault(); void submit();}}>
-      {owner && <PersonalAIConnection submission state={personalAI.state} onSettings={accountCapabilities?.personal_ai_settings ? () => setAiSettings(true) : undefined} onRefresh={personalAI.refresh} />}
+      {owner && <PersonalAIConnection submission state={personalAI.state} onSettings={() => setAiSettings(true)} onRefresh={personalAI.refresh} />}
       <label>{t('arXiv 链接', 'arXiv link')}<input type="url" required maxLength={512} placeholder="https://arxiv.org/abs/…" autoComplete="off" value={draft.paperUrl} onChange={event => edit({paperUrl: event.target.value})} disabled={!owner} /></label>
       {!duplicate && <PaperDuplicateCheck value={draft.paperUrl}/>}
       <label>{t('出题方向（可选）', 'Guidance for the exercise (optional)')}<textarea rows={4} maxLength={4000} value={draft.focus} disabled={!owner} onChange={event => edit({focus: event.target.value})} placeholder={t('例如：围绕核心损失函数出一道 NumPy 练习，重点测试数值稳定性。', 'For example: a NumPy exercise on the core loss, with tests for numerical stability.')} /></label>

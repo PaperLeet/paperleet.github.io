@@ -9,11 +9,16 @@ import type { Provider, Region, Settings } from './personalAI';
 type Model = { id: string; name: string };
 const record = (value: unknown): value is Record<string, unknown> => !!value && typeof value === 'object' && !Array.isArray(value);
 
-export default function AISettings({ onChanged, onClose }: { onChanged?: () => void; onClose?: () => void }) {
+export default function AISettings({ onChanged, onClose, focusOnMount = false }: { onChanged?: () => void; onClose?: () => void; focusOnMount?: boolean }) {
   const { user, loading } = useAccount();
   const { t } = useI18n();
   const current = useRef(''); current.current = !loading && user?.id || '';
   const dialog = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (!focusOnMount) return;
+    dialog.current?.scrollIntoView?.({ block: 'start' });
+    dialog.current?.focus({ preventScroll: true });
+  }, [focusOnMount]);
   useEffect(() => {
     if (!onClose) return;
     const previous = document.activeElement as HTMLElement | null;
@@ -29,7 +34,7 @@ export default function AISettings({ onChanged, onClose }: { onChanged?: () => v
     document.addEventListener('keydown', keydown);
     return () => { document.removeEventListener('keydown', keydown); if (previous?.isConnected) previous.focus(); };
   }, [onClose]);
-  const contents = <section ref={dialog} className={`ai-settings${onClose ? ' ai-settings-dialog' : ' social-panel'}`} role={onClose ? 'dialog' : undefined} aria-modal={onClose ? true : undefined} aria-label={t('AI 设置', 'AI settings')}>
+  const contents = <section ref={dialog} tabIndex={focusOnMount ? -1 : undefined} className={`ai-settings${onClose ? ' ai-settings-dialog' : ' social-panel'}`} role={onClose ? 'dialog' : undefined} aria-modal={onClose ? true : undefined} aria-label={t('AI 设置', 'AI settings')}>
     <header><h3>{t('AI 设置', 'AI settings')}</h3>{onClose && <button type="button" className="ai-settings-close" aria-label={t('关闭 AI 设置', 'Close AI settings')} onClick={onClose}><X size={18} /></button>}</header>
     {!current.current ? <p role="status">{loading ? t('正在确认账号…', 'Checking your account…') : t('登录后配置 AI。', 'Sign in to configure AI.')}</p> : <AISettingsForm key={current.current} owner={current.current} canAct={() => current.current === user?.id && !loading} onChanged={onChanged} />}
   </section>;

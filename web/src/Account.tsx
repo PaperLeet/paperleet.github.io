@@ -33,6 +33,7 @@ import {
 import type { AccountUser } from "./social";
 import type { AccountCapabilities } from "./social";
 import { accountReturnHref, organizationLoginError } from "./accountNavigation";
+import { personalAISettingsHref } from './accountEntry';
 import { decodeProblemHash } from "./reports";
 import { AvatarImageError } from "./profileAvatar";
 import AvatarCropper from "./AvatarCropper";
@@ -44,6 +45,7 @@ import "./lc-profile.css";
 
 export default function Account({ returnTo: requestedReturnTo, route }: { returnTo?: string; route?: string }) {
   const returnTo = route === undefined ? requestedReturnTo : accountReturnHref(route);
+  const focusAI = route === 'account/ai';
   const { user, loading, capabilities, error, refresh } = useAccount();
   const { t } = useI18n();
   useEffect(() => {
@@ -74,11 +76,11 @@ export default function Account({ returnTo: requestedReturnTo, route }: { return
           </button>
         </>
       ) : user ? (
-        <ProfileSettings key={user.id} user={user} />
+        <ProfileSettings key={user.id} user={user} focusAI={focusAI} />
       ) : capabilities?.auth_mode === "test" ? (
         <TestSignIn enabled={capabilities.auth_available === true} />
       ) : capabilities?.auth_mode === "oauth" ? (
-        <OrganizationSignIn providers={capabilities.oauth_providers || []} returnTo={returnTo}
+        <OrganizationSignIn providers={capabilities.oauth_providers || []} returnTo={focusAI ? personalAISettingsHref : returnTo}
           emailLoginAvailable={capabilities.email_login_available}
           loginError={typeof location === "undefined" ? undefined : organizationLoginError(decodeProblemHash(appLocation.hash))} />
       ) : (
@@ -652,7 +654,7 @@ function InstitutionRequest({ openRegistration, forAffiliation = false }: { open
     </details>
   );
 }
-export function ProfileSettings({ user }: { user: AccountUser }) {
+export function ProfileSettings({ user, focusAI = false }: { user: AccountUser; focusAI?: boolean }) {
   const { t, locale } = useI18n();
   const { setUser, health, capabilities } = useAccount();
   const [name, setName] = useState(user.display_name),
@@ -901,7 +903,7 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
           </div>
         </form>
         <aside className="account-aside">
-          {capabilities?.personal_ai_settings === true && <AISettings />}
+          {(focusAI || capabilities?.personal_ai_settings === true) && <AISettings focusOnMount={focusAI} />}
           <section className="social-panel">
             {user.is_test_user ? (
               <>

@@ -1,4 +1,4 @@
-.ai-settings { color: var(--text); font-size: 14px; line-height: 1.5; }
+.ai-settings { color: var(--text); font-size: 14px; line-height: 1.5; scroll-margin-top: 90px; }
 .ai-settings > header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
 .ai-settings h3 { margin: 0; font-size: 18px; }
 .ai-settings-form { display: flex; flex-direction: column; gap: 14px; }
@@ -23,5 +23,6 @@
 .personal-ai-connection { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin: 12px 0; padding: 12px 0; border-block: 1px solid var(--line); font-size: 14px; }
 .personal-ai-connection > span { min-width: 0; overflow-wrap: anywhere; }
 .personal-ai-connection > div { display: flex; align-items: center; gap: 10px; }
-.personal-ai-connection button { border: 1px solid var(--line); border-radius: 4px; padding: 6px 10px; background: var(--surface2); color: var(--rst-link,var(--text)); font: inherit; cursor: pointer; }
+.personal-ai-connection :is(button,a) { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 4px; padding: 6px 10px; background: var(--surface2); color: var(--rst-link,var(--text)); font: inherit; cursor: pointer; text-decoration: none; }
+.personal-ai-connection :is(button,a):focus-visible { outline: 2px solid var(--rst-link,var(--accent)); outline-offset: 2px; }
 @media (max-width: 400px) { .ai-settings-dialog { padding: 16px; } .ai-settings-models { grid-template-columns: minmax(0,1fr); } }

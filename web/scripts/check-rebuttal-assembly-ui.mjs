@@ -124,7 +124,7 @@ try {
     assert.equal(source().value, 'Original shared opening'); assert.equal(button('Copy for OpenReview').disabled, false); assert.equal(button('.md').disabled, false, 'Old backends retain their generated export without personal drafts');
     context.account.capabilities = { rebuttal_assembly_drafts: true, rebuttal_reviewer_versions: true };
 
-    // The actual hosted wrapper must settle both queues before refresh/reload remounts the editor.
+    // The actual hosted wrapper must settle both queues before following the API settings link.
     const { default: HostedHub } = await server.ssrLoadModule('/src/HostedRebuttal.tsx');
     const personalRequest = context.request, events = [];
     const owner = { id: 'navigation_owner', username: 'navigation_owner', display_name: 'Navigation owner' };
@@ -145,12 +145,23 @@ try {
     };
     await act(async () => root.render(React.createElement(HostedHub, { route: 'rebuttal/paper_a' })));
     for (let tick = 0; !button('Assemble') && tick < 30; tick++) await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)); });
-    await click('Assemble'); await change(document.querySelector('.rst-export aside textarea'), 'Shared refresh edit'); await change(source(), 'Personal refresh edit');
-    const start = events.length; await click('Refresh');
-    assert.deepEqual(events.slice(start), ['shared-save', 'personal-save', 'shared-read']);
-    await click('Assemble'); assert.equal(source().value, 'Personal refresh edit');
+    const setApi = async () => {
+      const link = document.querySelector('.personal-ai-connection a');
+      assert.equal(link?.textContent.trim(), 'Set API'); assert.equal(link.getAttribute('href'), '#/account/ai');
+      await act(async () => link.dispatchEvent(new window.MouseEvent('click', { bubbles: true, cancelable: true, button: 0 })));
+      for (let tick = 0; tick < 4; tick++) await act(async () => new Promise(resolve => setTimeout(resolve, 0)));
+    };
+    assert.equal(button('Refresh'), undefined);
+    await click('Assemble'); await change(document.querySelector('.rst-export aside textarea'), 'Shared navigation edit'); await change(source(), 'Personal navigation edit');
+    const start = events.length; await setApi();
+    assert.deepEqual(events.slice(start), ['shared-save', 'personal-save'], 'Opening API settings saves both queues without reloading the shared document');
+    assert.equal(location.hash, '#/account/ai');
+    assert.equal(serverProject.opening, 'Shared navigation edit');
+    assert.equal(documents.get('navigation_owner:all').source, 'Personal navigation edit');
+    history.replaceState(null, '', '#/rebuttal/paper_a');
     sharedConflict = true; personalFailure = true;
-    await change(document.querySelector('.rst-export aside textarea'), 'Conflicting shared edit'); await change(source(), 'Personal recovery through reload'); await click('Refresh');
+    await change(document.querySelector('.rst-export aside textarea'), 'Conflicting shared edit'); await change(source(), 'Personal recovery through reload'); await setApi();
+    assert.equal(location.hash, '#/rebuttal/paper_a', 'Failed saves prevent navigation away from the current paper');
     assert(button('Load server version')); const beforeReload = events.filter(item => item === 'shared-read').length;
     await click('Load server version'); assert.equal(events.filter(item => item === 'shared-read').length, beforeReload, 'Failed personal save prevents the shared reload from retiring its queue');
     assert.equal(source().value, 'Personal recovery through reload');
@@ -171,7 +182,7 @@ try {
       assert.equal(source().value, ''); assert.equal(source().readOnly, true); assert.equal(button('复制到 OpenReview').disabled, true); assert.equal(button('.md').disabled, true);
     } finally { window.Storage.prototype.getItem = getItem; }
   }
-  console.log('PASS assembly UI: actual StrictMode editor, private autosave, follow-until-edited generation, reviewer-all isolation, deliberate blank/reload, explicit reset, toolbar preview/copy/download/counts, initial-read export guards with save-failure recovery, deliberate shared snapshots, viewer isolation, coordinated shared/personal refresh and conflict-reload recovery, and bilingual local persistence');
+  console.log('PASS assembly UI: actual StrictMode editor, private autosave, follow-until-edited generation, reviewer-all isolation, deliberate blank/reload, explicit reset, toolbar preview/copy/download/counts, initial-read export guards with save-failure recovery, deliberate shared snapshots, viewer isolation, coordinated shared/personal saves before API navigation and conflict-reload recovery, and bilingual local persistence');
 } finally {
   if (root) await act(async () => root.unmount()); await server.close(); await rm(cacheDir, { recursive: true, force: true });
   URL.createObjectURL = createURL; URL.revokeObjectURL = revokeURL; dom.window.close();

@@ -26,9 +26,9 @@ try {
  const project={...newProject(),id:'paper_a',title:'Personal AI gate fixture',reviews:[{id:'r1',name:'R1',text:'Please explain the ablation.'}]};
  const shared=[],posts=[];
  const state=(owner,ready=false,provider='kimi')=>({user_id:owner,configured:ready,provider:ready?provider:null,model:ready?'fixture-model':null,source:ready?'personal':null,available:true,region:ready?'international':null});
- let status=state('owner_a'),hold;
+ let status=state('owner_a'),hold,failStatus=false;
  context.request=async(path,options)=>{
-  if(path==='/api/rebuttal/status') {if(hold)return hold;return new Response(JSON.stringify(status));}
+  if(path==='/api/rebuttal/status') {if(failStatus)throw Error('Fixture unavailable');if(hold)return hold;return new Response(JSON.stringify(status));}
   if(path==='account/ai-settings')return {user_id:context.account.user.id,available:true,active_provider:null,revision:0,providers:['gemini','openai','anthropic','kimi','qwen','deepseek'].map(id=>({id,configured:false,model:null,updated_at:null,region:['kimi','qwen'].includes(id)?'international':null}))};
   posts.push({path,options});throw Error('Unexpected live action');
  };
@@ -37,7 +37,9 @@ try {
  const button=label=>[...document.querySelectorAll('button')].find(item=>(item.getAttribute('aria-label')||item.textContent.trim())===label);
  const click=async(label)=>{assert(button(label),label);await act(async()=>button(label).click());};
  const settle=async()=>{for(let i=0;i<4;i++)await act(async()=>new Promise(resolve=>setTimeout(resolve,10)));};
+ const apiLink=()=>document.querySelector('.personal-ai-connection a');
  await render();assert(document.querySelector('.personal-ai-connection').textContent.includes('Connect your API key to use AI'));
+ assert.equal(apiLink()?.textContent.trim(),'Set API');assert.equal(apiLink().getAttribute('href'),'#/account/ai');assert.equal(button('Refresh'),undefined);
  await click('Reviews');assert.equal(button('Extract concerns').title,'Connect your API key first');await click('Extract concerns');await settle();
  assert(document.querySelector('[aria-label="API key"]'),'AI action opens actual key settings');assert.equal(posts.length,0);assert.equal(shared.length,0,'Missing API never silently performs local extraction');
  await click('Close AI settings');await click('Local breakdown');assert.equal(shared.length,1,'Explicit local breakdown remains available');
@@ -48,10 +50,21 @@ try {
  await act(async()=>resolveOld(new Response(JSON.stringify(state('owner_a',true)))));
  assert(document.querySelector('.personal-ai-connection').textContent.includes('Connect your API key to use AI'),'Late previous-account configuration cannot re-enable AI');
  await click('Reviews');const before=shared.length;await click('Extract concerns');await settle();assert.equal(shared.length,before);assert.equal(posts.length,0);
- await click('Close AI settings');context.locale='zh';await render('zh');assert(document.querySelector('.personal-ai-connection').textContent.includes('使用 AI 前请先配置个人 API key'));
+ await click('Close AI settings');
+ context.account.capabilities={};failStatus=true;await render('failed-status');
+ assert(document.querySelector('.personal-ai-connection').textContent.includes('Could not load AI configuration'));
+ assert(button('Retry'));assert.equal(apiLink()?.textContent.trim(),'Set API');assert.equal(apiLink().getAttribute('href'),'#/account/ai');
+ assert(!document.body.textContent.includes('AI settings are updating'),'Missing capability metadata cannot hide the settings entry');
+ await click('Reviews');await click('Extract concerns');await settle();
+ assert(document.querySelector('[aria-label="API key"]'),'AI action can open settings despite missing capability metadata');assert.equal(posts.length,0);
+ await click('Close AI settings');failStatus=false;await click('Retry');await settle();
+ assert(document.querySelector('.personal-ai-connection').textContent.includes('Connect your API key to use AI'));
+ context.locale='zh';await render('zh');assert(document.querySelector('.personal-ai-connection').textContent.includes('使用 AI 前请先配置个人 API key'));
+ assert.equal(apiLink()?.textContent.trim(),'设置 API');assert.equal(apiLink().getAttribute('href'),'#/account/ai');
+ assert(!document.body.textContent.includes('AI 设置正在更新'));assert.equal(button('刷新'),undefined);
  assert.throws(()=>readPersonalAIStatus({...state('owner_b',true),source:'server'},'owner_b'),'Global keys never count as personal configuration');
  assert.throws(()=>readPersonalAIStatus(state('owner_a',true),'owner_b'),'Status requires matching account echo');
- console.log('PASS personal AI Hub prompt, actual settings entry, no silent local fallback, explicit manual breakdown, active provider/model, bilingual labels and late account status isolation');
+ console.log('PASS personal AI Hub prompt, persistent direct Set API entry, failure/retry and missing-capability recovery, no workspace Refresh, actual settings entry, no silent local fallback, explicit manual breakdown, active provider/model, bilingual labels and late account status isolation');
 } finally {
  if(root)await act(async()=>root.unmount());await server.close();await rm(cacheDir,{recursive:true,force:true});dom.window.close();
  for(const [key,descriptor] of previous){if(descriptor)Object.defineProperty(globalThis,key,descriptor);else delete globalThis[key];}
