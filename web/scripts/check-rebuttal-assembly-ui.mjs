@@ -21,7 +21,7 @@ const createURL = URL.createObjectURL, revokeURL = URL.revokeObjectURL;
 URL.createObjectURL = blob => { downloaded = blob; return 'blob:test-assembly'; }; URL.revokeObjectURL = () => {};
 window.HTMLAnchorElement.prototype.click = function () {};
 const mocks = {
-  './social': 'export const useAccount=()=>globalThis.__assemblyTest.account;export const socialApi=(...args)=>globalThis.__assemblyTest.request(...args);',
+  './social': 'export const useAccount=()=>globalThis.__assemblyTest.account;export const socialApi=(...args)=>globalThis.__assemblyTest.request(...args);export const errorMessage=error=>error.message;',
   './i18n': 'export const useI18n=()=>({locale:globalThis.__assemblyTest.locale,t:(zh,en)=>globalThis.__assemblyTest.locale==="zh"?zh:en});',
   './apiClient': 'export const apiFetch=(...args)=>fetch(...args);',
 };
@@ -83,12 +83,45 @@ try {
     await change(source(), 'Viewer private source'); await flush(); assert.equal(shared.length, beforeViewerShared); assert.equal(documents.get('viewer_b:all').source, 'Viewer private source');
     assert.equal(documents.get('account_a:all').source, '');
     context.account.capabilities = {}; await render('old-api', { role: 'viewer', readOnly: true }); await click('Assemble'); assert.equal(source().readOnly, true); assert.match(document.body.textContent, /Personal drafts are updating/);
-    context.account.capabilities = { rebuttal_assembly_drafts: true }; context.locale = 'zh';
+    context.account.capabilities = { rebuttal_assembly_drafts: true };
+
+    // The actual hosted wrapper must settle both queues before refresh/reload remounts the editor.
+    const { default: HostedHub } = await server.ssrLoadModule('/src/HostedRebuttal.tsx');
+    const personalRequest = context.request, events = [];
+    const owner = { id: 'navigation_owner', username: 'navigation_owner', display_name: 'Navigation owner' };
+    context.account.user = owner;
+    let serverProject = structuredClone(project), serverRevision = 1, sharedConflict = false, personalFailure = false;
+    context.request = async (path, body) => {
+      if (path.includes('/drafts/')) {
+        if (body) { events.push('personal-save'); if (personalFailure) throw Error('Offline personal save'); }
+        return personalRequest(path, body);
+      }
+      assert.equal(path, 'rebuttal/papers/paper_a');
+      if (body) {
+        events.push('shared-save');
+        if (sharedConflict) throw Object.assign(Error('revision_conflict'), { status: 409, code: 'revision_conflict' });
+        assert.equal(body.expected_revision, serverRevision); serverProject = structuredClone(body.project); serverRevision++;
+      } else events.push('shared-read');
+      return { project: serverProject, revision: serverRevision, role: 'owner', owner, members: [{ user: owner, role: 'owner' }] };
+    };
+    await act(async () => root.render(React.createElement(HostedHub, { route: 'rebuttal/paper_a' })));
+    for (let tick = 0; !button('Assemble') && tick < 30; tick++) await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)); });
+    await click('Assemble'); await change(document.querySelector('.rst-export aside textarea'), 'Shared refresh edit'); await change(source(), 'Personal refresh edit');
+    const start = events.length; await click('Refresh');
+    assert.deepEqual(events.slice(start), ['shared-save', 'personal-save', 'shared-read']);
+    await click('Assemble'); assert.equal(source().value, 'Personal refresh edit');
+    sharedConflict = true; personalFailure = true;
+    await change(document.querySelector('.rst-export aside textarea'), 'Conflicting shared edit'); await change(source(), 'Personal recovery through reload'); await click('Refresh');
+    assert(button('Load server version')); const beforeReload = events.filter(item => item === 'shared-read').length;
+    await click('Load server version'); assert.equal(events.filter(item => item === 'shared-read').length, beforeReload, 'Failed personal save prevents the shared reload from retiring its queue');
+    assert.equal(source().value, 'Personal recovery through reload');
+    personalFailure = false; await click('Load server version'); await click('Assemble'); assert.equal(source().value, 'Personal recovery through reload');
+    context.request = personalRequest; context.locale = 'zh';
     await render('local', {}, false); await click('拼接回复'); await change(source(), '本地个人回复');
     assert.match(document.body.textContent, /个人草稿已保存到本机/);
     await render('local-reload', {}, false); await click('拼接回复'); assert.equal(source().value, '本地个人回复');
   }
-  console.log('PASS assembly UI: actual StrictMode editor, private autosave, follow-until-edited generation, reviewer-all isolation, deliberate blank/reload, explicit reset, toolbar preview/copy/download/counts, deliberate shared snapshots, viewer isolation and bilingual local persistence');
+  console.log('PASS assembly UI: actual StrictMode editor, private autosave, follow-until-edited generation, reviewer-all isolation, deliberate blank/reload, explicit reset, toolbar preview/copy/download/counts, deliberate shared snapshots, viewer isolation, coordinated shared/personal refresh and conflict-reload recovery, and bilingual local persistence');
 } finally {
   if (root) await act(async () => root.unmount()); await server.close(); await rm(cacheDir, { recursive: true, force: true });
   URL.createObjectURL = createURL; URL.revokeObjectURL = revokeURL; dom.window.close();
