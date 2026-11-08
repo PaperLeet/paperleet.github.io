@@ -28,7 +28,7 @@ try {
     assert.equal(accountReturnHref(accountRoute), `#/${route}`);
   }
   assert.equal(accountReturnHref(decodeProblemHash(signInHref("#/community/problem/architecture%2Fattention"))), "#/community/problem/architecture/attention");
-  for (const route of ["rebuttal", "rebuttal/paper_ABC-42", `rebuttal/${"a".repeat(150)}`]) {
+  for (const route of ["rebuttal", "rebuttal/join", "rebuttal/paper_ABC-42", `rebuttal/${"a".repeat(150)}`]) {
     for (const source of [route, `#/${route}`]) {
       const accountRoute = decodeProblemHash(signInHref(source));
       assert(isAccountRoute(accountRoute));
@@ -36,7 +36,7 @@ try {
     }
     assert.equal(accountReturnHref(`account/error/expired/${route}`), `#/${route}`);
   }
-  for (const route of ["rebuttal/", `rebuttal/${"a".repeat(151)}`, "rebuttal/../account", "rebuttal/paper/other",
+  for (const route of [`rebuttal/join/${"a".repeat(43)}`, "rebuttal/", `rebuttal/${"a".repeat(151)}`, "rebuttal/../account", "rebuttal/paper/other",
     "rebuttal?", "rebuttal?title=private", "rebuttal/paper?review=private", "rebuttal/paper%2Fother",
     "rebuttal/paper%252Fother", "rebuttal/paper#other", "rebuttal/paper\r\nLocation: https://evil.test"]) {
     assert.equal(signInHref(route), "#/account", `Invalid rebuttal continuation: ${route}`);
@@ -50,6 +50,7 @@ try {
   assert.equal(accountReturnHref("account/continue/account/continue/community"), undefined);
   assert.equal(accountReturnHref("account/continue/%2F%2Fevil.test"), undefined);
   const { accountEntryHref } = await server.ssrLoadModule("/src/accountEntry.ts");
+  assert.equal(accountEntryHref(`#/rebuttal/join/${"a".repeat(43)}`), "#/account/continue/rebuttal%2Fjoin", "Sharing tokens must never become login continuations");
   const { emptyInterviewFilters, interviewHref } = await server.ssrLoadModule("/src/interviewNavigation.ts");
   const filteredInterview = interviewHref({ ...emptyInterviewFilters(), company: 'nvidia', role: 'research', q: '视觉 & scale 😀 #/%? +=', page: 3, sort: 'helpful' });
   for (const source of ['rebuttal', '#/rebuttal/paper_ABC-42', '#/u/researcher?tab=solutions&page=2', filteredInterview, 'architecture/attention', '#/community/problem/architecture%2Fattention']) {

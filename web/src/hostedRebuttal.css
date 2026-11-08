@@ -69,6 +69,17 @@
 .hreb-remove { border: 0; padding: 6px 0; font: inherit; background: transparent; color: var(--rst-danger); cursor: pointer; white-space: nowrap; }
 .hreb-remove:hover { text-decoration: underline; }
 .hreb-members > footer { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; margin-top: 20px; }
+.hreb-share-links { border-top: 1px solid var(--line); margin-top: 20px; padding-top: 14px; }
+.hreb-share-link { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 8px 0; }
+.hreb-share-link > span { color: var(--muted); }
+.hreb-link-copy { margin-top: 10px; }
+.hreb-join { max-width: 750px; }
+.hreb-join h1 { margin-bottom: 24px; }
+.hreb-join > .rst-button { margin: 14px 12px 0 0; }
+.hreb-join-paper { border: 1px solid var(--line); background: var(--surface-alt); padding: 20px; border-radius: 2px; }
+.hreb-join-paper h2 { color: var(--rst-link); overflow-wrap: anywhere; }
+.hreb-join-paper p { margin: 12px 0; }
+.hreb-join .hreb-error .rst-button { margin: 10px; }
 @media (max-width: 767px) {
   .hreb-workspace .rst-hosted-heading .rst-save { display: flex; grid-column: 1 / -1; grid-row: 3; margin-left: 0; }
   .hreb-heading { align-items: flex-start; flex-direction: column; gap: 16px; }

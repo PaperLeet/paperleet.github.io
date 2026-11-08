@@ -233,7 +233,7 @@ function Workspace() {
   const loadedProblem = sourceProblem?.detail_url ? details[sourceProblem.detail_url] : sourceProblem;
   const problem = loadedProblem ? localize(loadedProblem) : undefined;
   const communityPaneScope=JSON.stringify([problem?.id,practice.owner,user?.id,accountLoading]);
-  const rebuttalPage = /^rebuttal(\/[\w-]{1,150})?$/.test(path);
+  const rebuttalPage = /^rebuttal(?:\/[\w-]{1,150}|\/join\/[A-Za-z0-9_-]{43})?$/.test(path);
   const submissionPage = path === "submit";
   const submissionResultId = /^submission\/([a-f0-9]{32})$/.exec(path)?.[1];
   const communityPath = id.split('?')[0];

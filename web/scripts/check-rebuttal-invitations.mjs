@@ -40,7 +40,7 @@ try {
     requested.push(path);
     if (body) {
       posts.push({ path, body: structuredClone(body) });
-      if (path.endsWith('/members')) { revision++; memberInvitations = body.action === 'remove' ? [] : [{ id: 'pending_c', user: { id: 'author_c', username: body.username, display_name: 'Author C' }, role: body.role, created_at: invite.created_at }]; return detail(); }
+      if (path.endsWith('/members')) { revision++; memberInvitations = body.action === 'remove' || body.action === 'cancel_invitation' ? [] : body.email ? [{ id: 'email_c', kind: 'email', user: null, email: body.email, role: body.role, created_at: invite.created_at, expires_at: '2030-01-31T00:00:00Z', delivery_status: 'failed' }] : [{ id: 'pending_c', user: { id: 'author_c', username: body.username, display_name: 'Author C' }, role: body.role, created_at: invite.created_at }]; return detail(); }
       const result = { id: path.split('/').at(-1), paper_id: project.id, status: body.action === 'accept' ? 'accepted' : 'declined' };
       invitations = invitations.filter(item => item.id !== result.id); return result;
     }
@@ -96,17 +96,83 @@ try {
   await act(async () => oldResponse.resolve({ id: invite.id, paper_id: project.id, status: 'accepted' }));
   assert.equal(context.href, '#/rebuttal/invitations'); assert.equal(context.events.length, 2);
 
-  // Owner invitations appear separately from active members and cancel through the permission API.
+  // Pending invitees appear in the same collaborator list and old APIs retain username cancellation.
   signIn(author); context.request = defaultRequest; context.locale = 'zh'; await render('rebuttal/paper_a'); await click('Manage members');
   const input = document.querySelector('.hreb-invite input');
   await act(async () => { Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set.call(input, 'author_c'); input.dispatchEvent(new window.Event('input', { bubbles: true })); });
   await click('发送邀请');
-  assert.match(document.body.textContent, /邀请已发送 · 等待接受/); assert.match(document.body.textContent, /待接受的邀请/);
+  assert.match(document.body.textContent, /邀请已发送 · 等待接受/); assert.equal(document.querySelectorAll('.hreb-member-list').length, 1);
   assert.equal(document.querySelectorAll('.hreb-pending-badge').length, 1);
   await click('取消邀请'); assert.equal(document.querySelectorAll('.hreb-pending-badge').length, 0);
   assert.equal(posts.at(-1).body.action, 'remove'); assert.equal(posts.at(-1).body.user_id, 'author_c');
   assert.equal(posts.at(-1).body.expected_user_id, author.id);
-  console.log('Rebuttal invitation UI: bilingual pending members, cancellation, capability rollout, sign-in landing, no pre-accept access, exact retries and account-switch navigation passed.');
+
+  // Email invites preserve delivery uncertainty, role and cancellation without revealing account existence.
+  context.locale = 'en';
+  const caps = { inbox_rebuttal_invitations: true, rebuttal_email_sharing: true, rebuttal_email_delivery: true, rebuttal_invite_links: true };
+  context.account.capabilities = caps;
+  let roleLinks = ['viewer', 'editor'].map(role => ({ role, revision: 0, active: false, id: null, created_at: null, expires_at: null }));
+  const sharingRequest = async (path, body) => {
+    if (!path.endsWith('/links')) return defaultRequest(path, body);
+    if (!body) return { user_id: author.id, paper_id: project.id, links: roleLinks };
+    posts.push({ path, body: structuredClone(body) });
+    const link = { role: body.role, revision: body.expected_revision + 1, active: body.action === 'create', id: 'link_' + body.role, created_at: invite.created_at, expires_at: '2030-01-31T00:00:00Z' };
+    roleLinks = roleLinks.map(item => item.role === link.role ? link : item);
+    return { user_id: author.id, paper_id: project.id, link };
+  };
+  context.request = sharingRequest; await render('rebuttal/paper_a');
+  assert.match(document.body.textContent, /Email or username/);
+  const setInput = async (node, value) => act(async () => { Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set.call(node, value); node.dispatchEvent(new window.Event('input', { bubbles: true })); });
+  await setInput(document.querySelector('.hreb-invite input'), 'Researcher@Example.ORG');
+  await act(async () => { const select = document.querySelector('.hreb-invite select'); select.value = 'viewer'; select.dispatchEvent(new window.Event('change', { bubbles: true })); });
+  await click('Send invitation');
+  assert.equal(posts.at(-1).body.email, 'researcher@example.org'); assert.equal(posts.at(-1).body.role, 'viewer');
+  assert.match(document.body.textContent, /Email delivery failed/); assert(!document.body.textContent.includes('Invitation email sent'));
+  assert.equal(document.querySelectorAll('.hreb-member-list').length, 1);
+  assert.equal(document.querySelectorAll('.hreb-member-list li').length, 3);
+  const firstEmailKey = posts.at(-1).body.request_id;
+  await click('Resend'); assert.notEqual(posts.at(-1).body.request_id, firstEmailKey, 'Explicit resend is a new operation');
+  await click('Cancel invitation'); assert.equal(posts.at(-1).body.action, 'cancel_invitation'); assert.equal(posts.at(-1).body.invitation_id, 'email_c');
+
+  // Safari clipboard refusal exposes a manual copy field; a second click copies without rotating.
+  await click('View link');
+  const manual = document.querySelector('.hreb-link-copy'); assert(manual); assert.match(new URL(manual.value).hash, /^#\/rebuttal\/join\/[A-Za-z0-9_-]{43}$/);
+  const createdToken = posts.at(-1).body.token, linkPostCount = posts.length;
+  let copiedValue; Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async value => { copiedValue = value; } } });
+  await click('View link'); assert.equal(posts.length, linkPostCount); assert.equal(new URL(copiedValue).hash, '#/rebuttal/join/' + createdToken);
+  await click('Edit link'); assert.equal(posts.at(-1).body.role, 'editor'); assert.equal(posts.at(-1).body.expected_revision, 0);
+  await click('Close members'); await click('Manage members'); assert(button('View link'), 'Closing the dialog keeps the generated token in this workspace');
+  await click('Revoke View link'); assert.equal(posts.at(-1).body.action, 'revoke'); assert.equal(posts.at(-1).body.role, 'viewer');
+  await render(); await render('rebuttal/paper_a'); await click('Manage members');
+  assert(button('Regenerate edit link'), 'A page reload requires an explicit regeneration, not silent rotation');
+
+  // Raw fragments are canonicalized before sign-in, and preview never grants access.
+  await render('rebuttal'); context.account = { user: null, loading: false }; context.href = '#/rebuttal/join/' + createdToken;
+  window.history.replaceState(null, '', context.href); await render('rebuttal/join/' + createdToken);
+  assert.equal(location.hash, '#/rebuttal/join');
+  const login = document.querySelector('a'); assert(login); assert(!login.href.includes(createdToken));
+  assert.equal(new URL(login.href).hash, '#/account?return_to=%23%2Frebuttal%2Fjoin');
+  let joinCalls = [];
+  const joinPreview = { user_id: recipient.id, link: { id: 'link_viewer', paper_id: project.id, title: project.title, venue: 'ICLR', owner: author, role: 'viewer', expires_at: '2030-01-31T00:00:00Z' }, member_role: 'editor' };
+  context.request = async (path, body) => { if (path !== 'rebuttal/join') return sharingRequest(path, body); joinCalls.push(structuredClone(body)); return body.action === 'preview' ? joinPreview : { user_id: recipient.id, id: 'link_viewer', paper_id: project.id, status: 'accepted', role: 'editor' }; };
+  signIn(recipient); context.account.capabilities = caps; context.href = '#/rebuttal/join'; await render('rebuttal/join');
+  assert.deepEqual(joinCalls.map(item => item.action), ['preview']); assert(button('Accept invitation')); assert(!document.body.textContent.includes(createdToken));
+  const secondToken = 'B'.repeat(43);
+  window.history.replaceState(null, '', '#/rebuttal/join/' + secondToken); await render('rebuttal/join/' + secondToken);
+  assert.equal(joinCalls.at(-1).action, 'preview'); assert.equal(joinCalls.at(-1).token, secondToken, 'A second invitation in the same tab replaces the first');
+  assert.equal(location.hash, '#/rebuttal/join');
+  await render('rebuttal/join');
+  window.history.replaceState(null, '', '#/rebuttal/join/' + secondToken); await render('rebuttal/join/' + secondToken);
+  assert.equal(location.hash, '#/rebuttal/join', 'Reopening the same token still removes it from the URL');
+  await click('Accept invitation'); assert.equal(joinCalls.at(-1).action, 'accept'); assert.equal(joinCalls.at(-1).token, secondToken);
+  assert.equal(context.href, '#/rebuttal/paper_a'); assert.equal(sessionStorage.getItem('paperleet.rebuttal.share-handoff.v1'), null);
+
+  // A blocked session handoff is actionable, never an accidental anonymous acceptance.
+  context.request = sharingRequest; await render('rebuttal'); context.account = { user: null, loading: false };
+  Object.defineProperty(globalThis, 'sessionStorage', { configurable: true, value: { getItem() { throw Error('Blocked'); }, setItem() { throw Error('Blocked'); }, removeItem() { throw Error('Blocked'); } } });
+  window.history.replaceState(null, '', '#/rebuttal/join/' + createdToken); await render('rebuttal/join/' + createdToken);
+  assert.equal(location.hash, '#/rebuttal/join'); assert.match(document.body.textContent, /Allow browser storage/); assert(button('Retry')); assert(!document.querySelector('a'));
+  console.log('Rebuttal invitation UI: email delivery, unified pending members, role links/copy/revocation, safe sign-in handoff, explicit acceptance, old capabilities and account isolation passed.');
 } finally {
   if (root) await act(async () => root.unmount());
   await server.close(); await rm(cacheDir, { recursive: true, force: true }); dom.window.close();
