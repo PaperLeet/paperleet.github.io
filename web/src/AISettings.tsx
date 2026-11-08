@@ -44,7 +44,11 @@ function AISettingsForm({ owner, canAct, onChanged }: { owner: string; canAct: (
   const [customModel, setCustomModel] = useState(false);
   const [busy, setBusy] = useState('load'), [error, setError] = useState(''), [notice, setNotice] = useState(''), [blocked, setBlocked] = useState(false);
   const generation = useRef(0), active = useRef(true), pending = useRef(false), controllers = useRef(new Set<AbortController>()), owns = useRef(canAct); owns.current = canAct;
-  const keyInput = useCallback((node: HTMLInputElement | null) => { if (node) return () => { node.value = ''; }; }, []);
+  const passwordInput = useRef<HTMLInputElement | null>(null);
+  const keyInput = useCallback((node: HTMLInputElement | null) => {
+    passwordInput.current = node;
+    if (node) return () => { node.value = ''; node.removeAttribute('value'); if (passwordInput.current === node) passwordInput.current = null; };
+  }, []);
   const current = (epoch: number) => active.current && generation.current === epoch && owns.current();
   const selected = settings?.providers.find(item => item.id === provider);
   const storedKey = !!selected?.configured && (!regionalProvider(provider) || selected.region === region);
@@ -83,7 +87,13 @@ function AISettingsForm({ owner, canAct, onChanged }: { owner: string; canAct: (
   }
   useEffect(() => {
     active.current = true; pending.current = false; void load();
-    return () => { active.current = false; generation.current++; controllers.current.forEach(controller => controller.abort()); controllers.current.clear(); };
+    // Clear the form before a page enters the browser's back/forward cache.
+    const clearPassword = () => {
+      if (passwordInput.current) { passwordInput.current.value = ''; passwordInput.current.removeAttribute('value'); }
+      setApiKey(''); setTestedModel(null);
+    };
+    window.addEventListener('pagehide', clearPassword);
+    return () => { window.removeEventListener('pagehide', clearPassword); active.current = false; generation.current++; controllers.current.forEach(controller => controller.abort()); controllers.current.clear(); };
   }, []);
   function choose(next: Provider) {
     if (pending.current) return;

@@ -17,7 +17,7 @@
     "check:challenges": "node scripts/prepare-browser-worker.mjs && node scripts/check-daily-challenges.mjs && node scripts/check-challenge-ui.mjs && node scripts/check-custom-cases-wasm.mjs",
     "check:research-sections": "node scripts/check-research-sections.mjs",
     "check:collection-reading-list": "node scripts/check-collection-reading-list.mjs",
-    "check:personal-ai": "node scripts/check-ai-settings.mjs && node scripts/check-personal-ai-gates.mjs"
+    "check:personal-ai": "node scripts/check-ai-settings.mjs && node scripts/check-ai-settings-transport.mjs && node scripts/check-personal-ai-gates.mjs"
   },
   "dependencies": {
     "@codemirror/lang-python": "^6.2.1",

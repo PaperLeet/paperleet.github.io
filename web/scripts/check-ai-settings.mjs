@@ -51,8 +51,18 @@ try {
   await render(); assert(field('AI provider')); assert.equal(field('API key').type,'password'); assert.equal(button('Save and use').disabled,true);
   assert.deepEqual([...field('AI provider').options].map(option=>option.value),providerIds);
   const secret='test-only-not-a-real-provider-key';
+  await input('API key',secret);
+  await act(async()=>window.dispatchEvent(new window.PageTransitionEvent('pagehide',{persisted:true})));
+  assert.equal(field('API key').value,'','Leaving a cached page clears the entered key');
+  assert(!field('API key').outerHTML.includes(secret));assert.equal(button('Save and use').disabled,true);
   await input('API key',secret); await click('Load models');
   assert.equal(calls.at(-1).body.api_key,secret); assert.equal(revision,0,'Loading models must not save settings');
+  // Provider labels are untrusted text and never create live HTML.
+  const hostileLabel='<img src=x onerror=globalThis.__keyStolen=true><script>attack()</script>';
+  context.request=async(path,body)=>path.endsWith('/models')?{user_id:context.account.user.id,provider:body.provider,region:null,models:[{id:'test-model',name:hostileLabel}]}:defaultRequest(path,body);
+  await click('Load models'); assert.equal(field('AI model').options[1].textContent,hostileLabel);
+  assert.equal(document.querySelectorAll('.ai-settings img,.ai-settings script').length,0);
+  assert.equal(globalThis.__keyStolen,undefined);context.request=defaultRequest;
   await select('AI model','test-model'); assert.equal(field('Model ID'),null,'Normal model selection does not show a duplicate manual field');
   await select('AI model','__custom__'); assert(field('Model ID')); await input('Model ID','custom-model');
   await select('AI model','test-model'); assert.equal(field('Model ID'),null);
@@ -93,7 +103,7 @@ try {
   context.request=(path,body,signal)=>{if(path.endsWith('/models')) {oldSignal=signal; return response.promise;} return defaultRequest(path,body);};
   const retiredPassword=field('API key'); await click('Load models'); const oldOwner=context.account.user.id;
   context.account={user:{id:'owner_b'},loading:false}; saved={};active=null;revision=0;await render();
-  assert(oldSignal.aborted); assert.equal(field('API key').value,''); assert.equal(retiredPassword.value,'','The retired input clears its unsaved secret');
+  assert(oldSignal.aborted); assert.equal(field('API key').value,''); assert.equal(retiredPassword.value,'','The retired input clears its unsaved secret'); assert(!retiredPassword.outerHTML.includes(secret),'Retired input markup must not retain the secret');
   await act(async()=>response.resolve({user_id:oldOwner,models:[{id:'old-account-model',name:'Old account model'}]}));
   assert(!document.body.textContent.includes('Old account model'));
 
@@ -104,12 +114,13 @@ try {
   await click('删除密钥'); assert.equal(saved.openai,undefined); assert.match(document.body.textContent,/密钥已删除/);
   assert.equal(storageWrites,0);assert.equal(window.localStorage.length,0);assert.equal(window.sessionStorage.length,0);
   assert.equal(document.querySelectorAll('input[type="password"]').length,1);
+  assert(!location.href.includes(secret));assert(!document.body.outerHTML.includes(secret));
 
   const accountSource=await readFile('src/Account.tsx','utf8'), studioSource=await readFile('src/RebuttalStudio.tsx','utf8');
   assert.match(accountSource,/personal_ai_settings === true && <AISettings/);
   assert.match(studioSource,/aiSettings && hosted && <AISettings/);
   assert.match(studioSource,/setAiRevision\(value => value \+ 1\)/,'Hub refreshes AI status without remounting the paper');
-  console.log('PASS personal AI settings: provider models/manual fallback, direct save and optional tests, encrypted-key metadata, preservation/deletion, CAS conflicts, safe errors, account retirement, unavailable deletion, bilingual UI and no browser persistence.');
+  console.log('PASS personal AI settings: provider models/manual fallback, direct save and optional tests, encrypted-key metadata, preservation/deletion, CAS conflicts, safe errors, account retirement, unavailable deletion, bilingual UI, text-only hostile labels, page-cache/retired DOM key cleanup and no browser persistence.');
 } finally {
   if(root) await act(async()=>root.unmount()); await server.close();await rm(cacheDir,{recursive:true,force:true});dom.window.close();
   for(const [key,value] of previous) value?Object.defineProperty(globalThis,key,value):delete globalThis[key];

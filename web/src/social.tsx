@@ -141,6 +141,7 @@ export class SocialError extends Error {
 export async function socialApi<T>(path: string, body?: unknown, signal?: AbortSignal): Promise<T> {
   const response = await apiFetch(`/api/${path}`, {
     cache: "no-store",
+    ...(/^account\/ai-settings(?:[/?]|$)/.test(path) ? { redirect: "error" as const } : {}),
     ...(signal ? { signal } : {}),
     ...(body === undefined
       ? {}
