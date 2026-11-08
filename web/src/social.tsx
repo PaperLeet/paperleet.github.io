@@ -56,6 +56,7 @@ export type AccountUser = PublicUser & {
   profile_edit_policy?: ProfileEditPolicy;
 };
 export type AccountCapabilities = {
+  personal_ai_settings?: boolean;
   rebuttal_workspaces?: boolean;
   rebuttal_assembly_drafts?: boolean;
   rebuttal_reviewer_versions?: boolean;

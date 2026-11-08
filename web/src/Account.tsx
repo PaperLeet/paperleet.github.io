@@ -37,6 +37,9 @@ import { decodeProblemHash } from "./reports";
 import { AvatarImageError } from "./profileAvatar";
 import AvatarCropper from "./AvatarCropper";
 import { readProfileEditPolicy } from "./profileEditPolicy";
+import { deferredFeature } from "./deferredFeature";
+
+const AISettings = deferredFeature(() => import("./AISettings"), ["AI 设置", "AI settings"]);
 import "./lc-profile.css";
 
 export default function Account({ returnTo: requestedReturnTo, route }: { returnTo?: string; route?: string }) {
@@ -898,6 +901,7 @@ export function ProfileSettings({ user }: { user: AccountUser }) {
           </div>
         </form>
         <aside className="account-aside">
+          {capabilities?.personal_ai_settings === true && <AISettings />}
           <section className="social-panel">
             {user.is_test_user ? (
               <>

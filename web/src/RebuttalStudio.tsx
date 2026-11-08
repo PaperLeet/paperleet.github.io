@@ -13,7 +13,10 @@ import type { Experiment, Issue, RebuttalProject, Reviewer, Workspace, RemovedCo
 import RebuttalLibrary from "./RebuttalLibrary";
 import { readUsers, writeUsers, createLocalUser, selectLocalUser, workspaceStorage } from "./rebuttalUsers";
 import type { UserDirectory } from "./rebuttalUsers";
+import { deferredFeature } from "./deferredFeature";
 import "./rebuttal.css";
+
+const AISettings = deferredFeature(() => import('./AISettings'), ['AI 设置', 'AI settings']);
 
 export type HostedStudioSession = {
   project: RebuttalProject; readOnly: boolean; saveStatus: "saved" | "saving" | "error" | "conflict";
@@ -23,7 +26,7 @@ export type HostedStudioSession = {
 };
 
 type Stage = "overview" | "reviews" | "experiments" | "issues" | "export" | "history";
-type AIStatus = { configured: boolean; model: string | null };
+type AIStatus = { configured: boolean; model: string | null; provider?: string | null; source?: 'personal' | 'server' | null };
 type AnalyzedIssue = Omit<Issue, "id" | "status" | "outline" | "response"> & { experiment?: { title: string; protocol: string; metric: string } };
 
 function download(name: string, content: string, type = "text/plain") {
@@ -94,6 +97,7 @@ export default function RebuttalStudio({ hosted }: { hosted?: HostedStudioSessio
   const [query, setQuery] = useState("");
   const [expandedSummaries, setExpandedSummaries] = useState<string[]>([]);
   const [settings, setSettings] = useState(false);
+  const [aiSettings, setAiSettings] = useState(false), [aiRevision, setAiRevision] = useState(0);
   const [busy, setBusy] = useState("");
   const [notice, setNotice] = useState("");
   const [ai, setAi] = useState<AIStatus>({ configured: false, model: null });
@@ -142,10 +146,12 @@ export default function RebuttalStudio({ hosted }: { hosted?: HostedStudioSessio
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
   useEffect(() => {
     const controller = new AbortController();
+    let active = true;
+    setAi({ configured: false, model: null });
     localRequest("/api/rebuttal/status", { signal: AbortSignal.any([controller.signal, AbortSignal.timeout(5000)]) })
-      .then(value => setAi(value as AIStatus)).catch(() => {});
-    return () => controller.abort();
-  }, [settings]);
+      .then(value => { if (active) setAi(value as AIStatus); }).catch(() => {});
+    return () => { active = false; controller.abort(); };
+  }, [settings, aiRevision, accountUser?.id]);
   useEffect(() => {
     if (hostedRef.current) {
       const changed = workspace.projects.find(p => p.id === workspace.activeProjectId);
@@ -418,7 +424,7 @@ export default function RebuttalStudio({ hosted }: { hosted?: HostedStudioSessio
     if (readOnly) return;
     if (!selected) return;
     if (!selected.title.trim() || !selected.quote.trim()) { setNotice(t("请先在「调整拆解」中填写问题标题与原文。", "Add the concern title and source quote under Adjust breakdown first.")); return; }
-    if (!ai.configured) { if (hosted) setNotice(t("AI 服务尚未启用。", "AI service is not enabled.")); else setSettings(true); return; }
+    if (!ai.configured) { if (hosted && capabilities?.personal_ai_settings) setAiSettings(true); else if (hosted) setNotice(t("AI 服务尚未启用。", "AI service is not enabled.")); else setSettings(true); return; }
     setBusy(action);
     const snapshot = { ownerId: user.id, projectId: project.id, issueId: selected.id, base: selected.response, source: assistanceSource(project, selected) };
     try {
@@ -430,7 +436,7 @@ export default function RebuttalStudio({ hosted }: { hosted?: HostedStudioSessio
 
   async function summarizeReviewers(reviewerId?: string) {
     if (busy || readOnly) return;
-    if (!ai.configured) { setNotice(t("AI 服务尚未启用。", "AI service is not enabled.")); if (!hosted) setSettings(true); return; }
+    if (!ai.configured) { if (hosted && capabilities?.personal_ai_settings) setAiSettings(true); else { setNotice(t("AI 服务尚未启用。", "AI service is not enabled.")); if (!hosted) setSettings(true); } return; }
     const reviews = normalizedReviews(project.reviews).filter(review => review.text.trim() && (!reviewerId || review.id === reviewerId));
     if (!reviews.length) { openReviews(); return; }
     if (reviews.length > 20 || reviews.some(review => review.text.length > 30000 || review.name.length > 200) || reviews.reduce((sum, review) => sum + review.text.length, 0) > 120000) {
@@ -472,7 +478,7 @@ export default function RebuttalStudio({ hosted }: { hosted?: HostedStudioSessio
     <div className={`rst-paper-heading${hosted ? " rst-hosted-heading" : ""}`}>
       <div className="rst-paper-identity"><h1>{project.title || t("未命名论文", "Untitled paper")}</h1><span>{project.venue}</span></div>
       <span className="rst-save"><span className={(hosted ? hosted.saveStatus === "error" || hosted.saveStatus === "conflict" : saveError) ? "rst-error-dot" : "rst-local-dot"} />{hosted ? readOnly ? t("仅查看", "View only") : hosted.saveStatus === "saved" ? t("已保存", "Saved") : hosted.saveStatus === "saving" ? t("正在保存…", "Saving…") : t("尚未保存", "Unsaved") : saveError ? t("尚未保存", "Unsaved") : saved ? t("已保存", "Saved") : t("正在保存…", "Saving…")}</span>
-      <div className="rst-paper-actions"><button className="rst-button" disabled={!!busy} onClick={openReviews}><Upload size={15} />{t("审稿原文", "Reviews")}</button>{hosted && <button className="rst-button rst-share-button" onClick={hosted.onShare}>{hosted.role === "owner" ? t("邀请", "Invite") : t("成员", "Members")}</button>}<button className="rst-icon-button" title={t("论文设置", "Paper settings")} aria-label={t("论文设置", "Paper settings")} onClick={() => setSettings(true)}><Settings2 size={17} /></button></div>
+      <div className="rst-paper-actions">{hosted && capabilities?.personal_ai_settings === true && <button className="rst-button" onClick={() => setAiSettings(true)}><Sparkles size={15} />{t("AI 设置", "AI settings")}</button>}<button className="rst-button" disabled={!!busy} onClick={openReviews}><Upload size={15} />{t("审稿原文", "Reviews")}</button>{hosted && <button className="rst-button rst-share-button" onClick={hosted.onShare}>{hosted.role === "owner" ? t("邀请", "Invite") : t("成员", "Members")}</button>}<button className="rst-icon-button" title={t("论文设置", "Paper settings")} aria-label={t("论文设置", "Paper settings")} onClick={() => setSettings(true)}><Settings2 size={17} /></button></div>
     </div>
     <div className="rst-stage-bar"><nav aria-label={t("论文工作区", "Paper workspace")}>
       {([["overview", t("Reviewer 总览", "Reviewers"), ListChecks], ["experiments", t("实验", "Experiments"), FlaskConical], ["issues", t("逐条回复", "Responses"), MessageSquare], ["export", t("拼接回复", "Assemble"), FileText], ["history", t("历史版本", "Versions"), History]] as const).map(([key, label, Icon]) => <button key={key} disabled={!!busy} aria-current={stage === key ? "page" : undefined} className={stage === key ? "active" : ""} onClick={() => showStage(key)}><Icon size={16} />{label}</button>)}
@@ -614,6 +620,8 @@ export default function RebuttalStudio({ hosted }: { hosted?: HostedStudioSessio
     {removed && inPaper && removed.ownerId === user.id && removed.projectId === project.id && <div className="rst-undo" role="status"><span>{removed.issue ? t("已删除问题及关联实验", "Concern and linked experiments deleted") : t("已删除实验", "Experiment deleted")}</span><button disabled={!!busy || readOnly} onClick={undoRemoval}>{t("撤销", "Undo")}</button><button aria-label={t("关闭撤销提示", "Dismiss undo notice")} onClick={() => setRemoved(null)}><X size={14} /></button></div>}
 
     {notice && <div className="rst-toast" role="status">{notice}<button aria-label={t("关闭通知", "Dismiss notification")} onClick={() => setNotice("")}><X size={14} /></button></div>}
+
+    {aiSettings && hosted && <AISettings onClose={() => { setAiSettings(false); setAiRevision(value => value + 1); }} onChanged={() => { setAi({ configured: false, model: null }); setAiRevision(value => value + 1); }} />}
 
     {settings && <div className="rst-overlay"><section className="rst-modal rst-settings" role="dialog" aria-modal="true" aria-labelledby="rst-settings-title"><header><h2 id="rst-settings-title">{t("项目设置", "Project settings")}</h2><button className="rst-icon-button" aria-label={t("关闭", "Close")} onClick={() => setSettings(false)}><X size={20} /></button></header><Field label={t("论文标题", "Paper title")}><input disabled={readOnly} maxLength={2000} value={project.title} onChange={e => updateProject({ title: e.target.value })} /></Field><Field label={t("会议 / 期刊", "Venue")}><input disabled={readOnly} maxLength={300} placeholder="ICLR / ICML / NeurIPS / …" value={project.venue} onChange={e => updateProject({ venue: e.target.value })} /></Field><Field label={t("论文背景与核心贡献", "Paper context and contributions")}><textarea disabled={readOnly} maxLength={30000} rows={5} value={project.context} placeholder={t("提供摘要、方法概要与已有实验，帮助 AI 理解论文。", "Provide an abstract, method summary, and existing experiments for AI context.")} onChange={e => updateProject({ context: e.target.value })} /></Field>{hosted ? <div className="rst-ai-config"><h3><Sparkles size={16} />{ai.configured ? t("AI 已启用", "AI enabled") : t("AI 服务尚未启用", "AI service is not enabled")}</h3></div> : <details className="rst-ai-config"><summary>{t("AI 设置", "AI settings")}</summary><h3><Sparkles size={16} />{ai.configured ? `${t("已配置", "Configured")}: ${ai.model}` : t("连接模型服务", "Connect a model service")}</h3><p>{t("在启动本地服务的终端配置兼容 Chat Completions 的接口，然后重启 make dev。密钥只保留在服务端；点击 AI 功能时会发送相关原文与背景。", "Configure a Chat Completions compatible endpoint in the terminal that starts the local service, then restart make dev. Keys stay on the server. AI actions send the relevant reviews and context to that provider.")}</p><pre>{"export PAPERLEET_REBUTTAL_API_URL=\"https://your-provider/v1/chat/completions\"\nexport PAPERLEET_REBUTTAL_MODEL=\"your-model\"\nexport PAPERLEET_REBUTTAL_API_KEY=\"your-key\"\nmake dev"}</pre></details>}<a className="rst-attribution" href="https://github.com/runtsang/RebuttalStudio" target="_blank" rel="noreferrer">RebuttalStudio ↗</a><footer><button className="rst-button rst-primary" onClick={() => setSettings(false)}><Check size={15} />{t("完成", "Done")}</button></footer></section></div>}
   </main>;
