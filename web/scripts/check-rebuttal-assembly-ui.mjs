@@ -77,12 +77,51 @@ try {
   await change(source(), ''); await flush(); await render('reload'); await click('Assemble'); assert.equal(source().value, '', 'Intentional blank survives remount');
 
   if (hostedSupported) {
+    const normalDraftRequest = context.request;
+    // Before the first personal read succeeds, generated text must not masquerade as the user's draft.
+    context.account.user = { id: 'slow_reader' };
+    let resolveFirstRead;
+    const firstRead = new Promise(resolve => { resolveFirstRead = resolve; });
+    context.request = (path, body) => body ? normalDraftRequest(path, body) : firstRead;
+    await render('slow-first-read'); await click('Assemble');
+    assert.equal(source().value, ''); assert.equal(source().readOnly, true);
+    assert.equal(button('Copy for OpenReview').disabled, true); assert.equal(button('.md').disabled, true);
+    assert.equal(document.querySelector('.rst-export-meter strong').firstChild.textContent, '0');
+    await act(async () => resolveFirstRead({ user_id: 'slow_reader', paper_id: project.id, scope: 'all', source: 'Previously saved personal answer', revision: 1, updated_at: '2030-01-01T00:00:00Z' }));
+    assert.equal(source().value, 'Previously saved personal answer'); assert.equal(button('Copy for OpenReview').disabled, false); assert.equal(button('.md').disabled, false);
+
+    context.account.user = { id: 'failed_reader' }; context.request = async () => { throw Error('Initial read failed'); };
+    await render('failed-first-read'); await click('Assemble');
+    assert.equal(source().value, ''); assert.equal(source().readOnly, true);
+    assert.equal(button('Copy for OpenReview').disabled, true); assert.equal(button('.md').disabled, true);
+    assert.match(document.querySelector('.rst-assembly-error').textContent, /Could not load your personal draft/);
+
+    // After a successful read, a failed save still allows recovery of the actual edited text.
+    context.account.user = { id: 'failed_writer' }; context.request = normalDraftRequest;
+    await render('failed-save'); await click('Assemble'); await change(source(), 'Unsaved personal recovery answer');
+    context.request = async (path, body) => { if (body) throw Error('Save unavailable'); return normalDraftRequest(path, body); };
+    await act(async () => { assert.equal(await bridge.flush(), false); });
+    assert.equal(source().value, 'Unsaved personal recovery answer'); assert.equal(button('Copy for OpenReview').disabled, false); assert.equal(button('.md').disabled, false);
+    await click('Copy for OpenReview'); assert.equal(copied, 'Unsaved personal recovery answer'); await click('.md'); assert.equal(await downloaded.text(), copied);
+    context.request = normalDraftRequest;
+
+    // Completing the final concern must open the canonical reviewer draft scope, not its raw ID.
+    context.account.user = { id: 'completion_owner' };
+    const scopeReads = [];
+    context.request = (path, body) => { if (!body) scopeReads.push(path.split('/').at(-1)); return normalDraftRequest(path, body); };
+    const concern = { id: 'concern_a', reviewerId: 'review_a', title: 'Concern A', quote: 'Clarify this point', category: 'clarification', priority: 'medium', status: 'drafting', suggestion: '', outline: '', response: 'Completed reviewer answer' };
+    await render('complete-reviewer', { project: { ...project, issues: [concern] } }); await click('Responses'); await click('Complete & continue');
+    assert.equal(document.querySelector('.rst-export aside select').value, 'reviewer-review_a');
+    assert.equal(scopeReads.at(-1), 'reviewer-review_a'); assert.match(source().value, /Completed reviewer answer/); assert.equal(source().readOnly, false);
+    context.request = normalDraftRequest;
+
     const beforeViewerShared = shared.length; context.account.user = { id: 'viewer_b' };
     await render('viewer_b', { role: 'viewer', readOnly: true }); await click('Assemble');
     assert.equal(source().readOnly, false); assert.equal(button('Save shared version').disabled, true); assert.equal(document.querySelector('.rst-export aside textarea').disabled, true);
     await change(source(), 'Viewer private source'); await flush(); assert.equal(shared.length, beforeViewerShared); assert.equal(documents.get('viewer_b:all').source, 'Viewer private source');
     assert.equal(documents.get('account_a:all').source, '');
     context.account.capabilities = {}; await render('old-api', { role: 'viewer', readOnly: true }); await click('Assemble'); assert.equal(source().readOnly, true); assert.match(document.body.textContent, /Personal drafts are updating/);
+    assert.equal(source().value, 'Original shared opening'); assert.equal(button('Copy for OpenReview').disabled, false); assert.equal(button('.md').disabled, false, 'Old backends retain their generated export without personal drafts');
     context.account.capabilities = { rebuttal_assembly_drafts: true };
 
     // The actual hosted wrapper must settle both queues before refresh/reload remounts the editor.
@@ -120,8 +159,19 @@ try {
     await render('local', {}, false); await click('拼接回复'); await change(source(), '本地个人回复');
     assert.match(document.body.textContent, /个人草稿已保存到本机/);
     await render('local-reload', {}, false); await click('拼接回复'); assert.equal(source().value, '本地个人回复');
+    const localDraftKey = Object.keys(localStorage).find(key => key.startsWith('paperleet.rebuttal.assembly.local.') && key.endsWith('.all.v1'));
+    assert(localDraftKey); localStorage.setItem(localDraftKey, '{corrupt personal draft');
+    await render('local-corrupt', {}, false); await click('拼接回复');
+    assert.equal(source().value, ''); assert.equal(source().readOnly, true); assert.equal(button('复制到 OpenReview').disabled, true); assert.equal(button('.md').disabled, true);
+    assert.equal(localStorage.getItem(localDraftKey), '{corrupt personal draft', 'Unreadable personal storage is never overwritten by automatic assembly');
+    const getItem = window.Storage.prototype.getItem;
+    window.Storage.prototype.getItem = function (key) { if (key.startsWith('paperleet.rebuttal.assembly.local.')) throw Error('Storage unavailable'); return getItem.call(this, key); };
+    try {
+      await render('local-unreadable', {}, false); await click('拼接回复');
+      assert.equal(source().value, ''); assert.equal(source().readOnly, true); assert.equal(button('复制到 OpenReview').disabled, true); assert.equal(button('.md').disabled, true);
+    } finally { window.Storage.prototype.getItem = getItem; }
   }
-  console.log('PASS assembly UI: actual StrictMode editor, private autosave, follow-until-edited generation, reviewer-all isolation, deliberate blank/reload, explicit reset, toolbar preview/copy/download/counts, deliberate shared snapshots, viewer isolation, coordinated shared/personal refresh and conflict-reload recovery, and bilingual local persistence');
+  console.log('PASS assembly UI: actual StrictMode editor, private autosave, follow-until-edited generation, reviewer-all isolation, deliberate blank/reload, explicit reset, toolbar preview/copy/download/counts, initial-read export guards with save-failure recovery, deliberate shared snapshots, viewer isolation, coordinated shared/personal refresh and conflict-reload recovery, and bilingual local persistence');
 } finally {
   if (root) await act(async () => root.unmount()); await server.close(); await rm(cacheDir, { recursive: true, force: true });
   URL.createObjectURL = createURL; URL.revokeObjectURL = revokeURL; dom.window.close();

@@ -11,6 +11,11 @@ try {
   const document = (source = null, revision = 0, extra = {}) => ({ user_id: 'account_a', paper_id: 'paper_a', scope: 'all', source, revision, updated_at: revision ? '2030-01-01T00:00:00Z' : null, ...extra });
   const create = options => { const store = createAssemblyDraft({ owner: 'account_a', paperId: 'paper_a', scope: 'all', cloud: true, storage: memory(), debounceMs: 60000, ...options }); stores.push(store); return store; };
   assert.equal(assemblyScope('reviewer_a'), 'reviewer-reviewer_a');
+  const unavailableLocal = create({ cloud: false, storage: undefined }); await unavailableLocal.load(); assert.equal(unavailableLocal.getSnapshot().ready, true); assert.equal(unavailableLocal.getSnapshot().recoveryError, true, 'No-storage memory fallback retains its explicit warning');
+  const unreadableLocal = create({ cloud: false, storage: { getItem() { throw Error('Storage access denied'); }, setItem() { throw Error('Must not write unreadable storage'); }, removeItem() {} } });
+  await unreadableLocal.load(); assert.equal(unreadableLocal.getSnapshot().ready, false); assert.equal(unreadableLocal.getSnapshot().blocked, true);
+  const cloudWithoutRecovery = create({ storage: undefined, request: async () => document('Known server source', 1) }); await cloudWithoutRecovery.load();
+  assert.equal(cloudWithoutRecovery.getSnapshot().ready, true); assert.equal(cloudWithoutRecovery.getSnapshot().source, 'Known server source');
   assert.throws(() => readAssemblyDocument(document(null, 0, { user_id: 'account_b' }), 'account_a', 'paper_a', 'all'));
   assert.throws(() => readAssemblyDocument(document(null, 0, { scope: 'reviewer-all' }), 'account_a', 'paper_a', 'all'));
 
@@ -25,7 +30,7 @@ try {
   localReload.update(''); const blank = create({ cloud: false, storage: localStorage }); await blank.load(); assert.equal(blank.getSnapshot().source, '', 'An intentional blank is not replaced by assembly on reload');
   blank.update(null); const reset = create({ cloud: false, storage: localStorage }); await reset.load(); assert.equal(reset.getSnapshot().source, null);
   const corruptStorage = memory(); corruptStorage.setItem([...localStorage.values.keys()][0], '{bad json');
-  const corrupt = create({ cloud: false, storage: corruptStorage }); await corrupt.load(); assert.equal(corrupt.getSnapshot().blocked, true); assert.equal(corrupt.update('Do not replace the unreadable draft'), false); assert.equal([...corruptStorage.values.values()][0], '{bad json');
+  const corrupt = create({ cloud: false, storage: corruptStorage }); await corrupt.load(); assert.equal(corrupt.getSnapshot().blocked, true); assert.equal(corrupt.getSnapshot().ready, false); assert.equal(corrupt.update('Do not replace the unreadable draft'), false); assert.equal([...corruptStorage.values.values()][0], '{bad json');
 
   const first = deferred(), calls = [];
   const serial = create({ request: async (_path, body) => { if (!body) return document(); calls.push(structuredClone(body)); return calls.length === 1 ? first.promise : document(body.source, body.expected_revision + 1); } });

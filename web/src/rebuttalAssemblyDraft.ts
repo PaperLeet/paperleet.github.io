@@ -82,7 +82,7 @@ export function createAssemblyDraft(options: { owner: string; paperId: string; s
       saved = document.source;
       emit({ source: saved, revision: document.revision, ready: true, dirty: false, status: 'saved', error: '', blocked: false });
       if (discard) persist(); else {
-        try { recover(); } catch (error) { emit({ status: 'error', error: problem(error), blocked: true, recoveryError: true }); return false; }
+        try { recover(); } catch (error) { emit({ status: 'error', error: problem(error), ready: cloud, blocked: true, recoveryError: true }); return false; }
       }
       return true;
     } catch (error) {
