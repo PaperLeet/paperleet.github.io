@@ -69,8 +69,17 @@ try {
   assert.equal(button('Save and use').disabled,false,'A key and valid model can be saved without a paid test request');
   assert.equal(calls.filter(item=>item.path.endsWith('/test')).length,0); await click('Save and use');
   assert.equal(revision,1); assert.equal(active,'gemini'); assert.equal(changed,1); assert.equal(field('API key').value,''); assert.match(document.body.textContent,/Key saved/);
-  await click('Test connection'); assert(!('api_key' in calls.at(-1).body),'Blank input uses the saved server key');
+  const connection = deferred();
+  context.request = async (path,body) => { const value=await defaultRequest(path,body); if(path.endsWith('/test')) await connection.promise; return value; };
+  await click('Test connection');
+  assert.match(document.querySelector('.ai-settings-actions + [role="status"]').textContent,/Testing connection/,'Pending feedback stays beside the action buttons');
+  assert.equal(button('Testing…').disabled,true);
+  await act(async()=>connection.resolve()); context.request=defaultRequest;
+  assert(!('api_key' in calls.at(-1).body),'Blank input uses the saved server key');
   assert.equal(revision,1,'The optional test must not persist settings'); assert.match(document.body.textContent,/Connection successful/);
+  assert.match(document.querySelector('.ai-settings-actions + .ai-settings-success').textContent,/Connection successful · test-model/,'Success stays visible beside the action buttons and identifies the tested model');
+  await act(async()=>window.dispatchEvent(new window.PageTransitionEvent('pagehide',{persisted:true})));
+  assert.equal(document.querySelector('.ai-settings-feedback'),null,'A cached page must not retain the result of a cleared key');
   await input('API key',secret); await select('AI provider','anthropic'); assert.equal(field('API key').value,''); assert.equal(field('Model ID').value,''); assert.match(field('AI provider').textContent,/Claude/);
   await input('API key',secret); await input('Model ID','manual-model'); await click('Test connection'); await click('Save and use');
   assert.equal(active,'anthropic'); assert.equal(saved.anthropic,'manual-model'); assert.equal(saved.gemini,'test-model');
@@ -97,6 +106,19 @@ try {
   context.request=defaultRequest; await click('Reload settings'); assert.equal(field('AI provider').value,'deepseek'); assert.equal(field('Model ID').value,'deepseek-model'); assert.equal(field('API key').value,'');
   await input('API key',secret);
   context.request=async()=>{throw problem(400,'provider_auth_failed',secret);}; await click('Test connection'); assert.match(document.body.textContent,/key was rejected/); assert(!document.body.textContent.includes(secret));
+  assert.match(document.querySelector('.ai-settings-actions + [role="alert"]').textContent,/Connection failed:/,'Failures are visible beside the test button');
+  await input('API key',secret+'-changed'); assert.equal(document.querySelector('.ai-settings-feedback'),null,'Changing credentials clears the prior result');
+  context.request=async()=>{throw problem(504,'provider_timeout',secret);}; await click('Test connection');
+  assert.match(document.querySelector('[role="alert"]').textContent,/Connection failed: The connection timed out/); assert(!document.body.textContent.includes(secret));
+  context.request=async()=>{throw problem(429,'provider_rate_limited',secret);}; await click('Test connection');
+  assert.match(document.querySelector('[role="alert"]').textContent,/provider quota or rate limit/); assert(!document.body.textContent.includes(secret));
+  const lateTest=deferred(); let cachedSignal;
+  context.request=(path,body,signal)=>{if(path.endsWith('/test')) {cachedSignal=signal;return lateTest.promise;} return defaultRequest(path,body);};
+  await click('Test connection'); await act(async()=>window.dispatchEvent(new window.PageTransitionEvent('pagehide',{persisted:true})));
+  assert(cachedSignal.aborted); assert.equal(document.querySelector('.ai-settings-feedback'),null);
+  await act(async()=>lateTest.resolve({user_id:context.account.user.id,ok:true,provider:'deepseek',model:'deepseek-model',region:null}));
+  assert.equal(document.querySelector('.ai-settings-feedback'),null,'A late test response cannot restore cleared success');
+  context.request=defaultRequest; await click('Reload settings'); await input('API key',secret);
 
   // Account changes abort old in-flight requests and retire the previous password input.
   const response=deferred(); let oldSignal;
@@ -106,6 +128,10 @@ try {
   assert(oldSignal.aborted); assert.equal(field('API key').value,''); assert.equal(retiredPassword.value,'','The retired input clears its unsaved secret'); assert(!retiredPassword.outerHTML.includes(secret),'Retired input markup must not retain the secret');
   await act(async()=>response.resolve({user_id:oldOwner,models:[{id:'old-account-model',name:'Old account model'}]}));
   assert(!document.body.textContent.includes('Old account model'));
+
+  context.request=defaultRequest; context.locale='zh'; await render();
+  await input('API key',secret); await input('模型 ID','zh-model'); await click('测试连接');
+  assert.match(document.querySelector('.ai-settings-actions + [role="status"]').textContent,/连接成功 · zh-model/);
 
   // Unavailable encryption still permits explicit deletion; no browser persistence.
   available=false;saved={openai:'saved-model'};active='openai';revision=3;

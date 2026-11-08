@@ -17,6 +17,12 @@
 .ai-settings p { margin: 0; }
 .ai-settings-privacy, .ai-settings-state { color: var(--muted); }
 .ai-settings-error { color: var(--rst-danger,#b42318); }
+.ai-settings-feedback { display: flex; align-items: center; gap: 8px; font-weight: 600; overflow-wrap: anywhere; }
+.ai-settings-feedback svg { flex: 0 0 auto; }
+.ai-settings-success { color: var(--green,#15803d); }
+.ai-settings-spinner { animation: ai-settings-spin 1s linear infinite; }
+@keyframes ai-settings-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .ai-settings-spinner { animation: none; } }
 .ai-settings-overlay { position: fixed; inset: 0; z-index: 130; display: flex; justify-content: center; align-items: center; padding: 16px; background: #0006; }
 .ai-settings-dialog { width: min(560px,100%); max-height: calc(100dvh - 32px); overflow-y: auto; padding: 22px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); }
 .ai-settings-close { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; color: var(--muted); }
