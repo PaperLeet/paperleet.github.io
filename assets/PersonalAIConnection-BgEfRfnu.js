@@ -1,0 +1,6 @@
+import{d as s,u as l,A as t,ar as c}from"./index-CiHFXh5j.js";import{j as n}from"./index-CO9dNzeH.js";import{p as u}from"./ai-settings-4N6RDrlt.js";/**
+ * @license lucide-react v0.468.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const p=s("MessageSquare",[["path",{d:"M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z",key:"1lielz"}]]);function f({state:o,onSettings:r,onRefresh:a,submission:i=!1}){const{t:e}=l();return n.jsxs("div",{className:"personal-ai-connection",children:[n.jsx("span",{role:"status",children:o.loading?e("正在读取 AI 配置…","Loading AI configuration…"):o.configured?`AI · ${u(o.provider)} · ${o.model}`:o.error?e("无法读取 AI 配置","Could not load AI configuration"):o.available===!1?e("个人 AI 暂不可用","Personal AI is unavailable"):i?e("提交前请先配置个人 API key","Connect your API key before submitting"):e("使用 AI 前请先配置个人 API key","Connect your API key to use AI")}),n.jsxs("div",{children:[o.error&&a&&n.jsx("button",{type:"button",onClick:a,children:e("重试","Retry")}),r?n.jsx("button",{type:"button",onClick:r,children:e("设置 API","Set API")}):n.jsx(t,{href:c,children:e("设置 API","Set API")})]})]})}export{p as M,f as P};
