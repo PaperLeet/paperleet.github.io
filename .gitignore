@@ -22,3 +22,4 @@ deploy/backups/
 *.sqlite3-*
 *.db
 *.db-*
+web/public/vendor/mathjax-3.2.2/

@@ -1,6 +1,4 @@
-import { unified } from "unified";
-import remarkParse from "remark-parse";
-import remarkMath from "remark-math";
+import { Lexer } from "marked";
 
 export type RebuttalFormat = "bold" | "italic" | "h1" | "h2" | "color" | "small" | "normal" | "large" | "quote" | "hr" | "boxed" | "code" | "table" | "list" | "ordered" | "link" | "math";
 export type RebuttalEdit = { value: string; start: number; end: number };
@@ -14,76 +12,58 @@ export const REBUTTAL_COLORS = [
 const MAX_LENGTH = 200_000;
 const slash = "\\";
 
-/** Markdown is parsed before MathJax on OpenReview. Only math source is escaped. */
-export function openReviewMath(tex: string): string { return tex.replace(/\\/g, "\\\\"); }
-
-/** Legacy drafts contain ordinary TeX; newly generated source escapes commands for Markdown. */
-function isOpenReviewEscapedMath(tex: string): boolean {
-  const runs = [...tex.matchAll(/(\\+)([a-zA-Z]+)/g)];
-  const hasSingleCommand = runs.some(match => match[1].length % 2 === 1);
-  return !hasSingleCommand && (runs.some(match => match[1].length === 2 && (match[2].length > 1 || /^[NPRSZ]$/.test(match[2]))) || /\\{4}|\\\\[^a-zA-Z\\\r\n]/.test(tex));
-}
-export function previewRebuttalMath(tex: string): string {
-  const decoded = isOpenReviewEscapedMath(tex) ? tex.replace(/\\\\/g, "\\") : tex;
-  // MathJax's safe extension caps the largest font commands at 1.44em.
-  return decoded.replace(/\\(?:LARGE|huge|Huge)\b/g, "\\Large");
-}
-
-type MathNode = { type?: string; value?: string; children?: MathNode[]; data?: { hChildren?: MathNode[] }; position?: { start: { offset?: number }; end: { offset?: number } } };
-const mathParser = unified().use(remarkParse).use(remarkMath);
-
-/** Submission boundary: preserve every byte outside legacy math nodes, including fenced/inline code.
- * Canonical source has only even backslash runs. Pure line breaks without TeX commands are
- * ambiguous, so all-even math is preserved rather than risking a second escaping pass.
+/** Encode newly inserted raw TeX for Markdown. Alphabetic commands need one slash;
+ * control symbols and row breaks need escaping before marked consumes the source.
+ * Existing Markdown is never passed through this encoder when copying or exporting.
  */
-export function toOpenReviewMarkdown(source: string): string {
-  const edits: { start: number; end: number; text: string }[] = [];
-  const visit = (node: MathNode) => {
-    if ((node.type === "math" || node.type === "inlineMath") && typeof node.value === "string" && [...node.value.matchAll(/\\+/g)].some(match => match[0].length % 2 === 1)) {
-      const start = node.position?.start.offset, end = node.position?.end.offset;
-      if (typeof start === "number" && typeof end === "number") {
-        const original = source.slice(start, end), text = openReviewMath(original);
-        if (text !== original) edits.push({ start, end, text });
-      }
+export function openReviewMath(tex: string): string {
+  let source = "";
+  for (let index = 0; index < tex.length; index++) {
+    const character = tex[index], next = tex[index + 1] || "";
+    if (character === slash) {
+      if (next === slash) { source += slash.repeat(4); index++; }
+      else source += /[a-zA-Z]/.test(next) ? slash : slash.repeat(2);
+    } else {
+      // Prevent Markdown emphasis, HTML/entities, links and table separators in generated math.
+      source += /[*_`~<>&[\]|]/.test(character) ? slash + character : character;
     }
-    node.children?.forEach(visit);
-  };
-  visit(mathParser.parse(source) as MathNode);
-  return edits.sort((a, b) => b.start - a.start).reduce((text, edit) => text.slice(0, edit.start) + edit.text + text.slice(edit.end), source);
+  }
+  return source;
 }
 
-/** Run after remark-math. AST traversal never rewrites code, links or ordinary prose. */
-export function remarkRebuttalMath() {
-  return (tree: MathNode) => {
-    const visit = (node: MathNode) => {
-      if ((node.type === "math" || node.type === "inlineMath") && typeof node.value === "string") {
-        const original = node.value;
-        node.value = previewRebuttalMath(original);
-        // remark-math also stores the generated code text in hast metadata.
-        const updateGenerated = (child: MathNode) => {
-          if (child.type === "text" && child.value === original) child.value = node.value;
-          child.children?.forEach(updateGenerated);
-        };
-        node.data?.hChildren?.forEach(updateGenerated);
-      }
-      node.children?.forEach(visit);
-    };
-    visit(tree);
-  };
+/** Preview, clipboard, download and saved versions all use the same source bytes. */
+export function toOpenReviewMarkdown(source: string): string { return source; }
+
+/** Read only text and escape tokens from an existing toolbar expression. The real
+ * marked lexer handles both older doubled commands and new single-slash commands;
+ * formatted Markdown is not guessed to be raw TeX or silently repaired.
+ */
+function readMarkdownText(source: string): string | undefined {
+  const tokens = Lexer.lexInline(source, { gfm: true, breaks: false });
+  if (tokens.some(token => token.type !== "text" && token.type !== "escape")) return;
+  return tokens.map(token => token.type === "escape" ? token.raw.slice(1) : token.raw).join("");
 }
 
 const textEscapes: Record<string, string> = {
-  "\\": "\\textbackslash{}", "{": "\\{", "}": "\\}", "$": "\\textdollar{}", "%": "\\%", "#": "\\#", "&": "\\&", "_": "\\_", "^": "\\textasciicircum{}", "~": "\\textasciitilde{}",
+  "\\": "\\\\", "{": "\\{", "}": "\\}", "$": "\\$", "%": "\\%", "#": "\\#", "&": "\\&", "_": "\\_", "^": "\\unicode{94}", "~": "\\unicode{126}",
 };
+// MathJax's text parser accepts quoted symbols and unicode, whereas the
+// textcomp macros used by the older KaTeX preview are math-mode commands.
+const textUnescapes: Record<string, string> = {
+  ...Object.fromEntries(Object.entries(textEscapes).map(([text, tex]) => [tex, text])),
+  "\\textbackslash{}": "\\", "\\textdollar{}": "$", "\\textasciicircum{}": "^", "\\textasciitilde{}": "~",
+};
+const textEscapePattern = new RegExp(Object.keys(textUnescapes).sort((a, b) => b.length - a.length)
+  .map(token => token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|"), "g");
 function escapeText(text: string): string { return text.replace(/[\\{}$%#&_^~]/g, character => textEscapes[character]); }
 function unescapeText(text: string): string {
-  return text.replace(/\\(?:textbackslash\{\}|textdollar\{\}|textasciicircum\{\}|textasciitilde\{\}|[{}%#&_])/g, token => Object.keys(textEscapes).find(character => textEscapes[character] === token) || token);
+  return text.replace(textEscapePattern, token => textUnescapes[token]);
 }
 type TextStyle = { text: string; color?: string; size?: "small" | "large"; boxed?: boolean };
 function readTextStyle(text: string): TextStyle {
   if (text.startsWith("$") && text.endsWith("$")) {
-    const body = previewRebuttalMath(text.slice(1, -1));
-    if (body.startsWith("{") && body.endsWith("}")) {
+    const body = readMarkdownText(text.slice(1, -1));
+    if (body?.startsWith("{") && body.endsWith("}")) {
       let content = body.slice(1, -1);
       const color = /^\\color\{(#[a-fA-F0-9]{6})\}/.exec(content);
       if (color) content = content.slice(color[0].length);
@@ -187,12 +167,13 @@ export function formatRebuttal(value: string, format: RebuttalFormat, from: numb
     return replace(`${prefix}https://)`, prefix.length, prefix.length + 8);
   }
   if (format === "math") {
+    // The Math action wraps selected raw TeX. Pasted Markdown is already source
+    // and must be previewed/copied as-is instead of decoded by a heuristic.
     const tex = selected || "E = mc^2";
     if (/[\r\n]/.test(tex)) {
-      const normalized = previewRebuttalMath(tex);
-      return block(`$$${eol}${openReviewMath(normalized)}${eol}$$`);
+      return block(`$$${eol}${openReviewMath(tex)}${eol}$$`);
     }
-    const text = openReviewMath(previewRebuttalMath(tex));
+    const text = openReviewMath(tex);
     return replace(`$${text}$`, 1, 1 + text.length);
   }
   return { value, start, end };

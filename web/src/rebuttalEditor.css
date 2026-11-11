@@ -51,10 +51,7 @@
 .rst-markdown.rbe-preview table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; margin: 0 0 8px; }
 .rst-markdown.rbe-preview :is(th, td) { padding: 4px; text-align: left; vertical-align: top; border: 0; border-top: 1px solid var(--line, #ddd); }
 .rst-markdown.rbe-preview th { border-top: 0; border-bottom: 2px solid var(--line, #ddd); }
-.rst-markdown.rbe-preview .katex-display { margin: 8px 0; overflow-x: auto; overflow-y: hidden; padding: 2px 0; }
-.rst-markdown.rbe-preview .katex-display > .katex { text-align: left; }
-.rst-markdown.rbe-preview .katex { white-space: normal; }
-.rst-markdown.rbe-preview .katex-html { white-space: nowrap; }
+.rst-markdown.rbe-preview mjx-container[display="true"] { overflow-x: auto; overflow-y: hidden; padding: 2px 0; }
 @media (max-width: 600px) {
   .rbe-toolbar { gap: 7px 0; }
   .rbe-toolbar button { width: 32px; height: 34px; }
